@@ -205,7 +205,7 @@ julia> @chain start_query_meta(db, :df_mem) begin
 
 const docstring_summarize =
 """
-@summarize(sql_query, exprs...)
+       @summarize(sql_query, exprs...)
 
 Aggregate and summarize specified columns of a SQL table.
 
@@ -257,6 +257,61 @@ julia> @chain start_query_meta(db, :df_mem) begin
    2 │ bb          2.5      5
 ```
 """
+const docstring_summarise =
+"""
+       @summarise(sql_query, exprs...)
+
+Aggregate and summarize specified columns of a SQL table.
+
+# Arguments
+- `sql_query`: The SQL query to operate on.
+- `exprs`: Expressions defining the aggregation and summarization operations. These can specify simple aggregations like mean, sum, and count, or more complex expressions involving existing column values.
+# Examples
+```jldoctest
+julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                        value = repeat(1:5, 2), 
+                        percent = 0.1:0.1:1.0);
+
+julia> db = DB();
+
+julia> load!(df, db, "df_mem");
+
+julia> @chain start_query_meta(db, :df_mem) begin
+       @group_by(groups)
+       @summarise(across((ends_with("e"), starts_with("p")), (mean, sum)))
+       @show_query
+       end
+SELECT groups, AVG(value) AS mean_value, AVG(percent) AS mean_percent, SUM(value) AS sum_value, SUM(percent) AS sum_percent
+        FROM df_mem
+        GROUP BY groups
+
+julia> @chain start_query_meta(db, :df_mem) begin
+       @group_by(groups)
+       @summarise(across((ends_with("e"), starts_with("p")), (mean, sum)))
+       @collect
+       end
+2×5 DataFrame
+ Row │ groups  mean_value  mean_percent  sum_value  sum_percent 
+     │ String  Float64     Float64       Int64      Float64     
+─────┼──────────────────────────────────────────────────────────
+   1 │ aa             3.0           0.6         15          3.0
+   2 │ bb             3.0           0.5         15          2.5
+
+julia> @chain start_query_meta(db, :df_mem) begin
+       @group_by(groups)
+       @summarise(test = sum(percent), n =n())
+       @collect
+       end
+2×3 DataFrame
+ Row │ groups  test     n     
+     │ String  Float64  Int64 
+─────┼────────────────────────
+   1 │ aa          3.0      5
+   2 │ bb          2.5      5
+```
+"""
+
 const docstring_slice_min =
 """
     @slice_min(sql_query, column, n = 1)

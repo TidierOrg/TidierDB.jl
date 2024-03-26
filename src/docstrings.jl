@@ -253,7 +253,7 @@ julia> load!(df, db, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
-       @summarise(across((value:percent)), (mean, sum)))
+       @summarise(across((value:percent), (mean, sum)))
        @collect
        end
 2×5 DataFrame

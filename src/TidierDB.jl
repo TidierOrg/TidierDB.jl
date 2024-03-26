@@ -14,7 +14,7 @@ using DuckDB
 
 
  export start_query_meta, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
- @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @show_query, @collect, @slice_max, 
+ @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
  @slice_min, @slice_sample
 
 include("docstrings.jl")

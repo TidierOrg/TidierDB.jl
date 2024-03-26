@@ -156,7 +156,8 @@ function finalize_query(sqlquery::SQLQuery)
     complete_query = join(filter(!isempty, query_parts), " ")
     complete_query = replace(complete_query, "&&" => " AND ", "||" => " OR ",
      "FROM )" => ")" ,  "SELECT SELECT " => "SELECT ", "SELECT  SELECT " => "SELECT ", "DISTINCT SELECT " => "DISTINCT ", 
-     "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", )
+     "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING",
+     "  " => " " )
 
     if current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")

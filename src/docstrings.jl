@@ -147,8 +147,8 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @show_query
        end
 SELECT groups
-        FROM df_mem
-        GROUP BY groups
+      FROM df_mem
+      GROUP BY groups
 ```
 """
 
@@ -476,7 +476,8 @@ SELECT *
 julia> @chain start_query_meta(db, :df_mem) begin
        @arrange(value, desc(percent))
        @collect
-       end10×4 DataFrame
+       end
+10×4 DataFrame
  Row │ id      groups  value  percent 
      │ String  String  Int64  Float64 
 ─────┼────────────────────────────────
@@ -789,7 +790,7 @@ julia> load!(df, db, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
       # @window_frame(-6, -3)
-      @group_by(groups)
+       @group_by(groups)
        @window_frame(6, 9)
        @window_order(groups)
        @mutate(cumulative = cumsum(percent))

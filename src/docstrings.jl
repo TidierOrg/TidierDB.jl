@@ -136,8 +136,8 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
        @show_query
        end
-SELECT groups
-      FROM df_mem
+SELECT groups 
+      FROM df_mem 
       GROUP BY groups
 ```
 """
@@ -167,9 +167,9 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @show_query
        end
 WITH cte_2 AS (
-SELECT id, groups, value * 4 AS value, percent, POWER(percent, 2) AS new_col
-       FROM df_mem)  
-SELECT *
+SELECT id, groups, value * 4 AS value, percent, POWER(percent, 2) AS new_col 
+       FROM df_mem) 
+SELECT * 
        FROM cte_2
 
 julia> @chain start_query_meta(db, :df_mem) begin
@@ -218,8 +218,8 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @summarise(across((ends_with("e"), starts_with("p")), (mean, sum)))
        @show_query
        end
-SELECT groups, AVG(value) AS mean_value, AVG(percent) AS mean_percent, SUM(value) AS sum_value, SUM(percent) AS sum_percent
-       FROM df_mem
+SELECT groups, AVG(value) AS mean_value, AVG(percent) AS mean_percent, SUM(value) AS sum_value, SUM(percent) AS sum_percent 
+       FROM df_mem 
        GROUP BY groups
 
 julia> @chain start_query_meta(db, :df_mem) begin
@@ -543,9 +543,9 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @show_query
        end
 WITH cte_1 AS (
-SELECT  DISTINCT groups, value, percent
-        FROM df_mem)  
-SELECT *
+SELECT  DISTINCT groups, value, percent 
+        FROM df_mem) 
+SELECT * 
         FROM cte_1
 ```
 """
@@ -637,14 +637,6 @@ julia> load!(df2, db, "df_join");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @right_join(:df_join, id2, id)
-       @show_query
-       end
-SELECT *
-        FROM df_mem
-        RIGHT JOIN df_join ON df_join.id2 = df_mem.id
-
-julia> @chain start_query_meta(db, :df_mem) begin
-       @right_join(:df_join, id2, id)
        @collect
        end
 7×7 DataFrame
@@ -693,14 +685,6 @@ julia> load!(df, db, "df_mem");
 
 julia> load!(df2, db, "df_join");
 
-julia> @chain start_query_meta(db, :df_mem) begin
-       @inner_join(:df_join, id2, id)
-       @show_query
-       end
-SELECT *
-        FROM df_mem
-        INNER JOIN df_join ON df_join.id2 = df_mem.id
-        
 julia> @chain start_query_meta(db, :df_mem) begin
        @inner_join(:df_join, id2, id)
        @collect

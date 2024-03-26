@@ -6,6 +6,7 @@ version = "1.0.0-DEV"
 [deps]
 Chain = "8be319e6-bccf-4806-a6f7-6fae938471bc"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 DuckDB = "d2f5444f-75bc-4fdf-ac35-56f514c445e1"
 LibPQ = "194296ae-ab2e-5f79-8cd4-7183a0a5a0d1"
 MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"

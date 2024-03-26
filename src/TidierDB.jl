@@ -26,8 +26,6 @@ include("joins_sq.jl")
 include("slices_sq.jl")
 
 
-
-
 current_sql_mode = Ref(:lite)
 
 # Function to switch modes

@@ -21,13 +21,6 @@ julia> db = DB();
 julia> load!(df, db, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
-       @select(id)
-       @show_query
-       end
-SELECT id
-        FROM df
-
-julia> @chain start_query_meta(db, :df_mem) begin
        @select(groups:percent)
        @collect
        end
@@ -108,16 +101,13 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
        @summarise(mean = mean(percent))
        @filter(groups == "bb", mean < .6)
-       @show_query
+       @collect
        end
-WITH cte_1 AS (
-SELECT groups, AVG(percent) AS mean
-        FROM df_mem
-        GROUP BY groups
-        HAVING groups == "bb")  
-SELECT *
-        FROM cte_1 
-        WHERE mean < 0.6
+1×2 DataFrame
+ Row │ groups  mean    
+     │ String  Float64 
+─────┼─────────────────
+   1 │ bb          0.5
 ```
 """
 
@@ -177,10 +167,10 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @show_query
        end
 WITH cte_2 AS (
-SELECT  id, groups, value * 4 AS value, percent, POWER(percent, 2) AS new_col
-        FROM df_mem)  
+SELECT id, groups, value * 4 AS value, percent, POWER(percent, 2) AS new_col
+       FROM df_mem)  
 SELECT *
-        FROM cte_2
+       FROM cte_2
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @mutate(value = value * 4, new_col = percent^2)
@@ -229,8 +219,8 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @show_query
        end
 SELECT groups, AVG(value) AS mean_value, AVG(percent) AS mean_percent, SUM(value) AS sum_value, SUM(percent) AS sum_percent
-        FROM df_mem
-        GROUP BY groups
+       FROM df_mem
+       GROUP BY groups
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
@@ -283,8 +273,8 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @show_query
        end
 SELECT groups, AVG(value) AS mean_value, AVG(percent) AS mean_percent, SUM(value) AS sum_value, SUM(percent) AS sum_percent
-        FROM df_mem
-        GROUP BY groups
+       FROM df_mem
+       GROUP BY groups
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
@@ -464,14 +454,13 @@ julia> db = DB();
 
 julia> load!(df, db, "df_mem");
 
-
 julia> @chain start_query_meta(db, :df_mem) begin
        @arrange(value, desc(percent))
        @show_query
        end
 SELECT *
-        FROM df_mem  
-        ORDER BY value ASC, percent DESC
+      FROM df_mem  
+      ORDER BY value ASC, percent DESC
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @arrange(value, desc(percent))
@@ -481,16 +470,16 @@ julia> @chain start_query_meta(db, :df_mem) begin
  Row │ id      groups  value  percent 
      │ String  String  Int64  Float64 
 ─────┼────────────────────────────────
-   1 │ AA      bb          1      0.1
-   2 │ AB      aa          2      0.2
-   3 │ AC      bb          3      0.3
-   4 │ AD      aa          4      0.4
-   5 │ AE      bb          5      0.5
-   6 │ AF      aa          1      0.6
-   7 │ AG      bb          2      0.7
-   8 │ AH      aa          3      0.8
-   9 │ AI      bb          4      0.9
-  10 │ AJ      aa          5      1.0
+   1 │ AF      aa          1      0.6
+   2 │ AA      bb          1      0.1
+   3 │ AG      bb          2      0.7
+   4 │ AB      aa          2      0.2
+   5 │ AH      aa          3      0.8
+   6 │ AC      bb          3      0.3
+   7 │ AI      bb          4      0.9
+   8 │ AD      aa          4      0.4
+   9 │ AJ      aa          5      1.0
+  10 │ AE      bb          5      0.5
 ```
 """
 
@@ -517,17 +506,8 @@ julia> load!(df, db, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @count(groups)
-       @show_query
-       end
-SELECT group, COUNT(*) AS count
-        FROM df_mem
-        GROUP BY groups
-
-julia> @chain start_query_meta(db, :df_mem) begin
-       @count(groups)
        @collect
        end
-
 2×2 DataFrame
  Row │ groups  count 
      │ String  Int64 

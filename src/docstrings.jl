@@ -134,11 +134,14 @@ julia> load!(df, db, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
-       @show_query
-       end
-SELECT groups 
-      FROM df_mem 
-      GROUP BY groups
+       @collect
+       end 
+2×1 DataFrame
+ Row │ groups 
+     │ String 
+─────┼────────
+   1 │ aa
+   2 │ bb
 ```
 """
 
@@ -161,16 +164,6 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = DB();
 
 julia> load!(df, db, "df_mem");
-
-julia> @chain start_query_meta(db, :df_mem) begin
-       @mutate(value = value * 4, new_col = percent^2)
-       @show_query
-       end
-WITH cte_2 AS (
-SELECT id, groups, value * 4 AS value, percent, POWER(percent, 2) AS new_col 
-       FROM df_mem) 
-SELECT * 
-       FROM cte_2
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @mutate(value = value * 4, new_col = percent^2)
@@ -212,15 +205,6 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = DB();
 
 julia> load!(df, db, "df_mem");
-
-julia> @chain start_query_meta(db, :df_mem) begin
-       @group_by(groups)
-       @summarise(across((ends_with("e"), starts_with("p")), (mean, sum)))
-       @show_query
-       end
-SELECT groups, AVG(value) AS mean_value, AVG(percent) AS mean_percent, SUM(value) AS sum_value, SUM(percent) AS sum_percent 
-       FROM df_mem 
-       GROUP BY groups
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
@@ -269,16 +253,7 @@ julia> load!(df, db, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
-       @summarise(across((ends_with("e"), starts_with("p")), (mean, sum)))
-       @show_query
-       end
-SELECT groups, AVG(value) AS mean_value, AVG(percent) AS mean_percent, SUM(value) AS sum_value, SUM(percent) AS sum_percent
-       FROM df_mem
-       GROUP BY groups
-
-julia> @chain start_query_meta(db, :df_mem) begin
-       @group_by(groups)
-       @summarise(across((ends_with("e"), starts_with("p")), (mean, sum)))
+       @summarise(across((value:percent)), (mean, sum)))
        @collect
        end
 2×5 DataFrame
@@ -290,7 +265,7 @@ julia> @chain start_query_meta(db, :df_mem) begin
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
-       @summarise(test = sum(percent), n =n())
+       @summarise(test = sum(percent), n = n())
        @collect
        end
 2×3 DataFrame
@@ -456,14 +431,6 @@ julia> load!(df, db, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @arrange(value, desc(percent))
-       @show_query
-       end
-SELECT *
-      FROM df_mem  
-      ORDER BY value ASC, percent DESC
-
-julia> @chain start_query_meta(db, :df_mem) begin
-       @arrange(value, desc(percent))
        @collect
        end
 10×4 DataFrame
@@ -521,7 +488,8 @@ const docstring_distinct =
 """
     @distinct(sql_query, columns...)
 
-Select distinct rows based on specified column(s).
+Select distinct rows based on specified column(s). Distinct works differently in TidierData vs SQL and
+therefore TidierDB. Distinct will also select only the only columns it is given (or all if given none)
 
 # Arguments
 `sql_query`: The SQL query to operate on.
@@ -539,14 +507,37 @@ julia> db = DB();
 julia> load!(df, db, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
-       @distinct !id
-       @show_query
+       @distinct value
+       @collect
        end
-WITH cte_1 AS (
-SELECT  DISTINCT groups, value, percent 
-        FROM df_mem) 
-SELECT * 
-        FROM cte_1
+5×1 DataFrame
+ Row │ value 
+     │ Int64 
+─────┼───────
+   1 │     1
+   2 │     2
+   3 │     3
+   4 │     4
+   5 │     5
+
+julia> @chain start_query_meta(db, :df_mem) begin
+       @distinct
+       @collect
+       end
+10×4 DataFrame
+ Row │ id      groups  value  percent 
+     │ String  String  Int64  Float64 
+─────┼────────────────────────────────
+   1 │ AA      bb          1      0.1
+   2 │ AB      aa          2      0.2
+   3 │ AC      bb          3      0.3
+   4 │ AD      aa          4      0.4
+   5 │ AE      bb          5      0.5
+   6 │ AF      aa          1      0.6
+   7 │ AG      bb          2      0.7
+   8 │ AH      aa          3      0.8
+   9 │ AI      bb          4      0.9
+  10 │ AJ      aa          5      1.0
 ```
 """
 
@@ -751,22 +742,6 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = DB();
 
 julia> load!(df, db, "df_mem");
-
-julia> @chain start_query_meta(db, :df_mem) begin
-      # @window_frame(-6, -3)
-       @group_by(groups)
-       @window_frame(6, 9)
-       @window_order(groups)
-       @mutate(cumulative = cumsum(percent))
-       #@collect
-       @show_query
-       end
-WITH cte_2 AS (
-SELECT  id, groups, value, percent, SUM(percent) OVER (
-        ORDER BY groups ROWS UNBOUNDED PRECEDING) AS cumulative
-        FROM df_mem)  
-SELECT *
-        FROM cte_2
 ```
 """
 
@@ -791,34 +766,6 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = DB();
 
 julia> load!(df, db, "df_mem");
-
-julia> @chain start_query_meta(db, :df_mem) begin
-       @window_frame(0, 3)
-       @window_order(groups)
-       @mutate(cumulative = cumsum(percent))
-       @show_query
-       end
-WITH cte_2 AS (
-SELECT  id, groups, value, percent, SUM(percent) OVER (
-        ORDER BY groups ROWS BETWEEN 0 FOLLOWING AND 3 FOLLOWING) AS cumulative
-        FROM df_mem)  
-SELECT *
-        FROM cte_2
-
-julia> @chain start_query_meta(db, :df_mem) begin
-       @group_by(groups)
-       @window_frame(-4, -1)
-       @window_order(groups)
-       @mutate(cumulative = cumsum(percent))
-       @show_query
-       end
-WITH cte_2 AS (
-SELECT  id, groups, value, percent, SUM(percent) OVER (PARTITION BY groups
-        ORDER BY groups ROWS BETWEEN 4 PRECEDING AND 1 PRECEDING) AS cumulative
-        FROM df_mem)  
-SELECT *
-        FROM cte_2
-        GROUP BY groups
 ```
 """
 

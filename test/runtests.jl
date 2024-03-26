@@ -1,6 +1,11 @@
+module TestTidierDB
+
 using TidierDB
 using Test
+using Documenter
 
-@testset "TidierDB.jl" begin
-    # Write your tests here.
+DocMeta.setdocmeta!(TidierDB, :DocTestSetup, :(using TidierDB); recursive=true)
+
+doctest(TidierDB)
+
 end

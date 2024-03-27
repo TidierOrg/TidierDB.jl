@@ -45,17 +45,18 @@ function expr_to_sql_postgres(expr, sq; from_summarize::Bool)
             end
         elseif @capture(x, cumsum(a_))
             if from_summarize
-                return :(SUM($a))
+                error("cumsum is only available through a windowed @mutate")
             else
-                window_clause = construct_window_clause(sq)
-                return  "SUM($(string(a))) $(window_clause)"
+               # sq.windowFrame = "ROWS UNBOUNDED PRECEDING "
+               window_clause = construct_window_clause(sq, from_cumsum = true)
+               return  "SUM($(string(a))) $(window_clause)"
             end
         #stats agg
         elseif @capture(x, std(a_))
             if from_summarize
                 return :(STDDEV_SAMP($a))
             else
-                window_clause = construct_window_clause(sq)
+                window_clause = construct_window_clause(sq, )
                 return  "STDDEV_SAMP($(string(a))) $(window_clause)"
             end
         elseif @capture(x, cor(a_, b_))

@@ -189,19 +189,13 @@ macro mutate(sqlquery, mutations...)
                 if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
                     col_name = string(expr.args[1])
                     col_expr = expr_to_sql(expr.args[2], sq)  # Ensure you have a function that can handle this conversion
-                    
-                    # Construct window_clause based on grouping and ordering
-                    partition_clause = !isempty(sq.groupBy) && !isempty(sq.windowFrame) ? "PARTITION BY $(sq.groupBy)" : ""
-                    order_clause = !isempty(sq.window_order) ? "ORDER BY $(sq.window_order)" : ""
-                    frame_clause = !isempty(sq.windowFrame) ? "$(sq.windowFrame)" : "ROWS UNBOUNDED PRECEDING"
-                    window_clause = !isempty(order_clause) || !isempty(partition_clause) ? " OVER ($partition_clause $order_clause $frame_clause)" : ""
 
                     if col_name in all_columns
                         # Replace the existing column expression with the mutation
-                        select_expressions[findfirst(==(col_name), select_expressions)] = string(col_expr, window_clause, " AS ", col_name)
+                        select_expressions[findfirst(==(col_name), select_expressions)] = string(col_expr, " AS ", col_name)
                     else
                         # Append the mutation as a new column expression
-                        push!(select_expressions, string(col_expr, window_clause, " AS ", col_name))
+                        push!(select_expressions, string(col_expr, " AS ", col_name))
                         # Update metadata to include this new column
                         push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1))
                     end

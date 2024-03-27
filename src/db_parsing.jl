@@ -144,8 +144,9 @@ function expr_to_sql_lite(expr, sq; from_summarize::Bool)
             end
         elseif @capture(x, cumsum(a_))
             if from_summarize
-                return :(SUM($a))
+                error("cumsum is only available through a windowed @mutate")
             else
+               # sq.windowFrame = "ROWS UNBOUNDED PRECEDING "
                 window_clause = construct_window_clause(sq)
                 return  "SUM($(string(a))) $(window_clause)"
             end
@@ -365,3 +366,25 @@ function parse_blocks(exprs...)
     end
     return exprs
   end
+
+  function construct_window_clause(sq::SQLQuery ; from_cumsum::Bool = false)
+    # Construct the partition clause, considering both groupBy and window_order
+    partition_clause = !isempty(sq.groupBy) ? "PARTITION BY $(sq.groupBy)" : ""
+    if !isempty(sq.window_order)
+        # If there's already a partition clause, append the order clause; otherwise, start with ORDER BY
+        order_clause = !isempty(partition_clause) ? " ORDER BY $(sq.window_order)" : "ORDER BY $(sq.window_order)"
+    else
+        order_clause = ""
+    end
+    if from_cumsum == true
+        frame_clause = "ROWS UNBOUNDED PRECEDING "
+    else 
+        frame_clause = !isempty(sq.windowFrame) ? sq.windowFrame : ""
+    end
+    # Combine partition, order, and frame clauses for the complete window function clause
+    # Ensure to include space only when needed to avoid syntax issues
+    partition_and_order_clause = partition_clause * (!isempty(order_clause) ? " " * order_clause : "")
+    window_clause = (!isempty(partition_clause) || !isempty(order_clause) || !isempty(frame_clause))  ? "OVER ($partition_and_order_clause $frame_clause)" : "OVER ()"
+
+    return window_clause
+end

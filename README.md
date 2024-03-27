@@ -13,7 +13,7 @@ Currently supported macros:
 - `@slice_min`, `@slice_max`, `@slice_sample`
 - `@show_query`
 - `@collect`
-- `@window_order` and `window_frame` are coming soon
+- `@window_order` and `window_frame`
 
 
 Supported helper functions include

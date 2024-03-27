@@ -147,7 +147,7 @@ function expr_to_sql_lite(expr, sq; from_summarize::Bool)
                 error("cumsum is only available through a windowed @mutate")
             else
                # sq.windowFrame = "ROWS UNBOUNDED PRECEDING "
-                window_clause = construct_window_clause(sq)
+                window_clause = construct_window_clause(sq, from_cumsum = true)
                 return  "SUM($(string(a))) $(window_clause)"
             end
     # exc_capture_bug used above to allow proper _ function name capturing

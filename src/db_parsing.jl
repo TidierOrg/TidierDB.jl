@@ -342,21 +342,36 @@ function parse_interpolation2(expr)
         end
     end
 end
-my_var = "gear"
-my_var = :gear
-my_val = 3.7
+#my_var = "gear"
+#my_var = :gear
+#my_val = 3.7
 #my_var = [:gear, :cyl]
-expr = :((!!my_var) * (!!my_val))
-parse_interpolation2(expr)
+#expr = :((!!my_var) * (!!my_val))
+#parse_interpolation2(expr)
 
-expr = :((!!my_val) * (!!my_var))
-parse_interpolation2(expr)
+#expr = :((!!my_val) * (!!my_var))
+#parse_interpolation2(expr)
 
 
 function construct_window_clause(sq::SQLQuery)
-    # This helper function constructs the window function clause based on groupBy and windowFrame settings
-    partition_clause = !isempty(sq.groupBy) ? "OVER (PARTITION BY $(sq.groupBy))" : "OVER ()"
-    return partition_clause
+    # Construct the partition clause, considering both groupBy and window_order
+    partition_clause = !isempty(sq.groupBy) ? "PARTITION BY $(sq.groupBy)" : ""
+    if !isempty(sq.window_order)
+        # If there's already a partition clause, append the order clause; otherwise, start with ORDER BY
+        order_clause = !isempty(partition_clause) ? ", ORDER BY $(sq.window_order)" : "ORDER BY $(sq.window_order)"
+    else
+        order_clause = ""
+    end
+
+    # Construct the frame clause based on windowFrame, defaulting to "ROWS UNBOUNDED PRECEDING" if not specified
+    frame_clause = !isempty(sq.windowFrame) ? sq.windowFrame : "ROWS UNBOUNDED PRECEDING"
+
+    # Combine partition, order, and frame clauses for the complete window function clause
+    # Ensure to include space only when needed to avoid syntax issues
+    partition_and_order_clause = partition_clause * (!isempty(order_clause) ? " " * order_clause : "")
+    window_clause = (!isempty(partition_clause) || !isempty(order_clause)) ? "OVER ($partition_and_order_clause $frame_clause)" : "OVER ()"
+
+    return window_clause
 end
 
 function parse_blocks(exprs...)

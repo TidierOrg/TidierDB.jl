@@ -723,9 +723,35 @@ SELECT id, groups, value, percent AS new_name
 SELECT *
         FROM cte_1
 """
+
+const docstring_copy_to =
+"""
+       copy_to(conn, df, "name")
+Allows user to copy a df to the database connection. Currently supports DuckDB, SQLite
+
+# Arguments
+-`conn`: the database connection
+-`df`: dataframe to be copied
+-`name`: name as string for the database to be used
+# Examples
+```jldoctest
+julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                        value = repeat(1:5, 2), 
+                        percent = 0.1:0.1:1.0);
+
+julia> db = DB();
+
+julia> copy_to(db, df, "test")
+"test"
+```
+"""
+
+
+
 const docstring_window_order =
 """
-@window_order(sql_query, columns...)
+       @window_order(sql_query, columns...)
 
 Specify the order of rows for window functions within a SQL query.
 

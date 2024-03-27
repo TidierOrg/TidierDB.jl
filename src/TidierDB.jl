@@ -16,7 +16,7 @@ using DuckDB
 
  export start_query_meta, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
  @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
- @slice_min, @slice_sample
+ @slice_min, @slice_sample, copy_to
 
 include("docstrings.jl")
 include("structs.jl")
@@ -184,7 +184,9 @@ function start_query_meta(db, table::Symbol)
     return SQLQuery(from=table_name, metadata=metadata, db=db)
 end
 
-
+"""
+$docstring_copy_to
+"""
 function copy_to(conn, df::DataFrame, name::String)
     if current_sql_mode[] == :duckdb
         DuckDB.register_data_frame(conn, df, name)

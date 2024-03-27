@@ -11,6 +11,7 @@ using DuckDB
 @reexport using DataFrames: DataFrame
 @reexport using Chain
 @reexport using SQLite: DB, load!
+@reexport using DuckDB: open, connect
 
 
  export start_query_meta, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 

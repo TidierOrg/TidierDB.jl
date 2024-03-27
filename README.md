@@ -1,6 +1,6 @@
 # TidierDB.jl
 
-This is a very young draft and currently supports 
+Currently supported macros:
 - `@arrange`
 - `@group_by` 
 - `@filter`
@@ -11,13 +11,15 @@ This is a very young draft and currently supports
 - `@left_join`, `@right_join`, `@inner_join` (slight syntax differences)
 - `@count`
 - `@slice_min`, `@slice_max`, `@slice_sample`
-- `@window_order`
 - `@show_query`
 - `@collect`
+- `@window_order` and `window_frame` are coming soon
+
 
 Supported helper functions include
 - `if_else` and `case_when` (case_when has slight syntax difference (`,` instead of `=>`))
 - `replace_missing` and `missing_if`
+- `is_missing`
 - `starts_with`, `ends_with`, `contains`
 - `as_integer`, `as_float`, `as_string`
 - `!` negation
@@ -26,7 +28,10 @@ Supported helper functions include
 Switch to Postgres using 
 `set_sql_mode(:postgres)`
 
-Postgres support includes
+Switch to DuckDB using 
+`set_sql_mode(:duckdb)`
+
+Postgres and Duck DB support includes
 - Postgres specific aggregate functions: `corr`, `cov`, `std`, `var`
 - From TidierStrings.jl `str_detect`, `str_replace`, `str_replace_all`, `str_remove_all`, `str_remove`
 - From TidierDates.jl `year`, `month`, `day`, `hour`, `min`, `second`, `floor_date`
@@ -38,7 +43,7 @@ Postgres support includes
 
 CTEs are used to capture sequential changes, rather than subqueries (this can always be changed)
 
-This links to [examples](https://github.com/drizk1/TidierDB.jl/blob/main/olympics_examples_fromweb.jl) which achieve the same result as the SQL queries.
+This links to [examples](https://github.com/drizk1/TidierDB.jl/blob/main/testing_files/olympics_examples_fromweb.jl) which achieve the same result as the SQL queries.
 
 Below, a few examples are illustrated, including examples with across and interpolation
 

@@ -45,8 +45,6 @@ Postgres and Duck DB support includes
 
 
  Tidy selection for columns is supported in `@select`, `@group_by` and `across` in `@summarize`.
- 
- Bang bang `!!` Interpolation for columns and values supported (with some edge cases to be fixed) in: `@select`, `@group_by`, `@filter`, `@summarize`, `@mutate`, `@count`, `@rename`. Other macros to join soon. 
 
 CTEs are used to capture sequential changes, rather than subqueries (this can always be changed)
 
@@ -166,47 +164,4 @@ SELECT mpg, vs, am, gear, carb, ID
    8 │    17.3      0      0      3        3  Merc 450SL
    9 │    15.2      0      0      3        3  Merc 450SLC
   10 │    15.0      0      1      5        8  Maserati Bora
-```
-Interpolation support
-```
-other_var = "Column1"
-my_var = :gear
-my_val = 3.7
-third_var= "mpg"
-@chain start_query_meta(db, :mtcars2) begin
-    @filter(!!other_var != starts_with("M"))
-    @group_by(cyl)
-    @summarize(mpg = mean(!!third_var))
-    @mutate(test = !!my_var * !!my_val,
-        sqaured = (!!my_var)^2, 
-               rounded = round(!!my_var), 
-               efficiency = case_when(
-                             mpg >= (!!my_var)^2 , 12,
-                             mpg < !!my_val , 14,
-                              44))            
-    @filter(efficiency>12)                       
-    @arrange(rounded)
-    @show_query
-    #@collect
-end
-```
-```
-WITH cte_1 AS (
-SELECT *
-        FROM mtcars2
-        WHERE NOT (Column1 LIKE 'M%')),
-cte_2 AS (
-SELECT cyl, AVG(mpg) AS mpg
-        FROM cte_1
-        GROUP BY cyl),
-cte_3 AS (
-SELECT  cyl, mpg, gear * 3.7 AS test, POWER(gear, 2) AS sqaured, ROUND(gear) AS rounded, CASE WHEN mpg >= POWER(gear, 2) THEN 12 WHEN mpg < 3.7 THEN 14 ELSE 44 END AS efficiency
-        FROM cte_2 ),
-cte_4 AS (
-SELECT *
-        FROM cte_3
-        WHERE efficiency > 12)  
-SELECT *
-        FROM cte_4  
-        ORDER BY rounded ASC
 ```

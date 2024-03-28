@@ -275,9 +275,10 @@ function parse_blocks(exprs...)
       return (MacroTools.rmlines(exprs[1]).args...,)
     end
     return exprs
-  end
+end
 
-  function construct_window_clause(sq::SQLQuery ; from_cumsum::Bool = false)
+
+function construct_window_clause(sq::SQLQuery ; from_cumsum::Bool = false)
     # Construct the partition clause, considering both groupBy and window_order
     partition_clause = !isempty(sq.groupBy) ? "PARTITION BY $(sq.groupBy)" : ""
     if !isempty(sq.window_order)

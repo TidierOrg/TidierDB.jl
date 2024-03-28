@@ -188,13 +188,36 @@ end
 """
 $docstring_copy_to
 """
-function copy_to(conn, df::DataFrame, name::String)
-    if current_sql_mode[] == :duckdb
-        DuckDB.register_data_frame(conn, df, name)
-    elseif current_sql_mode[] == :lite
-        SQLite.load!(df, conn, name)
+function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::String)
+    # Check if the input is a DataFrame
+    if isa(df_or_path, DataFrame)
+        if current_sql_mode[] == :duckdb
+            DuckDB.register_data_frame(conn, df_or_path, name)
+        elseif current_sql_mode[] == :lite
+            SQLite.load!(df_or_path, conn, name)
+        else
+            error("Unsupported SQL mode: $(current_sql_mode[])")
+        end
+    # If the input is not a DataFrame, treat it as a file path
+    elseif isa(df_or_path, AbstractString)
+        if current_sql_mode[] != :duckdb
+            error("Direct file loading is only supported for DuckDB in this implementation.")
+        end
+        # Determine the file type based on the extension
+        if occursin(r"\.csv$", df_or_path)
+            # Construct and execute a SQL command for loading a CSV file
+            sql_command = "CREATE TABLE $name AS SELECT * FROM read_csv_auto('$df_or_path');"
+            DuckDB.execute(conn, sql_command)
+        elseif occursin(r"\.parquet$", df_or_path)
+            # Construct and execute a SQL command for loading a Parquet file
+            sql_command = "CREATE TABLE $name AS SELECT * FROM read_parquet('$df_or_path');"
+            DuckDB.execute(conn, sql_command)
+        else
+            error("Unsupported file type for: $df_or_path")
+        end
     else
-        error("Unsupported SQL mode: $set_sql_mode")
+        error("Unsupported type for df_or_path: Must be DataFrame or file path string.")
     end
 end
+
 end

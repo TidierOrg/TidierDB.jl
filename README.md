@@ -31,6 +31,13 @@ Switch to Postgres using
 Switch to DuckDB using 
 `set_sql_mode(:duckdb)`
 
+DuckDB support enables: 
+- reading in .parquet or .csv files without converting to dataframe first.
+```
+path = "file_path.parquet"
+copy_to(conn, file_path, "table_name")
+```
+
 Postgres and Duck DB support includes
 - Postgres specific aggregate functions: `corr`, `cov`, `std`, `var`
 - From TidierStrings.jl `str_detect`, `str_replace`, `str_replace_all`, `str_remove_all`, `str_remove`

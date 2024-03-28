@@ -1,7 +1,9 @@
-function expr_to_sql_postgres(expr, sq; from_summarize::Bool)
+function expr_to_sql_lite(expr, sq; from_summarize::Bool)
     expr = parse_char_matching(expr)
     expr = exc_capture_bug(expr, names_to_modify)
+
     MacroTools.postwalk(expr) do x
+
         # Handle basic arithmetic and functions
         if @capture(x, a_ + b_)
             return :($a + $b)
@@ -50,74 +52,23 @@ function expr_to_sql_postgres(expr, sq; from_summarize::Bool)
                 error("cumsum is only available through a windowed @mutate")
             else
                # sq.windowFrame = "ROWS UNBOUNDED PRECEDING "
-               window_clause = construct_window_clause(sq, from_cumsum = true)
-               return  "SUM($(string(a))) $(window_clause)"
+                window_clause = construct_window_clause(sq, from_cumsum = true)
+                return  "SUM($(string(a))) $(window_clause)"
             end
-        #stats agg
-        elseif @capture(x, std(a_))
-            if from_summarize
-                return :(STDDEV_SAMP($a))
-            else
-                window_clause = construct_window_clause(sq, )
-                return  "STDDEV_SAMP($(string(a))) $(window_clause)"
-            end
-        elseif @capture(x, cor(a_, b_))
-            if from_summarize
-                return :(CORR($a))
-            else
-                window_clause = construct_window_clause(sq)
-                return  "CORR($(string(a))) $(window_clause)"
-            end
-        elseif @capture(x, cov(a_, b_))
-            if from_summarize
-                return :(COVAR_SAMP($a))
-            else
-                window_clause = construct_window_clause(sq)
-                return  "COVAR_SAMP($(string(a))) $(window_clause)"
-            end
-        elseif @capture(x, var(a_))
-            if from_summarize
-                return :(VAR_SAMP($a))
-            else
-                window_clause = construct_window_clause(sq)
-                return  "VAR_SAMP($(string(a))) $(window_clause)"
-            end
-        #stringr functions, have to use function that removes _ so capture can capture name
-        elseif @capture(x, strreplaceall(str_, pattern_, replace_))
-            return :(REGEXP_REPLACE($str, $pattern, $replace, 'g'))
-        elseif @capture(x, strreplace(str_, pattern_, replace_))
-            return :(REGEXP_REPLACE($str, $pattern, $replace))
-        elseif @capture(x, strremoveall(str_, pattern_))
-            return :(REGEXP_REPLACE($str, $pattern, "g"))
-        elseif @capture(x, strremove(str_, pattern_))
-            return :(REGEXP_REPLACE($str, $pattern, ""))
-        elseif @capture(x, ismissing(a_))
-            return  "($(string(a)) IS NULL)"
-        # Date extraction functions
-        elseif @capture(x, year(a_))
-            return "EXTRACT(YEAR FROM " * string(a) * ")"
-        elseif @capture(x, month(a_))
-            return "EXTRACT(MONTH FROM " * string(a) * ")"
-        elseif @capture(x, day(a_))
-            return "EXTRACT(DAY FROM " * string(a) * ")"
-        elseif @capture(x, hour(a_))
-            return "EXTRACT(HOUR FROM " * string(a) * ")"
-        elseif @capture(x, minute(a_))
-            return "EXTRACT(MINUTE FROM " * string(a) * ")"
-        elseif @capture(x, second(a_))
-            return "EXTRACT(SECOND FROM " * string(a) * ")"
-        elseif @capture(x, floordate(unit_, time_column_))
-            return :(DATE_TRUNC($unit, $time_column))
+    # exc_capture_bug used above to allow proper _ function name capturing
         elseif @capture(x, replacemissing(column_, replacement_value_))
             return :(COALESCE($column, $replacement_value))
         elseif @capture(x, missingif(column_, value_to_replace_))
-                return :(NULLIF($column, $value_to_replace))   
+                return :(NULLIF($column, $value_to_replace)) 
+        elseif @capture(x, ismissing(a_))
+                return  "($(string(a)) IS NULL)"
         elseif isa(x, Expr) && x.head == :call
             if x.args[1] == :if_else && length(x.args) == 4
                 return parse_if_else(x)
             elseif x.args[1] == :as_float && length(x.args) == 2
                 column = x.args[2]
-                return "CAST(" * string(column) * " AS DECIMAL)"
+                # Return the SQL CAST statement directly as a string
+                return "CAST(" * string(column) * " AS DOUBLE)"
             elseif x.args[1] == :as_integer && length(x.args) == 2
                 column = x.args[2]
                 return "CAST(" * string(column) * " AS INT)"
@@ -126,8 +77,8 @@ function expr_to_sql_postgres(expr, sq; from_summarize::Bool)
                 return "CAST(" * string(column) * " AS STRING)"
             elseif x.args[1] == :case_when
                 return parse_case_when(x)
-        elseif isa(x, Expr) && x.head == :call && x.args[1] == :!  && x.args[1] != :!= && length(x.args) == 2
-            inner_expr = expr_to_sql_postgres(x.args[2], sq)  # Recursively transform the inner expression
+        elseif isa(x, Expr) && x.head == :call && x.args[1] == :! && length(x.args) == 2
+            inner_expr = expr_to_sql_lite(x.args[2], sq)  # Recursively transform the inner expression
             return string("NOT (", inner_expr, ")")
         elseif x.args[1] == :str_detect && length(x.args) == 3
             column, pattern = x.args[2], x.args[3]

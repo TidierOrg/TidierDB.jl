@@ -23,6 +23,7 @@ include("structs.jl")
 include("db_parsing.jl")
 include("TBD_macros.jl")
 include("postgresparsing.jl")
+include("sqlite_parsing.jl")
 include("joins_sq.jl")
 include("slices_sq.jl")
 

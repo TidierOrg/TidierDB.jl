@@ -132,6 +132,30 @@ macro arrange(sqlquery, columns...)
     end
 end
 
+
+
+function process_mutate_expression(expr, sq, select_expressions)
+    if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
+        col_name = string(expr.args[1])
+        col_expr = expr_to_sql(expr.args[2], sq)  # Convert to SQL expression
+
+        # Determine whether the column already exists or needs to be added
+        if col_name in [col for col in sq.metadata[!, "name"]]
+            # Replace the existing column expression with the mutation
+            select_expr_index = findfirst(==(col_name), select_expressions)
+            select_expressions[select_expr_index] = string(col_expr, " AS ", col_name)
+        else
+            # Append the mutation as a new column expression
+            push!(select_expressions, string(col_expr, " AS ", col_name))
+            # Update metadata to include this new column
+            push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1))
+        end
+    else
+        throw("Unsupported expression format in @mutate: $(expr)")
+    end
+end
+
+
 """
 $docstring_mutate
 """
@@ -185,22 +209,17 @@ macro mutate(sqlquery, mutations...)
             all_columns = sq.metadata[sq.metadata.current_selxn .== 1, :name]
             select_expressions = [col for col in all_columns]  # Start with all currently selected columns
 
-            for expr in $(esc(mutations))
-                if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
-                    col_name = string(expr.args[1])
-                    col_expr = expr_to_sql(expr.args[2], sq)  # Ensure you have a function that can handle this conversion
-
-                    if col_name in all_columns
-                        # Replace the existing column expression with the mutation
-                        select_expressions[findfirst(==(col_name), select_expressions)] = string(col_expr, " AS ", col_name)
-                    else
-                        # Append the mutation as a new column expression
-                        push!(select_expressions, string(col_expr, " AS ", col_name))
-                        # Update metadata to include this new column
-                        push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1))
+            for expr in $mutations
+                # Transform 'across' expressions first
+                if isa(expr, Expr) && expr.head == :call && expr.args[1] == :across
+                    expr = parse_across(expr, $(esc(sqlquery)).metadata)  # Assume expr_to_sql can handle 'across' and returns a tuple of expressions
+                end
+                if isa(expr, Expr) && expr.head == :tuple
+                    for subexpr in expr.args
+                        process_mutate_expression(subexpr, sq, select_expressions)
                     end
                 else
-                    throw("Unsupported expression format in @mutate: $expr")
+                    process_mutate_expression(expr, sq, select_expressions)
                 end
             end
             cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
@@ -224,6 +243,9 @@ macro mutate(sqlquery, mutations...)
             sq.from = string(cte_name)
             
             sq.select = "*"  # This selects everything from the CTE without duplicating transformations
+            if !isempty(sq.groupBy)
+                println("@mutate removed grouping after applying mutations.")
+            end
             sq.groupBy =""
         else
             error("Expected sqlquery to be an instance of SQLQuery")

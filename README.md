@@ -44,7 +44,13 @@ Postgres and Duck DB support includes
 - From TidierDates.jl `year`, `month`, `day`, `hour`, `min`, `second`, `floor_date`
 
 
- Tidy selection for columns is supported in `@select`, `@group_by` and `across` in `@summarize`.
+Tidy selection for columns is supported in `@select`, `@group_by` and `across` in `@summarize`.
+
+Bang bang `!!` Interpolation for columns and values supported. Syntax varies slightly from TidierData.jl 
+```
+rather than defining it in the global context, the user must use add_interp_parameter! to add variables for !! access as shown below
+add_interp_parameter!(:my_var, [:gear, :wt])
+```
 
 CTEs are used to capture sequential changes, rather than subqueries (this can always be changed)
 
@@ -164,4 +170,24 @@ SELECT mpg, vs, am, gear, carb, ID
    8 │    17.3      0      0      3        3  Merc 450SL
    9 │    15.2      0      0      3        3  Merc 450SLC
   10 │    15.0      0      1      5        8  Maserati Bora
+```
+
+Interpolation
+```
+add_interp_parameter!(:my_var, [:gear, :wt])
+add_interp_parameter!(:other_var, "cyl")
+@chain start_query_meta(db, :mtcars2) begin
+       @group_by !!other_var
+       @summarise(across((!!my_var), (mean, sum, maximum))) 
+       @collect  
+end
+```
+```
+3×7 DataFrame
+ Row │ cyl     mean_gear  mean_wt   sum_gear  sum_wt    maximum_gear  maximum_wt 
+     │ Int32?  Float64?   Float64?  Int128?   Float64?  Int32?        Float64?   
+─────┼───────────────────────────────────────────────────────────────────────────
+   1 │      4    4.09091   2.28573        45    25.143             5       3.19
+   2 │      6    3.85714   3.11714        27    21.82              5       3.46
+   3 │      8    3.28571   3.99921        46    55.989             5       5.424
 ```

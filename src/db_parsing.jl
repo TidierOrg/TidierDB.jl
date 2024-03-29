@@ -231,7 +231,9 @@ end
 function parse_interpolation2(expr)
     MacroTools.postwalk(expr) do x
         if @capture(x, !!variable_Symbol)
-            variable_value = eval(variable)  # Evaluate to get the symbol or direct value
+            #variable_value = eval(variable)  # Evaluate to get the symbol or direct value
+            #to avoid use of eval, this is a temp fix to enable Interpolation
+            variable_value = haskey(GLOBAL_CONTEXT.variables, variable) ? GLOBAL_CONTEXT.variables[variable] : missing
             if isa(variable_value, AbstractVector) && all(isa(v, Symbol) for v in variable_value)
                 column_names = map(v -> string(v), variable_value)  # This line is the critical change
                 column_names = map(v -> isa(v, Symbol) ? string(v) : v, variable_value)

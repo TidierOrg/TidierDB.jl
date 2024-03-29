@@ -39,3 +39,16 @@ mutable struct SQLQuery
         new(select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, post_aggregation, metadata, distinct, db, ctes, cte_count)
     end
 end
+
+mutable struct InterpolationContext
+    variables::Dict{Symbol, Any}
+    InterpolationContext() = new(Dict{Symbol, Any}())
+end
+
+# Create a global instance of the context, hidden from the module's users.
+const GLOBAL_CONTEXT = InterpolationContext()
+
+function add_interp_parameter!(name::Symbol, value::Any)
+    GLOBAL_CONTEXT.variables[name] = value
+end
+

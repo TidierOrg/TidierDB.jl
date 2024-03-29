@@ -206,11 +206,11 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
         # Determine the file type based on the extension
         if occursin(r"\.csv$", df_or_path)
             # Construct and execute a SQL command for loading a CSV file
-            sql_command = "CREATE TABLE $name AS SELECT * FROM read_csv_auto('$df_or_path');"
+            sql_command = "CREATE TABLE $name AS SELECT * FROM '$df_or_path';"
             DuckDB.execute(conn, sql_command)
         elseif occursin(r"\.parquet$", df_or_path)
             # Construct and execute a SQL command for loading a Parquet file
-            sql_command = "CREATE TABLE $name AS SELECT * FROM read_parquet('$df_or_path');"
+            sql_command = "CREATE TABLE $name AS SELECT * FROM '$df_or_path';"
             DuckDB.execute(conn, sql_command)
         else
             error("Unsupported file type for: $df_or_path")

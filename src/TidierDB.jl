@@ -212,6 +212,12 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
             # Construct and execute a SQL command for loading a Parquet file
             sql_command = "CREATE TABLE $name AS SELECT * FROM '$df_or_path';"
             DuckDB.execute(conn, sql_command)
+        elseif occursin(r"\.json$", df_or_path)
+            # For Arrow files, read the file into a DataFrame and then insert
+            sql_command = "CREATE TABLE $name AS SELECT * FROM read_json('$df_or_path');"
+            DuckDB.execute(conn, "INSTALL json;")
+            DuckDB.execute(conn, "LOAD json;")
+            DuckDB.execute(conn, sql_command)
         else
             error("Unsupported file type for: $df_or_path")
         end

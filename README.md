@@ -32,7 +32,7 @@ Switch to DuckDB using
 `set_sql_mode(:duckdb)`
 
 DuckDB support enables: 
-- reading in .parquet or .csv files without converting to dataframe first.
+- directly reading in .parquet, .json, and .csv files paths.
 ```
 path = "file_path.parquet"
 copy_to(conn, file_path, "table_name")

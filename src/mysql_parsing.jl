@@ -127,7 +127,7 @@ function expr_to_sql_mysql(expr, sq; from_summarize::Bool)
             elseif x.args[1] == :case_when
                 return parse_case_when(x)
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :!  && x.args[1] != :!= && length(x.args) == 2
-            inner_expr = expr_to_sql_mysql(x.args[2], sq)  # Recursively transform the inner expression
+            inner_expr = expr_to_sql_mysql(x.args[2], sq, from_summarize = false)  # Recursively transform the inner expression
             return string("NOT (", inner_expr, ")")
         elseif x.args[1] == :str_detect && length(x.args) == 3
             column, pattern = x.args[2], x.args[3]

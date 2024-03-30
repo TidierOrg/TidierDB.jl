@@ -266,12 +266,6 @@ end
 #parse_interpolation2(expr)
 
 
-function construct_window_clause(sq::SQLQuery)
-    # This helper function constructs the window function clause based on groupBy and windowFrame settings
-    partition_clause = !isempty(sq.groupBy) ? "OVER (PARTITION BY $(sq.groupBy))" : "OVER ()"
-    return partition_clause
-end
-
 function parse_blocks(exprs...)
     if length(exprs) == 1 && hasproperty(exprs[1], :head) && exprs[1].head == :block
       return (MacroTools.rmlines(exprs[1]).args...,)

@@ -726,12 +726,12 @@ SELECT *
 
 const docstring_copy_to =
 """
-       copy_to(conn, df, "name")
+       copy_to(conn, df_or_path, "name")
 Allows user to copy a df to the database connection. Currently supports DuckDB, SQLite
 
 # Arguments
 -`conn`: the database connection
--`df`: dataframe to be copied
+-`df`: dataframe to be copied or path to serve as source. Path supports .csv, .json, .parquet to be used without copying intermediary df when using duckdb 
 -`name`: name as string for the database to be used
 # Examples
 ```jldoctest

@@ -182,11 +182,11 @@ function get_table_metadata(conn::MySQL.Connection, table_name::String)
     WHERE table_name = '$table_name'
     ORDER BY ordinal_position;
     """
-    
+
     result = DBInterface.execute(conn, query) |> DataFrame
+    result[!, :DATA_TYPE] = map(x -> String(x), result.DATA_TYPE)
     result[!, :current_selxn] .= 1
-    resize!(result.current_selxn, nrow(result))
-    return select(result, 1 => :name, 2 => :type, :current_selxn)
+    return select(result, :COLUMN_NAME => :name, :DATA_TYPE => :type, :current_selxn)
 end
 
 function start_query_meta(db, table::Symbol)
@@ -212,7 +212,7 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
         elseif current_sql_mode[] == :lite
             SQLite.load!(df_or_path, conn, name)
         elseif current_sql_mode[] == :mysql
-            SQLite.load!(df_or_path, conn, name)
+            MySQL.load(df_or_path, conn, name)
         else
             error("Unsupported SQL mode: $(current_sql_mode[])")
         end

@@ -124,7 +124,7 @@ function finalize_query(sqlquery::SQLQuery)
      "FROM )" => ")" ,  "SELECT SELECT " => "SELECT ", "SELECT  SELECT " => "SELECT ", "DISTINCT SELECT " => "DISTINCT ", 
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", )
 
-    if current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb
+    if current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end
 

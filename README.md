@@ -28,6 +28,9 @@ Supported helper functions include
 Switch to Postgres using 
 `set_sql_mode(:postgres)`
 
+Switch to MySQL using 
+`set_sql_mode(:mysql)`
+
 Switch to DuckDB using 
 `set_sql_mode(:duckdb)`
 

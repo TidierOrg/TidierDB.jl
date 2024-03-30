@@ -24,6 +24,7 @@ include("db_parsing.jl")
 include("TBD_macros.jl")
 include("postgresparsing.jl")
 include("sqlite_parsing.jl")
+include("mysql_parsing.jl")
 include("joins_sq.jl")
 include("slices_sq.jl")
 
@@ -40,13 +41,11 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
     if current_sql_mode[] == :lite
         return expr_to_sql_lite(expr, sq, from_summarize=from_summarize)
     elseif current_sql_mode[] == :postgres
-        # If similar logic is needed for Postgres, adjust accordingly.
-        # Make sure the expr_to_sql_postgres function also accepts from_summarize as a keyword argument.
         return expr_to_sql_postgres(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == :duckdb
-        # If similar logic is needed for DuckDB, adjust accordingly.
-        # Make sure the expr_to_sql_duckdb function also accepts from_summarize as a keyword argument.
         return expr_to_sql_postgres(expr, sq; from_summarize=from_summarize)
+    elseif current_sql_mode[] == :mysql
+        return expr_to_sql_mysql(expr, sq; from_summarize=from_summarize)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
@@ -160,7 +159,7 @@ function start_query_meta(db, table::Symbol)
     return SQLQuery(from=table_name, metadata=metadata, db=db)
 end
 
-#end
+# DuckDB
 function get_table_metadata(conn::DuckDB.Connection, table_name::String)
     query = """
     SELECT column_name, data_type
@@ -173,11 +172,27 @@ function get_table_metadata(conn::DuckDB.Connection, table_name::String)
     return select(result, 1 => :name, 2 => :type, :current_selxn)
 end
 
+# MySQL
+function get_table_metadata(conn::MySQL.Connection, table_name::String)
+    # Query to get column names and types from INFORMATION_SCHEMA
+    query = """
+    SELECT column_name, data_type
+    FROM information_schema.columns
+    WHERE table_name = '$table_name'
+    ORDER BY ordinal_position;
+    """
+    
+    result = DBInterface.execute(conn, query) |> DataFrame
+    result[!, :current_selxn] .= 1
+    resize!(result.current_selxn, nrow(result))
+    return select(result, 1 => :name, 2 => :type, :current_selxn)
+end
+
 function start_query_meta(db, table::Symbol)
     table_name = string(table)
     metadata = if current_sql_mode[] == :lite
         get_table_metadata(db, table_name)
-    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb
+    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql
         get_table_metadata(db, table_name)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
@@ -194,6 +209,8 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
         if current_sql_mode[] == :duckdb
             DuckDB.register_data_frame(conn, df_or_path, name)
         elseif current_sql_mode[] == :lite
+            SQLite.load!(df_or_path, conn, name)
+        elseif current_sql_mode[] == :mysql
             SQLite.load!(df_or_path, conn, name)
         else
             error("Unsupported SQL mode: $(current_sql_mode[])")

@@ -631,7 +631,7 @@ macro collect(sqlquery)
         final_query = finalize_query($(esc(sqlquery)))
 
         # Determine the type of db and execute the query accordingly
-        if db isa SQLite.DB || db isa LibPQ.Connection || db isa DuckDB.Connection
+        if db isa SQLite.DB || db isa LibPQ.Connection || db isa DuckDB.Connection || db isa MySQL.Connection
             result = DBInterface.execute(db, final_query)
         else
             error("Unsupported database type: $(typeof(db))")

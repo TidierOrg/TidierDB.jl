@@ -106,7 +106,7 @@ function expr_to_sql_postgres(expr, sq; from_summarize::Bool)
             return "EXTRACT(MINUTE FROM " * string(a) * ")"
         elseif @capture(x, second(a_))
             return "EXTRACT(SECOND FROM " * string(a) * ")"
-        elseif @capture(x, floordate(unit_, time_column_))
+        elseif @capture(x, floordate(time_column_, unit_))
             return :(DATE_TRUNC($unit, $time_column))
         elseif @capture(x, replacemissing(column_, replacement_value_))
             return :(COALESCE($column, $replacement_value))

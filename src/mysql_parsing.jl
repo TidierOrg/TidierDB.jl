@@ -106,8 +106,9 @@ function expr_to_sql_mysql(expr, sq; from_summarize::Bool)
             return "EXTRACT(MINUTE FROM " * string(a) * ")"
         elseif @capture(x, second(a_))
             return "EXTRACT(SECOND FROM " * string(a) * ")"
-        elseif @capture(x, floordate(unit_, time_column_))
-            return :(DATE_TRUNC($unit, $time_column))
+        elseif @capture(x, floordate(time_column_, unit_))
+            # Call floordate_to_sql with the captured variables
+            return floordate_to_sql(unit, time_column)
         elseif @capture(x, replacemissing(column_, replacement_value_))
             return :(COALESCE($column, $replacement_value))
         elseif @capture(x, missingif(column_, value_to_replace_))
@@ -120,7 +121,7 @@ function expr_to_sql_mysql(expr, sq; from_summarize::Bool)
                 return "CAST(" * string(column) * " AS DECIMAL)"
             elseif x.args[1] == :as_integer && length(x.args) == 2
                 column = x.args[2]
-                return "CAST(" * string(column) * " AS INT)"
+                return "CAST(" * string(column) * " AS UNSIGNED)"
             elseif x.args[1] == :as_string && length(x.args) == 2
                 column = x.args[2]
                 return "CAST(" * string(column) * " AS STRING)"
@@ -139,3 +140,23 @@ function expr_to_sql_mysql(expr, sq; from_summarize::Bool)
         return x
     end
 end
+
+
+function floordate_to_sql(unit::String, time_column::Symbol)
+    sql_format = ""
+    if unit == "minute"
+        sql_format = "%Y-%m-%d %H:%i:00"
+    elseif unit == "hour"
+        sql_format = "%Y-%m-%d %H:00:00"
+    elseif unit == "day"
+        sql_format = "%Y-%m-%d 00:00:00"
+    elseif unit == "month"
+        sql_format = "%Y-%m-01 00:00:00"
+    elseif unit == "year"
+        sql_format = "%Y-01-01 00:00:00"
+    else
+        throw(ArgumentError("Unsupported unit: $unit"))
+    end
+    # Construct the SQL string
+    return "DATE_FORMAT($(string(time_column)), '$sql_format')"
+  end

@@ -23,14 +23,15 @@ include("docstrings.jl")
 include("structs.jl")
 include("db_parsing.jl")
 include("TBD_macros.jl")
-include("postgresparsing.jl")
-include("sqlite_parsing.jl")
-include("mysql_parsing.jl")
+include("parsing_sqlite.jl")
+include("parsing_duckdb.jl")
+include("parsing_postgres.jl")
+include("parsing_mysql.jl")
 include("joins_sq.jl")
 include("slices_sq.jl")
 
 
-current_sql_mode = Ref(:lite)
+current_sql_mode = Ref(:duckdb)
 
 # Function to switch modes
 function set_sql_mode(mode::Symbol)
@@ -44,7 +45,7 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
     elseif current_sql_mode[] == :postgres
         return expr_to_sql_postgres(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == :duckdb
-        return expr_to_sql_postgres(expr, sq; from_summarize=from_summarize)
+        return expr_to_sql_duckdb(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == :mysql
         return expr_to_sql_mysql(expr, sq; from_summarize=from_summarize)
     else

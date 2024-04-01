@@ -223,6 +223,11 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
             error("Direct file loading is only supported for DuckDB in this implementation.")
         end
         # Determine the file type based on the extension
+        if startswith(df_or_path, "http")
+            # Install and load the httpfs extension if the path is a URL
+            DuckDB.execute(conn, "INSTALL httpfs;")
+            DuckDB.execute(conn, "LOAD httpfs;")
+        end
         if occursin(r"\.csv$", df_or_path)
             # Construct and execute a SQL command for loading a CSV file
             sql_command = "CREATE TABLE $name AS SELECT * FROM '$df_or_path';"

@@ -1,5 +1,5 @@
 names_to_modify = ["str_replace", "str_replace_all", "str_remove", "str_remove_all", "replace_missing", "missing_if", 
-                            "floor_date", "is_missing", "starts_with", "ends_with"]
+                            "floor_date", "is_missing"]
 #this function allows for @capture to capture names that would have an underscore, ie str_replace
 function exc_capture_bug(expr, names_to_modify::Vector{String})
     names_set = Set(names_to_modify)
@@ -176,9 +176,9 @@ function parse_char_matching(expr)
                 func_name = pattern_func.args[1]
                 pattern = pattern_func.args[2]
 
-                like_expr = if func_name == :starts_with || func_name == :startswith
+                like_expr = if func_name == :starts_with 
                     "$(column) LIKE '$(pattern)%'"
-                elseif func_name == :ends_with || func_name == :endswith
+                elseif func_name == :ends_with
                     "$(column) LIKE '%$(pattern)'"
                 elseif func_name == :contains
                     "$(column) LIKE '%$(pattern)%'"

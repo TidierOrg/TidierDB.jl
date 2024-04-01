@@ -1,4 +1,5 @@
 function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
+    expr = parse_char_matching(expr)
     expr = exc_capture_bug(expr, names_to_modify)
     MacroTools.postwalk(expr) do x
         # Handle basic arithmetic and functions
@@ -90,12 +91,6 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
             return :(REGEXP_REPLACE($str, $pattern, "g"))
         elseif @capture(x, strremove(str_, pattern_))
             return :(REGEXP_REPLACE($str, $pattern, ""))
-        elseif @capture(x, startswith(str_, pattern_))
-            return :(starts_with($str, $pattern))
-        elseif @capture(x, endswith(str_, pattern_))
-            return :(ends_with($str, $pattern))
-        elseif @capture(x, contains(str_, pattern_))
-            return :(contains($str, $pattern))
         elseif @capture(x, ismissing(a_))
             return  "($(string(a)) IS NULL)"
         # Date extraction functions

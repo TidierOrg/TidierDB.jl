@@ -8,6 +8,7 @@ using SQLite
 using Reexport
 using DuckDB
 using MySQL
+using ODBC 
 
 @reexport using DataFrames: DataFrame
 @reexport using Chain

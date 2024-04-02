@@ -159,6 +159,8 @@ function start_query_meta(db, table::Symbol)
         get_table_metadata(db, table_name)
     elseif current_sql_mode[] == :duckdb 
         get_table_metadata(db, table_name)
+    elseif current_sql_mode[] == :mssql 
+        get_table_metadata(db, table_name)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end

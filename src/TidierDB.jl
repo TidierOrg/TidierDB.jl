@@ -17,7 +17,7 @@ using MySQL
 
  export start_query_meta, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
  @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
- @slice_min, @slice_sample, copy_to, add_interp_parameter!
+ @slice_min, @slice_sample, @rename, copy_to, add_interp_parameter!
 
 include("docstrings.jl")
 include("structs.jl")

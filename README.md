@@ -5,7 +5,7 @@ Currently supported macros:
 - `@group_by` 
 - `@filter`
 - `@select`
-- `@mutate` 
+- `@mutate` supports `across` with tidy selection
 - `@summarize` / `@summarise` supports `across` with tidy selection
 - `@distinct`
 - `@left_join`, `@right_join`, `@inner_join` (slight syntax differences)

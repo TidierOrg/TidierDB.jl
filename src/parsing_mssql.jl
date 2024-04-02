@@ -1,4 +1,4 @@
-function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
+function expr_to_sql_mssql(expr, sq; from_summarize::Bool)
     expr = parse_char_matching(expr)
     expr = exc_capture_bug(expr, names_to_modify)
     MacroTools.postwalk(expr) do x
@@ -84,32 +84,32 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
             end
         #stringr functions, have to use function that removes _ so capture can capture name
         elseif @capture(x, strreplaceall(str_, pattern_, replace_))
-            return :(REGEXP_REPLACE($str, $pattern, $replace, 'g'))
+            return :(REPLACE($str, $pattern, $replace))
         elseif @capture(x, strreplace(str_, pattern_, replace_))
-            return :(REGEXP_REPLACE($str, $pattern, $replace))
+            return error("str_replace is not yet supported for MSSQ support. Only str_replace_all")
         elseif @capture(x, strremoveall(str_, pattern_))
-            return :(REGEXP_REPLACE($str, $pattern, "", "g"))
+            return :(REPLACE($str, $pattern, ""))
         elseif @capture(x, strremove(str_, pattern_))
-            return :(REGEXP_REPLACE($str, $pattern, ""))
+            return error("str_remove is not yet supported for MSSQ support. Only str_remove_all ")
         elseif @capture(x, ismissing(a_))
             return  "($(string(a)) IS NULL)"
         # Date extraction functions
         elseif @capture(x, year(a_))
-            return "EXTRACT(YEAR FROM " * string(a) * ")"
+            return "DATEPART(YEAR FROM " * string(a) * ")"
         elseif @capture(x, month(a_))
-            return "EXTRACT(MONTH FROM " * string(a) * ")"
+            return "DATEPART(MONTH FROM " * string(a) * ")"
         elseif @capture(x, day(a_))
-            return "EXTRACT(DAY FROM " * string(a) * ")"
+            return "DATEPART(DAY FROM " * string(a) * ")"
         elseif @capture(x, hour(a_))
-            return "EXTRACT(HOUR FROM " * string(a) * ")"
+            return "DATEPART(HOUR FROM " * string(a) * ")"
         elseif @capture(x, minute(a_))
-            return "EXTRACT(MINUTE FROM " * string(a) * ")"
+            return "DATEPART(MINUTE FROM " * string(a) * ")"
         elseif @capture(x, second(a_))
-            return "EXTRACT(SECOND FROM " * string(a) * ")"
+            return "DATEPART(SECOND FROM " * string(a) * ")"
         elseif @capture(x, floordate(time_column_, unit_))
-            return :(DATE_TRUNC($unit, $time_column))
+            return floordate_to_mssql(unit, time_column)
         elseif @capture(x, difftime(endtime_, starttime_, unit_))
-            return :(date_diff($unit, $starttime, $endtime))
+            return :(DATE_DIFF($unit, $starttime, $endtime))
         elseif @capture(x, replacemissing(column_, replacement_value_))
             return :(COALESCE($column, $replacement_value))
         elseif @capture(x, missingif(column_, value_to_replace_))
@@ -122,14 +122,14 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
                 return "CAST(" * string(column) * " AS DECIMAL)"
             elseif x.args[1] == :as_integer && length(x.args) == 2
                 column = x.args[2]
-                return "CAST(" * string(column) * " AS INT)"
+                return "CAST(" * string(column) * " AS INTEGER)"
             elseif x.args[1] == :as_string && length(x.args) == 2
                 column = x.args[2]
                 return "CAST(" * string(column) * " AS STRING)"
             elseif x.args[1] == :case_when
                 return parse_case_when(x)
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :!  && x.args[1] != :!= && length(x.args) == 2
-            inner_expr = expr_to_sql_duckdb(x.args[2], sq, from_summarize = false)  # Recursively transform the inner expression
+            inner_expr = expr_to_sql_mssql(x.args[2], sq, from_summarize = false)  # Recursively transform the inner expression
             return string("NOT (", inner_expr, ")")
         elseif x.args[1] == :str_detect && length(x.args) == 3
             column, pattern = x.args[2], x.args[3]
@@ -141,3 +141,28 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
         return x
     end
 end
+
+
+function floordate_to_mssql(unit::String, time_column::Symbol)
+    sql_command = ""
+    
+    if unit == "second"
+        # Flooring to the nearest second requires a different anchor, like '2000-01-01'
+        sql_command = "DATEADD(SECOND, DATEDIFF(SECOND, '2000-01-01', $(string(time_column))), '2000-01-01')"
+    elseif unit == "minute"
+        sql_command = "DATEADD(MINUTE, DATEDIFF(MINUTE, 0, $(string(time_column))), 0)"
+    elseif unit == "hour"
+        sql_command = "DATEADD(HOUR, DATEDIFF(HOUR, 0, $(string(time_column))), 0)"
+    elseif unit == "day"
+        sql_command = "DATEADD(DAY, DATEDIFF(DAY, 0, $(string(time_column))), 0)"
+    elseif unit == "month"
+        sql_command = "DATEADD(MONTH, DATEDIFF(MONTH, 0, $(string(time_column))), 0)"
+    elseif unit == "year"
+        sql_command = "DATEADD(YEAR, DATEDIFF(YEAR, 0, $(string(time_column))), 0)"
+    else
+        throw(ArgumentError("Unsupported unit: $unit"))
+    end
+    
+    return sql_command
+end
+

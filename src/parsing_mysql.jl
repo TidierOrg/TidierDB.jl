@@ -84,13 +84,13 @@ function expr_to_sql_mysql(expr, sq; from_summarize::Bool)
             end
         #stringr functions, have to use function that removes _ so capture can capture name
         elseif @capture(x, strreplaceall(str_, pattern_, replace_))
-            return :(REGEXP_REPLACE($str, $pattern, $replace, 'g'))
-        elseif @capture(x, strreplace(str_, pattern_, replace_))
             return :(REGEXP_REPLACE($str, $pattern, $replace))
+        elseif @capture(x, strreplace(str_, pattern_, replace_))
+            return :(REGEXP_REPLACE($str, $pattern, $replace, 1, 1))
         elseif @capture(x, strremoveall(str_, pattern_))
-            return :(REGEXP_REPLACE($str, $pattern, "g"))
-        elseif @capture(x, strremove(str_, pattern_))
             return :(REGEXP_REPLACE($str, $pattern, ""))
+        elseif @capture(x, strremove(str_, pattern_))
+            return :(REGEXP_REPLACE($str, $pattern, "", 1, 1))
         elseif @capture(x, ismissing(a_))
             return  "($(string(a)) IS NULL)"
         # Date extraction functions

@@ -27,6 +27,7 @@ include("parsing_sqlite.jl")
 include("parsing_duckdb.jl")
 include("parsing_postgres.jl")
 include("parsing_mysql.jl")
+include("parsing_mssql.jl")
 include("joins_sq.jl")
 include("slices_sq.jl")
 
@@ -48,6 +49,8 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
         return expr_to_sql_duckdb(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == :mysql
         return expr_to_sql_mysql(expr, sq; from_summarize=from_summarize)
+    elseif current_sql_mode[] == :mssql
+        return expr_to_sql_mssql(expr, sq; from_summarize=from_summarize)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
@@ -125,7 +128,7 @@ function finalize_query(sqlquery::SQLQuery)
      "FROM )" => ")" ,  "SELECT SELECT " => "SELECT ", "SELECT  SELECT " => "SELECT ", "DISTINCT SELECT " => "DISTINCT ", 
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", )
 
-    if current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql
+    if current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end
 
@@ -190,11 +193,28 @@ function get_table_metadata(conn::MySQL.Connection, table_name::String)
     return select(result, :COLUMN_NAME => :name, :DATA_TYPE => :type, :current_selxn)
 end
 
+# MSSQL
+
+function get_table_metadata(conn::ODBC.Connection, table_name::String)
+    # Query to get column names and types from INFORMATION_SCHEMA
+    query = """
+    SELECT column_name, data_type
+    FROM information_schema.columns
+    WHERE table_name = '$table_name'
+    ORDER BY ordinal_position;
+    """
+  
+    result = DBInterface.execute(conn, query) |> DataFrame
+    #result[!, :DATA_TYPE] = map(x -> String(x), result.DATA_TYPE)
+    result[!, :current_selxn] .= 1
+    return select(result, :column_name => :name, :data_type => :type, :current_selxn)
+  end
+
 function start_query_meta(db, table::Symbol)
     table_name = string(table)
     metadata = if current_sql_mode[] == :lite
         get_table_metadata(db, table_name)
-    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql
+    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql current_sql_mode[] == :mssql
         get_table_metadata(db, table_name)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")

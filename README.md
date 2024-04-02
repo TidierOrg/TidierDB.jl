@@ -27,13 +27,10 @@ Supported helper functions include
 
 SQLite is the default SQL backend.
 
-Switch to Postgres using 
+Switch to Postgres, MySQL, MSSQL, DuckDB using 
 `set_sql_mode(:postgres)`
-
-Switch to MySQL using 
 `set_sql_mode(:mysql)`
-
-Switch to DuckDB using 
+`set_sql_mode(:mssql)`
 `set_sql_mode(:duckdb)`
 
 DuckDB support enables: 

@@ -759,7 +759,7 @@ SELECT *
 const docstring_copy_to =
 """
        copy_to(conn, df_or_path, "name")
-Allows user to copy a df to the database connection. Currently supports DuckDB, SQLite
+Allows user to copy a df to the database connection. Currently supports DuckDB, SQLite, MySql
 
 # Arguments
 -`conn`: the database connection

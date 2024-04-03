@@ -28,10 +28,11 @@ Supported helper functions include
 DuckDB is the default backend.
 
 Switch to Postgres, MySQL, MSSQL, or SQLite using 
-`set_sql_mode(:postgres)`
-`set_sql_mode(:mysql)`
-`set_sql_mode(:mssql)`
-`set_sql_mode(:lite)`
+- `set_sql_mode(:postgres)`
+- `set_sql_mode(:mysql)`
+- `set_sql_mode(:mssql)`
+- `set_sql_mode(:lite)`
+- `set_sql_mode(:clickhouse)`
 
 DuckDB support enables: 
 - directly reading in .parquet, .json, and .csv files paths.

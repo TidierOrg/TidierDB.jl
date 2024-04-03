@@ -11,7 +11,14 @@ macro select(sqlquery, exprs...)
         let columns = parse_tidy_db($exprs_str, $(esc(sqlquery)).metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
             $(esc(sqlquery)).select = columns_str
+            #bc of alphabetized return issue this is needed for clickhouse
+            if current_sql_mode[] == :clickhouse 
+                $(esc(sqlquery)).metadata.current_selxn .= 0
+                selected_indices = indexin(columns, $(esc(sqlquery)).metadata.name)
+                $(esc(sqlquery)).metadata.current_selxn[selected_indices[.!isnothing.(selected_indices)]] .= 1
+            end
         end
+        
         $(esc(sqlquery))
     end
 end
@@ -627,6 +634,7 @@ macro collect(sqlquery)
     return quote
         # Extract the database connection from the SQLQuery object
         db = $(esc(sqlquery)).db
+        sq = $(esc(sqlquery))
         # Finalize the query to get the SQL string
         final_query = finalize_query($(esc(sqlquery)))
         df_result = DataFrame()

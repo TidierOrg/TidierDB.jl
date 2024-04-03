@@ -13,7 +13,6 @@ import ClickHouse
 
 @reexport using DataFrames: DataFrame
 @reexport using Chain
-@reexport using SQLite: DB, load!
 
 import DuckDB: open as duckdb_open
 import DuckDB: connect as duckdb_connect
@@ -57,7 +56,7 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
     elseif current_sql_mode[] == :mssql
         return expr_to_sql_mssql(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == :clickhouse
-        return expr_to_sql_mssql(expr, sq; from_summarize=from_summarize)
+        return expr_to_sql_clickhouse(expr, sq; from_summarize=from_summarize)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
@@ -135,7 +134,7 @@ function finalize_query(sqlquery::SQLQuery)
      "FROM )" => ")" ,  "SELECT SELECT " => "SELECT ", "SELECT  SELECT " => "SELECT ", "DISTINCT SELECT " => "DISTINCT ", 
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", )
 
-    if current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql
+    if current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end
 
@@ -203,7 +202,6 @@ function get_table_metadata(conn::MySQL.Connection, table_name::String)
 end
 
 # MSSQL
-
 function get_table_metadata(conn::ODBC.Connection, table_name::String)
     # Query to get column names and types from INFORMATION_SCHEMA
     query = """
@@ -212,15 +210,14 @@ function get_table_metadata(conn::ODBC.Connection, table_name::String)
     WHERE table_name = '$table_name'
     ORDER BY ordinal_position;
     """
-  
+
     result = DBInterface.execute(conn, query) |> DataFrame
     #result[!, :DATA_TYPE] = map(x -> String(x), result.DATA_TYPE)
     result[!, :current_selxn] .= 1
-    return select(result, 1 => :name, 2 => :type, :current_selxn)
+    return select(result, :column_name => :name, :data_type => :type, :current_selxn)
   end
 
  # ClickHouse
-
 function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
     # Query to get column names and types from INFORMATION_SCHEMA
     query = """

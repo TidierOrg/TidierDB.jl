@@ -95,20 +95,21 @@ function expr_to_sql_clickhouse(expr, sq; from_summarize::Bool)
             return  "($(string(a)) IS NULL)"
         # Date extraction functions
         elseif @capture(x, year(a_))
-            return "EXTRACT(YEAR FROM " * string(a) * ")"
+            return "toYear(" * string(a) * ")"
         elseif @capture(x, month(a_))
-            return "EXTRACT(MONTH FROM " * string(a) * ")"
+            return "toMonth(" * string(a) * ")"
         elseif @capture(x, day(a_))
-            return "EXTRACT(DAY FROM " * string(a) * ")"
+            return "toDayOfMonth(" * string(a) * ")"
         elseif @capture(x, hour(a_))
-            return "EXTRACT(HOUR FROM " * string(a) * ")"
+            return "toHour(" * string(a) * ")"
         elseif @capture(x, minute(a_))
-            return "EXTRACT(MINUTE FROM " * string(a) * ")"
+            return "toMinute(" * string(a) * ")"
         elseif @capture(x, second(a_))
-            return "EXTRACT(SECOND FROM " * string(a) * ")"
+            return "toSecond(" * string(a) * ")"
         elseif @capture(x, floordate(time_column_, unit_))
-            # Call floordate_to_sql with the captured variables
-            return floordate_to_sql(unit, time_column)
+            return :(DATE_TRUNC($unit, $time_column))
+        elseif @capture(x, difftime(endtime_, starttime_, unit_))
+            return :(date_diff($unit, $starttime, $endtime))
         elseif @capture(x, replacemissing(column_, replacement_value_))
             return :(COALESCE($column, $replacement_value))
         elseif @capture(x, missingif(column_, value_to_replace_))
@@ -118,13 +119,13 @@ function expr_to_sql_clickhouse(expr, sq; from_summarize::Bool)
                 return parse_if_else(x)
             elseif x.args[1] == :as_float && length(x.args) == 2
                 column = x.args[2]
-                return "CAST(" * string(column) * " AS DECIMAL)"
+                return "toFloat32(" * string(column) * ")"
             elseif x.args[1] == :as_integer && length(x.args) == 2
                 column = x.args[2]
-                return "CAST(" * string(column) * " AS UNSIGNED)"
+                return "toInt32(" * string(column) * ")"
             elseif x.args[1] == :as_string && length(x.args) == 2
                 column = x.args[2]
-                return "CAST(" * string(column) * " AS STRING)"
+                return "toString(" * string(column) * ")"
             elseif x.args[1] == :case_when
                 return parse_case_when(x)
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :!  && x.args[1] != :!= && length(x.args) == 2

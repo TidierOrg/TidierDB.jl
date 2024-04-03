@@ -11,8 +11,9 @@ df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-db = DB(); # opening SQLite database connection.
-# In this example we will use SQLite, although DuckDB, Postgres, and MySQL are possible.
+con = duckdb_connect("memory"); # opening DuckDB database connection.
+db = duckdb_open("con");
+# For these examples we will use DuckDB, the default backend, although SQLite, Postgres, MySQL, MSSQL, and ClickHouse are possible.
 copy_to(db, df, "df_mem"); # copying over the df to memory
 
 @chain start_query_meta(db, :df_mem) begin

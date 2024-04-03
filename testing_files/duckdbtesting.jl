@@ -2,10 +2,9 @@ using DuckDB
 conxn = open(":memory:")
 
 db = connect(conxn)
+copy_to(db, "https://raw.githubusercontent.com/rahkum96/Olympics-Dataset-by-sql/main/noc_regions.csv" "noc_regions")
+copy_to(db, "https://raw.githubusercontent.com/rahkum96/Olympics-Dataset-by-sql/main/olympic_event.csv", "athlete_events")
 
-DuckDB.register_data_frame(db, athlete_events, "athlete_events") 
-DuckDB.register_data_frame(db, noc_regions, "noc_regions") 
-set_sql_mode(:duckdb)
 @chain start_query_meta(con, :athlete_events) begin
     @rename(tf = NOC)
     @mutate(Gold = if_else(Medal == "Gold", 1, 0),
@@ -25,7 +24,7 @@ end
     @group_by(Games)
     @mutate(test = minimum(Year))
     @select (test)
-   @collect
+    @collect
     #@show_query
 end
 

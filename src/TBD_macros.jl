@@ -11,12 +11,9 @@ macro select(sqlquery, exprs...)
         let columns = parse_tidy_db($exprs_str, $(esc(sqlquery)).metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
             $(esc(sqlquery)).select = columns_str
-            #bc of alphabetized return issue this is needed for clickhouse
-            if current_sql_mode[] == :clickhouse 
-                $(esc(sqlquery)).metadata.current_selxn .= 0
-                selected_indices = indexin(columns, $(esc(sqlquery)).metadata.name)
-                $(esc(sqlquery)).metadata.current_selxn[selected_indices[.!isnothing.(selected_indices)]] .= 1
-            end
+            $(esc(sqlquery)).metadata.current_selxn .= 0
+            selected_indices = indexin(columns, $(esc(sqlquery)).metadata.name)
+            $(esc(sqlquery)).metadata.current_selxn[selected_indices[.!isnothing.(selected_indices)]] .= 1
         end
         
         $(esc(sqlquery))

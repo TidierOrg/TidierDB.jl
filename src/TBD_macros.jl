@@ -629,15 +629,19 @@ macro collect(sqlquery)
         db = $(esc(sqlquery)).db
         # Finalize the query to get the SQL string
         final_query = finalize_query($(esc(sqlquery)))
-
+        df_result = DataFrame()
         # Determine the type of db and execute the query accordingly
         if db isa SQLite.DB || db isa LibPQ.Connection || db isa DuckDB.Connection || db isa MySQL.Connection || db isa ODBC.Connection
             result = DBInterface.execute(db, final_query)
+            df_result = DataFrame(result)
+
+        elseif current_sql_mode[] == :clickhouse
+            df_result = ClickHouse.select_df(db, final_query)
+            selected_columns_order = sq.metadata[sq.metadata.current_selxn .== 1, :name]
+            df_result = df_result[:, selected_columns_order]
         else
             error("Unsupported database type: $(typeof(db))")
         end
-
-        # Convert the result to a DataFrame
-        DataFrame(result)
+        df_result
     end
 end

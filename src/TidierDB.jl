@@ -9,6 +9,7 @@ using Reexport
 using DuckDB
 using MySQL
 using ODBC 
+import ClickHouse
 
 @reexport using DataFrames: DataFrame
 @reexport using Chain
@@ -31,6 +32,7 @@ include("parsing_duckdb.jl")
 include("parsing_postgres.jl")
 include("parsing_mysql.jl")
 include("parsing_mssql.jl")
+include("parsing_clickhouse.jl")
 include("joins_sq.jl")
 include("slices_sq.jl")
 
@@ -53,6 +55,8 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
     elseif current_sql_mode[] == :mysql
         return expr_to_sql_mysql(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == :mssql
+        return expr_to_sql_mssql(expr, sq; from_summarize=from_summarize)
+    elseif current_sql_mode[] == :clickhouse
         return expr_to_sql_mssql(expr, sq; from_summarize=from_summarize)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
@@ -212,14 +216,31 @@ function get_table_metadata(conn::ODBC.Connection, table_name::String)
     result = DBInterface.execute(conn, query) |> DataFrame
     #result[!, :DATA_TYPE] = map(x -> String(x), result.DATA_TYPE)
     result[!, :current_selxn] .= 1
-    return select(result, :column_name => :name, :data_type => :type, :current_selxn)
+    return select(result, 1 => :name, 2 => :type, :current_selxn)
   end
+
+ # ClickHouse
+
+function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
+    # Query to get column names and types from INFORMATION_SCHEMA
+    query = """
+    SELECT
+        name AS column_name,
+        type AS data_type
+    FROM system.columns
+    WHERE table = '$table_name' AND database = 'default'
+    """
+    result = ClickHouse.select_df(conn,query)
+
+    result[!, :current_selxn] .= 1
+    return select(result, :column_name => :name, :data_type => :type, :current_selxn)
+  end 
 
 function start_query_meta(db, table::Symbol)
     table_name = string(table)
     metadata = if current_sql_mode[] == :lite
         get_table_metadata(db, table_name)
-    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql current_sql_mode[] == :mssql
+    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse
         get_table_metadata(db, table_name)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")

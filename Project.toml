@@ -5,6 +5,7 @@ version = "0.1.0-DEV"
 
 [deps]
 Chain = "8be319e6-bccf-4806-a6f7-6fae938471bc"
+ClickHouse = "82f2e89e-b495-11e9-1d9d-fb40d7cf2130"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 DuckDB = "d2f5444f-75bc-4fdf-ac35-56f514c445e1"

@@ -3,7 +3,7 @@
 TiderDB.jl is a 100% Julia implementation of the dbplyr R package (and similar to python's ibis package).
 
 The main goal of TidierDB.jl is to bring the ease of use and simple syntax of Tidier.jl to mutliple SQL backends,
-making data analysis smoother by abstracting away subtle differences in syntax between different backends.
+making data analysis smoother by abstracting away subtle syntax differences between backends.
 
 ## Currently supported backends include:
 - DuckDB (the default) `set_sql_mode(:duckdb)`
@@ -46,18 +46,21 @@ Supported helper functions for most backends include
 - `n()` 
 - `starts_with()`, `ends_with()`, and `contains()`
 - `as_float()`, `as_integer()`, and `as_string()`
+- `is_missing()`
 - `missing_if()` and `replace_missing()`
 
 From TidierStrings.jl
 - `str_detect`, `str_replace`, `str_replace_all`, `str_remove_all`, `str_remove`
+
 From TidierDates.jl
 -  `year`, `month`, `day`, `hour`, `min`, `second`, `floor_date`, `difftime`
 
 Supported aggregate functions (as supported by the backend) with more to come
 - `mean`, `minimium`, `maximum`, `std`, `sum`, `cumsum`, `cor`, `cov`, `var`
 
-- `copy_to` 
-DuckDB support enables copy_to to directly reading in .parquet, .json, .csv, https file paths.
+- `copy_to` (for DuckDB, MySQL, SQLite)
+
+DuckDB specifically enables copy_to to directly reading in .parquet, .json, .csv, https file paths.
 ```
 path = "file_path.parquet"
 copy_to(conn, file_path, "table_name")
@@ -65,9 +68,10 @@ copy_to(conn, file_path, "table_name")
 
 Bang bang `!!` Interpolation for columns and values is supported.
 
-There are a few subtle but important differences from Tidier.jl outlined [here] (https://github.com/drizk1/TidierDB.jl/blob/main/docs/examples/UserGuide/key_differences.jl).
+There are a few subtle but important differences from Tidier.jl outlined [here](https://github.com/drizk1/TidierDB.jl/blob/main/docs/examples/UserGuide/key_differences.jl).
 
 Missing a function or backend?
+
 You can actually use any (non-agg) sql fucntion in mutate with the correct sql syntax and it will will still run.
 But open an issue, and we would be happy to address it.
 
@@ -79,7 +83,7 @@ db = duckdb_connect(mem);
 path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
 copy_to(db, path, "mtcars2");
 @chain start_query_meta(db, :mtcars2) begin
-    @filter(Column1 != starts_with("M"))
+    @filter(model != starts_with("M"))
     @group_by(cyl)
     @summarize(mpg = mean(mpg))
     @mutate(sqaured = mpg^2, 
@@ -98,7 +102,7 @@ end
 WITH cte_1 AS (
 SELECT *
         FROM mtcars2
-        WHERE NOT (Column1 LIKE 'M%')),
+        WHERE NOT (model LIKE 'M%')),
 cte_2 AS (
 SELECT cyl, AVG(mpg) AS mpg
         FROM cte_1

@@ -13,12 +13,14 @@ using ODBC
 @reexport using DataFrames: DataFrame
 @reexport using Chain
 @reexport using SQLite: DB, load!
-@reexport using DuckDB: open, connect
+
+import DuckDB: open as duckdb_open
+import DuckDB: connect as duckdb_connect
 
 
  export start_query_meta, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
  @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
- @slice_min, @slice_sample, @rename, copy_to, add_interp_parameter!
+ @slice_min, @slice_sample, @rename, copy_to, add_interp_parameter!, duckdb_open, duckdb_connect
 
 include("docstrings.jl")
 include("structs.jl")
@@ -33,7 +35,7 @@ include("joins_sq.jl")
 include("slices_sq.jl")
 
 
-current_sql_mode = Ref(:lite)
+current_sql_mode = Ref(:duckdb)
 
 # Function to switch modes
 function set_sql_mode(mode::Symbol)

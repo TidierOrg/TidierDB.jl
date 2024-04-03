@@ -1,7 +1,7 @@
 using DuckDB
-db = DuckDB.open(":memory:")
+conxn = open(":memory:")
 
-db = DuckDB.connect(db)
+db = connect(conxn)
 
 DuckDB.register_data_frame(db, athlete_events, "athlete_events") 
 DuckDB.register_data_frame(db, noc_regions, "noc_regions") 

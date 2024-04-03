@@ -16,47 +16,49 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @select(groups:percent)
        @collect
        end
 10×3 DataFrame
- Row │ groups  value  percent 
-     │ String  Int64  Float64 
-─────┼────────────────────────
-   1 │ bb          1      0.1
-   2 │ aa          2      0.2
-   3 │ bb          3      0.3
-   4 │ aa          4      0.4
-   5 │ bb          5      0.5
-   6 │ aa          1      0.6
-   7 │ bb          2      0.7
-   8 │ aa          3      0.8
-   9 │ bb          4      0.9
-  10 │ aa          5      1.0
+ Row │ groups   value   percent  
+     │ String?  Int64?  Float64? 
+─────┼───────────────────────────
+   1 │ bb            1       0.1
+   2 │ aa            2       0.2
+   3 │ bb            3       0.3
+   4 │ aa            4       0.4
+   5 │ bb            5       0.5
+   6 │ aa            1       0.6
+   7 │ bb            2       0.7
+   8 │ aa            3       0.8
+   9 │ bb            4       0.9
+  10 │ aa            5       1.0
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @select(contains("e"))
        @collect
        end
 10×2 DataFrame
- Row │ value  percent 
-     │ Int64  Float64 
-─────┼────────────────
-   1 │     1      0.1
-   2 │     2      0.2
-   3 │     3      0.3
-   4 │     4      0.4
-   5 │     5      0.5
-   6 │     1      0.6
-   7 │     2      0.7
-   8 │     3      0.8
-   9 │     4      0.9
-  10 │     5      1.0
+ Row │ value   percent  
+     │ Int64?  Float64? 
+─────┼──────────────────
+   1 │      1       0.1
+   2 │      2       0.2
+   3 │      3       0.3
+   4 │      4       0.4
+   5 │      5       0.5
+   6 │      1       0.6
+   7 │      2       0.7
+   8 │      3       0.8
+   9 │      4       0.9
+  10 │      5       1.0
 ```
 """
 
@@ -79,23 +81,25 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @filter(percent > .5)
        @collect
        end
 5×4 DataFrame
- Row │ id      groups  value  percent 
-     │ String  String  Int64  Float64 
-─────┼────────────────────────────────
-   1 │ AF      aa          1      0.6
-   2 │ AG      bb          2      0.7
-   3 │ AH      aa          3      0.8
-   4 │ AI      bb          4      0.9
-   5 │ AJ      aa          5      1.0
+ Row │ id       groups   value   percent  
+     │ String?  String?  Int64?  Float64? 
+─────┼────────────────────────────────────
+   1 │ AF       aa            1       0.6
+   2 │ AG       bb            2       0.7
+   3 │ AH       aa            3       0.8
+   4 │ AI       bb            4       0.9
+   5 │ AJ       aa            5       1.0
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
@@ -104,10 +108,10 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @collect
        end
 1×2 DataFrame
- Row │ groups  mean    
-     │ String  Float64 
-─────┼─────────────────
-   1 │ bb          0.5
+ Row │ groups   mean     
+     │ String?  Float64? 
+─────┼───────────────────
+   1 │ bb            0.5
 ```
 """
 
@@ -128,20 +132,22 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
        @collect
        end 
 2×1 DataFrame
- Row │ groups 
-     │ String 
-─────┼────────
-   1 │ aa
-   2 │ bb
+ Row │ groups  
+     │ String? 
+─────┼─────────
+   1 │ bb
+   2 │ aa
 ```
 """
 
@@ -161,28 +167,30 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @mutate(value = value * 4, new_col = percent^2)
        @collect
        end
 10×5 DataFrame
- Row │ id      groups  value  percent  new_col 
-     │ String  String  Int64  Float64  Float64 
-─────┼─────────────────────────────────────────
-   1 │ AA      bb          4      0.1     0.01
-   2 │ AB      aa          8      0.2     0.04
-   3 │ AC      bb         12      0.3     0.09
-   4 │ AD      aa         16      0.4     0.16
-   5 │ AE      bb         20      0.5     0.25
-   6 │ AF      aa          4      0.6     0.36
-   7 │ AG      bb          8      0.7     0.49
-   8 │ AH      aa         12      0.8     0.64
-   9 │ AI      bb         16      0.9     0.81
-  10 │ AJ      aa         20      1.0     1.0
+ Row │ id       groups   value   percent   new_col  
+     │ String?  String?  Int64?  Float64?  Float64? 
+─────┼──────────────────────────────────────────────
+   1 │ AA       bb            4       0.1      0.01
+   2 │ AB       aa            8       0.2      0.04
+   3 │ AC       bb           12       0.3      0.09
+   4 │ AD       aa           16       0.4      0.16
+   5 │ AE       bb           20       0.5      0.25
+   6 │ AF       aa            4       0.6      0.36
+   7 │ AG       bb            8       0.7      0.49
+   8 │ AH       aa           12       0.8      0.64
+   9 │ AI       bb           16       0.9      0.81
+  10 │ AJ       aa           20       1.0      1.0
 ```
 """
 
@@ -202,9 +210,11 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
@@ -212,11 +222,11 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @collect
        end
 2×5 DataFrame
- Row │ groups  mean_value  mean_percent  sum_value  sum_percent 
-     │ String  Float64     Float64       Int64      Float64     
-─────┼──────────────────────────────────────────────────────────
-   1 │ aa             3.0           0.6         15          3.0
-   2 │ bb             3.0           0.5         15          2.5
+ Row │ groups   mean_value  mean_percent  sum_value  sum_percent 
+     │ String?  Float64?    Float64?      Int128?    Float64?    
+─────┼───────────────────────────────────────────────────────────
+   1 │ bb              3.0           0.5         15          2.5
+   2 │ aa              3.0           0.6         15          3.0
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
@@ -224,11 +234,11 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @collect
        end
 2×3 DataFrame
- Row │ groups  test     n     
-     │ String  Float64  Int64 
-─────┼────────────────────────
-   1 │ aa          3.0      5
-   2 │ bb          2.5      5
+ Row │ groups   test      n      
+     │ String?  Float64?  Int64? 
+─────┼───────────────────────────
+   1 │ bb            2.5       5
+   2 │ aa            3.0       5
 ```
 """
 const docstring_summarise =
@@ -247,9 +257,11 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
@@ -257,11 +269,11 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @collect
        end
 2×5 DataFrame
- Row │ groups  mean_value  mean_percent  sum_value  sum_percent 
-     │ String  Float64     Float64       Int64      Float64     
-─────┼──────────────────────────────────────────────────────────
-   1 │ aa             3.0           0.6         15          3.0
-   2 │ bb             3.0           0.5         15          2.5
+ Row │ groups   mean_value  mean_percent  sum_value  sum_percent 
+     │ String?  Float64?    Float64?      Int128?    Float64?    
+─────┼───────────────────────────────────────────────────────────
+   1 │ bb              3.0           0.5         15          2.5
+   2 │ aa              3.0           0.6         15          3.0
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
@@ -269,11 +281,11 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @collect
        end
 2×3 DataFrame
- Row │ groups  test     n     
-     │ String  Float64  Int64 
-─────┼────────────────────────
-   1 │ aa          3.0      5
-   2 │ bb          2.5      5
+ Row │ groups   test      n      
+     │ String?  Float64?  Int64? 
+─────┼───────────────────────────
+   1 │ bb            2.5       5
+   2 │ aa            3.0       5
 ```
 """
 
@@ -295,9 +307,11 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
@@ -305,24 +319,24 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @collect
        end
 4×5 DataFrame
- Row │ id      groups  value  percent  rank_col 
-     │ String  String  Int64  Float64  Int64    
-─────┼──────────────────────────────────────────
-   1 │ AB      aa          2      0.2         2
-   2 │ AG      bb          2      0.7         2
-   3 │ AF      aa          1      0.6         1
-   4 │ AA      bb          1      0.1         1
+ Row │ id       groups   value   percent   rank_col 
+     │ String?  String?  Int64?  Float64?  Int64?   
+─────┼──────────────────────────────────────────────
+   1 │ AG       bb            2       0.7         2
+   2 │ AB       aa            2       0.2         2
+   3 │ AA       bb            1       0.1         1
+   4 │ AF       aa            1       0.6         1
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @slice_min(value)
        @collect
        end
 2×5 DataFrame
- Row │ id      groups  value  percent  rank_col 
-     │ String  String  Int64  Float64  Int64    
-─────┼──────────────────────────────────────────
-   1 │ AA      bb          1      0.1         1
-   2 │ AF      aa          1      0.6         1
+ Row │ id       groups   value   percent   rank_col 
+     │ String?  String?  Int64?  Float64?  Int64?   
+─────┼──────────────────────────────────────────────
+   1 │ AA       bb            1       0.1         1
+   2 │ AF       aa            1       0.6         1
 ```
 """
 
@@ -344,9 +358,11 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
@@ -354,24 +370,24 @@ julia> @chain start_query_meta(db, :df_mem) begin
        @collect
        end
 4×5 DataFrame
- Row │ id      groups  value  percent  rank_col 
-     │ String  String  Int64  Float64  Int64    
-─────┼──────────────────────────────────────────
-   1 │ AJ      aa          5      1.0         1
-   2 │ AD      aa          4      0.4         2
-   3 │ AE      bb          5      0.5         1
-   4 │ AI      bb          4      0.9         2
+ Row │ id       groups   value   percent   rank_col 
+     │ String?  String?  Int64?  Float64?  Int64?   
+─────┼──────────────────────────────────────────────
+   1 │ AE       bb            5       0.5         1
+   2 │ AI       bb            4       0.9         2
+   3 │ AJ       aa            5       1.0         1
+   4 │ AD       aa            4       0.4         2
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @slice_max(value)
        @collect
        end
 2×5 DataFrame
- Row │ id      groups  value  percent  rank_col 
-     │ String  String  Int64  Float64  Int64    
-─────┼──────────────────────────────────────────
-   1 │ AE      bb          5      0.5         1
-   2 │ AJ      aa          5      1.0         1
+ Row │ id       groups   value   percent   rank_col 
+     │ String?  String?  Int64?  Float64?  Int64?   
+─────┼──────────────────────────────────────────────
+   1 │ AE       bb            5       0.5         1
+   2 │ AJ       aa            5       1.0         1
 ```
 """
 
@@ -391,9 +407,11 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
@@ -425,28 +443,30 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @arrange(value, desc(percent))
        @collect
        end
 10×4 DataFrame
- Row │ id      groups  value  percent 
-     │ String  String  Int64  Float64 
-─────┼────────────────────────────────
-   1 │ AF      aa          1      0.6
-   2 │ AA      bb          1      0.1
-   3 │ AG      bb          2      0.7
-   4 │ AB      aa          2      0.2
-   5 │ AH      aa          3      0.8
-   6 │ AC      bb          3      0.3
-   7 │ AI      bb          4      0.9
-   8 │ AD      aa          4      0.4
-   9 │ AJ      aa          5      1.0
-  10 │ AE      bb          5      0.5
+ Row │ id       groups   value   percent  
+     │ String?  String?  Int64?  Float64? 
+─────┼────────────────────────────────────
+   1 │ AF       aa            1       0.6
+   2 │ AA       bb            1       0.1
+   3 │ AG       bb            2       0.7
+   4 │ AB       aa            2       0.2
+   5 │ AH       aa            3       0.8
+   6 │ AC       bb            3       0.3
+   7 │ AI       bb            4       0.9
+   8 │ AD       aa            4       0.4
+   9 │ AJ       aa            5       1.0
+  10 │ AE       bb            5       0.5
 ```
 """
 
@@ -467,20 +487,22 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @count(groups)
        @collect
        end
 2×2 DataFrame
- Row │ groups  count 
-     │ String  Int64 
-─────┼───────────────
-   1 │ aa          5
-   2 │ bb          5
+ Row │ groups   count  
+     │ String?  Int64? 
+─────┼─────────────────
+   1 │ bb            5
+   2 │ aa            5
 ```
 """
 
@@ -502,42 +524,44 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @distinct value
        @collect
        end
 5×1 DataFrame
- Row │ value 
-     │ Int64 
-─────┼───────
-   1 │     1
-   2 │     2
-   3 │     3
-   4 │     4
-   5 │     5
+ Row │ value  
+     │ Int64? 
+─────┼────────
+   1 │      1
+   2 │      2
+   3 │      3
+   4 │      4
+   5 │      5
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @distinct
        @collect
        end
 10×4 DataFrame
- Row │ id      groups  value  percent 
-     │ String  String  Int64  Float64 
-─────┼────────────────────────────────
-   1 │ AA      bb          1      0.1
-   2 │ AB      aa          2      0.2
-   3 │ AC      bb          3      0.3
-   4 │ AD      aa          4      0.4
-   5 │ AE      bb          5      0.5
-   6 │ AF      aa          1      0.6
-   7 │ AG      bb          2      0.7
-   8 │ AH      aa          3      0.8
-   9 │ AI      bb          4      0.9
-  10 │ AJ      aa          5      1.0
+ Row │ id       groups   value   percent  
+     │ String?  String?  Int64?  Float64? 
+─────┼────────────────────────────────────
+   1 │ AA       bb            1       0.1
+   2 │ AB       aa            2       0.2
+   3 │ AC       bb            3       0.3
+   4 │ AD       aa            4       0.4
+   5 │ AE       bb            5       0.5
+   6 │ AF       aa            1       0.6
+   7 │ AG       bb            2       0.7
+   8 │ AH       aa            3       0.8
+   9 │ AI       bb            4       0.9
+  10 │ AJ       aa            5       1.0
 ```
 """
 
@@ -567,30 +591,32 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
                 score = [88, 92, 77, 83, 95, 68, 74]);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
 
-julia> load!(df2, db, "df_join");
+julia> copy_to(db, df, "df_mem");
+
+julia> copy_to(db, df2, "df_join");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @left_join(:df_join, id2, id)
        @collect
        end
 10×7 DataFrame
- Row │ id      groups  value  percent  id2      category  score   
-     │ String  String  Int64  Float64  String?  String?   Int64?  
-─────┼────────────────────────────────────────────────────────────
-   1 │ AA      bb          1      0.1  AA       X              88
-   2 │ AB      aa          2      0.2  missing  missing   missing 
-   3 │ AC      bb          3      0.3  AC       Y              92
-   4 │ AD      aa          4      0.4  missing  missing   missing 
-   5 │ AE      bb          5      0.5  AE       X              77
-   6 │ AF      aa          1      0.6  missing  missing   missing 
-   7 │ AG      bb          2      0.7  AG       Y              83
-   8 │ AH      aa          3      0.8  missing  missing   missing 
-   9 │ AI      bb          4      0.9  AI       X              95
-  10 │ AJ      aa          5      1.0  missing  missing   missing 
+ Row │ id       groups   value   percent   id2      category  score   
+     │ String?  String?  Int64?  Float64?  String?  String?   Int64?  
+─────┼────────────────────────────────────────────────────────────────
+   1 │ AA       bb            1       0.1  AA       X              88
+   2 │ AC       bb            3       0.3  AC       Y              92
+   3 │ AE       bb            5       0.5  AE       X              77
+   4 │ AG       bb            2       0.7  AG       Y              83
+   5 │ AI       bb            4       0.9  AI       X              95
+   6 │ AB       aa            2       0.2  missing  missing   missing 
+   7 │ AD       aa            4       0.4  missing  missing   missing 
+   8 │ AF       aa            1       0.6  missing  missing   missing 
+   9 │ AH       aa            3       0.8  missing  missing   missing 
+  10 │ AJ       aa            5       1.0  missing  missing   missing 
 ```
 """
 
@@ -620,27 +646,29 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
                 score = [88, 92, 77, 83, 95, 68, 74]);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
 
-julia> load!(df2, db, "df_join");
+julia> copy_to(db, df, "df_mem");
+
+julia> copy_to(db, df2, "df_join");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @right_join(:df_join, id2, id)
        @collect
        end
 7×7 DataFrame
- Row │ id       groups   value    percent    id2     category  score 
-     │ String?  String?  Int64?   Float64?   String  String    Int64 
-─────┼───────────────────────────────────────────────────────────────
-   1 │ AA       bb             1        0.1  AA      X            88
-   2 │ AC       bb             3        0.3  AC      Y            92
-   3 │ AE       bb             5        0.5  AE      X            77
-   4 │ AG       bb             2        0.7  AG      Y            83
-   5 │ AI       bb             4        0.9  AI      X            95
-   6 │ missing  missing  missing  missing    AK      Y            68
-   7 │ missing  missing  missing  missing    AM      X            74
+ Row │ id       groups   value    percent    id2      category  score  
+     │ String?  String?  Int64?   Float64?   String?  String?   Int64? 
+─────┼─────────────────────────────────────────────────────────────────
+   1 │ AA       bb             1        0.1  AA       X             88
+   2 │ AC       bb             3        0.3  AC       Y             92
+   3 │ AE       bb             5        0.5  AE       X             77
+   4 │ AG       bb             2        0.7  AG       Y             83
+   5 │ AI       bb             4        0.9  AI       X             95
+   6 │ missing  missing  missing  missing    AK       Y             68
+   7 │ missing  missing  missing  missing    AM       X             74
 ```
 """
 
@@ -670,25 +698,27 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
                 score = [88, 92, 77, 83, 95, 68, 74]);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
 
-julia> load!(df2, db, "df_join");
+julia> copy_to(db, df, "df_mem");
+
+julia> copy_to(db, df2, "df_join");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @inner_join(:df_join, id2, id)
        @collect
        end
 5×7 DataFrame
- Row │ id      groups  value  percent  id2     category  score 
-     │ String  String  Int64  Float64  String  String    Int64 
-─────┼─────────────────────────────────────────────────────────
-   1 │ AA      bb          1      0.1  AA      X            88
-   2 │ AC      bb          3      0.3  AC      Y            92
-   3 │ AE      bb          5      0.5  AE      X            77
-   4 │ AG      bb          2      0.7  AG      Y            83
-   5 │ AI      bb          4      0.9  AI      X            95
+ Row │ id       groups   value   percent   id2      category  score  
+     │ String?  String?  Int64?  Float64?  String?  String?   Int64? 
+─────┼───────────────────────────────────────────────────────────────
+   1 │ AA       bb            1       0.1  AA       X             88
+   2 │ AC       bb            3       0.3  AC       Y             92
+   3 │ AE       bb            5       0.5  AE       X             77
+   4 │ AG       bb            2       0.7  AG       Y             83
+   5 │ AI       bb            4       0.9  AI       X             95
 ```
 """
 
@@ -709,9 +739,11 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 
 julia> @chain start_query_meta(db, :df_mem) begin
        @rename(new_name = percent)
@@ -740,10 +772,11 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> copy_to(db, df, "test")
-"test"
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "test");
 ```
 """
 
@@ -765,9 +798,11 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 ```
 """
 
@@ -789,9 +824,11 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> db = DB();
+julia> mem = duckdb_open(":memory:");
 
-julia> load!(df, db, "df_mem");
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
 ```
 """
 

@@ -25,13 +25,13 @@ Supported helper functions include
 - `!` negation
 - `across` 
 
-SQLite is the default SQL backend.
+DuckDB is the default backend.
 
-Switch to Postgres, MySQL, MSSQL, DuckDB using 
+Switch to Postgres, MySQL, MSSQL, or SQLite using 
 `set_sql_mode(:postgres)`
 `set_sql_mode(:mysql)`
 `set_sql_mode(:mssql)`
-`set_sql_mode(:duckdb)`
+`set_sql_mode(:lite)`
 
 DuckDB support enables: 
 - directly reading in .parquet, .json, and .csv files paths.

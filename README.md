@@ -1,5 +1,8 @@
 ## What is TidierDB.jl
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/TidierOrg/TidierDB.jl/blob/main/LICENSE)
+[![Docs: Latest](https://img.shields.io/badge/Docs-Latest-blue.svg)](https://tidierorg.github.io/TidierDB.jl/latest)
+
 TiderDB.jl is a 100% Julia implementation of the dbplyr R package (and similar to python's ibis package).
 
 The main goal of TidierDB.jl is to bring the ease of use and simple syntax of Tidier.jl to mutliple SQL backends,

@@ -769,7 +769,7 @@ Allows user to copy a df to the database connection. Currently supports DuckDB, 
 
 # Arguments
 -`conn`: the database connection
--`df`: dataframe to be copied or path to serve as source. Path supports .csv, .json, .parquet to be used without copying intermediary df when using duckdb 
+-`df`: dataframe to be copied or path to serve as source. With DuckDB, path supports .csv, .json, .parquet to be used without copying intermediary df.
 -`name`: name as string for the database to be used
 # Examples
 ```jldoctest

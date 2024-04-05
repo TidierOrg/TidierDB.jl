@@ -73,7 +73,9 @@ Filter rows in a SQL table based on specified conditions.
 - `conditions`: Expressions specifying the conditions that rows must satisfy to be included in the output. 
                    Rows for which the expression evaluates to `true` will be included in the result. 
                    Multiple conditions can be combined using logical operators (`&&`, `||`). It will automatically 
-                   detect whether the conditions belong in WHERE vs HAVING
+                   detect whether the conditions belong in WHERE vs HAVING. 
+
+                   Temporarily, it is best to use begin and end when filtering multiple conditions. (ex 2 below)
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -104,14 +106,18 @@ julia> @chain start_query_meta(db, :df_mem) begin
 julia> @chain start_query_meta(db, :df_mem) begin
        @group_by(groups)
        @summarise(mean = mean(percent))
-       @filter(groups == "bb", mean < .6)
+       @filter begin 
+              groups == "bb" || # logical operators can still be used like this
+              mean > .5
+              end
        @collect
        end
-1×2 DataFrame
+2×2 DataFrame
  Row │ groups   mean     
      │ String?  Float64? 
 ─────┼───────────────────
    1 │ bb            0.5
+   2 │ aa            0.6
 ```
 """
 

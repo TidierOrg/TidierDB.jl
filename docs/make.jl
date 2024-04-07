@@ -1,8 +1,8 @@
 using Documenter, DocumenterMarkdown
-using Tidier, TidierDB
+using TidierDB
 
 DocTestMeta = quote
-    using Tidier, TidierDB, DataFrames, Chain
+    using TidierDB, DataFrames
 end
 DocMeta.setdocmeta!(TidierDB,
     :DocTestSetup,

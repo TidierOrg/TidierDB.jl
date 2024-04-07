@@ -117,5 +117,5 @@ plugins:
 nav:
   - "Home": "index.md"
   - "Key Differences from TidierData.jl" : "examples/generated/UserGuide/key_differences.md"
-  - "Getting Started":  "examples/generated/UserGuide/getting_started.md"
+  - "Getting Started" : "examples/generated/UserGuide/getting_started.md"
   - "Reference" : "reference.md"

@@ -27,7 +27,7 @@ makedocs(
     build=joinpath(@__DIR__, "docs")
 )
 
-deploydocs(; repo="github.com/TidierOrg/TidierDB.jl.git", push_preview=true,
+deploydocs(; repo="github.com/TidierOrg/TidierDB.git", push_preview=true,
     deps=Deps.pip("mkdocs", "pygments", "python-markdown-math", "mkdocs-material",
         "pymdown-extensions", "mkdocstrings", "mknotebooks",
         "pytkdocs_tweaks", "mkdocs_include_exclude_files", "jinja2"),

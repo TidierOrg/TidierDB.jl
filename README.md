@@ -63,7 +63,7 @@ Supported aggregate functions (as supported by the backend) with more to come
 
 - `copy_to` (for DuckDB, MySQL, SQLite)
 
-DuckDB specifically enables copy_to to directly reading in .parquet, .json, .csv, https file paths.
+DuckDB specifically enables copy_to to directly reading in .parquet, .json, .csv, .arrow, and https file paths.
 ```
 path = "file_path.parquet"
 copy_to(conn, file_path, "table_name")
@@ -85,7 +85,7 @@ mem = duckdb_open(":memory:");
 db = duckdb_connect(mem);
 path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
 copy_to(db, path, "mtcars2");
-@chain start_query_meta(db, :mtcars2) begin
+@chain db_table(db, :mtcars2) begin
     @filter(model != starts_with("M"))
     @group_by(cyl)
     @summarize(mpg = mean(mpg))
@@ -132,7 +132,7 @@ Now instead of ending the chain with `@show_query`, we use `@collect` to pull th
 ```
 `across` in `summarize`
 ```
-@chain start_query_meta(db, :mtcars2) begin
+@chain db_table(db, :mtcars2) begin
     @group_by(cyl)
     @summarize(across((starts_with("a"), ends_with("s")), (mean, sum)))
     #@show_query
@@ -150,4 +150,4 @@ end
 ```
 
 
-This links to [examples](https://github.com/drizk1/TidierDB.jl/blob/main/testing_files/olympics_examples_fromweb.jl) which achieve the same result as the SQL queries.
+This links to [examples](https://github.com/drizk1/TidierDB.jl/blob/main/src/olympics_examples_fromweb.jl) which achieve the same result as the SQL queries.

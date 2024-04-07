@@ -82,7 +82,7 @@ mem = duckdb_open(":memory:");
 db = duckdb_connect(mem);
 path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
 copy_to(db, path, "mtcars2");
-@chain start_query_meta(db, :mtcars2) begin
+@chain db_table(db, :mtcars2) begin
     @filter(model != starts_with("M"))
     @group_by(cyl)
     @summarize(mpg = mean(mpg))
@@ -129,7 +129,7 @@ Now instead of ending the chain with `@show_query`, we use `@collect` to pull th
 ```
 `across` in `summarize`
 ```
-@chain start_query_meta(db, :mtcars2) begin
+@chain db_table(db, :mtcars2) begin
     @group_by(cyl)
     @summarize(across((starts_with("a"), ends_with("s")), (mean, sum)))
     #@show_query

@@ -22,7 +22,7 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @select(groups:percent)
        @collect
        end
@@ -41,7 +41,7 @@ julia> @chain start_query_meta(db, :df_mem) begin
    9 │ bb            4       0.9
   10 │ aa            5       1.0
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @select(contains("e"))
        @collect
        end
@@ -89,7 +89,7 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @filter(percent > .5)
        @collect
        end
@@ -103,7 +103,7 @@ julia> @chain start_query_meta(db, :df_mem) begin
    4 │ AI       bb            4       0.9
    5 │ AJ       aa            5       1.0
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @group_by(groups)
        @summarise(mean = mean(percent))
        @filter begin 
@@ -144,7 +144,7 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @group_by(groups)
        @collect
        end 
@@ -179,7 +179,7 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @mutate(value = value * 4, new_col = percent^2)
        @collect
        end
@@ -222,7 +222,7 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @group_by(groups)
        @summarise(across((ends_with("e"), starts_with("p")), (mean, sum)))
        @collect
@@ -234,7 +234,7 @@ julia> @chain start_query_meta(db, :df_mem) begin
    1 │ bb              3.0           0.5         15          2.5
    2 │ aa              3.0           0.6         15          3.0
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @group_by(groups)
        @summarise(test = sum(percent), n =n())
        @collect
@@ -269,7 +269,7 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @group_by(groups)
        @summarise(across((value:percent), (mean, sum)))
        @collect
@@ -281,7 +281,7 @@ julia> @chain start_query_meta(db, :df_mem) begin
    1 │ bb              3.0           0.5         15          2.5
    2 │ aa              3.0           0.6         15          3.0
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @group_by(groups)
        @summarise(test = sum(percent), n = n())
        @collect
@@ -319,7 +319,7 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @group_by(groups)
        @slice_min(value, n = 2)
        @collect
@@ -333,7 +333,7 @@ julia> @chain start_query_meta(db, :df_mem) begin
    3 │ AA       bb            1       0.1         1
    4 │ AF       aa            1       0.6         1
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @slice_min(value)
        @collect
        end
@@ -370,7 +370,7 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @group_by(groups)
        @slice_max(value, n = 2)
        @collect
@@ -384,7 +384,7 @@ julia> @chain start_query_meta(db, :df_mem) begin
    3 │ AJ       aa            5       1.0         1
    4 │ AD       aa            4       0.4         2
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @slice_max(value)
        @collect
        end
@@ -419,13 +419,13 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @group_by(groups)
        @slice_sample(n = 2)
        @collect
        end;
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @slice_sample()
        @collect
        end;
@@ -455,7 +455,7 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @arrange(value, desc(percent))
        @collect
        end
@@ -499,7 +499,7 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @count(groups)
        @collect
        end
@@ -536,7 +536,7 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @distinct value
        @collect
        end
@@ -550,7 +550,7 @@ julia> @chain start_query_meta(db, :df_mem) begin
    4 │      4
    5 │      5
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @distinct
        @collect
        end
@@ -605,7 +605,7 @@ julia> copy_to(db, df, "df_mem");
 
 julia> copy_to(db, df2, "df_join");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @left_join(:df_join, id2, id)
        @collect
        end
@@ -660,7 +660,7 @@ julia> copy_to(db, df, "df_mem");
 
 julia> copy_to(db, df2, "df_join");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @right_join(:df_join, id2, id)
        @collect
        end
@@ -712,7 +712,7 @@ julia> copy_to(db, df, "df_mem");
 
 julia> copy_to(db, df2, "df_join");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @inner_join(:df_join, id2, id)
        @collect
        end
@@ -751,7 +751,7 @@ julia> db = duckdb_connect(mem);
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain start_query_meta(db, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
        @rename(new_name = percent)
        @show_query
        end

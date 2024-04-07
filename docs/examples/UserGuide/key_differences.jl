@@ -1,7 +1,7 @@
 # There are a few important syntax and behavior differences between TidierDB.jl and TidierData.jl outlined below. 
 
 ## Starting Chain
-# `start_query_meta(connection, :table_name)` is used to start a chain instead of a classic dataframe
+# `db_table(connection, :table_name)` is used to start a chain instead of a classic dataframe
 
 ## group_by -> mutate
 # In TidierDB, when performing `@group_by` then `@mutate`, after applying all of the mutations in the clause to the grouped data, the table is ungrouped. To perform subsequent grouped mutations/slices/summarizations, the user would have to regroup the data. This is something we will work to resolve, but as of version .0.1.0, this is the bevahior. This is demonstrated below with 
@@ -16,14 +16,14 @@ db = duckdb_open("con");
 # For these examples we will use DuckDB, the default backend, although SQLite, Postgres, MySQL, MSSQL, and ClickHouse are possible.
 copy_to(db, df, "df_mem"); # copying over the df to memory
 
-@chain start_query_meta(db, :df_mem) begin
+@chain db_table(db, :df_mem) begin
     @group_by(groups)
     @mutate(max = maximum(percent), min = minimum(percent))
     @slice_max(percent)
     @collect
 end     
 
-@chain start_query_meta(db, :df_mem) begin
+@chain db_table(db, :df_mem) begin
     @group_by(groups)
     @mutate(max = maximum(percent), min = minimum(percent))
     @group_by(groups)
@@ -42,7 +42,7 @@ df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 
 copy_to(db, df2, "df_join");
 
-@chain start_query_meta(db, :df_mem) begin
+@chain db_table(db, :df_mem) begin
     @left_join(:df_join, id2, id)
     @collect
 end
@@ -50,7 +50,7 @@ end
 ## `case_when`
 # In TidierDB, after the clause is completed, the result for the new column should is separated by comma ( , )
 # this is in contrast to TidierData.jl, where the result for the new column is separated by a => 
-@chain start_query_meta(db, :df_mem) begin
+@chain db_table(db, :df_mem) begin
     @mutate(new_col = case_when(percent > .5, "Pass",  # in TidierData, percent > .5 => "Pass", 
                                 percent <= .5, "Try Again", # percent <= .5 => "Try Again"
                                 true, "middle"))
@@ -62,7 +62,7 @@ end
 # Also, when using interpolation with exponenents, the interpolated value must go inside of parenthesis. 
 add_interp_parameter!(:test, :percent) # this still supports strings, vectors of names, and values
 
-@chain start_query_meta(db, :df_mem) begin
+@chain db_table(db, :df_mem) begin
     @mutate(new_col = case_when((!!test)^2 > .5, "Pass",
                                 (!!test)^2 < .5, "Try Again",
                                 "middle"))

@@ -10,6 +10,7 @@ using DuckDB
 using MySQL
 using ODBC 
 import ClickHouse
+using Arrow
 
 @reexport using DataFrames: DataFrame
 @reexport using Chain
@@ -18,7 +19,7 @@ import DuckDB: open as duckdb_open
 import DuckDB: connect as duckdb_connect
 
 
- export start_query_meta, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
+ export db_table, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
  @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
  @slice_min, @slice_sample, @rename, copy_to, add_interp_parameter!, duckdb_open, duckdb_connect
 
@@ -73,7 +74,7 @@ function get_table_metadata(db::SQLite.DB, table_name::String)
     return select(result, 2 => :name, 3 => :type, :current_selxn)
 end
 
-function start_query_meta(db::SQLite.DB, table::Symbol)
+function db_table(db::SQLite.DB, table::Symbol)
     metadata = get_table_metadata(db, string(table))
     return SQLQuery(from=string(table), metadata=metadata, db=db)  # Pass db to the constructor
 end
@@ -155,8 +156,8 @@ function get_table_metadata(conn::LibPQ.Connection, table_name::String)
 end
 
 
-# Database-agnostic start_query_meta function
-function start_query_meta(db, table::Symbol)
+# Database-agnostic db_table function
+function db_table(db, table::Symbol)
     table_name = string(table)
     metadata = if current_sql_mode[] == :lite
         get_table_metadata(db, table_name)
@@ -233,7 +234,7 @@ function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
     return select(result, :column_name => :name, :data_type => :type, :current_selxn)
   end 
 
-function start_query_meta(db, table::Symbol)
+function db_table(db, table::Symbol)
     table_name = string(table)
     metadata = if current_sql_mode[] == :lite
         get_table_metadata(db, table_name)
@@ -279,6 +280,10 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
             # Construct and execute a SQL command for loading a Parquet file
             sql_command = "CREATE TABLE $name AS SELECT * FROM '$df_or_path';"
             DuckDB.execute(conn, sql_command)
+        elseif occursin(r"\.arrow$", df_or_path)
+            # Construct and execute a SQL command for loading a CSV file
+            arrow_table = Arrow.Table(df_or_path)
+            DuckDB.register_table(conn, arrow_table, name)
         elseif occursin(r"\.json$", df_or_path)
             # For Arrow files, read the file into a DataFrame and then insert
             sql_command = "CREATE TABLE $name AS SELECT * FROM read_json('$df_or_path');"

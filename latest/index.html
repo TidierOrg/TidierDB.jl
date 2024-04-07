@@ -312,7 +312,7 @@
         <li class="md-nav__item">
   <a href="#what-is-tidierdbjl" class="md-nav__link">
     <span class="md-ellipsis">
-      What is TidierDB.jl
+      What is TidierDB.jl?
     </span>
   </a>
   
@@ -331,6 +331,51 @@
   <a href="#installation" class="md-nav__link">
     <span class="md-ellipsis">
       Installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-the-recommended-way-to-use-tidierdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is the recommended way to use TidierDB?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-if-we-wanted-to-pivot-the-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      What if we wanted to pivot the result?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-sql-query-does-tidierdb-generate-for-a-given-piece-of-julia-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      What SQL query does TidierDB generate for a given piece of Julia code?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tidierdb-is-already-quite-fully-featured-supporting-advanced-tidierdata-functions-like-across-for-multi-column-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      TidierDB is already quite fully-featured, supporting advanced TidierData functions like across() for multi-column selection.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#missing-a-function-or-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Missing a function or backend?
     </span>
   </a>
   
@@ -431,7 +476,7 @@
         <li class="md-nav__item">
   <a href="#what-is-tidierdbjl" class="md-nav__link">
     <span class="md-ellipsis">
-      What is TidierDB.jl
+      What is TidierDB.jl?
     </span>
   </a>
   
@@ -455,6 +500,51 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#what-is-the-recommended-way-to-use-tidierdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is the recommended way to use TidierDB?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-if-we-wanted-to-pivot-the-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      What if we wanted to pivot the result?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-sql-query-does-tidierdb-generate-for-a-given-piece-of-julia-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      What SQL query does TidierDB generate for a given piece of Julia code?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tidierdb-is-already-quite-fully-featured-supporting-advanced-tidierdata-functions-like-across-for-multi-column-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      TidierDB is already quite fully-featured, supporting advanced TidierData functions like across() for multi-column selection.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#missing-a-function-or-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Missing a function or backend?
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -472,11 +562,11 @@
 
   <h1>Home</h1>
 
-<p><a id='What-is-TidierDB.jl'></a></p>
-<p><a id='What-is-TidierDB.jl-1'></a></p>
-<h2 id="what-is-tidierdbjl">What is TidierDB.jl<a class="headerlink" href="#what-is-tidierdbjl" title="Permanent link">¤</a></h2>
-<p>TiderDB.jl is a 100% Julia implementation of the dbplyr R package (and similar to python's ibis package).</p>
-<p>The main goal of TidierDB.jl is to bring the ease of use and simple syntax of Tidier.jl to mutliple SQL backends, making data analysis smoother by abstracting away subtle syntax differences between backends.</p>
+<p><a id='What-is-TidierDB.jl?'></a></p>
+<p><a id='What-is-TidierDB.jl?-1'></a></p>
+<h2 id="what-is-tidierdbjl">What is TidierDB.jl?<a class="headerlink" href="#what-is-tidierdbjl" title="Permanent link">¤</a></h2>
+<p>TiderDB.jl is a 100% Julia implementation of the dbplyr R package, and similar to Python's ibis package.</p>
+<p>The main goal of TidierDB.jl is to bring the syntax of Tidier.jl to multiple SQL backends, making it possible to analyze data directly on databases without needing to copy the entire database into memory.</p>
 <p><a id='Currently-supported-backends-include:'></a></p>
 <p><a id='Currently-supported-backends-include:-1'></a></p>
 <h2 id="currently-supported-backends-include">Currently supported backends include:<a class="headerlink" href="#currently-supported-backends-include" title="Permanent link">¤</a></h2>
@@ -488,7 +578,7 @@
 <li>MSSQL <code>set_sql_mode(:mssql)</code></li>
 <li>Postgres <code>set_sql_mode(:postgres)</code></li>
 </ul>
-<p>Change the backend by using <code>set_sql_mode()</code></p>
+<p>The style of SQL that is generated can be modified using <code>set_sql_mode()</code>.</p>
 <p><a id='Installation'></a></p>
 <p><a id='Installation-1'></a></p>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¤</a></h2>
@@ -501,8 +591,8 @@
 <li><code>@group_by</code></li>
 <li><code>@filter</code></li>
 <li><code>@select</code></li>
-<li><code>@mutate</code> supports <code>across</code></li>
-<li><code>@summarize</code> / <code>@summarise</code> supports <code>across</code></li>
+<li><code>@mutate</code>, which supports <code>across()</code></li>
+<li><code>@summarize</code> and <code>@summarise</code>, which supports <code>across()</code></li>
 <li><code>@distinct</code></li>
 <li><code>@left_join</code>, <code>@right_join</code>, <code>@inner_join</code> (slight syntax differences from TidierData.jl)</li>
 <li><code>@count</code></li>
@@ -511,7 +601,7 @@
 <li><code>@show_query</code></li>
 <li><code>@collect</code></li>
 </ul>
-<p>Supported helper functions for most backends include</p>
+<p>Supported helper functions for most backends include:</p>
 <ul>
 <li><code>across()</code></li>
 <li><code>desc()</code></li>
@@ -522,11 +612,11 @@
 <li><code>is_missing()</code></li>
 <li><code>missing_if()</code> and <code>replace_missing()</code></li>
 </ul>
-<p>From TidierStrings.jl</p>
+<p>From TidierStrings.jl:</p>
 <ul>
 <li><code>str_detect</code>, <code>str_replace</code>, <code>str_replace_all</code>, <code>str_remove_all</code>, <code>str_remove</code></li>
 </ul>
-<p>From TidierDates.jl</p>
+<p>From TidierDates.jl:</p>
 <ul>
 <li><code>year</code>, <code>month</code>, <code>day</code>, <code>hour</code>, <code>min</code>, <code>second</code>, <code>floor_date</code>, <code>difftime</code></li>
 </ul>
@@ -535,80 +625,144 @@
 <li><code>mean</code>, <code>minimium</code>, <code>maximum</code>, <code>std</code>, <code>sum</code>, <code>cumsum</code>, <code>cor</code>, <code>cov</code>, <code>var</code></li>
 <li><code>copy_to</code> (for DuckDB, MySQL, SQLite)</li>
 </ul>
-<p>DuckDB specifically enables copy_to to directly reading in .parquet, .json, .csv, https file paths.</p>
-<div class="highlight"><pre><span></span><code>path = &quot;file_path.parquet&quot;
-copy_to(conn, file_path, &quot;table_name&quot;)
+<p>DuckDB specifically enables copy_to to directly reading in <code>.parquet</code>, <code>.json</code>, <code>.csv</code>, and <code>.arrow</code> file, including https file paths.</p>
+<div class="highlight"><pre><span></span><code><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;file_path.parquet&quot;</span>
+<span class="n">copy_to</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">file_path</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;table_name&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p>Bang bang <code>!!</code> Interpolation for columns and values is supported.</p>
-<p>There are a few subtle but important differences from Tidier.jl outlined <a href="https://github.com/drizk1/TidierDB.jl/blob/main/docs/examples/UserGuide/key_differences.jl">here</a>.</p>
-<p>Missing a function or backend?</p>
-<p>You can actually use any (non-agg) sql fucntion in mutate with the correct sql syntax and it will will still run. But open an issue, and we would be happy to address it.</p>
-<p>Finally, some examples</p>
-<div class="highlight"><pre><span></span><code>using TidierDB
-mem = duckdb_open(&quot;:memory:&quot;);
-db = duckdb_connect(mem);
-path = &quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;
-copy_to(db, path, &quot;mtcars2&quot;);
-@chain db_table(db, :mtcars2) begin
-    @filter(model != starts_with(&quot;M&quot;))
-    @group_by(cyl)
-    @summarize(mpg = mean(mpg))
-    @mutate(sqaured = mpg^2, 
-               rounded = round(mpg), 
-               efficiency = case_when(
-                             mpg &gt;= cyl^2 , 12,
-                             mpg &lt; 15.2 , 14,
-                              44))            
-    @filter(efficiency&gt;12)                       
-    @arrange(rounded)
-    @show_query
-    #@collect
-end
+<p><a id='What-is-the-recommended-way-to-use-TidierDB?'></a></p>
+<p><a id='What-is-the-recommended-way-to-use-TidierDB?-1'></a></p>
+<h2 id="what-is-the-recommended-way-to-use-tidierdb">What is the recommended way to use TidierDB?<a class="headerlink" href="#what-is-the-recommended-way-to-use-tidierdb" title="Permanent link">¤</a></h2>
+<p>Typically, you will want to use TidierDB alongside TidierData because there are certain functionality (such as pivoting) which are only supported in TidierData and can only be performed on data frames.</p>
+<p>Our recommended path for using TidierDB is to import the package so that there are no namespace conflicts with TidierData. Once TidierDB is integrated with Tidier, then Tidier will automatically load the packages in this fashion.</p>
+<p>First, let's develop and execute a query using TidierDB. Notice that all top-level macros and functions originating from TidierDB start with a <code>DB</code> prefix. Any functions defined within macros do <em>not</em> need to be prefixed within <code>DB</code> because they are actually pseudofunctions that are in actuality converted into SQL code.</p>
+<p>Even though the code reads similarly to TidierData, note that no computational work actually occurs until you run <code>DB.@collect()</code>, which runs the SQL query and instantiates the result as a DataFrame.</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierData</span>
+<span class="k">import</span><span class="w"> </span><span class="n">TidierDB</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">DB</span>
+
+<span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
+<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span>
+<span class="n">DB</span><span class="o">.</span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mtcars&quot;</span><span class="p">);</span>
+
+<span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@filter</span><span class="p">(</span><span class="o">!</span><span class="n">starts_with</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;M&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mpg_squared</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpg</span><span class="o">^</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span>
+<span class="w">               </span><span class="n">mpg_rounded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">mpg</span><span class="p">),</span><span class="w"> </span>
+<span class="w">               </span><span class="n">mpg_efficiency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">case_when</span><span class="p">(</span>
+<span class="w">                                 </span><span class="n">mpg</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">cyl</span><span class="o">^</span><span class="mi">2</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s">&quot;efficient&quot;</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">mpg</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">15.2</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s">&quot;inefficient&quot;</span><span class="p">,</span>
+<span class="w">                                 </span><span class="s">&quot;moderate&quot;</span><span class="p">))</span><span class="w">            </span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@filter</span><span class="p">(</span><span class="n">mpg_efficiency</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;moderate&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;efficient&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@arrange</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="n">mpg_rounded</span><span class="p">))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@collect</span>
+<span class="k">end</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>2×5 DataFrame
+ Row │ cyl     mpg       mpg_squared  mpg_rounded  mpg_efficiency 
+     │ Int64?  Float64?  Float64?     Float64?     String?        
+─────┼────────────────────────────────────────────────────────────
+   1 │      4   27.3444      747.719         27.0  efficient
+   2 │      6   19.7333      389.404         20.0  moderate
+</code></pre></div>
+<p><a id='What-if-we-wanted-to-pivot-the-result?'></a></p>
+<p><a id='What-if-we-wanted-to-pivot-the-result?-1'></a></p>
+<h2 id="what-if-we-wanted-to-pivot-the-result">What if we wanted to pivot the result?<a class="headerlink" href="#what-if-we-wanted-to-pivot-the-result" title="Permanent link">¤</a></h2>
+<p>We cannot do this using TidierDB. However, we can call <code>@pivot_longer()</code> from TidierData <em>after</em> the result of the query has been instantiated as a DataFrame, like this: </p>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@filter</span><span class="p">(</span><span class="o">!</span><span class="n">starts_with</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;M&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mpg_squared</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpg</span><span class="o">^</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span>
+<span class="w">               </span><span class="n">mpg_rounded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">mpg</span><span class="p">),</span><span class="w"> </span>
+<span class="w">               </span><span class="n">mpg_efficiency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">case_when</span><span class="p">(</span>
+<span class="w">                                 </span><span class="n">mpg</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">cyl</span><span class="o">^</span><span class="mi">2</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s">&quot;efficient&quot;</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">mpg</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">15.2</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s">&quot;inefficient&quot;</span><span class="p">,</span>
+<span class="w">                                 </span><span class="s">&quot;moderate&quot;</span><span class="p">))</span><span class="w">            </span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@filter</span><span class="p">(</span><span class="n">mpg_efficiency</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;moderate&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;efficient&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@arrange</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="n">mpg_rounded</span><span class="p">))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@collect</span>
+<span class="w">    </span><span class="nd">@pivot_longer</span><span class="p">(</span><span class="n">everything</span><span class="p">(),</span><span class="w"> </span><span class="n">names_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;variable&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">values_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;value&quot;</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>10×2 DataFrame
+ Row │ variable        value     
+     │ String          Any       
+─────┼───────────────────────────
+   1 │ cyl             4
+   2 │ cyl             6
+   3 │ mpg             27.3444
+   4 │ mpg             19.7333
+   5 │ mpg_squared     747.719
+   6 │ mpg_squared     389.404
+   7 │ mpg_rounded     27.0
+   8 │ mpg_rounded     20.0
+   9 │ mpg_efficiency  efficient
+  10 │ mpg_efficiency  moderate
+</code></pre></div>
+<p><a id='What-SQL-query-does-TidierDB-generate-for-a-given-piece-of-Julia-code?'></a></p>
+<p><a id='What-SQL-query-does-TidierDB-generate-for-a-given-piece-of-Julia-code?-1'></a></p>
+<h2 id="what-sql-query-does-tidierdb-generate-for-a-given-piece-of-julia-code">What SQL query does TidierDB generate for a given piece of Julia code?<a class="headerlink" href="#what-sql-query-does-tidierdb-generate-for-a-given-piece-of-julia-code" title="Permanent link">¤</a></h2>
+<p>We can replace <code>DB.collect()</code> with <code>DB.@show_query</code> to reveal the underlying SQL query being generated by TidierDB. To handle complex queries, TidierDB makes heavy use of Common Table Expressions (CTE), which are a useful tool to organize long queries.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@filter</span><span class="p">(</span><span class="o">!</span><span class="n">starts_with</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;M&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mpg_squared</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpg</span><span class="o">^</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span>
+<span class="w">               </span><span class="n">mpg_rounded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">mpg</span><span class="p">),</span><span class="w"> </span>
+<span class="w">               </span><span class="n">mpg_efficiency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">case_when</span><span class="p">(</span>
+<span class="w">                                 </span><span class="n">mpg</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">cyl</span><span class="o">^</span><span class="mi">2</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s">&quot;efficient&quot;</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">mpg</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">15.2</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s">&quot;inefficient&quot;</span><span class="p">,</span>
+<span class="w">                                 </span><span class="s">&quot;moderate&quot;</span><span class="p">))</span><span class="w">            </span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@filter</span><span class="p">(</span><span class="n">mpg_efficiency</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;moderate&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;efficient&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@arrange</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="n">mpg_rounded</span><span class="p">))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@show_query</span>
+<span class="k">end</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>WITH cte_1 AS (
 SELECT *
-        FROM mtcars2
-        WHERE NOT (model LIKE &#39;M%&#39;)),
+        FROM mtcars
+        WHERE NOT (starts_with(model, &#39;M&#39;))),
 cte_2 AS (
 SELECT cyl, AVG(mpg) AS mpg
         FROM cte_1
         GROUP BY cyl),
 cte_3 AS (
-SELECT  cyl, mpg, POWER(mpg, 2) AS sqaured, ROUND(mpg) AS rounded, CASE WHEN mpg &gt;= POWER(cyl, 2) THEN 12 WHEN mpg &lt; 15.2 THEN 14 ELSE 44 END AS efficiency
+SELECT  cyl, mpg, POWER(mpg, 2) AS mpg_squared, ROUND(mpg) AS mpg_rounded, CASE WHEN mpg &gt;= POWER(cyl, 2) THEN &#39;efficient&#39; WHEN mpg &lt; 15.2 THEN &#39;inefficient&#39; ELSE &#39;moderate&#39; END AS mpg_efficiency
         FROM cte_2 ),
 cte_4 AS (
 SELECT *
         FROM cte_3
-        WHERE efficiency &gt; 12)  
+        WHERE mpg_efficiency in (&#39;moderate&#39;, &#39;efficient&#39;))  
 SELECT *
         FROM cte_4  
-        ORDER BY rounded ASC
+        ORDER BY mpg_rounded DESC
 </code></pre></div>
-<p>Now instead of ending the chain with <code>@show_query</code>, we use <code>@collect</code> to pull the df into the local environment</p>
-<div class="highlight"><pre><span></span><code>2×5 DataFrame
- Row │ cyl    mpg      sqaured  rounded  efficiency 
-     │ Int64  Float64  Float64  Float64  Int64      
-─────┼──────────────────────────────────────────────
-   1 │     8  14.75    217.562     15.0          14
-   2 │     6  19.7333  389.404     20.0          44
-</code></pre></div>
-<p><code>across</code> in <code>summarize</code></p>
-<div class="highlight"><pre><span></span><code>@chain db_table(db, :mtcars2) begin
-    @group_by(cyl)
-    @summarize(across((starts_with(&quot;a&quot;), ends_with(&quot;s&quot;)), (mean, sum)))
-    #@show_query
-    @collect
-end
+<p><a id='TidierDB-is-already-quite-fully-featured,-supporting-advanced-TidierData-functions-like-across()-for-multi-column-selection.'></a></p>
+<p><a id='TidierDB-is-already-quite-fully-featured,-supporting-advanced-TidierData-functions-like-across()-for-multi-column-selection.-1'></a></p>
+<h2 id="tidierdb-is-already-quite-fully-featured-supporting-advanced-tidierdata-functions-like-across-for-multi-column-selection">TidierDB is already quite fully-featured, supporting advanced TidierData functions like <code>across()</code> for multi-column selection.<a class="headerlink" href="#tidierdb-is-already-quite-fully-featured-supporting-advanced-tidierdata-functions-like-across-for-multi-column-selection" title="Permanent link">¤</a></h2>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@summarize</span><span class="p">(</span><span class="n">across</span><span class="p">((</span><span class="n">starts_with</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">ends_with</span><span class="p">(</span><span class="s">&quot;s&quot;</span><span class="p">)),</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">)))</span>
+<span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@collect</span>
+<span class="k">end</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>3×5 DataFrame
- Row │ cyl    mean_am   mean_vs   sum_am  sum_vs 
-     │ Int64  Float64   Float64   Int64   Int64  
-─────┼───────────────────────────────────────────
-   1 │     4  0.727273  0.909091       8      10
-   2 │     6  0.428571  0.571429       3       4
-   3 │     8  0.142857  0.0            2       0
+ Row │ cyl     mean_am   mean_vs   sum_am   sum_vs  
+     │ Int64?  Float64?  Float64?  Int128?  Int128? 
+─────┼──────────────────────────────────────────────
+   1 │      4  0.727273  0.909091        8       10
+   2 │      6  0.428571  0.571429        3        4
+   3 │      8  0.142857  0.0             2        0
 </code></pre></div>
-<p>This links to <a href="https://github.com/drizk1/TidierDB.jl/blob/main/testing_files/olympics_examples_fromweb.jl">examples</a> which achieve the same result as the SQL queries.</p>
+<p>Bang bang <code>!!</code> interpolation for columns and values is also supported.</p>
+<p>There are a few subtle but important differences from Tidier.jl outlined <a href="https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/key_differences/">here</a>.</p>
+<p><a id='Missing-a-function-or-backend?'></a></p>
+<p><a id='Missing-a-function-or-backend?-1'></a></p>
+<h2 id="missing-a-function-or-backend">Missing a function or backend?<a class="headerlink" href="#missing-a-function-or-backend" title="Permanent link">¤</a></h2>
+<p>You can use any existing SQL function within <code>@mutate</code> with the correct SQL syntax and it should just work.</p>
+<p>But if you run into problems please open an issue, and we will be happy to take a look!</p>
 
 
 

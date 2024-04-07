@@ -11,26 +11,43 @@ df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-con = duckdb_connect("memory"); # opening DuckDB database connection.
-db = duckdb_open("con");
+mem = duckdb_open(":memory:");
+db = duckdb_connect(mem);
 # For these examples we will use DuckDB, the default backend, although SQLite, Postgres, MySQL, MSSQL, and ClickHouse are possible.
 copy_to(db, df, "df_mem"); # copying over the df to memory
-
+```julia
 @chain db_table(db, :df_mem) begin
     @group_by(groups)
-  #  @mutate(max = maximum(percent), min = minimum(percent))
+    @summarise(mean = mean(percent))
     @slice_max(percent)
     @collect
 end     
+```
+```
+1×1 DataFrame
+ Row │ mean     
+     │ Float64? 
+─────┼──────────
+   1 │     0.55
+```
 
+```julia
 @chain db_table(db, :df_mem) begin
     @group_by(groups)
-   # @mutate(max = maximum(percent), min = minimum(percent))
- #   @group_by(groups)
-    @slice_max(percent)
+    @mutate(max = maximum(percent), min = minimum(percent))
+    @group_by(groups)
+    @summarise(mean = mean(percent))
     @collect
 end     
-          
+```
+```
+2×2 DataFrame
+ Row │ groups   mean     
+     │ String?  Float64? 
+─────┼───────────────────
+   1 │ bb            0.5
+   2 │ aa            0.6
+```          
 ## Joining
 # There are 2 key differences for joining:
 # 1. When joining 2 tables, the new table you are choosing to join must be prefixed with a colon. 

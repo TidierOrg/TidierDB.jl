@@ -1,11 +1,11 @@
 # There are a few important syntax and behavior differences between TidierDB.jl and TidierData.jl outlined below. 
 
-## Starting Chain
-# `db_table(connection, :table_name)` is used to start a chain instead of a classic dataframe
+# ## Creating a database
 
-## group_by -> mutate
-# In TidierDB, when performing `@group_by` then `@mutate`, after applying all of the mutations in the clause to the grouped data, the table is ungrouped. To perform subsequent grouped mutations/slices/summarizations, the user would have to regroup the data. This is something we will work to resolve, but as of version .0.1.0, this is the bevahior. This is demonstrated below with 
-using TidierDB
+# For these examples we will use DuckDB, the default backend, although SQLite, Postgres, MySQL, MSSQL, and ClickHouse are possible. If you have an existing DuckDB connection, then this step is not required. For these examples, we will create a data frame and copy it to an in-memory DuckDB database.
+
+using DataFrames, TidierDB
+
 df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
                         groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
                         value = repeat(1:5, 2), 
@@ -13,28 +13,42 @@ df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
  mem = duckdb_open(":memory:");
  db = duckdb_connect(mem);
-# For these examples we will use DuckDB, the default backend, although SQLite, Postgres, MySQL, MSSQL, and ClickHouse are possible.
-# copy_to(db, df, "df_mem"); # copying over the df to memory
+
+copy_to(db, df, "df_mem"); # copying over the data frame to an in-memory database
+
+# ## Row ordering
+
+# DuckDB benefits from aggressive parallelization of pipelines. This means that if you have multiple threads enabled in Julia, which you can check or set using `Threads.nthreads()`, DuckDB will use multiple threads. However, because many operations are multi-threaded, the resulting row order is inconsistent. If row order needs to be deterministic for your use case, make sure to apply an `@arrange(column_name_1, column_name_2, etc...)` prior to collecting the results.  
+
+# ## Starting a chain
+
+# When using TidierDB, `db_table(connection, :table_name)` is used to start a chain.
+
+# ## Grouped mutation
+
+# In TidierDB, when performing `@group_by` then `@mutate`, the table will be ungrouped after applying all of the mutations in the clause to the grouped data. To perform subsequent grouped operations, the user would have to regroup the data. This is demonstrated below.
+
 
 @chain db_table(db, :df_mem) begin
     @group_by(groups)
-    @summarise(mean = mean(percent))
-    @slice_max(percent)
+    @summarize(mean_percent = mean(percent))
     @collect
- end     
+ end
 
- @chain db_table(db, :df_mem) begin
+@chain db_table(db, :df_mem) begin
     @group_by(groups)
     @mutate(max = maximum(percent), min = minimum(percent))
     @group_by(groups)
-    @summarise(mean = mean(percent))
+    @summarise(mean_percent = mean(percent))
     @collect
-end     
+end
 
-## Joining
+# ## Joining
+
 # There are 2 key differences for joining:
+
 # 1. When joining 2 tables, the new table you are choosing to join must be prefixed with a colon. 
-# 2. The column on both the new and old table must be specified. They do not need to be the same, and given SQL behavior where both columns are kept when joining two tables, it is preferrable if they have different names. This avoids "ambiguous reference" errors that would otherwise come up and complicate the use of tidy selection for columns. 
+# 2. The column on both the new and old table must be specified. They do not need to be the same, and given SQL behavior where both columns are kept when joining two tables, it is preferable if they have different names. This avoids "ambiguous reference" errors that would otherwise come up and complicate the use of tidy selection for columns. 
 
 df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
@@ -42,14 +56,16 @@ df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 
  copy_to(db, df2, "df_join");
 
- @chain db_table(db, :df_mem) begin
+@chain db_table(db, :df_mem) begin
     @left_join(:df_join, id2, id)
     @collect
 end
 
-## `case_when`
-# In TidierDB, after the clause is completed, the result for the new column should is separated by comma ( , )
-# this is in contrast to TidierData.jl, where the result for the new column is separated by a => 
+# ## Differences in `case_when()`
+
+# In TidierDB, after the clause is completed, the result for the new column should is separated by a comma `,`
+# in contrast to TidierData.jl, where the result for the new column is separated by a `=>` .
+
 @chain db_table(db, :df_mem) begin
     @mutate(new_col = case_when(percent > .5, "Pass",  # in TidierData, percent > .5 => "Pass", 
                                 percent <= .5, "Try Again", # percent <= .5 => "Try Again"
@@ -57,10 +73,13 @@ end
     @collect
  end
 
-## Interpolation
-# To use !! Interpolation, instead of being able to define the alternate names/value in the global context, the user has to `add_interp_parameter!`. This will hopefully be fixed in future versions. Otherwise behavior is the same.
+# ## Interpolation
+
+# To use !! Interpolation, instead of being able to define the alternate names/value in the global context, the user has to `add_interp_parameter!`. This will hopefully be fixed in future versions. Otherwise, the behavior is the same.
+
 # Also, when using interpolation with exponenents, the interpolated value must go inside of parenthesis. 
-# add_interp_parameter!(:test, :percent) # this still supports strings, vectors of names, and values
+
+add_interp_parameter!(:test, :percent) # this still supports strings, vectors of names, and values
 
 @chain db_table(db, :df_mem) begin
     @mutate(new_col = case_when((!!test)^2 > .5, "Pass",
@@ -69,5 +88,6 @@ end
     @collect
 end
 
-## Slicing Ties
-# Slice will always return ties due to SQL behavior
+# ## Slicing ties
+
+# `slice_min()` and `@slice_max()` will always return ties due to SQL behavior.

@@ -23,8 +23,8 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
-       @select(groups:percent)
-       @collect
+         @select(groups:percent)
+         @collect
        end
 10×3 DataFrame
  Row │ groups   value   percent  
@@ -42,8 +42,8 @@ julia> @chain db_table(db, :df_mem) begin
   10 │ aa            5       1.0
 
 julia> @chain db_table(db, :df_mem) begin
-       @select(contains("e"))
-       @collect
+         @select(contains("e"))
+         @collect
        end
 10×2 DataFrame
  Row │ value   percent  
@@ -90,8 +90,8 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
-       @filter(percent > .5)
-       @collect
+         @filter(percent > .5)
+         @collect
        end
 5×4 DataFrame
  Row │ id       groups   value   percent  
@@ -104,20 +104,21 @@ julia> @chain db_table(db, :df_mem) begin
    5 │ AJ       aa            5       1.0
 
 julia> @chain db_table(db, :df_mem) begin
-       @group_by(groups)
-       @summarise(mean = mean(percent))
-       @filter begin 
-              groups == "bb" || # logical operators can still be used like this
-              mean > .5
-              end
-       @collect
+         @group_by(groups)
+         @summarise(mean = mean(percent))
+         @filter begin 
+           groups == "bb" || # logical operators can still be used like this
+           mean > .5
+         end
+         @arrange(groups)
+         @collect
        end
 2×2 DataFrame
  Row │ groups   mean     
      │ String?  Float64? 
 ─────┼───────────────────
-   1 │ bb            0.5
-   2 │ aa            0.6
+   1 │ aa            0.6
+   2 │ bb            0.5
 ```
 """
 
@@ -125,7 +126,7 @@ const docstring_group_by =
 """
     @group_by(sql_query, columns...)
 
-Group SQL table rows by specified column(s).
+Group SQL table rows by specified column(s). If grouping is performed as a terminal operation without a subsequent mutatation or summarization (as in the example below), then the resulting data frame will be ungrouped when `@collect` is applied.
 
 # Arguments
 - `sql_query`: The SQL query to operate on.
@@ -145,15 +146,16 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
-       @group_by(groups)
-       @collect
-       end 
+         @group_by(groups)
+         @arrange(groups)
+         @collect
+       end
 2×1 DataFrame
  Row │ groups  
      │ String? 
 ─────┼─────────
-   1 │ bb
-   2 │ aa
+   1 │ aa
+   2 │ bb
 ```
 """
 
@@ -180,8 +182,8 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
-       @mutate(value = value * 4, new_col = percent^2)
-       @collect
+         @mutate(value = value * 4, new_col = percent^2)
+         @collect
        end
 10×5 DataFrame
  Row │ id       groups   value   percent   new_col  
@@ -223,28 +225,30 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
-       @group_by(groups)
-       @summarise(across((ends_with("e"), starts_with("p")), (mean, sum)))
-       @collect
+         @group_by(groups)
+         @summarise(across((ends_with("e"), starts_with("p")), (mean, sum)))
+         @arrange(groups)
+         @collect
        end
 2×5 DataFrame
  Row │ groups   mean_value  mean_percent  sum_value  sum_percent 
      │ String?  Float64?    Float64?      Int128?    Float64?    
 ─────┼───────────────────────────────────────────────────────────
-   1 │ bb              3.0           0.5         15          2.5
-   2 │ aa              3.0           0.6         15          3.0
+   1 │ aa              3.0           0.6         15          3.0
+   2 │ bb              3.0           0.5         15          2.5
 
 julia> @chain db_table(db, :df_mem) begin
-       @group_by(groups)
-       @summarise(test = sum(percent), n =n())
-       @collect
+         @group_by(groups)
+         @summarise(test = sum(percent), n = n())
+         @arrange(groups)
+         @collect
        end
 2×3 DataFrame
  Row │ groups   test      n      
      │ String?  Float64?  Int64? 
 ─────┼───────────────────────────
-   1 │ bb            2.5       5
-   2 │ aa            3.0       5
+   1 │ aa            3.0       5
+   2 │ bb            2.5       5
 ```
 """
 const docstring_summarise =
@@ -270,28 +274,30 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
-       @group_by(groups)
-       @summarise(across((value:percent), (mean, sum)))
-       @collect
+         @group_by(groups)
+         @summarise(across((value:percent), (mean, sum)))
+         @arrange(groups)
+         @collect
        end
 2×5 DataFrame
  Row │ groups   mean_value  mean_percent  sum_value  sum_percent 
      │ String?  Float64?    Float64?      Int128?    Float64?    
 ─────┼───────────────────────────────────────────────────────────
-   1 │ bb              3.0           0.5         15          2.5
-   2 │ aa              3.0           0.6         15          3.0
+   1 │ aa              3.0           0.6         15          3.0
+   2 │ bb              3.0           0.5         15          2.5
 
 julia> @chain db_table(db, :df_mem) begin
-       @group_by(groups)
-       @summarise(test = sum(percent), n = n())
-       @collect
+         @group_by(groups)
+         @summarise(test = sum(percent), n = n())
+         @arrange(groups)
+         @collect
        end
 2×3 DataFrame
  Row │ groups   test      n      
      │ String?  Float64?  Int64? 
 ─────┼───────────────────────────
-   1 │ bb            2.5       5
-   2 │ aa            3.0       5
+   1 │ aa            3.0       5
+   2 │ bb            2.5       5
 ```
 """
 
@@ -320,22 +326,14 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
-       @group_by(groups)
-       @slice_min(value, n = 2)
-       @collect
-       end
-4×5 DataFrame
- Row │ id       groups   value   percent   rank_col 
-     │ String?  String?  Int64?  Float64?  Int64?   
-─────┼──────────────────────────────────────────────
-   1 │ AG       bb            2       0.7         2
-   2 │ AB       aa            2       0.2         2
-   3 │ AA       bb            1       0.1         1
-   4 │ AF       aa            1       0.6         1
+         @group_by(groups)
+         @slice_min(value, n = 2)
+         @collect
+       end;
 
 julia> @chain db_table(db, :df_mem) begin
-       @slice_min(value)
-       @collect
+         @slice_min(value)
+         @collect
        end
 2×5 DataFrame
  Row │ id       groups   value   percent   rank_col 
@@ -371,22 +369,14 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
-       @group_by(groups)
-       @slice_max(value, n = 2)
-       @collect
-       end
-4×5 DataFrame
- Row │ id       groups   value   percent   rank_col 
-     │ String?  String?  Int64?  Float64?  Int64?   
-─────┼──────────────────────────────────────────────
-   1 │ AE       bb            5       0.5         1
-   2 │ AI       bb            4       0.9         2
-   3 │ AJ       aa            5       1.0         1
-   4 │ AD       aa            4       0.4         2
+         @group_by(groups)
+         @slice_max(value, n = 2)
+         @collect
+       end;
 
 julia> @chain db_table(db, :df_mem) begin
-       @slice_max(value)
-       @collect
+         @slice_max(value)
+         @collect
        end
 2×5 DataFrame
  Row │ id       groups   value   percent   rank_col 
@@ -420,9 +410,9 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
-       @group_by(groups)
-       @slice_sample(n = 2)
-       @collect
+         @group_by(groups)
+         @slice_sample(n = 2)
+         @collect
        end;
 
 julia> @chain db_table(db, :df_mem) begin
@@ -456,8 +446,8 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
-       @arrange(value, desc(percent))
-       @collect
+         @arrange(value, desc(percent))
+         @collect
        end
 10×4 DataFrame
  Row │ id       groups   value   percent  
@@ -500,15 +490,16 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
-       @count(groups)
-       @collect
+         @count(groups)
+         @arrange(groups)
+         @collect
        end
 2×2 DataFrame
  Row │ groups   count  
      │ String?  Int64? 
 ─────┼─────────────────
-   1 │ bb            5
-   2 │ aa            5
+   1 │ aa            5
+   2 │ bb            5
 ```
 """
 
@@ -537,8 +528,9 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
-       @distinct value
-       @collect
+         @distinct(value)
+         @arrange(value)
+         @collect
        end
 5×1 DataFrame
  Row │ value  
@@ -551,8 +543,9 @@ julia> @chain db_table(db, :df_mem) begin
    5 │      5
 
 julia> @chain db_table(db, :df_mem) begin
-       @distinct
-       @collect
+         @distinct
+         @arrange(id)
+         @collect
        end
 10×4 DataFrame
  Row │ id       groups   value   percent  
@@ -606,8 +599,8 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-       @left_join(:df_join, id2, id)
-       @collect
+         @left_join(:df_join, id2, id)
+         @collect
        end
 10×7 DataFrame
  Row │ id       groups   value   percent   id2      category  score   
@@ -661,8 +654,8 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-       @right_join(:df_join, id2, id)
-       @collect
+         @right_join(:df_join, id2, id)
+         @collect
        end
 7×7 DataFrame
  Row │ id       groups   value    percent    id2      category  score  
@@ -713,8 +706,8 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-       @inner_join(:df_join, id2, id)
-       @collect
+         @inner_join(:df_join, id2, id)
+         @collect
        end
 5×7 DataFrame
  Row │ id       groups   value   percent   id2      category  score  
@@ -753,13 +746,23 @@ julia> copy_to(db, df, "df_mem");
 
 julia> @chain db_table(db, :df_mem) begin
        @rename(new_name = percent)
-       @show_query
+       @collect
        end
-WITH cte_1 AS (
-SELECT id, groups, value, percent AS new_name
-        FROM df_mem)  
-SELECT *
-        FROM cte_1
+10×4 DataFrame
+ Row │ id       groups   value   new_name 
+     │ String?  String?  Int64?  Float64? 
+─────┼────────────────────────────────────
+   1 │ AA       bb            1       0.1
+   2 │ AB       aa            2       0.2
+   3 │ AC       bb            3       0.3
+   4 │ AD       aa            4       0.4
+   5 │ AE       bb            5       0.5
+   6 │ AF       aa            1       0.6
+   7 │ AG       bb            2       0.7
+   8 │ AH       aa            3       0.8
+   9 │ AI       bb            4       0.9
+  10 │ AJ       aa            5       1.0
+```
 """
 
 const docstring_copy_to =
@@ -837,5 +840,3 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 ```
 """
-
-

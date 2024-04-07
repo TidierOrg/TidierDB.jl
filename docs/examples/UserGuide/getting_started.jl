@@ -2,10 +2,10 @@
 
 # If you plan to use TidierDB.jl with TidierData.jl or Tidier.jl, it is most convenenient to load the packages as follows:
 
-```
-using Tidier # or TidierData
-import TidierDB as DB.
-```
+
+# - using Tidier # or TidierData
+# - import TidierDB as DB.
+
 # Afterwards, all of the TidierDB macros will be available as DB.@mutate and so on, and the TidierData equivalent would be @mutate.
 
 # The associated databased packages  used to set up connections are currently as follows

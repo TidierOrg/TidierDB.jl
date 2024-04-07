@@ -18,15 +18,15 @@ copy_to(db, df, "df_mem"); # copying over the df to memory
 
 @chain db_table(db, :df_mem) begin
     @group_by(groups)
-    @mutate(max = maximum(percent), min = minimum(percent))
+  #  @mutate(max = maximum(percent), min = minimum(percent))
     @slice_max(percent)
     @collect
 end     
 
 @chain db_table(db, :df_mem) begin
     @group_by(groups)
-    @mutate(max = maximum(percent), min = minimum(percent))
-    @group_by(groups)
+   # @mutate(max = maximum(percent), min = minimum(percent))
+ #   @group_by(groups)
     @slice_max(percent)
     @collect
 end     

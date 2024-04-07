@@ -247,9 +247,9 @@ macro mutate(sqlquery, mutations...)
             sq.from = string(cte_name)
             
             sq.select = "*"  # This selects everything from the CTE without duplicating transformations
-            if !isempty(sq.groupBy)
-                println("@mutate removed grouping after applying mutations.")
-            end
+         #   if !isempty(sq.groupBy)
+          #      println("@mutate removed grouping after applying mutations.")
+          #  end
             sq.groupBy =""
         else
             error("Expected sqlquery to be an instance of SQLQuery")

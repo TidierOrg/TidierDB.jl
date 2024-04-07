@@ -8,7 +8,7 @@ mutable struct CTE
     # Additional fields as necessary
 
     # Default constructor
-    CTE() = new("", "", "", "", "", "")
+    #CTE() = new("", "", "", "", "", "")
 
     # Custom constructor accepting keyword arguments
     function CTE(;name::String="", select::String="", from::String="", where::String="", groupBy::String="", having::String="")
@@ -33,7 +33,7 @@ mutable struct SQLQuery
     ctes::Vector{CTE}
     cte_count::Int
 
-    SQLQuery() = new("", "", "", "", "", "", "", "", false, false, DataFrame(), false, nothing, Vector{CTE}(), 0)
+    #SQLQuery() = new("", "", "", "", "", "", "", "", false, false, DataFrame(), false, nothing, Vector{CTE}(), 0)
 
     function SQLQuery(;select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", window_order::String="", windowFrame::String="", is_aggregated::Bool=false, post_aggregation::Bool=false, metadata::DataFrame=DataFrame(), distinct::Bool=false, db::Any=nothing, ctes::Vector{CTE}=Vector{CTE}(), cte_count::Int=0)
         new(select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, post_aggregation, metadata, distinct, db, ctes, cte_count)

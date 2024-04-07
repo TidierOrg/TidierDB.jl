@@ -74,10 +74,6 @@ function get_table_metadata(db::SQLite.DB, table_name::String)
     return select(result, 2 => :name, 3 => :type, :current_selxn)
 end
 
-function db_table(db::SQLite.DB, table::Symbol)
-    metadata = get_table_metadata(db, string(table))
-    return SQLQuery(from=string(table), metadata=metadata, db=db)  # Pass db to the constructor
-end
 
 function finalize_ctes(ctes::Vector{CTE})
     if isempty(ctes)
@@ -153,24 +149,6 @@ function get_table_metadata(conn::LibPQ.Connection, table_name::String)
     result = LibPQ.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
     return select(result, 1 => :name, 2 => :type, :current_selxn)
-end
-
-
-# Database-agnostic db_table function
-function db_table(db, table::Symbol)
-    table_name = string(table)
-    metadata = if current_sql_mode[] == :lite
-        get_table_metadata(db, table_name)
-    elseif current_sql_mode[] == :postgres 
-        get_table_metadata(db, table_name)
-    elseif current_sql_mode[] == :duckdb 
-        get_table_metadata(db, table_name)
-    elseif current_sql_mode[] == :mssql 
-        get_table_metadata(db, table_name)
-    else
-        error("Unsupported SQL mode: $(current_sql_mode[])")
-    end
-    return SQLQuery(from=table_name, metadata=metadata, db=db)
 end
 
 # DuckDB

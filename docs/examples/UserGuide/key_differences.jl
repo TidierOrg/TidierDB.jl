@@ -35,6 +35,8 @@ copy_to(db, df, "df_mem"); # copying over the data frame to an in-memory databas
     @collect
  end
 
+# Notice the difference between the summarized tables above and below.
+
 @chain db_table(db, :df_mem) begin
     @group_by(groups)
     @mutate(max = maximum(percent), min = minimum(percent))

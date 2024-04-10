@@ -35,7 +35,7 @@ copy_to(db, df, "df_mem"); # copying over the data frame to an in-memory databas
     @collect
  end
 
-# Notice the difference between the summarized tables above and below.
+# Regrouping following `@mutate`
 
 @chain db_table(db, :df_mem) begin
     @group_by(groups)

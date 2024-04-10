@@ -29,6 +29,10 @@ function parse_tidy_db(exprs, metadata::DataFrame)
     exprs_iterable = isa(exprs, Tuple) ? collect(exprs) : exprs
 
     for expr in exprs_iterable
+        if occursin(".", string(expr))
+            push!(included_columns, string(expr))
+            continue
+        end
         is_excluded = isa(expr, Expr) && expr.head == :call && expr.args[1] == :(!)
         actual_expr = is_excluded ? expr.args[2] : expr
 
@@ -66,6 +70,10 @@ function parse_tidy_db(exprs, metadata::DataFrame)
             end
         elseif isa(actual_expr, Symbol) || isa(actual_expr, String)
             # Handle single column name
+            if occursin(".", string(actual_expr))
+                push!(included_columns, string(actual_expr))
+                continue
+            end
             col_name = isa(actual_expr, Symbol) ? string(actual_expr) : actual_expr
             if is_excluded
                 push!(excluded_columns, col_name)
@@ -92,9 +100,10 @@ function parse_tidy_db(exprs, metadata::DataFrame)
     else
         included_columns = setdiff(included_columns, excluded_columns)
     end
-
+    
     return included_columns
 end
+
 
 function parse_if_else(expr)
     transformed_expr = MacroTools.postwalk(expr) do x

@@ -1,5 +1,7 @@
 ## What is TidierDB.jl?
 
+<img src="/assets/logo.png" align="right" style="padding-left:10px;" width="150"/>
+
 TiderDB.jl is a 100% Julia implementation of the dbplyr R package, and similar to Python's ibis package.
 
 The main goal of TidierDB.jl is to bring the syntax of Tidier.jl to multiple SQL backends, making it possible to analyze data directly on databases without needing to copy the entire database into memory.

@@ -65,16 +65,6 @@ end
 
 
 
-
-function get_table_metadata(db::SQLite.DB, table_name::String)
-    query = "PRAGMA table_info($table_name);"
-    result = SQLite.DBInterface.execute(db, query) |> DataFrame
-    result[!, :current_selxn] .= 1
-    resize!(result.current_selxn, nrow(result))
-    return select(result, 2 => :name, 3 => :type, :current_selxn)
-end
-
-
 function finalize_ctes(ctes::Vector{CTE})
     if isempty(ctes)
         return ""
@@ -139,6 +129,16 @@ function finalize_query(sqlquery::SQLQuery)
 end
 
 
+function get_table_metadata(db::SQLite.DB, table_name::String)
+    query = "PRAGMA table_info($table_name);"
+    result = SQLite.DBInterface.execute(db, query) |> DataFrame
+    result[!, :current_selxn] .= 1
+    resize!(result.current_selxn, nrow(result))
+    result[!, :table_name] .= table_name
+    # Adjust the select statement to include the new table_name column
+    return DataFrames.select(result, 2 => :name, 3 => :type, :current_selxn, :table_name)
+end
+
 function get_table_metadata(conn::LibPQ.Connection, table_name::String)
     query = """
     SELECT column_name, data_type
@@ -148,8 +148,11 @@ function get_table_metadata(conn::LibPQ.Connection, table_name::String)
     """
     result = LibPQ.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
-    return select(result, 1 => :name, 2 => :type, :current_selxn)
+    result[!, :table_name] .= table_name
+    # Adjust the select statement to include the new table_name column
+    return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
+
 
 # DuckDB
 function get_table_metadata(conn::DuckDB.Connection, table_name::String)
@@ -161,7 +164,9 @@ function get_table_metadata(conn::DuckDB.Connection, table_name::String)
     """
     result = DuckDB.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
-    return select(result, 1 => :name, 2 => :type, :current_selxn)
+    result[!, :table_name] .= table_name
+    # Adjust the select statement to include the new table_name column
+    return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
 # MySQL
@@ -177,7 +182,9 @@ function get_table_metadata(conn::MySQL.Connection, table_name::String)
     result = DBInterface.execute(conn, query) |> DataFrame
     result[!, :DATA_TYPE] = map(x -> String(x), result.DATA_TYPE)
     result[!, :current_selxn] .= 1
-    return select(result, :COLUMN_NAME => :name, :DATA_TYPE => :type, :current_selxn)
+    result[!, :table_name] .= table_name
+    # Adjust the select statement to include the new table_name column
+    return select(result, :COLUMN_NAME => :name, 2 => :type, :current_selxn, :table_name)
 end
 
 # MSSQL
@@ -193,8 +200,10 @@ function get_table_metadata(conn::ODBC.Connection, table_name::String)
     result = DBInterface.execute(conn, query) |> DataFrame
     #result[!, :DATA_TYPE] = map(x -> String(x), result.DATA_TYPE)
     result[!, :current_selxn] .= 1
-    return select(result, :column_name => :name, :data_type => :type, :current_selxn)
-  end
+    result[!, :table_name] .= table_name
+    # Adjust the select statement to include the new table_name column
+    return select(result, :column_name => :name, :data_type => :type, :current_selxn, :table_name,)
+end
 
  # ClickHouse
 function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
@@ -209,8 +218,10 @@ function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
     result = ClickHouse.select_df(conn,query)
 
     result[!, :current_selxn] .= 1
-    return select(result, :column_name => :name, :data_type => :type, :current_selxn)
-  end 
+    result[!, :table_name] .= table_name
+    # Adjust the select statement to include the new table_name column
+    return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
+end
 
 function db_table(db, table::Symbol)
     table_name = string(table)

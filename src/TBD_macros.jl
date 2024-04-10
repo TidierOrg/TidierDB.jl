@@ -12,8 +12,24 @@ macro select(sqlquery, exprs...)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
             $(esc(sqlquery)).select = columns_str
             $(esc(sqlquery)).metadata.current_selxn .= 0
-            selected_indices = indexin(columns, $(esc(sqlquery)).metadata.name)
-            $(esc(sqlquery)).metadata.current_selxn[selected_indices[.!isnothing.(selected_indices)]] .= 1
+            for col in columns
+                if occursin(".", col)
+                    table_col_split = split(col, ".")
+                    table_name, col_name = table_col_split[1], table_col_split[2]
+
+                    # Iterate and update current_selxn based on matches
+                    for idx in eachindex($(esc(sqlquery)).metadata.current_selxn)
+                        if $(esc(sqlquery)).metadata.table_name[idx] == table_name && 
+                           $(esc(sqlquery)).metadata.name[idx] == col_name
+                            $(esc(sqlquery)).metadata.current_selxn[idx] = 1
+                        end
+                    end
+                else
+                    # Direct matching for columns without 'table.' prefix
+                    matching_indices = findall($(esc(sqlquery)).metadata.name .== col)
+                    $(esc(sqlquery)).metadata.current_selxn[matching_indices] .= 1
+                end
+            end
         end
         
         $(esc(sqlquery))
@@ -138,7 +154,7 @@ end
 
 
 
-function process_mutate_expression(expr, sq, select_expressions)
+function process_mutate_expression(expr, sq, select_expressions, cte_name)
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
         col_name = string(expr.args[1])
         col_expr = expr_to_sql(expr.args[2], sq)  # Convert to SQL expression
@@ -152,7 +168,7 @@ function process_mutate_expression(expr, sq, select_expressions)
             # Append the mutation as a new column expression
             push!(select_expressions, string(col_expr, " AS ", col_name))
             # Update metadata to include this new column
-            push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1))
+            push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => cte_name))
         end
     else
         throw("Unsupported expression format in @mutate: $(expr)")
@@ -220,10 +236,10 @@ macro mutate(sqlquery, mutations...)
                 end
                 if isa(expr, Expr) && expr.head == :tuple
                     for subexpr in expr.args
-                        process_mutate_expression(subexpr, sq, select_expressions)
+                        process_mutate_expression(subexpr, sq, select_expressions, cte_name)
                     end
                 else
-                    process_mutate_expression(expr, sq, select_expressions)
+                    process_mutate_expression(expr, sq, select_expressions, cte_name)
                 end
             end
             cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
@@ -350,7 +366,7 @@ function process_summary_expression(expr, sq, summary_str)
         summary_operation = string(summary_operation)
         summary_column = expr_to_sql(expr.args[1], sq, from_summarize = true)
         summary_column = string(summary_column)
-        push!(sq.metadata, Dict("name" => summary_column, "type" => "UNKNOWN", "current_selxn" => 1))
+        push!(sq.metadata, Dict("name" => summary_column, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => sq.from))
     
         push!(summary_str, summary_operation * " AS " * summary_column)
     else

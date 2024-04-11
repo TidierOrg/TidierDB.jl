@@ -21,7 +21,7 @@ macro select(sqlquery, exprs...)
                     for idx in eachindex($(esc(sqlquery)).metadata.current_selxn)
                         if $(esc(sqlquery)).metadata.table_name[idx] == table_name && 
                            $(esc(sqlquery)).metadata.name[idx] == col_name
-                            $(esc(sqlquery)).metadata.current_selxn[idx] = 1
+                            $(esc(sqlquery)).metadata.current_selxn[idx] = 2
                         end
                     end
                 else
@@ -226,7 +226,10 @@ macro mutate(sqlquery, mutations...)
             #else
             #select_expressions = !isempty(sq.select) && sq.select != "*" ? [sq.select] : ["*"]
             #end
-            all_columns = sq.metadata[sq.metadata.current_selxn .== 1, :name]
+            all_columns = [
+                (row[:current_selxn] == 1 ? row[:name] : row[:table_name] * "." * row[:name])
+                for row in eachrow(sq.metadata) if row[:current_selxn] != 0
+            ]            
             select_expressions = [col for col in all_columns]  # Start with all currently selected columns
 
             for expr in $mutations

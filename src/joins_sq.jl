@@ -34,9 +34,6 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column)
                 join_clause = " LEFT JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", sq.from, ".", $rhs_col_str)
                 sq.from *= join_clause
 
-                # Update metadata to include columns from the joined table
-                new_metadata = get_table_metadata(sq.db, string($(esc(join_table))))
-                sq.metadata = vcat(sq.metadata, new_metadata)
             end
             
             # Update metadata to include columns from the joined table

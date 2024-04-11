@@ -16,7 +16,7 @@ The main goal of TidierDB.jl is to bring the syntax of Tidier.jl to multiple SQL
 - DuckDB (the default) `set_sql_mode(:duckdb)`
 - ClickHouse `set_sql_mode(:clickhouse)`
 - SQLite `set_sql_mode(:lite)`
-- MySQL `set_sql_mode(:mysql)`
+- MySQL and MariaDB `set_sql_mode(:mysql)`
 - MSSQL `set_sql_mode(:mssql)`
 - Postgres `set_sql_mode(:postgres)`
 

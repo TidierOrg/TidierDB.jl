@@ -12,7 +12,7 @@
 # The associated databased packages used to set up connections are currently as follows
 
 # - ClickHouse: ClickHouse.jl
-# - MySQL: MySQL.jl
+# - MySQL and MariaDB: MySQL.jl
 # - MSSQL:  ODBC.jl 
 # - Postgres: LibPQ.jl
 # - SQLite: SQLite.jl

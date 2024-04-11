@@ -176,15 +176,16 @@ function get_table_metadata(conn::MySQL.Connection, table_name::String)
     SELECT column_name, data_type
     FROM information_schema.columns
     WHERE table_name = '$table_name'
+    AND TABLE_SCHEMA = '$(conn.db)'
     ORDER BY ordinal_position;
     """
 
     result = DBInterface.execute(conn, query) |> DataFrame
-    result[!, :DATA_TYPE] = map(x -> String(x), result.DATA_TYPE)
+    result[!, 2] = map(x -> String(x), result[!, 2])
     result[!, :current_selxn] .= 1
     result[!, :table_name] .= table_name
     # Adjust the select statement to include the new table_name column
-    return select(result, :COLUMN_NAME => :name, 2 => :type, :current_selxn, :table_name)
+    return DataFrames.select(result, :1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
 # MSSQL

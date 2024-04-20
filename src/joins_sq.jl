@@ -5,7 +5,8 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column)
     # Convert column references to string
     lhs_col_str = string(lhs_column)
     rhs_col_str = string(rhs_column)
-    
+    join_table = QuoteNode(join_table)
+
     return quote
         sq = $(esc(sqlquery))
         if isa(sq, SQLQuery)
@@ -53,7 +54,8 @@ macro right_join(sqlquery, join_table, lhs_column, rhs_column)
     # Convert column references to string
     lhs_col_str = string(lhs_column)
     rhs_col_str = string(rhs_column)
-    
+    join_table = QuoteNode(join_table)
+
     return quote
         sq = $(esc(sqlquery))
         if isa(sq, SQLQuery)
@@ -96,7 +98,8 @@ macro inner_join(sqlquery, join_table, lhs_column, rhs_column)
     # Convert column references to string
     lhs_col_str = string(lhs_column)
     rhs_col_str = string(rhs_column)
-    
+    join_table = QuoteNode(join_table)
+
     return quote
         sq = $(esc(sqlquery))
         if isa(sq, SQLQuery)

@@ -47,10 +47,9 @@ end
 
 # ## Joining
 
-# There are 2 key differences for joining:
+# There is 1 key difference for joining:
 
-# 1. When joining 2 tables, the new table you are choosing to join must be prefixed with a colon. 
-# 2. The column on both the new and old table must be specified. They do not need to be the same, and given SQL behavior where both columns are kept when joining two tables, it is preferable if they have different names. This avoids "ambiguous reference" errors that would otherwise come up and complicate the use of tidy selection for columns. 
+# The column on both the new and old table must be specified. They do not need to be the same, and given SQL behavior where both columns are kept when joining two tables, it is preferable if they have different names. This avoids "ambiguous reference" errors that would otherwise come up and complicate the use of tidy selection for columns. 
 
 df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
@@ -59,7 +58,7 @@ df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
  copy_to(db, df2, "df_join");
 
 @chain db_table(db, :df_mem) begin
-    @left_join(:df_join, id2, id)
+    @left_join(df_join, id2, id)
     @collect
 end
 

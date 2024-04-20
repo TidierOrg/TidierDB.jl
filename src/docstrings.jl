@@ -599,7 +599,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @left_join(:df_join, id2, id)
+         @left_join(df_join, id2, id)
          @collect
        end
 10×7 DataFrame
@@ -654,7 +654,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @right_join(:df_join, id2, id)
+         @right_join(df_join, id2, id)
          @collect
        end
 7×7 DataFrame
@@ -706,7 +706,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @inner_join(:df_join, id2, id)
+         @inner_join(df_join, id2, id)
          @collect
        end
 5×7 DataFrame

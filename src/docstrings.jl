@@ -720,6 +720,160 @@ julia> @chain db_table(db, :df_mem) begin
    5 │ AI       bb            4       0.9  AI       X             95
 ```
 """
+const docstring_full_join =
+"""
+    @inner_join(sql_query, join_table, new_table_col, orignal_table_col)
+
+Perform an full join between two SQL queries based on a specified condition. 
+This syntax here is slightly different than TidierData.jl, however, because 
+SQL does not drop the joining column, for the metadata storage, it is 
+preferrable for the names to be different 
+
+# Arguments
+- `sql_query`: The primary SQL query to operate on.
+- `join_table`: The secondary SQL table to join with the primary query table.
+- `new_table_col`: Column from the new table that matches for join. 
+- `orignal_table_col`: Column from the original table that matches for join. 
+
+# Examples
+```jldoctest
+julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                        value = repeat(1:5, 2), 
+                        percent = 0.1:0.1:1.0);
+
+julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
+                category = ["X", "Y", "X", "Y", "X", "Y", "X"],
+                score = [88, 92, 77, 83, 95, 68, 74]);
+
+julia> mem = duckdb_open(":memory:");
+
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
+
+julia> copy_to(db, df2, "df_join");
+
+julia> @chain DB.db_table(con, :df_mem) begin
+         @full_join(df_join, id2, id)
+         @collect
+       end
+12×7 DataFrame
+ Row │ id       groups   value    percent    id2      category  score   
+     │ String?  String?  Int64?   Float64?   String?  String?   Int64?  
+─────┼──────────────────────────────────────────────────────────────────
+   1 │ AA       bb             1        0.1  AA       X              88
+   2 │ AC       bb             3        0.3  AC       Y              92
+   3 │ AE       bb             5        0.5  AE       X              77
+   4 │ AG       bb             2        0.7  AG       Y              83
+  ⋮  │    ⋮        ⋮        ⋮         ⋮         ⋮        ⋮         ⋮
+  10 │ AJ       aa             5        1.0  missing  missing   missing 
+  11 │ missing  missing  missing  missing    AK       Y              68
+  12 │ missing  missing  missing  missing    AM       X              74
+                                                          5 rows omitted
+```
+"""
+
+const docstring_semi_join =
+"""
+    @semi_join(sql_query, join_table, new_table_col, orignal_table_col)
+
+Perform an semi join between two SQL queries based on a specified condition. 
+This syntax here is slightly different than TidierData.jl, however, because 
+SQL does not drop the joining column, for the metadata storage, it is 
+preferrable for the names to be different 
+
+# Arguments
+- `sql_query`: The primary SQL query to operate on.
+- `join_table`: The secondary SQL table to join with the primary query table.
+- `new_table_col`: Column from the new table that matches for join. 
+- `orignal_table_col`: Column from the original table that matches for join. 
+
+# Examples
+```jldoctest
+julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                        value = repeat(1:5, 2), 
+                        percent = 0.1:0.1:1.0);
+
+julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
+                category = ["X", "Y", "X", "Y", "X", "Y", "X"],
+                score = [88, 92, 77, 83, 95, 68, 74]);
+
+julia> mem = duckdb_open(":memory:");
+
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
+
+julia> copy_to(db, df2, "df_join");
+
+julia> @chain DB.db_table(con, :df_mem) begin
+         @semi_join(df_join, id2, id)
+         @collect
+       end
+5×4 DataFrame
+ Row │ id       groups   value   percent  
+     │ String?  String?  Int64?  Float64? 
+─────┼────────────────────────────────────
+   1 │ AA       bb            1       0.1
+   2 │ AC       bb            3       0.3
+   3 │ AE       bb            5       0.5
+   4 │ AG       bb            2       0.7
+   5 │ AI       bb            4       0.9
+```
+"""
+
+const docstring_anti_join =
+"""
+    @anti_join(sql_query, join_table, new_table_col, orignal_table_col)
+
+Perform an anti join between two SQL queries based on a specified condition. 
+This syntax here is slightly different than TidierData.jl, however, because 
+SQL does not drop the joining column, for the metadata storage, it is 
+preferrable for the names to be different 
+
+# Arguments
+- `sql_query`: The primary SQL query to operate on.
+- `join_table`: The secondary SQL table to join with the primary query table.
+- `new_table_col`: Column from the new table that matches for join. 
+- `orignal_table_col`: Column from the original table that matches for join. 
+
+# Examples
+```jldoctest
+julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                        value = repeat(1:5, 2), 
+                        percent = 0.1:0.1:1.0);
+
+julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
+                category = ["X", "Y", "X", "Y", "X", "Y", "X"],
+                score = [88, 92, 77, 83, 95, 68, 74]);
+
+julia> mem = duckdb_open(":memory:");
+
+julia> db = duckdb_connect(mem);
+
+julia> copy_to(db, df, "df_mem");
+
+julia> copy_to(db, df2, "df_join");
+
+julia> @chain DB.db_table(con, :df_mem) begin
+        @anti_join(df_join, id2, id)
+        @collect
+       end
+5×4 DataFrame
+ Row │ id       groups   value   percent  
+     │ String?  String?  Int64?  Float64? 
+─────┼────────────────────────────────────
+   1 │ AB       aa            2       0.2
+   2 │ AD       aa            4       0.4
+   3 │ AF       aa            1       0.6
+   4 │ AH       aa            3       0.8
+   5 │ AJ       aa            5       1.0
+```
+"""
+
 
 const docstring_rename =
 """
@@ -788,8 +942,6 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "test");
 ```
 """
-
-
 
 const docstring_window_order =
 """

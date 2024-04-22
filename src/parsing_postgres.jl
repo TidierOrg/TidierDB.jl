@@ -82,6 +82,13 @@ function expr_to_sql_postgres(expr, sq; from_summarize::Bool)
                 window_clause = construct_window_clause(sq)
                 return  "VAR_SAMP($(string(a))) $(window_clause)"
             end
+        elseif @capture(x, agg_str(str_))
+            if from_summarize
+                return  error("agg_str is only needed with aggregate functions in @mutate")
+            else
+                window_clause = construct_window_clause(sq)
+                return "$(str) $(window_clause)"
+            end
         #stringr functions, have to use function that removes _ so capture can capture name
         elseif @capture(x, strreplaceall(str_, pattern_, replace_))
             return :(REGEXP_REPLACE($str, $pattern, $replace, 'g'))

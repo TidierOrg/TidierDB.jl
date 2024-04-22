@@ -55,6 +55,13 @@ function expr_to_sql_lite(expr, sq; from_summarize::Bool)
                 window_clause = construct_window_clause(sq, from_cumsum = true)
                 return  "SUM($(string(a))) $(window_clause)"
             end
+        elseif @capture(x, agg_str(str_))
+            if from_summarize
+                return  error("agg_str is only needed with aggregate functions in @mutate")
+            else
+                window_clause = construct_window_clause(sq)
+                return "$(str) $(window_clause)"
+            end
     # exc_capture_bug used above to allow proper _ function name capturing
         elseif @capture(x, replacemissing(column_, replacement_value_))
             return :(COALESCE($column, $replacement_value))

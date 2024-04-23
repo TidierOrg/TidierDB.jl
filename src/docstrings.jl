@@ -766,11 +766,14 @@ julia> @chain db_table(db, :df_mem) begin
    2 │ AC       bb             3        0.3  AC       Y              92
    3 │ AE       bb             5        0.5  AE       X              77
    4 │ AG       bb             2        0.7  AG       Y              83
-  ⋮  │    ⋮        ⋮        ⋮         ⋮         ⋮        ⋮         ⋮
+   5 │ AI       bb             4        0.9  AI       X              95
+   6 │ AB       aa             2        0.2  missing  missing   missing 
+   7 │ AD       aa             4        0.4  missing  missing   missing 
+   8 │ AF       aa             1        0.6  missing  missing   missing 
+   9 │ AH       aa             3        0.8  missing  missing   missing 
   10 │ AJ       aa             5        1.0  missing  missing   missing 
   11 │ missing  missing  missing  missing    AK       Y              68
   12 │ missing  missing  missing  missing    AM       X              74
-                                                          5 rows omitted
 ```
 """
 

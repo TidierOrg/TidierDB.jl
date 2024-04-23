@@ -754,7 +754,7 @@ julia> copy_to(db, df, "df_mem");
 
 julia> copy_to(db, df2, "df_join");
 
-julia> @chain db_table(con, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
          @full_join(df_join, id2, id)
          @collect
        end
@@ -808,7 +808,7 @@ julia> copy_to(db, df, "df_mem");
 
 julia> copy_to(db, df2, "df_join");
 
-julia> @chain db_table(con, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
          @semi_join(df_join, id2, id)
          @collect
        end
@@ -858,7 +858,7 @@ julia> copy_to(db, df, "df_mem");
 
 julia> copy_to(db, df2, "df_join");
 
-julia> @chain db_table(con, :df_mem) begin
+julia> @chain db_table(db, :df_mem) begin
         @anti_join(df_join, id2, id)
         @collect
        end

@@ -16,9 +16,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -83,9 +81,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -139,9 +135,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -175,9 +169,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -218,9 +210,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -267,9 +257,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -319,9 +307,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -362,9 +348,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -403,9 +387,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -439,9 +421,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -483,9 +463,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -521,9 +499,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -590,9 +566,7 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
                 score = [88, 92, 77, 83, 95, 68, 74]);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -645,9 +619,7 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
                 score = [88, 92, 77, 83, 95, 68, 74]);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -697,9 +669,7 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
                 score = [88, 92, 77, 83, 95, 68, 74]);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -746,9 +716,7 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
                 score = [88, 92, 77, 83, 95, 68, 74]);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -803,9 +771,7 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
                 score = [88, 92, 77, 83, 95, 68, 74]);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -853,9 +819,7 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
                 score = [88, 92, 77, 83, 95, 68, 74]);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -895,9 +859,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 
@@ -938,9 +900,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "test");
 ```
@@ -962,9 +922,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 ```
@@ -988,9 +946,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> mem = duckdb_open(":memory:");
-
-julia> db = duckdb_connect(mem);
+julia> db = connect(:duckdb);
 
 julia> copy_to(db, df, "df_mem");
 ```
@@ -1000,7 +956,7 @@ const docstring_connect =
 """
     connect(backend::Symbol; kwargs...)
 
-This function establishes a database connection based on the specified backend and connection parameters.
+This function establishes a database connection based on the specified backend and connection parameters and sets the SQL mode
 
 # Arguments
 - `backend`: A symbol specifying the database backend to connect to. Supported backends are:
@@ -1021,12 +977,12 @@ This function establishes a database connection based on the specified backend a
 # Connect to MySQL
 # conn = connect(:mysql; host="localhost", user="root", password="password", db="mydb")
 # Connect to PostgreSQL using LibPQ
-# conn = connect(:libpq; host="localhost", dbname="mydb", user="postgres", password="password")
+# conn = connect(:postgres; host="localhost", dbname="mydb", user="postgres", password="password")
 # Connect to ClickHouse
 # conn = connect(:clickhouse; host="localhost", port=9000, database="mydb", user="default", password="")
 # Connect to SQLite
 # conn = connect(:lite)
 # Connect to DuckDB
-julia> conn = connect(:duckdb)
+julia> db = connect(:duckdb)
 DuckDB.Connection(":memory:")
 """

@@ -295,6 +295,8 @@ $docstring_connect
 """
 function connect(backend::Symbol; kwargs...)
     if backend == :MySQL || backend == :mysql 
+        set_sql_mode(:mysql)
+
         # Required parameters by MySQL.jl: host and user
         host = get(kwargs, :host, "localhost")
         user = get(kwargs, :user, "")          
@@ -303,23 +305,26 @@ function connect(backend::Symbol; kwargs...)
         db = get(kwargs, :db, nothing)  
         port = get(kwargs, :port, nothing)     
         return DBInterface.connect(MySQL.Connection, host, user, password; db=db, port=port)
-    elseif backend == :LibPQ ||  backend == :libpq 
+    elseif backend == :Postgres ||  backend == :postgres 
+        set_sql_mode(:postgres)
         # Construct a connection string from kwargs for LibPQ
         conn_str = join(["$(k)=$(v)" for (k, v) in kwargs], " ")
         return LibPQ.Connection(conn_str)
     elseif backend == :MsSQL || backend == :mssql 
+        set_sql_mode(:mssql)
         # Construct a connection string for ODBC if required for MsSQL
         conn_str = join(["$(k)=$(v)" for (k, v) in kwargs], ";")
         return ODBC.Connection(conn_str)
     elseif backend == :Clickhouse || backend == :clickhouse 
-        # Ensure host and port are specified for ClickHouse
+        set_sql_mode(:clickhouse)
         if haskey(kwargs, :host) && haskey(kwargs, :port)
             return ClickHouse.connect(kwargs[:host], kwargs[:port]; (k => v for (k, v) in kwargs if k ∉ [:host, :port])...)
         else
             throw(ArgumentError("Missing required positional arguments 'host' and 'port' for ClickHouse."))
         end
     elseif backend == :SQLite || backend == :lite
-        db_path = get(kwargs, :db, ":memory:") # Default to in-memory database if not specified
+        db_path = get(kwargs, :db, ":memory:") 
+        set_sql_mode(:lite)
         return SQLite.DB(db_path)
     elseif backend == :DuckDB || backend == :duckdb
         mem = DuckDB.open(":memory:")

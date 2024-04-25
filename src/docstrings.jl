@@ -995,3 +995,38 @@ julia> db = duckdb_connect(mem);
 julia> copy_to(db, df, "df_mem");
 ```
 """
+
+const docstring_connect = 
+"""
+    connect(backend::Symbol; kwargs...)
+
+This function establishes a database connection based on the specified backend and connection parameters.
+
+# Arguments
+- `backend`: A symbol specifying the database backend to connect to. Supported backends are:
+  - `:duckdb`, `:lite`(SQLite), `:mssql`, `mysql`(for MariaDB and MySQL), `:clickhouse`, `:postgres` 
+- `kwargs`: Keyword arguments specifying the connection parameters for the selected backend. The required parameters vary depending on the backend:
+  - MySQL:
+    - `host`: The host name or IP address of the MySQL server. Default is "localhost".
+    - `user`: The username for authentication. Default is an empty string.
+    - `password`: The password for authentication.
+    - `db`: The name of the database to connect to (optional).
+    - `port`: The port number of the MySQL server (optional).
+
+# Returns
+- A database connection object based on the selected backend.
+
+# Examples
+```julia
+# Connect to MySQL
+# conn = connect(:mysql; host="localhost", user="root", password="password", db="mydb")
+# Connect to PostgreSQL using LibPQ
+# conn = connect(:libpq; host="localhost", dbname="mydb", user="postgres", password="password")
+# Connect to ClickHouse
+# conn = connect(:clickhouse; host="localhost", port=9000, database="mydb", user="default", password="")
+# Connect to SQLite
+# conn = connect(:lite)
+# Connect to DuckDB
+julia> conn = connect(:duckdb)
+DuckDB.Connection(":memory:")
+"""

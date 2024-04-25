@@ -9,6 +9,20 @@
 
 # Alternatively, `using Tidier` will import TidierDB in the above manner for you, where TidierDB functions and macros will be available as `DB.@mutate()` and so on, and the TidierData equivalent would be `@mutate()`.
 
+# There are two ways to connect to the database.  you can use `connect` without any need to load any additional packages.
+
+# for example
+
+# ```julia
+# Connect to MySQL
+# conn = connect(:mysql; host="localhost", user="root", password="password", db="mydb")
+# versus
+# Connect to DuckDB
+# julia> conn = connect(:duckdb)
+# ```
+
+# Alternatively, you can use the packages outlined below and establish a connection directly through their respective methods.
+
 # The associated databased packages used to set up connections are currently as follows
 
 # - ClickHouse: ClickHouse.jl

@@ -22,7 +22,7 @@ import DuckDB: connect as duckdb_connect
  export db_table, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
  @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
  @slice_min, @slice_sample, @rename, copy_to, add_interp_parameter!, duckdb_open, duckdb_connect, @semi_join, @full_join, 
- @anti_join
+ @anti_join, connect
 
 include("docstrings.jl")
 include("structs.jl")
@@ -286,6 +286,46 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
         end
     else
         error("Unsupported type for df_or_path: Must be DataFrame or file path string.")
+    end
+end
+
+
+"""
+$docstring_connect
+"""
+function connect(backend::Symbol; kwargs...)
+    if backend == :MySQL || backend == :mysql 
+        # Required parameters by MySQL.jl: host and user
+        host = get(kwargs, :host, "localhost")
+        user = get(kwargs, :user, "")          
+        password = get(kwargs, :password, "")  
+        # Extract other optional parameters
+        db = get(kwargs, :db, nothing)  
+        port = get(kwargs, :port, nothing)     
+        return DBInterface.connect(MySQL.Connection, host, user, password; db=db, port=port)
+    elseif backend == :LibPQ ||  backend == :libpq 
+        # Construct a connection string from kwargs for LibPQ
+        conn_str = join(["$(k)=$(v)" for (k, v) in kwargs], " ")
+        return LibPQ.Connection(conn_str)
+    elseif backend == :MsSQL || backend == :mssql 
+        # Construct a connection string for ODBC if required for MsSQL
+        conn_str = join(["$(k)=$(v)" for (k, v) in kwargs], ";")
+        return ODBC.Connection(conn_str)
+    elseif backend == :Clickhouse || backend == :clickhouse 
+        # Ensure host and port are specified for ClickHouse
+        if haskey(kwargs, :host) && haskey(kwargs, :port)
+            return ClickHouse.connect(kwargs[:host], kwargs[:port]; (k => v for (k, v) in kwargs if k ∉ [:host, :port])...)
+        else
+            throw(ArgumentError("Missing required positional arguments 'host' and 'port' for ClickHouse."))
+        end
+    elseif backend == :SQLite || backend == :lite
+        db_path = get(kwargs, :db, ":memory:") # Default to in-memory database if not specified
+        return SQLite.DB(db_path)
+    elseif backend == :DuckDB || backend == :duckdb
+        mem = DuckDB.open(":memory:")
+        return DuckDB.connect(mem)
+    else
+        throw(ArgumentError("Unsupported backend: $backend"))
     end
 end
 

@@ -328,6 +328,7 @@ function connect(backend::Symbol; kwargs...)
         return SQLite.DB(db_path)
     elseif backend == :DuckDB || backend == :duckdb
         mem = DuckDB.open(":memory:")
+        set_sql_mode(:duckdb)
         return DuckDB.connect(mem)
     else
         throw(ArgumentError("Unsupported backend: $backend"))

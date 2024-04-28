@@ -64,7 +64,7 @@ From TidierDates.jl:
 Supported aggregate functions (as supported by the backend) with more to come
 - `mean`, `minimium`, `maximum`, `std`, `sum`, `cumsum`, `cor`, `cov`, `var`
 - `@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.
-- `agg_str` allows any SQL aggregate function not listed above to be used in `@mutate`. Simply write the function expression as written in SQL syntax as a string wrapped in `agg_str`, and subsequent windowing is handled by `@mutate`.
+- `sql_agg` allows any SQL aggregate function not listed above to be used in `@mutate`. Simply write the function expression as written in SQL syntax as a string wrapped in `sql_agg`, and subsequent windowing is handled by `@mutate`.
 - `copy_to` (for DuckDB, MySQL, SQLite)
 
 DuckDB specifically enables copy_to to directly reading in `.parquet`, `.json`, `.csv`, and `.arrow` file, including https file paths.

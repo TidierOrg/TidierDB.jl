@@ -82,9 +82,9 @@ function expr_to_sql_mysql(expr, sq; from_summarize::Bool)
                 window_clause = construct_window_clause(sq)
                 return  "VAR_SAMP($(string(a))) $(window_clause)"
             end
-        elseif @capture(x, agg_str(str_))
+        elseif @capture(x, sql_agg(str_))
             if from_summarize
-                return  error("agg_str is only needed with aggregate functions in @mutate")
+                return  error("sql_agg is only needed with aggregate functions in @mutate")
             else
                 window_clause = construct_window_clause(sq)
                 return "$(str) $(window_clause)"

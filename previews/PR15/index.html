@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.19">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.21">
     
     
       
@@ -625,7 +625,7 @@
 <ul>
 <li><code>mean</code>, <code>minimium</code>, <code>maximum</code>, <code>std</code>, <code>sum</code>, <code>cumsum</code>, <code>cor</code>, <code>cov</code>, <code>var</code></li>
 <li><code>@summarize</code> supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work</li>
-<li><code>agg_str</code> allows any SQL aggregate function not listed above to be used in <code>@mutate</code>. Simply write the function expression as written in SQL syntax as a string wrapped in <code>agg_str</code>, and subsequent windowing is handled by <code>@mutate</code>.</li>
+<li><code>sql_agg</code> allows any SQL aggregate function not listed above to be used in <code>@mutate</code>. Simply write the function expression as written in SQL syntax as a string wrapped in <code>sql_agg</code>, and subsequent windowing is handled by <code>@mutate</code>.</li>
 <li><code>copy_to</code> (for DuckDB, MySQL, SQLite)</li>
 </ul>
 <p>DuckDB specifically enables copy_to to directly reading in <code>.parquet</code>, <code>.json</code>, <code>.csv</code>, and <code>.arrow</code> file, including https file paths.</p>
@@ -870,7 +870,7 @@ SELECT *
     <script id="__config" type="application/json">{"base": ".", "features": ["content.code.copy", "content.code.annotate", "navigation.top", "navigation.footer", "search.highlight", "search.share", "search.suggest", "toc.follow", "header.autohide"], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.dd8806f2.min.js"></script>
+      <script src="assets/javascripts/bundle.a7c05c9e.min.js"></script>
       
         <script src="javascripts/mathjax.js"></script>
       

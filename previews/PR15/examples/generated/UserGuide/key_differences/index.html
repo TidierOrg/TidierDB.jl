@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.19">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.21">
     
     
       
@@ -568,7 +568,7 @@
 <p><a id='Creating-a-database'></a></p>
 <p><a id='Creating-a-database-1'></a></p>
 <h2 id="creating-a-database">Creating a database<a class="headerlink" href="#creating-a-database" title="Permanent link">¤</a></h2>
-<p>For these examples we will use DuckDB, the default backend, although SQLite, Postgres, MySQL, MSSQL, and ClickHouse are possible. If you have an existing DuckDB connection, then this step is not required. For these examples, we will create a data frame and copy it to an in-memory DuckDB database.</p>
+<p>For these examples we will use DuckDB, the default backend, although SQLite, Postgres, MySQL, MariaDB, MSSQL, and ClickHouse are possible. If you have an existing DuckDB connection, then this step is not required. For these examples, we will create a data frame and copy it to an in-memory DuckDB database.</p>
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">DataFrames</span><span class="p">,</span><span class="w"> </span><span class="n">TidierDB</span>
 
 <span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">string</span><span class="p">(</span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">÷</span><span class="w"> </span><span class="mi">26</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">26</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">:</span><span class="mi">9</span><span class="p">],</span>
@@ -576,7 +576,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">)</span>
+<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span><span class="w"> </span><span class="c"># copying over the data frame to an in-memory database</span>
 </code></pre></div>
@@ -616,13 +616,13 @@
 <p><a id='Joining'></a></p>
 <p><a id='Joining-1'></a></p>
 <h2 id="joining">Joining<a class="headerlink" href="#joining" title="Permanent link">¤</a></h2>
-<p>There is 1 key difference for joining:</p>
+<p>There is one key difference for joining:</p>
 <p>The column on both the new and old table must be specified. They do not need to be the same, and given SQL behavior where both columns are kept when joining two tables, it is preferable if they have different names. This avoids "ambiguous reference" errors that would otherwise come up and complicate the use of tidy selection for columns.</p>
 <div class="highlight"><pre><span></span><code><span class="n">df2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">id2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;AA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AC&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AE&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AG&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AI&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AK&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AM&quot;</span><span class="p">],</span>
 <span class="w">                </span><span class="n">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">],</span>
 <span class="w">                </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">88</span><span class="p">,</span><span class="w"> </span><span class="mi">92</span><span class="p">,</span><span class="w"> </span><span class="mi">77</span><span class="p">,</span><span class="w"> </span><span class="mi">83</span><span class="p">,</span><span class="w"> </span><span class="mi">95</span><span class="p">,</span><span class="w"> </span><span class="mi">68</span><span class="p">,</span><span class="w"> </span><span class="mi">74</span><span class="p">]);</span>
 
-<span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_join&quot;</span><span class="p">);</span>
+<span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_join&quot;</span><span class="p">);</span>
 
 <span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="n">df_join</span><span class="p">,</span><span class="w"> </span><span class="n">id2</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
@@ -790,7 +790,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.copy", "content.code.annotate", "navigation.top", "navigation.footer", "search.highlight", "search.share", "search.suggest", "toc.follow", "header.autohide"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.dd8806f2.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.a7c05c9e.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

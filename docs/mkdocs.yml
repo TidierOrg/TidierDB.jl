@@ -118,4 +118,5 @@ nav:
   - "Home": "index.md"
   - "Key Differences from TidierData.jl" : "examples/generated/UserGuide/key_differences.md"
   - "Getting Started" : "examples/generated/UserGuide/getting_started.md"
+#  - "Reusing Part of a Query" : "examples/generated/UserGuide/from_queryex.md"
   - "Reference" : "reference.md"

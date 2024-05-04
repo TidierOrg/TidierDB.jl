@@ -52,3 +52,29 @@ function add_interp_parameter!(name::Symbol, value::Any)
     GLOBAL_CONTEXT.variables[name] = value
 end
 
+function from_query(query::TidierDB.SQLQuery)
+    # Custom copy method for TidierDB.CTE
+    function copy(cte::TidierDB.CTE)
+        return TidierDB.CTE(name=cte.name, select=cte.select, from=cte.from, where=cte.where, groupBy=cte.groupBy, having=cte.having)
+    end
+    
+    # Create a new SQLQuery object with the same field values
+    new_query = TidierDB.SQLQuery(
+        select=query.select,
+        from=query.from,
+        where=query.where,
+        groupBy=query.groupBy,
+        orderBy=query.orderBy,
+        having=query.having,
+        window_order=query.window_order,
+        windowFrame=query.windowFrame,
+        is_aggregated=query.is_aggregated,
+        post_aggregation=query.post_aggregation,
+        metadata=deepcopy(query.metadata), 
+        distinct=query.distinct,
+        db=query.db,
+        ctes=[copy(cte) for cte in query.ctes],  
+        cte_count=query.cte_count
+    )
+    return new_query
+end

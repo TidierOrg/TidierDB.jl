@@ -11,23 +11,21 @@
 
 # There are two ways to connect to the database.  you can use `connect` without any need to load any additional packages.
 
-# for example
-
+# For example
+# Connecting to MySQL
 # ```julia
-# Connect to MySQL
 # conn = connect(:mysql; host="localhost", user="root", password="password", db="mydb")
-# versus
-# Connect to DuckDB
-# julia> conn = connect(:duckdb)
+# ```
+# versus connecting to DuckDB
+# ```julia
+# conn = connect(:duckdb)
 # ```
 
-# Alternatively, you can use the packages outlined below and establish a connection directly through their respective methods.
-
-# The associated databased packages used to set up connections are currently as follows
+# Alternatively, you can use the packages outlined below to establish a connection through their respective methods.
 
 # - ClickHouse: ClickHouse.jl
 # - MySQL and MariaDB: MySQL.jl
-# - MSSQL:  ODBC.jl 
+# - MSSQL: ODBC.jl 
 # - Postgres: LibPQ.jl
 # - SQLite: SQLite.jl
 

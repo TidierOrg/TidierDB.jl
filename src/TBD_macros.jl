@@ -663,6 +663,10 @@ macro collect(sqlquery)
             df_result = ClickHouse.select_df(db, final_query)
             selected_columns_order = sq.metadata[sq.metadata.current_selxn .== 1, :name]
             df_result = df_result[:, selected_columns_order]
+        elseif current_sql_mode[] == :athena
+            exe_query = Athena.start_query_execution(query, sq.athena_params; aws_config = AWS_GLOBAL_CONFIG[])
+            result = Athena.get_query_results(exe_query["QueryExecutionId"], sq.athena_params)
+            df_result = collect_athena(result)
         else
             error("Unsupported database type: $(typeof(db))")
         end

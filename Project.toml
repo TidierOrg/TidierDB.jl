@@ -4,6 +4,7 @@ authors = ["Daniel Rizk <rizk.daniel.12@gmail.com> and contributors"]
 version = "0.1.1"
 
 [deps]
+AWS = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"
 Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45"
 Chain = "8be319e6-bccf-4806-a6f7-6fae938471bc"
 ClickHouse = "82f2e89e-b495-11e9-1d9d-fb40d7cf2130"
@@ -18,7 +19,6 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 SQLite = "0aa819cd-b072-5ff4-a722-6bc24af294d9"
 
 [compat]
-julia = "1.9"
 Arrow = "2.7"
 Chain = "0.6"
 ClickHouse = "0.2"
@@ -31,6 +31,7 @@ MySQL = "1.4"
 ODBC = "1.1"
 Reexport = "0.2, 1"
 SQLite = "1.6"
+julia = "1.9"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

@@ -74,7 +74,8 @@ function from_query(query::TidierDB.SQLQuery)
         distinct=query.distinct,
         db=query.db,
         ctes=[copy(cte) for cte in query.ctes],  
-        cte_count=query.cte_count
+        cte_count=query.cte_count,
+        athena_params = query.athena_params
     )
     return new_query
 end

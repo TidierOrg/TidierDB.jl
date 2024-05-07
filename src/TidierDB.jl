@@ -11,6 +11,7 @@ using MySQL
 using ODBC 
 import ClickHouse
 using Arrow
+using AWS
 
 @reexport using DataFrames: DataFrame
 @reexport using Chain
@@ -34,6 +35,7 @@ include("parsing_postgres.jl")
 include("parsing_mysql.jl")
 include("parsing_mssql.jl")
 include("parsing_clickhouse.jl")
+include("parsing_athena.jl")
 include("joins_sq.jl")
 include("slices_sq.jl")
 
@@ -59,6 +61,8 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
         return expr_to_sql_mssql(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == :clickhouse
         return expr_to_sql_clickhouse(expr, sq; from_summarize=from_summarize)
+    elseif current_sql_mode[] == :athena
+        return expr_to_sql_trino(expr, sq; from_summarize=from_summarize)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
@@ -225,16 +229,18 @@ function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
-function db_table(db, table::Symbol)
+function db_table(db, table, athena_params::Any=nothing)
     table_name = string(table)
     metadata = if current_sql_mode[] == :lite
         get_table_metadata(db, table_name)
     elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse
         get_table_metadata(db, table_name)
+    elseif current_sql_mode[] == :athena
+        get_table_metadata_athena(db, table_name, athena_params)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
-    return SQLQuery(from=table_name, metadata=metadata, db=db)
+    return SQLQuery(from=table_name, metadata=metadata, db=db, athena_params=athena_params)
 end
 
 """

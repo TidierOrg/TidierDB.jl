@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../key_differences/">
+        <link rel="prev" href="../getting_started/">
       
       
-        <link rel="next" href="../athena/">
+        <link rel="next" href="../../../../reference/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Getting Started - TidierDB.jl</title>
+        <title>Using Athena - TidierDB.jl</title>
       
     
     
@@ -79,6 +79,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#connecting" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -110,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Getting Started
+              Using Athena
             
           </span>
         </div>
@@ -302,6 +307,26 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -312,28 +337,18 @@
       
       
       
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
   
   <span class="md-ellipsis">
-    Getting Started
+    Using Athena
   </span>
   
 
-      </a>
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../athena/" class="md-nav__link">
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -342,6 +357,42 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#connecting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Connecting
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#db_table-differences" class="md-nav__link">
+    <span class="md-ellipsis">
+      db_table differences
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -384,6 +435,32 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#connecting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Connecting
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#db_table-differences" class="md-nav__link">
+    <span class="md-ellipsis">
+      db_table differences
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -397,24 +474,67 @@
                   
 
 
-  <h1>Getting Started</h1>
+  <h1>Using Athena</h1>
 
-<p>To use TidierDB.jl, you will have to set up a connection. TidierDB.jl gives you access to duckdb via <code>duckdb_open</code> and <code>duckdb_connect</code>. However, to use MySql, ClickHouse, MSSQL, Postgres, or SQLite, you will have to load those packages in first.</p>
-<p>If you plan to use TidierDB.jl with TidierData.jl or Tidier.jl, it is most convenenient to load the packages as follows:</p>
-<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierData</span>
-<span class="k">import</span><span class="w"> </span><span class="n">TidierDB</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">DB</span>
+<p>To use the Athena AWS backend with TidierDB, there are a few minimal but key changes covered here.</p>
+<p><a id='Connecting'></a></p>
+<p><a id='Connecting-1'></a></p>
+<h2 id="connecting">Connecting<a class="headerlink" href="#connecting" title="Permanent link">¤</a></h2>
+<p>Connection is established through AWS.jl as shwon below.</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span><span class="p">,</span><span class="w"> </span><span class="n">AWS</span>
+<span class="n">set_sql_mode</span><span class="p">(</span><span class="ss">:athena</span><span class="p">)</span>
+<span class="c"># Replace your credentials as needed below</span>
+<span class="n">aws_access_key_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="p">(</span><span class="nb">ENV</span><span class="p">,</span><span class="s">&quot;AWS_ACCESS_KEY_ID&quot;</span><span class="p">,</span><span class="s">&quot;key&quot;</span><span class="p">)</span>
+<span class="n">aws_secret_access_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="p">(</span><span class="nb">ENV</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AWS_SECRET_ACCESS_KEY&quot;</span><span class="p">,</span><span class="s">&quot;secret_key&quot;</span><span class="p">)</span>
+<span class="n">aws_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="p">(</span><span class="nb">ENV</span><span class="p">,</span><span class="s">&quot;AWS_DEFAULT_REGION&quot;</span><span class="p">,</span><span class="s">&quot;region&quot;</span><span class="p">)</span>
+
+<span class="k">const</span><span class="w"> </span><span class="n">AWS_GLOBAL_CONFIG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">Ref</span><span class="p">{</span><span class="kt">AWS</span><span class="o">.</span><span class="kt">AWSConfig</span><span class="p">}()</span>
+<span class="n">creds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AWSCredentials</span><span class="p">(</span><span class="n">aws_access_key_id</span><span class="p">,</span><span class="w"> </span><span class="n">aws_secret_access_key</span><span class="p">)</span>
+
+<span class="n">AWS_GLOBAL_CONFIG</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AWS</span><span class="o">.</span><span class="n">global_aws_config</span><span class="p">(</span><span class="n">region</span><span class="o">=</span><span class="n">aws_region</span><span class="p">,</span><span class="w"> </span><span class="n">creds</span><span class="o">=</span><span class="n">creds</span><span class="p">)</span>
+
+<span class="n">catalog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;AwsDataCatalog&quot;</span>
+<span class="n">workgroup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;primary&quot;</span>
+<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;demodb&quot;</span>
+<span class="n">all_results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+<span class="n">results_per_increment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
+<span class="n">out_loc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;s3://location/&quot;</span>
+
+<span class="n">athena_params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">Dict</span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;ResultConfiguration&quot;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="kt">Dict</span><span class="p">(</span>
+<span class="w">        </span><span class="s">&quot;OutputLocation&quot;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">out_loc</span>
+<span class="w">    </span><span class="p">),</span>
+<span class="w">    </span><span class="s">&quot;QueryExecutionContext&quot;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="kt">Dict</span><span class="p">(</span>
+<span class="w">        </span><span class="s">&quot;Database&quot;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">db</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;Catalog&quot;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">catalog</span>
+<span class="w">    </span><span class="p">),</span>
+<span class="w">    </span><span class="s">&quot;Workgroup&quot;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">workgroup</span>
+<span class="p">)</span>
 </code></pre></div>
-<p>Alternatively, <code>using Tidier</code> will import TidierDB in the above manner for you, where TidierDB functions and macros will be available as <code>DB.@mutate()</code> and so on, and the TidierData equivalent would be <code>@mutate()</code>.</p>
-<p>The associated databased packages used to set up connections are currently as follows</p>
-<ul>
-<li>ClickHouse: ClickHouse.jl</li>
-<li>MySQL and MariaDB: MySQL.jl</li>
-<li>MSSQL:  ODBC.jl</li>
-<li>Postgres: LibPQ.jl</li>
-<li>SQLite: SQLite.jl</li>
-<li>Athena: AWS.jl</li>
-</ul>
-<p>For DuckDB, SQLite, and MySQL, <code>copy_to()</code> lets you copy data to the database and query there. ClickHouse, MSSQL, and Postgres support for <code>copy_to()</code> has not been added yet.</p>
+<p><a id='db_table-differences'></a></p>
+<p><a id='db_table-differences-1'></a></p>
+<h2 id="db_table-differences"><code>db_table</code> differences<a class="headerlink" href="#db_table-differences" title="Permanent link">¤</a></h2>
+<p>There are two differences for <code>db_table</code> which are seen in the query below</p>
+<ol>
+<li>The table needs to be passed as a string in the format database.table, ie <code>"demodb.table_name</code></li>
+<li>db<em>table requires a third argument: the athena</em>params shown above.</li>
+</ol>
+<div class="highlight"><pre><span></span><code>@chain db_table(AWS_GLOBAL_CONFIG[], &quot;demodb.demodizk&quot;, athena_params) begin
+    @filter(cyl &gt; 4)
+    @group_by(cyl)
+    @summarize(mpg = mean(mpg))
+   #@show_query
+    @collect
+end
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>2×2 DataFrame
+ Row │ cyl    mpg
+     │ Int64  Float64
+─────┼────────────────
+   1 │     6  19.7429
+   2 │     8  15.1
+</code></pre></div>
+<p>I would like to acknowledge the work of Manu Francis and this <a href="https://medium.com/@manuedavakandam/beginners-guide-to-aws-athena-with-julia-a0192f7f4b4a">blog post</a>, which helped guide this process</p>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 
@@ -452,7 +572,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../key_differences/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Key Differences from TidierData.jl">
+          <a href="../getting_started/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting Started">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -462,20 +582,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Key Differences from TidierData.jl
+                Getting Started
               </div>
             </div>
           </a>
         
         
           
-          <a href="../athena/" class="md-footer__link md-footer__link--next" aria-label="Next: Using Athena">
+          <a href="../../../../reference/" class="md-footer__link md-footer__link--next" aria-label="Next: Reference">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Using Athena
+                Reference
               </div>
             </div>
             <div class="md-footer__button md-icon">

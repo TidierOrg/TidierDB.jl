@@ -143,10 +143,7 @@ function expr_to_sql_trino(expr, sq; from_summarize::Bool)
 end
 
 
-
-
-
-function apply_type_conversion2(df, col_index, col_type)
+function apply_type_conversion(df, col_index, col_type)
     if col_type == "double"
         df[!, col_index] = [ismissing(x) ? missing : parse(Float64, x) for x in df[!, col_index]]
     elseif col_type == "bigint"
@@ -156,12 +153,12 @@ function apply_type_conversion2(df, col_index, col_type)
     end
 end
 
-function parse_athena_df(df)
+function parse_athena_df(df, column_types)
     for (i, col_type) in enumerate(column_types)
         # Check if column index is within bounds of DataFrame columns
         if i <= size(df, 2)
             try
-                apply_type_conversion2(df, i, col_type)
+                apply_type_conversion(df, i, col_type)
             catch e
                # @warn "Failed to convert column $(i) to $(col_type): $e"
             end
@@ -204,22 +201,36 @@ function collect_athena(result)
     
     # Create the DataFrame
     df = DataFrame(data_transposed, Symbol.(filtered_column_names))
-    parse_athena_df(df)
+    parse_athena_df(df, column_types)
     # Return the DataFrame
     return df
 end
 
-function get_table_metadata_athena(AWS_GLOBAL_CONFIG::Vector{AWSConfig}, table_name::String, athena_params::Dict)
-    query = """
-    SELECT * FROM "$table_name" limit 0;
-    """
-    try
-        exe_query = Athena.start_query_execution(query, athena_params; aws_config = AWS_GLOBAL_CONFIG[])
-        result = Athena.get_query_results(exe_query["QueryExecutionId"],athena_params)
-        # println("Success: ", response)
-    catch e
-        println("Error: ", e)
-    end
+@service Athena
+
+function get_table_metadata_athena(AWS_GLOBAL_CONFIG, table_name::String, athena_params)
+    schema, table = split(table_name, '.')  # Ensure this correctly parses your input
+    query = """SELECT * FROM $schema.$table limit 0;"""
+  #  println(query)
+  #  try
+        exe_query = Athena.start_query_execution(query, athena_params; aws_config = AWS_GLOBAL_CONFIG)
+        
+        # Poll Athena to check if the query has completed
+        status = "RUNNING"
+        while status in ["RUNNING", "QUEUED"]
+            sleep(1)  # Wait for 1 second before checking the status again to avoid flooding the API
+            query_status = Athena.get_query_execution(exe_query["QueryExecutionId"], athena_params; aws_config = AWS_GLOBAL_CONFIG)
+            status = query_status["QueryExecution"]["Status"]["State"]
+            if status == "FAILED"
+                error("Query failed: ", query_status["QueryExecution"]["Status"]["StateChangeReason"])
+            elseif status == "CANCELLED"
+                error("Query was cancelled.")
+            end
+        end
+        
+        # Fetch the results once the query completes
+        result = Athena.get_query_results(exe_query["QueryExecutionId"], athena_params; aws_config = AWS_GLOBAL_CONFIG)
+    
     column_names = [col["Label"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
     column_types = [col["Type"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
     df = DataFrame(name = column_names, type = column_types)
@@ -228,4 +239,3 @@ function get_table_metadata_athena(AWS_GLOBAL_CONFIG::Vector{AWSConfig}, table_n
 
     return select(df, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
-

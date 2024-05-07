@@ -228,7 +228,7 @@ function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
-function db_table(db, table::Symbol; athena_params=nothing)
+function db_table(db, table, athena_params::Any=nothing)
     table_name = string(table)
     metadata = if current_sql_mode[] == :lite
         get_table_metadata(db, table_name)
@@ -241,7 +241,6 @@ function db_table(db, table::Symbol; athena_params=nothing)
     end
     return SQLQuery(from=table_name, metadata=metadata, db=db, athena_params=athena_params)
 end
-
 
 """
 $docstring_copy_to

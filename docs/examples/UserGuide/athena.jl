@@ -38,10 +38,10 @@
 # ## `db_table` differences
 # There are two differences for `db_table` which are seen in the query below
 # 1. The table needs to be passed as a string in the format database.table, ie `"demodb.table_name`
-# 2. db_table requires a third argument: the athena_params shown above.
+# 2. `db_table` requires a third argument: the athena_params from above.
 
 # ```
-# @chain db_table(AWS_GLOBAL_CONFIG[], "demodb.demodizk", athena_params) begin
+# @chain db_table(AWS_GLOBAL_CONFIG[], "demodb.table_name", athena_params) begin
 #     @filter(cyl > 4)
 #     @group_by(cyl)
 #     @summarize(mpg = mean(mpg))

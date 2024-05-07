@@ -20,6 +20,7 @@ SQLite = "0aa819cd-b072-5ff4-a722-6bc24af294d9"
 
 [compat]
 Arrow = "2.7"
+AWS = "1.9"
 Chain = "0.6"
 ClickHouse = "0.2"
 DataFrames = "1.5"

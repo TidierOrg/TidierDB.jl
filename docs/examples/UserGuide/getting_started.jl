@@ -16,5 +16,6 @@
 # - MSSQL:  ODBC.jl 
 # - Postgres: LibPQ.jl
 # - SQLite: SQLite.jl
+# - Athena: AWS.jl
 
 # For DuckDB, SQLite, and MySQL, `copy_to()` lets you copy data to the database and query there. ClickHouse, MSSQL, and Postgres support for `copy_to()` has not been added yet.

@@ -517,9 +517,9 @@
 <p>There are two differences for <code>db_table</code> which are seen in the query below</p>
 <ol>
 <li>The table needs to be passed as a string in the format database.table, ie <code>"demodb.table_name</code></li>
-<li>db<em>table requires a third argument: the athena</em>params shown above.</li>
+<li><code>db_table</code> requires a third argument: the athena_params from above.</li>
 </ol>
-<div class="highlight"><pre><span></span><code>@chain db_table(AWS_GLOBAL_CONFIG[], &quot;demodb.demodizk&quot;, athena_params) begin
+<div class="highlight"><pre><span></span><code>@chain db_table(AWS_GLOBAL_CONFIG[], &quot;demodb.table_name&quot;, athena_params) begin
     @filter(cyl &gt; 4)
     @group_by(cyl)
     @summarize(mpg = mean(mpg))

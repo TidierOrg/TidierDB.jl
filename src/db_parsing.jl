@@ -243,12 +243,18 @@ function parse_interpolation2(expr)
             #variable_value = eval(variable)  # Evaluate to get the symbol or direct value
             #to avoid use of eval, this is a temp fix to enable Interpolation
             variable_value = haskey(GLOBAL_CONTEXT.variables, variable) ? GLOBAL_CONTEXT.variables[variable] : missing
-            if isa(variable_value, AbstractVector) && all(isa(v, Symbol) for v in variable_value)
-                column_names = map(v -> string(v), variable_value)  # This line is the critical change
-                column_names = map(v -> isa(v, Symbol) ? string(v) : v, variable_value)
-                return join(column_names, ", ")
-            end
-            if isa(variable_value, Symbol)
+            if isa(variable_value, AbstractVector) #&& all(isa(v, Symbol) for v in variable_value)
+                if all(isa(v, String) for v in variable_value)
+                    # Quote each string and join with commas for SQL IN clause
+                    quoted_strings = map(v -> "'" * v * "'", variable_value)
+                    return join(quoted_strings, ", ")
+                
+                else
+                    column_names = map(v -> string(v), variable_value)  # This line is the critical change
+                    column_names = map(v -> isa(v, Symbol) ? string(v) : v, variable_value)
+                    return join(column_names, ", ")
+                end
+            elseif isa(variable_value, Symbol)
                 return variable_value  
             elseif isa(variable_value, Number)
                 return variable_value

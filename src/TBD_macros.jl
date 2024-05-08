@@ -51,6 +51,7 @@ macro filter(sqlquery, conditions...)
                 combined_conditions = String[]
                 for condition in $(esc(conditions))
                     condition_str = string(expr_to_sql(condition, sq))
+                    condition_str = replace(condition_str, "'\"" => "'",  "'\"" => "'", "\"'" => "'", "[" => "(", "]" => ")")
                     push!(combined_conditions, condition_str)
                 end
                 combined_condition_str = join(combined_conditions, " AND ")
@@ -80,6 +81,7 @@ macro filter(sqlquery, conditions...)
             # Process each condition
             for condition in $(esc(conditions))
                 condition_str = string(expr_to_sql(condition, sq)) # Convert condition to SQL string
+                condition_str = replace(condition_str, "'\"" => "'", "\"'" => "'", "[" => "(", "]" => ")")
                 condition_involves_aggregated_column = any(col -> occursin(Regex("\\b$col\\b"), condition_str), aggregated_columns)
                 sq.where = ""
 

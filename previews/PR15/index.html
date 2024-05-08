@@ -96,7 +96,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="." title="TidierDB.jl" class="md-header__button md-logo" aria-label="TidierDB.jl" data-md-component="logo">
       
-  <img src="assets/logo.png" alt="logo">
+  <img src="docs/src/assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -238,7 +238,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="." title="TidierDB.jl" class="md-nav__button md-logo" aria-label="TidierDB.jl" data-md-component="logo">
       
-  <img src="assets/logo.png" alt="logo">
+  <img src="docs/src/assets/logo.png" alt="logo">
 
     </a>
     TidierDB.jl
@@ -436,6 +436,26 @@
   
   
     <li class="md-nav__item">
+      <a href="examples/generated/UserGuide/from_queryex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reusing Part of a Query
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="examples/generated/UserGuide/athena/" class="md-nav__link">
         
   
@@ -585,7 +605,7 @@
 <p><a id='What-is-TidierDB.jl?'></a></p>
 <p><a id='What-is-TidierDB.jl?-1'></a></p>
 <h2 id="what-is-tidierdbjl">What is TidierDB.jl?<a class="headerlink" href="#what-is-tidierdbjl" title="Permanent link">¤</a></h2>
-<p><img src="/assets/logo.png" align="left" style="padding-right:10px"; width="150"></img></p>
+<p><img src="docs/src/assets/logo.png" align="left" style="padding-right:10px"; width="150"></img></p>
 <p>TiderDB.jl is a 100% Julia implementation of the dbplyr R package, and similar to Python's ibis package.</p>
 <p>The main goal of TidierDB.jl is to bring the syntax of Tidier.jl to multiple SQL backends, making it possible to analyze data directly on databases without needing to copy the entire database into memory.</p>
 <p><a id='Currently-supported-backends-include:'></a></p>
@@ -616,7 +636,7 @@
 <li><code>@mutate</code>, which supports <code>across()</code></li>
 <li><code>@summarize</code> and <code>@summarise</code>, which supports <code>across()</code></li>
 <li><code>@distinct</code></li>
-<li><code>@left_join</code>, <code>@right_join</code>, <code>@inner_join</code> (slight syntax differences from TidierData.jl)</li>
+<li><code>@left_join</code>, <code>@right_join</code>, <code>@inner_join</code>, <code>@anti_join</code>, <code>@full_join</code>, and <code>@semi_join</code> (slight syntax differences from TidierData.jl)</li>
 <li><code>@count</code></li>
 <li><code>@slice_min</code>, <code>@slice_max</code>, <code>@slice_sample</code></li>
 <li><code>@window_order</code> and <code>window_frame</code></li>
@@ -646,7 +666,6 @@
 <ul>
 <li><code>mean</code>, <code>minimium</code>, <code>maximum</code>, <code>std</code>, <code>sum</code>, <code>cumsum</code>, <code>cor</code>, <code>cov</code>, <code>var</code></li>
 <li><code>@summarize</code> supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work</li>
-<li><code>sql_agg</code> allows any SQL aggregate function not listed above to be used in <code>@mutate</code>. Simply write the function expression as written in SQL syntax as a string wrapped in <code>sql_agg</code>, and subsequent windowing is handled by <code>@mutate</code>.</li>
 <li><code>copy_to</code> (for DuckDB, MySQL, SQLite)</li>
 </ul>
 <p>DuckDB specifically enables copy_to to directly reading in <code>.parquet</code>, <code>.json</code>, <code>.csv</code>, and <code>.arrow</code> file, including https file paths.</p>

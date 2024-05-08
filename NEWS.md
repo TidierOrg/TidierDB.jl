@@ -1,10 +1,11 @@
 # TidierDB.jl updates
 
-## v0.1.3 - 2024-05-TBD
+## v0.1.3 - 2024-05-09
 - Adds `@full_join`, `@semi_join`, `@anti_join`
-- Refines all join syntax to remove need for symbols.
-- adds `from_query`to allow building from saved query multiple times
-- Adds `connect()` - a universal connection funciton for all supported backends
+- Refines all join syntax to remove need for symbols
+- Adds `from_query`to allow building from saved query multiple times
+- Adds `connect()` - a universal connection function for all supported backends
+- Interpolation bug fix to allow interpolating vector of strings following `@filter column_name in` 
 
 ## v0.1.2 - 2024-05-07
 - Adds AWS Athena backend support

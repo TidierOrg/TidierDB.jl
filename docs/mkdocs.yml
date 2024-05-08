@@ -1,6 +1,6 @@
 theme:
   name: material
-  logo: docs/src/assets/logo.png
+  logo: assets/logo.png
   features:
     - content.code.copy
     # - announce.dismiss

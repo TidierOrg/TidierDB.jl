@@ -1,6 +1,6 @@
 ## What is TidierDB.jl?
 
-<img src="docs/src/assets/logo.png" align="left" style="padding-right:10px"; width="150"></img>
+<img src="assets/logo.png" align="left" style="padding-right:10px"; width="150"></img>
 
 TiderDB.jl is a 100% Julia implementation of the dbplyr R package, and similar to Python's ibis package.
 

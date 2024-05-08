@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/TidierOrg/TidierDB.jl/blob/main/LICENSE)
 [![Docs: Latest](https://img.shields.io/badge/Docs-Latest-blue.svg)](https://tidierorg.github.io/TidierDB.jl/latest)
 
-<img src="/assets/logo.png" align="right" style="padding-left:10px;" width="150"/>
+<img src="docs/src/assets/logo.png" align="right" style="padding-left:10px;" width="150"/>
 
 ## What is TidierDB.jl?
 
@@ -39,7 +39,7 @@ TidierDB.jl currently supports the following top-level macros:
 - `@mutate`, which supports `across()` 
 - `@summarize` and `@summarise`, which supports `across()` 
 - `@distinct`
-- `@left_join`, `@right_join`, `@inner_join` (slight syntax differences from TidierData.jl)
+- `@left_join`, `@right_join`, `@inner_join`, `@anti_join`, `@full_join`, and `@semi_join` (slight syntax differences from TidierData.jl)
 - `@count`
 - `@slice_min`, `@slice_max`, `@slice_sample`
 - `@window_order` and `window_frame`
@@ -65,7 +65,6 @@ From TidierDates.jl:
 Supported aggregate functions (as supported by the backend) with more to come
 - `mean`, `minimium`, `maximum`, `std`, `sum`, `cumsum`, `cor`, `cov`, `var`
 - `@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.
-- `sql_agg` allows any SQL aggregate function not listed above to be used in `@mutate`. Simply write the function expression as written in SQL syntax as a string wrapped in `sql_agg`, and subsequent windowing is handled by `@mutate`.
 - `copy_to` (for DuckDB, MySQL, SQLite)
 
 DuckDB specifically enables copy_to to directly reading in `.parquet`, `.json`, `.csv`, and `.arrow` file, including https file paths.

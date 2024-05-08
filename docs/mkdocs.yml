@@ -1,6 +1,6 @@
 theme:
   name: material
-  logo: assets/logo.png
+  logo: docs/src/assets/logo.png
   features:
     - content.code.copy
     # - announce.dismiss
@@ -118,6 +118,6 @@ nav:
   - "Home": "index.md"
   - "Key Differences from TidierData.jl" : "examples/generated/UserGuide/key_differences.md"
   - "Getting Started" : "examples/generated/UserGuide/getting_started.md"
-#  - "Reusing Part of a Query" : "examples/generated/UserGuide/from_queryex.md"
+  - "Reusing Part of a Query" : "examples/generated/UserGuide/from_queryex.md"
   - "Using Athena" : "examples/generated/UserGuide/athena.md"
   - "Reference" : "reference.md"

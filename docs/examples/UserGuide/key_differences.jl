@@ -49,6 +49,7 @@ end
 # There is one key difference for joining:
 
 # The column on both the new and old table must be specified. They do not need to be the same, and given SQL behavior where both columns are kept when joining two tables, it is preferable if they have different names. This avoids "ambiguous reference" errors that would otherwise come up and complicate the use of tidy selection for columns. 
+# Athena has an additional slight difference given the need for parameters, which is covered in the Athena documentation page.
 
 df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],

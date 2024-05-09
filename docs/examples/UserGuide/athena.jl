@@ -40,8 +40,12 @@
 # 1. The table needs to be passed as a string in the format database.table, ie `"demodb.table_name`
 # 2. `db_table` requires a third argument: the athena_params from above.
 
-# ```
-# @chain db_table(AWS_GLOBAL_CONFIG[], "demodb.table_name", athena_params) begin
+# ## Leveraging `from_query` with Athena to reduce number of queries 
+# Throughout TidierDB, each time `db_table` is called, it queries the databases to get the metadata. Consider how AWS Athena logs queries, a user may want to reduce the number of queries. This can be done saving the results of `db_table`, and then using from_query with those results for furthe queries as shown below.
+
+# ```julia
+# mtcars = db_table(AWS_GLOBAL_CONFIG[], "demodb.mtcars", athena_params)
+# @chain from_query(mtcars) begin
 #     @filter(cyl > 4)
 #     @group_by(cyl)
 #     @summarize(mpg = mean(mpg))
@@ -57,5 +61,29 @@
 #    1 │     6  19.7429
 #    2 │     8  15.1
 # ``` 
+
+# ## Joining Syntax 
+# Since running queries requires athena_params to be passed, and all of the joins pull in the new table metadata with a query, when performing joins in Athena, the final argument of the join must be the Athena Parameters. This syntax difference will hopefully be resolved in the future.
+# ```julia
+# query = @chain from_query(mtcars) begin
+#     @group_by cyl
+#     @summarize begin
+#         across(mpg, (mean, minimum, maximum))
+#         num_cars = n()
+#         end
+#     @mutate begin
+#         efficiency = case_when(
+#             mean_mpg >= 25, "High",
+#             mean_mpg >= 15, "Moderate",
+#             "Low" )
+#        end
+# end;
+# @chain from_query(query) begin
+#    @full_join(demodb.mtcars, cyl, cyl, athena_params)
+#    @group_by(efficiency)
+#    @summarize(avg_hp = mean(hp))
+#    @collect
+# end
+# ```
 
 # I would like to acknowledge the work of Manu Francis and this [blog post](https://medium.com/@manuedavakandam/beginners-guide-to-aws-athena-with-julia-a0192f7f4b4a), which helped guide this process  

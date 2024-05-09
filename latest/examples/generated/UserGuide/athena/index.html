@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="../getting_started/">
+        <link rel="prev" href="../from_queryex/">
       
       
         <link rel="next" href="../../../../reference/">
@@ -327,6 +327,26 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../from_queryex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reusing Part of a Query
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -384,6 +404,24 @@
   <a href="#db_table-differences" class="md-nav__link">
     <span class="md-ellipsis">
       db_table differences
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#leveraging-from_query-with-athena-to-reduce-number-of-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Leveraging from_query with Athena to reduce number of queries
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#joining-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      Joining Syntax
     </span>
   </a>
   
@@ -459,6 +497,24 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#leveraging-from_query-with-athena-to-reduce-number-of-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Leveraging from_query with Athena to reduce number of queries
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#joining-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      Joining Syntax
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -476,7 +532,7 @@
 
   <h1>Using Athena</h1>
 
-<p>To use the Athena AWS backend with TidierDB, there are a few minimal but key changes covered here.</p>
+<p>To use the Athena AWS backend with TidierDB, set up and a few minimal but key syntax differences are covered here.</p>
 <p><a id='Connecting'></a></p>
 <p><a id='Connecting-1'></a></p>
 <h2 id="connecting">Connecting<a class="headerlink" href="#connecting" title="Permanent link">¤</a></h2>
@@ -519,13 +575,18 @@
 <li>The table needs to be passed as a string in the format database.table, ie <code>"demodb.table_name</code></li>
 <li><code>db_table</code> requires a third argument: the athena_params from above.</li>
 </ol>
-<div class="highlight"><pre><span></span><code>@chain db_table(AWS_GLOBAL_CONFIG[], &quot;demodb.table_name&quot;, athena_params) begin
-    @filter(cyl &gt; 4)
-    @group_by(cyl)
-    @summarize(mpg = mean(mpg))
-   #@show_query
-    @collect
-end
+<p><a id='Leveraging-from_query-with-Athena-to-reduce-number-of-queries'></a></p>
+<p><a id='Leveraging-from_query-with-Athena-to-reduce-number-of-queries-1'></a></p>
+<h2 id="leveraging-from_query-with-athena-to-reduce-number-of-queries">Leveraging <code>from_query</code> with Athena to reduce number of queries<a class="headerlink" href="#leveraging-from_query-with-athena-to-reduce-number-of-queries" title="Permanent link">¤</a></h2>
+<p>Throughout TidierDB, each time <code>db_table</code> is called, it queries the databases to get the metadata. Consider how AWS Athena logs queries, a user may want to reduce the number of queries. This can be done saving the results of <code>db_table</code>, and then using from_query with those results for furthe queries as shown below.</p>
+<div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">AWS_GLOBAL_CONFIG</span><span class="p">[],</span><span class="w"> </span><span class="s">&quot;demodb.mtcars&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">athena_params</span><span class="p">)</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">from_query</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@filter</span><span class="p">(</span><span class="n">cyl</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">))</span>
+<span class="w">   </span><span class="c">#@show_query</span>
+<span class="w">    </span><span class="nd">@collect</span>
+<span class="k">end</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>2×2 DataFrame
  Row │ cyl    mpg
@@ -533,6 +594,38 @@ end
 ─────┼────────────────
    1 │     6  19.7429
    2 │     8  15.1
+</code></pre></div>
+<p><a id='Joining-Syntax'></a></p>
+<p><a id='Joining-Syntax-1'></a></p>
+<h2 id="joining-syntax">Joining Syntax<a class="headerlink" href="#joining-syntax" title="Permanent link">¤</a></h2>
+<p>Since running queries requires athena_params to be passed, and all of the joins pull in the new table metadata with a query, when performing joins in Athena, the final argument of the join must be the Athena Parameters. This syntax difference will hopefully be resolved in the future.</p>
+<div class="highlight"><pre><span></span><code><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">from_query</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@group_by</span><span class="w"> </span><span class="n">cyl</span>
+<span class="w">    </span><span class="nd">@summarize</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="n">across</span><span class="p">(</span><span class="n">mpg</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="p">,</span><span class="w"> </span><span class="n">minimum</span><span class="p">,</span><span class="w"> </span><span class="n">maximum</span><span class="p">))</span>
+<span class="w">        </span><span class="n">num_cars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">()</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">    </span><span class="nd">@mutate</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="n">efficiency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">case_when</span><span class="p">(</span>
+<span class="w">            </span><span class="n">mean_mpg</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;High&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">mean_mpg</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Moderate&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;Low&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">end</span>
+<span class="k">end</span><span class="p">;</span>
+
+<span class="nd">@chain</span><span class="w"> </span><span class="n">from_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">   </span><span class="nd">@full_join</span><span class="p">(</span><span class="n">demodb</span><span class="o">.</span><span class="n">mtcars</span><span class="p">,</span><span class="w"> </span><span class="n">cyl</span><span class="p">,</span><span class="w"> </span><span class="n">cyl</span><span class="p">,</span><span class="w"> </span><span class="n">athena_params</span><span class="p">)</span>
+<span class="w">   </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">efficiency</span><span class="p">)</span>
+<span class="w">   </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">avg_hp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">hp</span><span class="p">))</span>
+<span class="w">   </span><span class="nd">@collect</span>
+<span class="k">end</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>2×2 DataFrame
+ Row │ efficiency  avg_hp
+     │ String      Float64
+─────┼──────────────────────
+   1 │ High         82.6364
+   2 │ Moderate    180.238
 </code></pre></div>
 <p>I would like to acknowledge the work of Manu Francis and this <a href="https://medium.com/@manuedavakandam/beginners-guide-to-aws-athena-with-julia-a0192f7f4b4a">blog post</a>, which helped guide this process</p>
 <hr />
@@ -572,7 +665,7 @@ end
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../getting_started/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting Started">
+          <a href="../from_queryex/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Reusing Part of a Query">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -582,7 +675,7 @@ end
                 Previous
               </span>
               <div class="md-ellipsis">
-                Getting Started
+                Reusing Part of a Query
               </div>
             </div>
           </a>

@@ -328,6 +328,26 @@
   
   
     <li class="md-nav__item">
+      <a href="../examples/generated/UserGuide/from_queryex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reusing Part of a Query
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../examples/generated/UserGuide/athena/" class="md-nav__link">
         
   
@@ -496,18 +516,22 @@
 <p><a id='Index-1'></a></p>
 <h2 id="index">Index<a class="headerlink" href="#index" title="Permanent link">¤</a></h2>
 <ul>
+<li><a href="./#TidierDB.connect-Tuple{Symbol}"><code>TidierDB.connect</code></a></li>
 <li><a href="./#TidierDB.copy_to-Tuple{Any, Union{AbstractString, DataFrame}, String}"><code>TidierDB.copy_to</code></a></li>
+<li><a href="./#TidierDB.@anti_join"><code>TidierDB.@anti_join</code></a></li>
 <li><a href="./#TidierDB.@arrange-Tuple{Any, Vararg{Any}}"><code>TidierDB.@arrange</code></a></li>
 <li><a href="./#TidierDB.@count-Tuple{Any, Vararg{Any}}"><code>TidierDB.@count</code></a></li>
 <li><a href="./#TidierDB.@distinct-Tuple{Any, Vararg{Any}}"><code>TidierDB.@distinct</code></a></li>
 <li><a href="./#TidierDB.@filter-Tuple{Any, Vararg{Any}}"><code>TidierDB.@filter</code></a></li>
+<li><a href="./#TidierDB.@full_join"><code>TidierDB.@full_join</code></a></li>
 <li><a href="./#TidierDB.@group_by-Tuple{Any, Vararg{Any}}"><code>TidierDB.@group_by</code></a></li>
-<li><a href="./#TidierDB.@inner_join-NTuple{4, Any}"><code>TidierDB.@inner_join</code></a></li>
-<li><a href="./#TidierDB.@left_join-NTuple{4, Any}"><code>TidierDB.@left_join</code></a></li>
+<li><a href="./#TidierDB.@inner_join"><code>TidierDB.@inner_join</code></a></li>
+<li><a href="./#TidierDB.@left_join"><code>TidierDB.@left_join</code></a></li>
 <li><a href="./#TidierDB.@mutate-Tuple{Any, Vararg{Any}}"><code>TidierDB.@mutate</code></a></li>
 <li><a href="./#TidierDB.@rename-Tuple{Any, Vararg{Any}}"><code>TidierDB.@rename</code></a></li>
-<li><a href="./#TidierDB.@right_join-NTuple{4, Any}"><code>TidierDB.@right_join</code></a></li>
+<li><a href="./#TidierDB.@right_join"><code>TidierDB.@right_join</code></a></li>
 <li><a href="./#TidierDB.@select-Tuple{Any, Vararg{Any}}"><code>TidierDB.@select</code></a></li>
+<li><a href="./#TidierDB.@semi_join"><code>TidierDB.@semi_join</code></a></li>
 <li><a href="./#TidierDB.@slice_max"><code>TidierDB.@slice_max</code></a></li>
 <li><a href="./#TidierDB.@slice_min"><code>TidierDB.@slice_min</code></a></li>
 <li><a href="./#TidierDB.@slice_sample"><code>TidierDB.@slice_sample</code></a></li>
@@ -519,9 +543,68 @@
 <p><a id='Reference-Exported-functions'></a></p>
 <p><a id='Reference-Exported-functions-1'></a></p>
 <h2 id="reference-exported-functions">Reference - Exported functions<a class="headerlink" href="#reference-exported-functions" title="Permanent link">¤</a></h2>
-<p><a id='TidierDB.copy_to-Tuple{Any, Union{AbstractString, DataFrame}, String}' href='#TidierDB.copy_to-Tuple{Any, Union{AbstractString, DataFrame}, String}'>#</a>
-<strong><code>TidierDB.copy_to</code></strong> &mdash; <em>Method</em>.</p>
-<div class="highlight"><pre><span></span><code><span class="w">   </span><span class="n">copy_to</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">df_or_path</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;name&quot;</span><span class="p">)</span>
+<p><a id='TidierDB.connect-Tuple{Symbol}' href='#TidierDB.connect-Tuple{Symbol}'>#</a>
+<strong><code>TidierDB.connect</code></strong> &mdash; <em>Method</em>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">connect</span><span class="p">(</span><span class="n">backend</span><span class="o">::</span><span class="kt">Symbol</span><span class="p">;</span><span class="w"> </span><span class="n">kwargs</span><span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+<p>This function establishes a database connection based on the specified backend and connection parameters and sets the SQL mode</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li>
+<p><code>backend</code>: A symbol specifying the database backend to connect to. Supported backends are:</p>
+<ul>
+<li><code>:duckdb</code>, <code>:lite</code>(SQLite), <code>:mssql</code>, <code>mysql</code>(for MariaDB and MySQL), <code>:clickhouse</code>, <code>:postgres</code></li>
+<li>
+<p><code>kwargs</code>: Keyword arguments specifying the connection parameters for the selected backend. The required parameters vary depending on the backend:</p>
+</li>
+<li>
+<p>MySQL:</p>
+<ul>
+<li><code>host</code>: The host name or IP address of the MySQL server. Default is "localhost".</li>
+<li><code>user</code>: The username for authentication. Default is an empty string.</li>
+<li><code>password</code>: The password for authentication.</li>
+<li><code>db</code>: The name of the database to connect to (optional).</li>
+<li><code>port</code>: The port number of the MySQL server (optional).</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li>A database connection object based on the selected backend.</li>
+</ul>
+<p><strong>Examples</strong></p>
+<div class="highlight"><pre><span></span><code><span class="o">**</span><span class="n">Connect</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">MySQL</span><span class="o">**</span>
+
+<span class="o">**</span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:mysql</span><span class="p">;</span><span class="w"> </span><span class="n">host</span><span class="o">=</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="s">&quot;root&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="o">=</span><span class="s">&quot;password&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">db</span><span class="o">=</span><span class="s">&quot;mydb&quot;</span><span class="p">)</span><span class="o">**</span>
+
+<span class="o">**</span><span class="n">Connect</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">PostgreSQL</span><span class="w"> </span><span class="k">using</span><span class="w"> </span><span class="n">LibPQ</span><span class="o">**</span>
+
+<span class="o">**</span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:postgres</span><span class="p">;</span><span class="w"> </span><span class="n">host</span><span class="o">=</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">dbname</span><span class="o">=</span><span class="s">&quot;mydb&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="s">&quot;postgres&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="o">=</span><span class="s">&quot;password&quot;</span><span class="p">)</span><span class="o">**</span>
+
+<span class="o">**</span><span class="n">Connect</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">ClickHouse</span><span class="o">**</span>
+
+<span class="o">**</span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:clickhouse</span><span class="p">;</span><span class="w"> </span><span class="n">host</span><span class="o">=</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">port</span><span class="o">=</span><span class="mi">9000</span><span class="p">,</span><span class="w"> </span><span class="n">database</span><span class="o">=</span><span class="s">&quot;mydb&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="s">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">**</span>
+
+<span class="o">**</span><span class="n">Connect</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">SQLite</span><span class="o">**</span>
+
+<span class="o">**</span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:lite</span><span class="p">)</span><span class="o">**</span>
+
+<span class="o">**</span><span class="n">Connect</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">DuckDB</span><span class="o">**</span>
+
+<span class="n">julia</span><span class="o">&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">)</span><span class="w"> </span><span class="n">DuckDB</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">)</span>
+
+
+<span class="o">&lt;</span><span class="n">a</span><span class="w"> </span><span class="n">target</span><span class="o">=</span><span class="err">&#39;</span><span class="n">_blank</span><span class="o">&#39;</span><span class="w"> </span><span class="n">href</span><span class="o">=</span><span class="err">&#39;</span><span class="n">https</span><span class="o">://</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">TidierOrg</span><span class="o">/</span><span class="n">TidierDB</span><span class="o">.</span><span class="n">jl</span><span class="o">/</span><span class="n">blob</span><span class="o">/</span><span class="mi">07</span><span class="n">d6c3a0d9a84043c1e39b91815beab178de7882</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">TidierDB</span><span class="o">.</span><span class="n">jl</span><span class="c">#L299-L331&#39; class=&#39;documenter-source&#39;&gt;source&lt;/a&gt;&lt;br&gt;</span>
+
+<span class="o">&lt;</span><span class="n">a</span><span class="w"> </span><span class="n">id</span><span class="o">=</span><span class="err">&#39;</span><span class="n">TidierDB</span><span class="o">.</span><span class="n">copy_to</span><span class="o">-</span><span class="kt">Tuple</span><span class="p">{</span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="kt">Union</span><span class="p">{</span><span class="kt">AbstractString</span><span class="p">,</span><span class="w"> </span><span class="kt">DataFrame</span><span class="p">},</span><span class="w"> </span><span class="kt">String</span><span class="p">}</span><span class="err">&#39;</span><span class="w"> </span><span class="n">href</span><span class="o">=</span><span class="err">&#39;</span><span class="c">#TidierDB.copy_to-Tuple{Any, Union{AbstractString, DataFrame}, String}&#39;&gt;#&lt;/a&gt;</span>
+<span class="o">**</span><span class="sb">`TidierDB.copy_to`</span><span class="o">**</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mdash</span><span class="p">;</span><span class="w"> </span><span class="o">*</span><span class="kt">Method</span><span class="o">*.</span>
+
+
+
+<span class="sb">```julia</span>
+<span class="sb">   copy_to(conn, df_or_path, &quot;name&quot;)</span>
 </code></pre></div>
 <p>Allows user to copy a df to the database connection. Currently supports DuckDB, SQLite, MySql</p>
 <p><strong>Arguments</strong></p>
@@ -532,13 +615,54 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TidierDB.jl#L245-L266' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TidierDB.jl#L246-L265' class='documenter-source'>source</a><br></p>
+<p><a id='TidierDB.@anti_join' href='#TidierDB.@anti_join'>#</a>
+<strong><code>TidierDB.@anti_join</code></strong> &mdash; <em>Macro</em>.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@anti_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="p">)</span>
+</code></pre></div>
+<p>Perform an anti join between two SQL queries based on a specified condition.  This syntax here is slightly different than TidierData.jl, however, because  SQL does not drop the joining column, for the metadata storage, it is  preferrable for the names to be different </p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>sql_query</code>: The primary SQL query to operate on.</li>
+<li><code>join_table</code>: The secondary SQL table to join with the primary query table.</li>
+<li><code>new_table_col</code>: Column from the new table that matches for join.</li>
+<li><code>orignal_table_col</code>: Column from the original table that matches for join.</li>
+</ul>
+<p><strong>Examples</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gp">julia&gt;</span><span class="w"> </span><span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">string</span><span class="p">(</span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">÷</span><span class="w"> </span><span class="mi">26</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">26</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">:</span><span class="mi">9</span><span class="p">],</span><span class="w"> </span>
+<span class="w">                        </span><span class="n">groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;aa&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;bb&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="mi">10</span><span class="p">],</span><span class="w"> </span>
+<span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
+<span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">df2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">id2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;AA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AC&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AE&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AG&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AI&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AK&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AM&quot;</span><span class="p">],</span>
+<span class="w">                </span><span class="n">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">],</span>
+<span class="w">                </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">88</span><span class="p">,</span><span class="w"> </span><span class="mi">92</span><span class="p">,</span><span class="w"> </span><span class="mi">77</span><span class="p">,</span><span class="w"> </span><span class="mi">83</span><span class="p">,</span><span class="w"> </span><span class="mi">95</span><span class="p">,</span><span class="w"> </span><span class="mi">68</span><span class="p">,</span><span class="w"> </span><span class="mi">74</span><span class="p">]);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_join&quot;</span><span class="p">);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="nd">@anti_join</span><span class="p">(</span><span class="n">df_join</span><span class="p">,</span><span class="w"> </span><span class="n">id2</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@collect</span>
+<span class="w">       </span><span class="k">end</span>
+<span class="go">5×4 DataFrame</span>
+<span class="go"> Row │ id       groups   value   percent  </span>
+<span class="go">     │ String?  String?  Int64?  Float64? </span>
+<span class="go">─────┼────────────────────────────────────</span>
+<span class="go">   1 │ AB       aa            2       0.2</span>
+<span class="go">   2 │ AD       aa            4       0.4</span>
+<span class="go">   3 │ AF       aa            1       0.6</span>
+<span class="go">   4 │ AH       aa            3       0.8</span>
+<span class="go">   5 │ AJ       aa            5       1.0</span>
+</code></pre></div>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/joins_sq.jl#L241-L286' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@arrange-Tuple{Any, Vararg{Any}}' href='#TidierDB.@arrange-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@arrange</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@arrange</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -555,9 +679,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -580,7 +702,7 @@
 <span class="go">   9 │ AJ       aa            5       1.0</span>
 <span class="go">  10 │ AE       bb            5       0.5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TBD_macros.jl#L121-L162' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TBD_macros.jl#L121-L160' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@count-Tuple{Any, Vararg{Any}}' href='#TidierDB.@count-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@count</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@count</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -597,9 +719,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -615,7 +735,7 @@
 <span class="go">   1 │ aa            5</span>
 <span class="go">   2 │ bb            5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TBD_macros.jl#L443-L477' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TBD_macros.jl#L443-L475' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@distinct-Tuple{Any, Vararg{Any}}' href='#TidierDB.@distinct-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@distinct</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@distinct</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -629,9 +749,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -670,7 +788,7 @@
 <span class="go">   9 │ AI       bb            4       0.9</span>
 <span class="go">  10 │ AJ       aa            5       1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TBD_macros.jl#L325-L383' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TBD_macros.jl#L325-L381' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@filter-Tuple{Any, Vararg{Any}}' href='#TidierDB.@filter-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@filter</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@filter</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">conditions</span><span class="o">...</span><span class="p">)</span>
@@ -691,9 +809,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -728,7 +844,57 @@
 <span class="go">   1 │ aa            0.6</span>
 <span class="go">   2 │ bb            0.5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TBD_macros.jl#L39-L96' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TBD_macros.jl#L39-L94' class='documenter-source'>source</a><br></p>
+<p><a id='TidierDB.@full_join' href='#TidierDB.@full_join'>#</a>
+<strong><code>TidierDB.@full_join</code></strong> &mdash; <em>Macro</em>.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@inner_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="p">)</span>
+</code></pre></div>
+<p>Perform an full join between two SQL queries based on a specified condition.  This syntax here is slightly different than TidierData.jl, however, because  SQL does not drop the joining column, for the metadata storage, it is  preferrable for the names to be different </p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>sql_query</code>: The primary SQL query to operate on.</li>
+<li><code>join_table</code>: The secondary SQL table to join with the primary query table.</li>
+<li><code>new_table_col</code>: Column from the new table that matches for join.</li>
+<li><code>orignal_table_col</code>: Column from the original table that matches for join.</li>
+</ul>
+<p><strong>Examples</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gp">julia&gt;</span><span class="w"> </span><span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">string</span><span class="p">(</span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">÷</span><span class="w"> </span><span class="mi">26</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">26</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">:</span><span class="mi">9</span><span class="p">],</span><span class="w"> </span>
+<span class="w">                        </span><span class="n">groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;aa&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;bb&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="mi">10</span><span class="p">],</span><span class="w"> </span>
+<span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
+<span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">df2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">id2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;AA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AC&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AE&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AG&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AI&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AK&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AM&quot;</span><span class="p">],</span>
+<span class="w">                </span><span class="n">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">],</span>
+<span class="w">                </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">88</span><span class="p">,</span><span class="w"> </span><span class="mi">92</span><span class="p">,</span><span class="w"> </span><span class="mi">77</span><span class="p">,</span><span class="w"> </span><span class="mi">83</span><span class="p">,</span><span class="w"> </span><span class="mi">95</span><span class="p">,</span><span class="w"> </span><span class="mi">68</span><span class="p">,</span><span class="w"> </span><span class="mi">74</span><span class="p">]);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_join&quot;</span><span class="p">);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">         </span><span class="nd">@full_join</span><span class="p">(</span><span class="n">df_join</span><span class="p">,</span><span class="w"> </span><span class="n">id2</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
+<span class="w">         </span><span class="nd">@collect</span>
+<span class="w">       </span><span class="k">end</span>
+<span class="go">12×7 DataFrame</span>
+<span class="go"> Row │ id       groups   value    percent    id2      category  score   </span>
+<span class="go">     │ String?  String?  Int64?   Float64?   String?  String?   Int64?  </span>
+<span class="go">─────┼──────────────────────────────────────────────────────────────────</span>
+<span class="go">   1 │ AA       bb             1        0.1  AA       X              88</span>
+<span class="go">   2 │ AC       bb             3        0.3  AC       Y              92</span>
+<span class="go">   3 │ AE       bb             5        0.5  AE       X              77</span>
+<span class="go">   4 │ AG       bb             2        0.7  AG       Y              83</span>
+<span class="go">   5 │ AI       bb             4        0.9  AI       X              95</span>
+<span class="go">   6 │ AB       aa             2        0.2  missing  missing   missing </span>
+<span class="go">   7 │ AD       aa             4        0.4  missing  missing   missing </span>
+<span class="go">   8 │ AF       aa             1        0.6  missing  missing   missing </span>
+<span class="go">   9 │ AH       aa             3        0.8  missing  missing   missing </span>
+<span class="go">  10 │ AJ       aa             5        1.0  missing  missing   missing </span>
+<span class="go">  11 │ missing  missing  missing  missing    AK       Y              68</span>
+<span class="go">  12 │ missing  missing  missing  missing    AM       X              74</span>
+</code></pre></div>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/joins_sq.jl#L145-L197' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@group_by-Tuple{Any, Vararg{Any}}' href='#TidierDB.@group_by-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@group_by</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@group_by</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -745,9 +911,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -763,8 +927,8 @@
 <span class="go">   1 │ aa</span>
 <span class="go">   2 │ bb</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TBD_macros.jl#L286-L320' class='documenter-source'>source</a><br></p>
-<p><a id='TidierDB.@inner_join-NTuple{4, Any}' href='#TidierDB.@inner_join-NTuple{4, Any}'>#</a>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TBD_macros.jl#L286-L318' class='documenter-source'>source</a><br></p>
+<p><a id='TidierDB.@inner_join' href='#TidierDB.@inner_join'>#</a>
 <strong><code>TidierDB.@inner_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@inner_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="p">)</span>
 </code></pre></div>
@@ -786,16 +950,14 @@
 <span class="w">                </span><span class="n">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">],</span>
 <span class="w">                </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">88</span><span class="p">,</span><span class="w"> </span><span class="mi">92</span><span class="p">,</span><span class="w"> </span><span class="mi">77</span><span class="p">,</span><span class="w"> </span><span class="mi">83</span><span class="p">,</span><span class="w"> </span><span class="mi">95</span><span class="p">,</span><span class="w"> </span><span class="mi">68</span><span class="p">,</span><span class="w"> </span><span class="mi">74</span><span class="p">]);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_join&quot;</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">         </span><span class="nd">@inner_join</span><span class="p">(</span><span class="ss">:df_join</span><span class="p">,</span><span class="w"> </span><span class="n">id2</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
+<span class="w">         </span><span class="nd">@inner_join</span><span class="p">(</span><span class="n">df_join</span><span class="p">,</span><span class="w"> </span><span class="n">id2</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">5×7 DataFrame</span>
@@ -808,8 +970,8 @@
 <span class="go">   4 │ AG       bb            2       0.7  AG       Y             83</span>
 <span class="go">   5 │ AI       bb            4       0.9  AI       X             95</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/joins_sq.jl#L92-L139' class='documenter-source'>source</a><br></p>
-<p><a id='TidierDB.@left_join-NTuple{4, Any}' href='#TidierDB.@left_join-NTuple{4, Any}'>#</a>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/joins_sq.jl#L97-L142' class='documenter-source'>source</a><br></p>
+<p><a id='TidierDB.@left_join' href='#TidierDB.@left_join'>#</a>
 <strong><code>TidierDB.@left_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@left_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="p">)</span>
 </code></pre></div>
@@ -831,16 +993,14 @@
 <span class="w">                </span><span class="n">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">],</span>
 <span class="w">                </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">88</span><span class="p">,</span><span class="w"> </span><span class="mi">92</span><span class="p">,</span><span class="w"> </span><span class="mi">77</span><span class="p">,</span><span class="w"> </span><span class="mi">83</span><span class="p">,</span><span class="w"> </span><span class="mi">95</span><span class="p">,</span><span class="w"> </span><span class="mi">68</span><span class="p">,</span><span class="w"> </span><span class="mi">74</span><span class="p">]);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_join&quot;</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">         </span><span class="nd">@left_join</span><span class="p">(</span><span class="ss">:df_join</span><span class="p">,</span><span class="w"> </span><span class="n">id2</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
+<span class="w">         </span><span class="nd">@left_join</span><span class="p">(</span><span class="n">df_join</span><span class="p">,</span><span class="w"> </span><span class="n">id2</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">10×7 DataFrame</span>
@@ -858,7 +1018,7 @@
 <span class="go">   9 │ AH       aa            3       0.8  missing  missing   missing </span>
 <span class="go">  10 │ AJ       aa            5       1.0  missing  missing   missing </span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/joins_sq.jl#L1-L53' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/joins_sq.jl#L1-L51' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@mutate-Tuple{Any, Vararg{Any}}' href='#TidierDB.@mutate-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@mutate</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@mutate</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">exprs</span><span class="o">...</span><span class="p">)</span>
@@ -875,9 +1035,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -900,7 +1058,7 @@
 <span class="go">   9 │ AI       bb           16       0.9      0.81</span>
 <span class="go">  10 │ AJ       aa           20       1.0      1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TBD_macros.jl#L181-L221' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TBD_macros.jl#L181-L219' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@rename-Tuple{Any, Vararg{Any}}' href='#TidierDB.@rename-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@rename</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@rename</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">renamings</span><span class="o">...</span><span class="p">)</span>
@@ -914,9 +1072,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -939,8 +1095,8 @@
 <span class="go">   9 │ AI       bb            4       0.9</span>
 <span class="go">  10 │ AJ       aa            5       1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TBD_macros.jl#L472-L513' class='documenter-source'>source</a><br></p>
-<p><a id='TidierDB.@right_join-NTuple{4, Any}' href='#TidierDB.@right_join-NTuple{4, Any}'>#</a>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TBD_macros.jl#L472-L511' class='documenter-source'>source</a><br></p>
+<p><a id='TidierDB.@right_join' href='#TidierDB.@right_join'>#</a>
 <strong><code>TidierDB.@right_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@right_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="p">)</span>
 </code></pre></div>
@@ -962,16 +1118,14 @@
 <span class="w">                </span><span class="n">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">],</span>
 <span class="w">                </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">88</span><span class="p">,</span><span class="w"> </span><span class="mi">92</span><span class="p">,</span><span class="w"> </span><span class="mi">77</span><span class="p">,</span><span class="w"> </span><span class="mi">83</span><span class="p">,</span><span class="w"> </span><span class="mi">95</span><span class="p">,</span><span class="w"> </span><span class="mi">68</span><span class="p">,</span><span class="w"> </span><span class="mi">74</span><span class="p">]);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_join&quot;</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">         </span><span class="nd">@right_join</span><span class="p">(</span><span class="ss">:df_join</span><span class="p">,</span><span class="w"> </span><span class="n">id2</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
+<span class="w">         </span><span class="nd">@right_join</span><span class="p">(</span><span class="n">df_join</span><span class="p">,</span><span class="w"> </span><span class="n">id2</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">7×7 DataFrame</span>
@@ -986,7 +1140,7 @@
 <span class="go">   6 │ missing  missing  missing  missing    AK       Y             68</span>
 <span class="go">   7 │ missing  missing  missing  missing    AM       X             74</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/joins_sq.jl#L49-L98' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/joins_sq.jl#L48-L95' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@select-Tuple{Any, Vararg{Any}}' href='#TidierDB.@select-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@select</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@select</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="p">)</span>
@@ -1003,9 +1157,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -1047,7 +1199,50 @@
 <span class="go">   9 │      4       0.9</span>
 <span class="go">  10 │      5       1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TBD_macros.jl#L1-L62' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TBD_macros.jl#L1-L60' class='documenter-source'>source</a><br></p>
+<p><a id='TidierDB.@semi_join' href='#TidierDB.@semi_join'>#</a>
+<strong><code>TidierDB.@semi_join</code></strong> &mdash; <em>Macro</em>.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@semi_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="p">)</span>
+</code></pre></div>
+<p>Perform an semi join between two SQL queries based on a specified condition.  This syntax here is slightly different than TidierData.jl, however, because  SQL does not drop the joining column, for the metadata storage, it is  preferrable for the names to be different </p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>sql_query</code>: The primary SQL query to operate on.</li>
+<li><code>join_table</code>: The secondary SQL table to join with the primary query table.</li>
+<li><code>new_table_col</code>: Column from the new table that matches for join.</li>
+<li><code>orignal_table_col</code>: Column from the original table that matches for join.</li>
+</ul>
+<p><strong>Examples</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gp">julia&gt;</span><span class="w"> </span><span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">string</span><span class="p">(</span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">÷</span><span class="w"> </span><span class="mi">26</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">26</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">:</span><span class="mi">9</span><span class="p">],</span><span class="w"> </span>
+<span class="w">                        </span><span class="n">groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;aa&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;bb&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="mi">10</span><span class="p">],</span><span class="w"> </span>
+<span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
+<span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">df2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">id2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;AA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AC&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AE&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AG&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AI&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AK&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AM&quot;</span><span class="p">],</span>
+<span class="w">                </span><span class="n">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;X&quot;</span><span class="p">],</span>
+<span class="w">                </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">88</span><span class="p">,</span><span class="w"> </span><span class="mi">92</span><span class="p">,</span><span class="w"> </span><span class="mi">77</span><span class="p">,</span><span class="w"> </span><span class="mi">83</span><span class="p">,</span><span class="w"> </span><span class="mi">95</span><span class="p">,</span><span class="w"> </span><span class="mi">68</span><span class="p">,</span><span class="w"> </span><span class="mi">74</span><span class="p">]);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_join&quot;</span><span class="p">);</span>
+
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">         </span><span class="nd">@semi_join</span><span class="p">(</span><span class="n">df_join</span><span class="p">,</span><span class="w"> </span><span class="n">id2</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
+<span class="w">         </span><span class="nd">@collect</span>
+<span class="w">       </span><span class="k">end</span>
+<span class="go">5×4 DataFrame</span>
+<span class="go"> Row │ id       groups   value   percent  </span>
+<span class="go">     │ String?  String?  Int64?  Float64? </span>
+<span class="go">─────┼────────────────────────────────────</span>
+<span class="go">   1 │ AA       bb            1       0.1</span>
+<span class="go">   2 │ AC       bb            3       0.3</span>
+<span class="go">   3 │ AE       bb            5       0.5</span>
+<span class="go">   4 │ AG       bb            2       0.7</span>
+<span class="go">   5 │ AI       bb            4       0.9</span>
+</code></pre></div>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/joins_sq.jl#L193-L238' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@slice_max' href='#TidierDB.@slice_max'>#</a>
 <strong><code>TidierDB.@slice_max</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@slice_max</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
@@ -1065,9 +1260,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -1088,7 +1281,7 @@
 <span class="go">   1 │ AE       bb            5       0.5         1</span>
 <span class="go">   2 │ AJ       aa            5       1.0         1</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/slices_sq.jl#L89-L129' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/slices_sq.jl#L89-L127' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@slice_min' href='#TidierDB.@slice_min'>#</a>
 <strong><code>TidierDB.@slice_min</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@slice_min</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
@@ -1106,9 +1299,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -1129,7 +1320,7 @@
 <span class="go">   1 │ AA       bb            1       0.1         1</span>
 <span class="go">   2 │ AF       aa            1       0.6         1</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/slices_sq.jl#L1-L41' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/slices_sq.jl#L1-L39' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@slice_sample' href='#TidierDB.@slice_sample'>#</a>
 <strong><code>TidierDB.@slice_sample</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@slice_sample</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
@@ -1146,9 +1337,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -1163,7 +1352,7 @@
 <span class="w">       </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span><span class="p">;</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/slices_sq.jl#L179-L211' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/slices_sq.jl#L179-L209' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@summarise-Tuple{Any, Vararg{Any}}' href='#TidierDB.@summarise-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@summarise</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span><span class="nd">@summarise</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">exprs</span><span class="o">...</span><span class="p">)</span>
@@ -1180,9 +1369,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -1212,7 +1399,7 @@
 <span class="go">   1 │ aa            3.0       5</span>
 <span class="go">   2 │ bb            2.5       5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TBD_macros.jl#L436-L483' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TBD_macros.jl#L436-L481' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@summarize-Tuple{Any, Vararg{Any}}' href='#TidierDB.@summarize-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@summarize</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">exprs</span><span class="o">...</span><span class="p">)</span>
@@ -1229,9 +1416,7 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 
@@ -1261,7 +1446,7 @@
 <span class="go">   1 │ aa            3.0       5</span>
 <span class="go">   2 │ bb            2.5       5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TBD_macros.jl#L382-L429' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TBD_macros.jl#L382-L427' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@window_frame-Tuple{Any, Int64, Int64}' href='#TidierDB.@window_frame-Tuple{Any, Int64, Int64}'>#</a>
 <strong><code>TidierDB.@window_frame</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@window_frame</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">frame_start</span><span class="o">::</span><span class="kt">Int</span><span class="p">,</span><span class="w"> </span><span class="n">frame_end</span><span class="o">::</span><span class="kt">Int</span><span class="p">)</span>
@@ -1279,13 +1464,11 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TBD_macros.jl#L581-L604' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TBD_macros.jl#L581-L602' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@window_order-Tuple{Any, Vararg{Any}}' href='#TidierDB.@window_order-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@window_order</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span><span class="nd">@window_order</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -1302,13 +1485,11 @@
 <span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span>
 <span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_open</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">);</span>
-
-<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">duckdb_connect</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
+<span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/de8a153de28a5c7439f38e3e5418164745930349/src/TBD_macros.jl#L539-L560' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/07d6c3a0d9a84043c1e39b91815beab178de7882/src/TBD_macros.jl#L539-L558' class='documenter-source'>source</a><br></p>
 <p><a id='Reference-Internal-functions'></a></p>
 <p><a id='Reference-Internal-functions-1'></a></p>
 <h2 id="reference-internal-functions">Reference - Internal functions<a class="headerlink" href="#reference-internal-functions" title="Permanent link">¤</a></h2>

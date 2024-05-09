@@ -2,7 +2,7 @@
 
 # ## Creating a database
 
-# For these examples we will use DuckDB, the default backend, although SQLite, Postgres, MySQL, MSSQL, and ClickHouse are possible. If you have an existing DuckDB connection, then this step is not required. For these examples, we will create a data frame and copy it to an in-memory DuckDB database.
+# For these examples we will use DuckDB, the default backend, although SQLite, Postgres, MySQL, MariaDB, MSSQL, and ClickHouse are possible. If you have an existing DuckDB connection, then this step is not required. For these examples, we will create a data frame and copy it to an in-memory DuckDB database.
 
 using DataFrames, TidierDB
 
@@ -11,8 +11,7 @@ df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
- mem = duckdb_open(":memory:");
- db = duckdb_connect(mem);
+db = connect(:duckdb);
 
 copy_to(db, df, "df_mem"); # copying over the data frame to an in-memory database
 
@@ -47,19 +46,19 @@ end
 
 # ## Joining
 
-# There are 2 key differences for joining:
+# There is one key difference for joining:
 
-# 1. When joining 2 tables, the new table you are choosing to join must be prefixed with a colon. 
-# 2. The column on both the new and old table must be specified. They do not need to be the same, and given SQL behavior where both columns are kept when joining two tables, it is preferable if they have different names. This avoids "ambiguous reference" errors that would otherwise come up and complicate the use of tidy selection for columns. 
+# The column on both the new and old table must be specified. They do not need to be the same, and given SQL behavior where both columns are kept when joining two tables, it is preferable if they have different names. This avoids "ambiguous reference" errors that would otherwise come up and complicate the use of tidy selection for columns. 
+# Athena has an additional slight difference given the need for parameters, which is covered in the Athena documentation page.
 
 df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
                 score = [88, 92, 77, 83, 95, 68, 74]);
 
- copy_to(db, df2, "df_join");
+copy_to(db, df2, "df_join");
 
 @chain db_table(db, :df_mem) begin
-    @left_join(:df_join, id2, id)
+    @left_join(df_join, id2, id)
     @collect
 end
 

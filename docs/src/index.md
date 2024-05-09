@@ -1,6 +1,6 @@
 ## What is TidierDB.jl?
 
-<img src="docs/src/assets/logo.png" align="left" style="padding-right:10px"; width="150"></img>
+<img src="assets/logo.png" align="left" style="padding-right:10px"; width="150"></img>
 
 TiderDB.jl is a 100% Julia implementation of the dbplyr R package, and similar to Python's ibis package.
 
@@ -34,7 +34,7 @@ TidierDB.jl currently supports the following top-level macros:
 - `@mutate`, which supports `across()` 
 - `@summarize` and `@summarise`, which supports `across()` 
 - `@distinct`
-- `@left_join`, `@right_join`, `@inner_join` (slight syntax differences from TidierData.jl)
+- `@left_join`, `@right_join`, `@inner_join`, `@anti_join`, `@full_join`, and `@semi_join` (slight syntax differences from TidierData.jl)
 - `@count`
 - `@slice_min`, `@slice_max`, `@slice_sample`
 - `@window_order` and `window_frame`
@@ -59,6 +59,7 @@ From TidierDates.jl:
 
 Supported aggregate functions (as supported by the backend) with more to come
 - `mean`, `minimium`, `maximum`, `std`, `sum`, `cumsum`, `cor`, `cov`, `var`
+- `@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work 
 - `copy_to` (for DuckDB, MySQL, SQLite)
 
 DuckDB specifically enables copy_to to directly reading in `.parquet`, `.json`, `.csv`, and `.arrow` file, including https file paths.
@@ -82,8 +83,7 @@ Even though the code reads similarly to TidierData, note that no computational w
 using TidierData
 import TidierDB as DB
 
-mem = DB.duckdb_open(":memory:");
-db = DB.duckdb_connect(mem);
+db = DB.connect(:duckdb);
 path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
 DB.copy_to(db, path, "mtcars");
 

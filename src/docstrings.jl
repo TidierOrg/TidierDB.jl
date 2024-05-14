@@ -982,6 +982,8 @@ This function establishes a database connection based on the specified backend a
 # conn = connect(:clickhouse; host="localhost", port=9000, database="mydb", user="default", password="")
 # Connect to SQLite
 # conn = connect(:lite)
+# Connect to Google Big Query
+# conn = connect(:gbq, "json_user_key_path", "project_id")
 # Connect to DuckDB
 julia> db = connect(:duckdb)
 DuckDB.Connection(":memory:")

@@ -238,7 +238,7 @@ function db_table(db, table, athena_params::Any=nothing)
     table_name = string(table)
     metadata = if current_sql_mode[] == :lite
         get_table_metadata(db, table_name)
-    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse, current_sql_mode[] == :gbq
+    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse || current_sql_mode[] == :gbq 
         get_table_metadata(db, table_name)
     elseif current_sql_mode[] == :athena
         get_table_metadata_athena(db, table_name, athena_params)

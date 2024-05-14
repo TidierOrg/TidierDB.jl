@@ -100,6 +100,32 @@ function parse_gbq_df(df, column_types)
     return df
 end
 
+function get_table_metadata(conn::GoogleSession{JSONCredentials}, table_name::String)
+    query = " SELECT * FROM
+    $table_name LIMIT 0
+   ;"
+    query_data = Dict(
+    "query" => query,
+    "useLegacySql" => false,
+    "location" => "US")
+    # Define the API resource
+
+    response = GoogleCloud.api.execute(
+        conn, 
+        gbq_instance.bigquery_resource, 
+        gbq_instance.bigquery_method, 
+        data=query_data
+    ) 
+    response_string = String(response)
+    response_data = JSON3.read(response_string)
+    column_names = [field["name"] for field in response_data["schema"]["fields"]]
+    column_types = [field["type"] for field in response_data["schema"]["fields"]]
+    result = DataFrame(name = column_names, type = column_types)
+    result[!, :current_selxn] .= 1
+    result[!, :table_name] .= table_name
+
+    return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
+end
 
 function expr_to_sql_gbq(expr, sq; from_summarize::Bool)
     expr = parse_char_matching(expr)

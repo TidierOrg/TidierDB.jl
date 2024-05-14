@@ -1,8 +1,8 @@
 # TidierDB.jl updates
 
-## v0.1.4 - 2024-05-TBD
+## v0.1.4 - 2024-05-14
 - Adds Google Big Query support
-- use `connect` with BGQ JSON credentials and project id establish connection
+- use `connect` with GBQ JSON credentials and project id establish connection
 
 ## v0.1.3 - 2024-05-09
 - Adds `@full_join`, `@semi_join`, `@anti_join`

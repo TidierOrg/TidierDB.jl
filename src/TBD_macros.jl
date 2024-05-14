@@ -660,11 +660,12 @@ macro collect(sqlquery)
         if db isa SQLite.DB || db isa LibPQ.Connection || db isa DuckDB.Connection || db isa MySQL.Connection || db isa ODBC.Connection
             result = DBInterface.execute(db, final_query)
             df_result = DataFrame(result)
-
         elseif current_sql_mode[] == :clickhouse
             df_result = ClickHouse.select_df(db, final_query)
             selected_columns_order = sq.metadata[sq.metadata.current_selxn .== 1, :name]
             df_result = df_result[:, selected_columns_order]
+        elseif db isa GoogleSession{JSONCredentials}
+                df_result = collect_gbq(sq.db, final_query)
         elseif current_sql_mode[] == :athena
             exe_query = Athena.start_query_execution(final_query, sq.athena_params; aws_config = db)
                 status = "RUNNING"

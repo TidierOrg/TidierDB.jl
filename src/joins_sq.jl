@@ -1,3 +1,14 @@
+function gbq_join_parse(input)
+    input = string(input)
+    parts = split(input, ".")
+    if current_sql_mode[] == :gbq && length(parts) >=2
+        return join(parts[2:end], ".")
+    else
+        return input
+    end
+end
+
+
 """
 $docstring_left_join
 """
@@ -18,8 +29,8 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
 
                 most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
 
-                join_sql = " " * most_recent_source * ".*, " * string($(esc(join_table))) * ".* FROM " * most_recent_source *
-                            " LEFT JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", most_recent_source, ".", $rhs_col_str)
+                join_sql = " " * most_recent_source * ".*, " * string(gbq_join_parse($(esc(join_table)))) * ".* FROM " * gbq_join_parse(most_recent_source) *
+                            " LEFT JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(most_recent_source), ".", $rhs_col_str)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -28,7 +39,7 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
                 # Update the FROM clause
                 sq.from = cte_name
             else
-                join_clause = " LEFT JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", sq.from, ".", $rhs_col_str)
+                join_clause = " LEFT JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(sq.from), ".", $rhs_col_str)
                 sq.from *= join_clause
             end
 
@@ -65,8 +76,8 @@ macro right_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=not
 
                 most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
 
-                join_sql = " " * most_recent_source * ".*, " * string($(esc(join_table))) * ".* FROM " * most_recent_source *
-                            " RIGHT JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", most_recent_source, ".", $rhs_col_str)
+                join_sql = " " * most_recent_source * ".*, " * string(gbq_join_parse($(esc(join_table)))) * ".* FROM " * gbq_join_parse(most_recent_source) *
+                            " RIGHT JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(most_recent_source), ".", $rhs_col_str)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -75,7 +86,7 @@ macro right_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=not
                 # Update the FROM clause
                 sq.from = cte_name
             else
-                join_clause = " RIGHT JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", sq.from, ".", $rhs_col_str)
+                join_clause = " RIGHT JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(sq.from), ".", $rhs_col_str)
                 sq.from *= join_clause
             end
 
@@ -91,7 +102,6 @@ macro right_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=not
         sq
     end
 end
-
 
 
 """
@@ -114,8 +124,8 @@ macro inner_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=not
 
                 most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
 
-                join_sql = " " * most_recent_source * ".*, " * string($(esc(join_table))) * ".* FROM " * most_recent_source *
-                            " INNER JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", most_recent_source, ".", $rhs_col_str)
+                join_sql = " " * most_recent_source * ".*, " * string(gbq_join_parse($(esc(join_table)))) * ".* FROM " * gbq_join_parse(most_recent_source) *
+                            " INNER JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(most_recent_source), ".", $rhs_col_str)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -124,7 +134,7 @@ macro inner_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=not
                 # Update the FROM clause
                 sq.from = cte_name
             else
-                join_clause = " INNER JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", sq.from, ".", $rhs_col_str)
+                join_clause = " INNER JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(sq.from), ".", $rhs_col_str)
                 sq.from *= join_clause
             end
 
@@ -162,8 +172,8 @@ macro full_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
 
                 most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
 
-                join_sql = " " * most_recent_source * ".*, " * string($(esc(join_table))) * ".* FROM " * most_recent_source *
-                            " FULL JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", most_recent_source, ".", $rhs_col_str)
+                join_sql = " " * most_recent_source * ".*, " * string(gbq_join_parse($(esc(join_table)))) * ".* FROM " * gbq_join_parse(most_recent_source) *
+                            " FULL JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(most_recent_source), ".", $rhs_col_str)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -172,7 +182,7 @@ macro full_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
                 # Update the FROM clause
                 sq.from = cte_name
             else
-                join_clause = " FULL JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", sq.from, ".", $rhs_col_str)
+                join_clause = " FULL JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(sq.from), ".", $rhs_col_str)
                 sq.from *= join_clause
             end
 
@@ -210,8 +220,8 @@ macro semi_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
 
                 most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
 
-                join_sql = " " * most_recent_source * ".*, " * string($(esc(join_table))) * ".* FROM " * most_recent_source *
-                            " SEMI JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", most_recent_source, ".", $rhs_col_str)
+                join_sql = " " * most_recent_source * ".*, " * string(gbq_join_parse($(esc(join_table)))) * ".* FROM " * gbq_join_parse(most_recent_source) *
+                            " SEMI JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(most_recent_source), ".", $rhs_col_str)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -220,7 +230,7 @@ macro semi_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
                 # Update the FROM clause
                 sq.from = cte_name
             else
-                join_clause = " SEMI JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", sq.from, ".", $rhs_col_str)
+                join_clause = " SEMI JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(sq.from), ".", $rhs_col_str)
                 sq.from *= join_clause
             end
 
@@ -258,8 +268,8 @@ macro anti_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
 
                 most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
 
-                join_sql = " " * most_recent_source * ".*, " * string($(esc(join_table))) * ".* FROM " * most_recent_source *
-                            " ANTI JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", most_recent_source, ".", $rhs_col_str)
+                join_sql = " " * most_recent_source * ".*, " * string(gbq_join_parse($(esc(join_table)))) * ".* FROM " * gbq_join_parse(most_recent_source) *
+                            " ANTI JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(most_recent_source), ".", $rhs_col_str)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -268,7 +278,7 @@ macro anti_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
                 # Update the FROM clause
                 sq.from = cte_name
             else
-                join_clause = " ANTI JOIN " * string($(esc(join_table))) * " ON " * string($(esc(join_table)), ".", $lhs_col_str, " = ", sq.from, ".", $rhs_col_str)
+                join_clause = " ANTI JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(sq.from), ".", $rhs_col_str)
                 sq.from *= join_clause
             end
 
@@ -284,3 +294,4 @@ macro anti_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
         sq
     end
 end
+

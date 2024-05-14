@@ -277,3 +277,23 @@ function expr_to_sql_gbq(expr, sq; from_summarize::Bool)
         return x
     end
 end
+
+
+
+
+function process_column(input::String)
+    if current_sql_mode == :gbq
+        return join_gbq_parse(input, full=false)
+    else
+        return input
+    end
+end
+
+function join_gbq_parse(input_str::String; full::Bool = true)
+    parts = split(input_str, ".")
+    if full
+        return input_str
+    else
+        return parts[end]
+    end
+end

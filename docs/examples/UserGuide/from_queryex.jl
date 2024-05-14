@@ -3,7 +3,7 @@
 # ```julia
 # import TidierDB as DB
 # con = DB.connect(:duckdb)
-# DB.copy_to(con, "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv", mtcars2)
+# DB.copy_to(con, "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv", "mtcars2")
 # ```
 
 # Start a query to analyze fuel efficiency by number of cylinders. However, to further build on this query later, end the chain without using `@show_query` or `@collect`

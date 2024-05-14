@@ -20,6 +20,7 @@ The main goal of TidierDB.jl is to bring the syntax of Tidier.jl to multiple SQL
 - MSSQL `set_sql_mode(:mssql)`
 - Postgres `set_sql_mode(:postgres)`
 - Athena `set_sql_mode(:athena)`
+- Google Big Query `set_sql_mode(:gbq)`
 
 The style of SQL that is generated can be modified using `set_sql_mode()`.
 

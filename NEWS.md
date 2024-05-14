@@ -1,5 +1,9 @@
 # TidierDB.jl updates
 
+## v0.1.4 - 2024-05-TBD
+- Adds Google Big Query support
+- use `connect` with BGQ JSON credentials and project id establish connection
+
 ## v0.1.3 - 2024-05-09
 - Adds `@full_join`, `@semi_join`, `@anti_join`
 - Fixes bug to allow joining tables for Athena backend

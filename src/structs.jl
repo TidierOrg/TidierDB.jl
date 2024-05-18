@@ -52,6 +52,18 @@ function add_interp_parameter!(name::Symbol, value::Any)
     GLOBAL_CONTEXT.variables[name] = value
 end
 
+macro interpolate(con, args...)
+    exprs = Expr[]
+    for arg in args
+        if !(arg isa Expr && arg.head == :tuple)
+            throw(ArgumentError("Each argument must be a tuple"))
+        end
+        name, value = arg.args
+        push!(exprs, :(esc(add_interp_parameter!(Symbol($name), $((value))))))
+    end
+    return esc(Expr(:block, exprs...))
+end
+
 function from_query(query::TidierDB.SQLQuery)
     # Custom copy method for TidierDB.CTE
     function copy(cte::TidierDB.CTE)

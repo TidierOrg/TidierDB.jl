@@ -52,7 +52,10 @@ function add_interp_parameter!(name::Symbol, value::Any)
     GLOBAL_CONTEXT.variables[name] = value
 end
 
-macro interpolate(con, args...)
+"""
+$docstring_interpolate
+"""
+macro interpolate( args...)
     exprs = Expr[]
     for arg in args
         if !(arg isa Expr && arg.head == :tuple)

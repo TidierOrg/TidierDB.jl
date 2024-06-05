@@ -12,7 +12,7 @@ end
 """
 $docstring_left_join
 """
-macro left_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=nothing)
+macro left_join(sqlquery, join_table, lhs_column, rhs_column)
     # Convert column references to string
     lhs_col_str = string(lhs_column)
     rhs_col_str = string(rhs_column)
@@ -43,10 +43,10 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
                 sq.from *= join_clause
             end
 
-            if $(esc(athena_params)) === nothing
+            if current_sql_mode[] != :athena
                 new_metadata = get_table_metadata(sq.db, string($(esc(join_table))))
             else
-                new_metadata = get_table_metadata_athena(sq.db, string($(esc(join_table))), $(esc(athena_params)))
+                new_metadata = get_table_metadata_athena(sq.db, string($(esc(join_table))), sq.athena_params)
             end
             sq.metadata = vcat(sq.metadata, new_metadata)
         else
@@ -59,7 +59,7 @@ end
 """
 $docstring_right_join
 """
-macro right_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=nothing)
+macro right_join(sqlquery, join_table, lhs_column, rhs_column)
     # Convert column references to string
     lhs_col_str = string(lhs_column)
     rhs_col_str = string(rhs_column)
@@ -90,10 +90,10 @@ macro right_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=not
                 sq.from *= join_clause
             end
 
-            if $(esc(athena_params)) === nothing
+            if current_sql_mode[] != :athena
                 new_metadata = get_table_metadata(sq.db, string($(esc(join_table))))
             else
-                new_metadata = get_table_metadata_athena(sq.db, string($(esc(join_table))), $(esc(athena_params)))
+                new_metadata = get_table_metadata_athena(sq.db, string($(esc(join_table))), sq.athena_params)
             end
             sq.metadata = vcat(sq.metadata, new_metadata)
         else
@@ -107,7 +107,7 @@ end
 """
 $docstring_inner_join
 """
-macro inner_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=nothing)
+macro inner_join(sqlquery, join_table, lhs_column, rhs_column)
     # Convert column references to string
     lhs_col_str = string(lhs_column)
     rhs_col_str = string(rhs_column)
@@ -138,10 +138,10 @@ macro inner_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=not
                 sq.from *= join_clause
             end
 
-            if $(esc(athena_params)) === nothing
+            if current_sql_mode[] != :athena
                 new_metadata = get_table_metadata(sq.db, string($(esc(join_table))))
             else
-                new_metadata = get_table_metadata_athena(sq.db, string($(esc(join_table))), $(esc(athena_params)))
+                new_metadata = get_table_metadata_athena(sq.db, string($(esc(join_table))), sq.athena_params)
             end
             sq.metadata = vcat(sq.metadata, new_metadata)
         else
@@ -155,7 +155,7 @@ end
 """
 $docstring_full_join
 """
-macro full_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=nothing)
+macro full_join(sqlquery, join_table, lhs_column, rhs_column)
     # Convert column references to string
     lhs_col_str = string(lhs_column)
     rhs_col_str = string(rhs_column)
@@ -186,10 +186,10 @@ macro full_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
                 sq.from *= join_clause
             end
 
-            if $(esc(athena_params)) === nothing
+            if current_sql_mode[] != :athena
                 new_metadata = get_table_metadata(sq.db, string($(esc(join_table))))
             else
-                new_metadata = get_table_metadata_athena(sq.db, string($(esc(join_table))), $(esc(athena_params)))
+                new_metadata = get_table_metadata_athena(sq.db, string($(esc(join_table))), sq.athena_params)
             end
             sq.metadata = vcat(sq.metadata, new_metadata)
         else
@@ -203,7 +203,7 @@ end
 """
 $docstring_semi_join
 """
-macro semi_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=nothing)
+macro semi_join(sqlquery, join_table, lhs_column, rhs_column)
     # Convert column references to string
     lhs_col_str = string(lhs_column)
     rhs_col_str = string(rhs_column)
@@ -234,10 +234,10 @@ macro semi_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
                 sq.from *= join_clause
             end
 
-            if $(esc(athena_params)) === nothing
+            if current_sql_mode[] != :athena
                 new_metadata = get_table_metadata(sq.db, string($(esc(join_table))))
             else
-                new_metadata = get_table_metadata_athena(sq.db, string($(esc(join_table))), $(esc(athena_params)))
+                new_metadata = get_table_metadata_athena(sq.db, string($(esc(join_table))), sq.athena_params)
             end
             sq.metadata = vcat(sq.metadata, new_metadata)
         else
@@ -251,7 +251,7 @@ end
 """
 $docstring_anti_join
 """
-macro anti_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=nothing)
+macro anti_join(sqlquery, join_table, lhs_column, rhs_column)
     # Convert column references to string
     lhs_col_str = string(lhs_column)
     rhs_col_str = string(rhs_column)
@@ -282,10 +282,10 @@ macro anti_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
                 sq.from *= join_clause
             end
 
-            if $(esc(athena_params)) === nothing
+            if current_sql_mode[] != :athena
                 new_metadata = get_table_metadata(sq.db, string($(esc(join_table))))
             else
-                new_metadata = get_table_metadata_athena(sq.db, string($(esc(join_table))), $(esc(athena_params)))
+                new_metadata = get_table_metadata_athena(sq.db, string($(esc(join_table))), sq.athena_params)
             end
             sq.metadata = vcat(sq.metadata, new_metadata)
         else
@@ -294,4 +294,3 @@ macro anti_join(sqlquery, join_table, lhs_column, rhs_column, athena_params=noth
         sq
     end
 end
-

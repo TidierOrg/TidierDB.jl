@@ -1,4 +1,4 @@
-# To use the Athena AWS backend with TidierDB, set up and a few minimal but key syntax differences are covered here. 
+# To use the Athena AWS backend with TidierDB, set up and a small syntax difference are covered here. 
 
 # ## Connecting 
 # Connection is established through AWS.jl as shwon below.
@@ -61,38 +61,5 @@
 #    1 │     6  19.7429
 #    2 │     8  15.1
 # ``` 
-
-# ## Joining Syntax 
-# Since running queries requires athena_params to be passed, and all of the joins pull in the new table metadata with a query, when performing joins in Athena, the final argument of the join must be the Athena Parameters. This syntax difference will hopefully be resolved in the future.
-# ```julia
-# query = @chain from_query(mtcars) begin
-#     @group_by cyl
-#     @summarize begin
-#         across(mpg, (mean, minimum, maximum))
-#         num_cars = n()
-#         end
-#     @mutate begin
-#         efficiency = case_when(
-#             mean_mpg >= 25, "High",
-#             mean_mpg >= 15, "Moderate",
-#             "Low" )
-#        end
-# end;
-
-# @chain from_query(query) begin
-#    @full_join(demodb.mtcars, cyl, cyl, athena_params)
-#    @group_by(efficiency)
-#    @summarize(avg_hp = mean(hp))
-#    @collect
-# end
-# ```
-# ```
-# 2×2 DataFrame
-#  Row │ efficiency  avg_hp   
-#      │ String      Float64  
-# ─────┼──────────────────────
-#    1 │ High         82.6364
-#    2 │ Moderate    180.238
-# ```
 
 # I would like to acknowledge the work of Manu Francis and this [blog post](https://medium.com/@manuedavakandam/beginners-guide-to-aws-athena-with-julia-a0192f7f4b4a), which helped guide this process  

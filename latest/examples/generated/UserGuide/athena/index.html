@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.22">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.732c4fb1.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.6543a935.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -418,15 +418,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#joining-syntax" class="md-nav__link">
-    <span class="md-ellipsis">
-      Joining Syntax
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -506,15 +497,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#joining-syntax" class="md-nav__link">
-    <span class="md-ellipsis">
-      Joining Syntax
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -532,7 +514,7 @@
 
   <h1>Using Athena</h1>
 
-<p>To use the Athena AWS backend with TidierDB, set up and a few minimal but key syntax differences are covered here.</p>
+<p>To use the Athena AWS backend with TidierDB, set up and a small syntax difference are covered here.</p>
 <p><a id='Connecting'></a></p>
 <p><a id='Connecting-1'></a></p>
 <h2 id="connecting">Connecting<a class="headerlink" href="#connecting" title="Permanent link">¤</a></h2>
@@ -594,38 +576,6 @@
 ─────┼────────────────
    1 │     6  19.7429
    2 │     8  15.1
-</code></pre></div>
-<p><a id='Joining-Syntax'></a></p>
-<p><a id='Joining-Syntax-1'></a></p>
-<h2 id="joining-syntax">Joining Syntax<a class="headerlink" href="#joining-syntax" title="Permanent link">¤</a></h2>
-<p>Since running queries requires athena_params to be passed, and all of the joins pull in the new table metadata with a query, when performing joins in Athena, the final argument of the join must be the Athena Parameters. This syntax difference will hopefully be resolved in the future.</p>
-<div class="highlight"><pre><span></span><code><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">from_query</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">    </span><span class="nd">@group_by</span><span class="w"> </span><span class="n">cyl</span>
-<span class="w">    </span><span class="nd">@summarize</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">        </span><span class="n">across</span><span class="p">(</span><span class="n">mpg</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="p">,</span><span class="w"> </span><span class="n">minimum</span><span class="p">,</span><span class="w"> </span><span class="n">maximum</span><span class="p">))</span>
-<span class="w">        </span><span class="n">num_cars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">()</span>
-<span class="w">        </span><span class="k">end</span>
-<span class="w">    </span><span class="nd">@mutate</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">        </span><span class="n">efficiency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">case_when</span><span class="p">(</span>
-<span class="w">            </span><span class="n">mean_mpg</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;High&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="n">mean_mpg</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Moderate&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s">&quot;Low&quot;</span><span class="w"> </span><span class="p">)</span>
-<span class="w">       </span><span class="k">end</span>
-<span class="k">end</span><span class="p">;</span>
-
-<span class="nd">@chain</span><span class="w"> </span><span class="n">from_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">   </span><span class="nd">@full_join</span><span class="p">(</span><span class="n">demodb</span><span class="o">.</span><span class="n">mtcars</span><span class="p">,</span><span class="w"> </span><span class="n">cyl</span><span class="p">,</span><span class="w"> </span><span class="n">cyl</span><span class="p">,</span><span class="w"> </span><span class="n">athena_params</span><span class="p">)</span>
-<span class="w">   </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">efficiency</span><span class="p">)</span>
-<span class="w">   </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">avg_hp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">hp</span><span class="p">))</span>
-<span class="w">   </span><span class="nd">@collect</span>
-<span class="k">end</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>2×2 DataFrame
- Row │ efficiency  avg_hp
-     │ String      Float64
-─────┼──────────────────────
-   1 │ High         82.6364
-   2 │ Moderate    180.238
 </code></pre></div>
 <p>I would like to acknowledge the work of Manu Francis and this <a href="https://medium.com/@manuedavakandam/beginners-guide-to-aws-athena-with-julia-a0192f7f4b4a">blog post</a>, which helped guide this process</p>
 <hr />
@@ -751,7 +701,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.copy", "content.code.annotate", "navigation.top", "navigation.footer", "search.highlight", "search.share", "search.suggest", "toc.follow", "header.autohide"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.5cfa9459.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.081f42fc.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

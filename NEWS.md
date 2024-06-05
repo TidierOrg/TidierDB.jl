@@ -1,5 +1,8 @@
 # TidierDB.jl updates
 
+## v0.1.5 - 2024-06-05
+- Adjusts Athena backend join syntax to match all other backends
+
 ## v0.1.4 - 2024-05-14
 - Adds Google Big Query support
 - use `connect` with GBQ JSON credentials and project id establish connection

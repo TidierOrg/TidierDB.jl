@@ -48,8 +48,30 @@ end
 # Create a global instance of the context, hidden from the module's users.
 const GLOBAL_CONTEXT = InterpolationContext()
 
+function add_interp_parameter2!(name::Symbol, value::Any)
+    GLOBAL_CONTEXT.variables[name] = value
+    
+end
+
 function add_interp_parameter!(name::Symbol, value::Any)
     GLOBAL_CONTEXT.variables[name] = value
+    add_interp_parameter2!(name, value)
+end
+
+"""
+$docstring_interpolate
+"""
+macro interpolate( args...)
+    exprs = Expr[]
+    for arg in args
+        if !(arg isa Expr && arg.head == :tuple)
+            throw(ArgumentError("Each argument must be a tuple"))
+        end
+        name, value = arg.args
+        quoted_name = QuoteNode(name)
+        push!(exprs, :(esc(add_interp_parameter!(Symbol($quoted_name), $((value))))))
+    end
+    return esc(Expr(:block, exprs...))
 end
 
 function from_query(query::TidierDB.SQLQuery)

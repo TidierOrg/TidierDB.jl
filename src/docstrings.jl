@@ -988,3 +988,50 @@ This function establishes a database connection based on the specified backend a
 julia> db = connect(:duckdb)
 DuckDB.Connection(":memory:")
 """
+
+const docstring_interpolate =
+"""
+    @interpolate(args...)
+
+Interpolate parameters into expressions for database queries.
+
+# Arguments
+
+- `args...`: A variable number of tuples. Each tuple should contain:
+  - `name`: The name of the parameter to interpolate.
+  - `value`: (Any): The value/vector to interpolate for the corresponding parameter name.
+
+# Example
+```julia
+julia> db = connect(:duckdb);
+
+julia> copy_to(db, df, "df_mem");
+
+julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                        value = repeat(1:5, 2), 
+                        percent = 0.1:0.1:1.0);
+
+julia> col_names = [:id, :value, :percent];
+
+julia> cond1 = .2;
+
+julia> cond2 = 5;
+
+julia> @interpolate((condition1, cond1), (columns, col_names), (condition2, cond2));
+
+julia> @chain db_table(db, "df_mem") begin 
+          @select(!!columns)
+          @filter begin 
+              percent < !!condition1
+              value < !!condition2
+          end
+          @collect
+          end
+1×3 DataFrame
+ Row │ id       value   percent  
+     │ String?  Int64?  Float64? 
+─────┼───────────────────────────
+   1 │ AA            1       0.1
+```
+"""

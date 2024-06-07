@@ -79,16 +79,30 @@ end
 # To use !! Interpolation, instead of being able to define the alternate names/value in the global context, the user has to use `@interpolate`. This will hopefully be fixed in future versions. Otherwise, the behavior is generally the same, although this creates friction around calling functions.
 
 # Also, when using interpolation with exponenents, the interpolated value must go inside of parenthesis. 
+# ```julia
+# @interpolate((test, :percent)); # this still supports strings, vectors of names, and values
 
-@interpolate((test, :percent)) # this still supports strings, vectors of names, and values
-
-@chain db_table(db, :df_mem) begin
-    @mutate(new_col = case_when((!!test)^2 > .5, "Pass",
-                                (!!test)^2 < .5, "Try Again",
-                                "middle"))
-    @collect
-end
-
+# @chain db_table(db, :df_mem) begin
+#     @mutate(new_col = case_when((!!test)^2 > .5, "Pass",
+#                                 (!!test)^2 < .5, "Try Again",
+#                                 "middle"))
+#     @collect
+# end
+# ```
+# ```
+# 10×5 DataFrame
+#  Row │ id       groups   value   percent   new_col   
+#      │ String?  String?  Int64?  Float64?  String?   
+# ─────┼───────────────────────────────────────────────
+#    1 │ AA       bb            1       0.1  Try Again
+#    2 │ AB       aa            2       0.2  Try Again
+#    3 │ AC       bb            3       0.3  Try Again
+#   ⋮  │    ⋮        ⋮       ⋮        ⋮          ⋮
+#    8 │ AH       aa            3       0.8  Pass
+#    9 │ AI       bb            4       0.9  Pass
+#   10 │ AJ       aa            5       1.0  Pass
+#                                        4 rows omitted
+# ```
 # ## Slicing ties
 
 # `slice_min()` and `@slice_max()` will always return ties due to SQL behavior.

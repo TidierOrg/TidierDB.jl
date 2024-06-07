@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
     
     
       
@@ -185,7 +185,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -478,6 +478,26 @@
   
   
     <li class="md-nav__item">
+      <a href="../functions_pass_to_DB/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Writing Functions/Macros with TidierDB Chains
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../reference/" class="md-nav__link">
         
   
@@ -689,9 +709,9 @@
 <p><a id='Interpolation'></a></p>
 <p><a id='Interpolation-1'></a></p>
 <h2 id="interpolation">Interpolation<a class="headerlink" href="#interpolation" title="Permanent link">¤</a></h2>
-<p>To use !! Interpolation, instead of being able to define the alternate names/value in the global context, the user has to <code>add_interp_parameter!</code>. This will hopefully be fixed in future versions. Otherwise, the behavior is the same.</p>
+<p>To use !! Interpolation, instead of being able to define the alternate names/value in the global context, the user has to use <code>@interpolate</code>. This will hopefully be fixed in future versions. Otherwise, the behavior is generally the same, although this creates friction around calling functions.</p>
 <p>Also, when using interpolation with exponenents, the interpolated value must go inside of parenthesis.</p>
-<div class="highlight"><pre><span></span><code><span class="n">add_interp_parameter!</span><span class="p">(</span><span class="ss">:test</span><span class="p">,</span><span class="w"> </span><span class="ss">:percent</span><span class="p">)</span><span class="w"> </span><span class="c"># this still supports strings, vectors of names, and values</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@interpolate</span><span class="p">((</span><span class="n">test</span><span class="p">,</span><span class="w"> </span><span class="ss">:percent</span><span class="p">));</span><span class="w"> </span><span class="c"># this still supports strings, vectors of names, and values</span>
 
 <span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">new_col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">case_when</span><span class="p">((</span><span class="o">!!</span><span class="n">test</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">.5</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Pass&quot;</span><span class="p">,</span>
@@ -700,9 +720,19 @@
 <span class="w">    </span><span class="nd">@collect</span>
 <span class="k">end</span>
 </code></pre></div>
-<div><div style = "float: left;"><span>10×5 DataFrame</span></div><div style = "clear: both;"></div></div>
-<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th><th style = "text-align: left;">new_col</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, Int64}" style = "text-align: left;">Int64?</th><th title = "Union{Missing, Float64}" style = "text-align: left;">Float64?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">AA</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.1</td><td style = "text-align: left;">Try Again</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">AB</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.2</td><td style = "text-align: left;">Try Again</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">AC</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.3</td><td style = "text-align: left;">Try Again</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">AD</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.4</td><td style = "text-align: left;">Try Again</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">AE</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">5</td><td style = "text-align: right;">0.5</td><td style = "text-align: left;">Try Again</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">AF</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.6</td><td style = "text-align: left;">Try Again</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">7</td><td style = "text-align: left;">AG</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.7</td><td style = "text-align: left;">Try Again</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">8</td><td style = "text-align: left;">AH</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.8</td><td style = "text-align: left;">Pass</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">9</td><td style = "text-align: left;">AI</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.9</td><td style = "text-align: left;">Pass</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">10</td><td style = "text-align: left;">AJ</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">5</td><td style = "text-align: right;">1.0</td><td style = "text-align: left;">Pass</td></tr></tbody></table></div>
-
+<div class="highlight"><pre><span></span><code>10×5 DataFrame
+ Row │ id       groups   value   percent   new_col
+     │ String?  String?  Int64?  Float64?  String?
+─────┼───────────────────────────────────────────────
+   1 │ AA       bb            1       0.1  Try Again
+   2 │ AB       aa            2       0.2  Try Again
+   3 │ AC       bb            3       0.3  Try Again
+  ⋮  │    ⋮        ⋮       ⋮        ⋮          ⋮
+   8 │ AH       aa            3       0.8  Pass
+   9 │ AI       bb            4       0.9  Pass
+  10 │ AJ       aa            5       1.0  Pass
+                                       4 rows omitted
+</code></pre></div>
 <p><a id='Slicing-ties'></a></p>
 <p><a id='Slicing-ties-1'></a></p>
 <h2 id="slicing-ties">Slicing ties<a class="headerlink" href="#slicing-ties" title="Permanent link">¤</a></h2>
@@ -830,7 +860,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.copy", "content.code.annotate", "navigation.top", "navigation.footer", "search.highlight", "search.share", "search.suggest", "toc.follow", "header.autohide"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.081f42fc.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

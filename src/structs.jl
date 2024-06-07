@@ -48,8 +48,14 @@ end
 # Create a global instance of the context, hidden from the module's users.
 const GLOBAL_CONTEXT = InterpolationContext()
 
+function add_interp_parameter2!(name::Symbol, value::Any)
+    GLOBAL_CONTEXT.variables[name] = value
+    
+end
+
 function add_interp_parameter!(name::Symbol, value::Any)
     GLOBAL_CONTEXT.variables[name] = value
+    add_interp_parameter2!(name, value)
 end
 
 """

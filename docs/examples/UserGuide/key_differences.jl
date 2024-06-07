@@ -80,7 +80,7 @@ end
 
 # Also, when using interpolation with exponenents, the interpolated value must go inside of parenthesis. 
 
-@interpolate(test, :percent) # this still supports strings, vectors of names, and values
+@interpolate((test, :percent)) # this still supports strings, vectors of names, and values
 
 @chain db_table(db, :df_mem) begin
     @mutate(new_col = case_when((!!test)^2 > .5, "Pass",

@@ -551,7 +551,19 @@ end
 <span class="nd">@interpolate</span><span class="p">((</span><span class="n">conditions</span><span class="p">,</span><span class="w"> </span><span class="n">new_condition</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">columns</span><span class="p">,</span><span class="w"> </span><span class="n">new_cols</span><span class="p">));</span>
 <span class="nd">@f1</span><span class="p">(</span><span class="n">new_condition</span><span class="p">,</span><span class="w"> </span><span class="n">new_cols</span><span class="p">)</span>
 </code></pre></div>
-<p>20×2 DataFrame  Row │ model              drat      │ String?            Float64? ─────┼─────────────────────────────    1 │ Hornet 4 Drive         3.08    2 │ Hornet Sportabout      3.15    3 │ Valiant                2.76   ⋮  │         ⋮             ⋮   18 │ Pontiac Firebird       3.08   19 │ Ford Pantera L         4.22  20 │ Maserati Bora          3.54                     14 rows omitted ```</p>
+<div class="highlight"><pre><span></span><code>20×2 DataFrame
+ Row │ model              drat
+     │ String?            Float64?
+─────┼─────────────────────────────
+   1 │ Hornet 4 Drive         3.08
+   2 │ Hornet Sportabout      3.15
+   3 │ Valiant                2.76
+  ⋮  │         ⋮             ⋮
+  18 │ Pontiac Firebird       3.08
+  19 │ Ford Pantera L         4.22
+ 20 │ Maserati Bora          3.54
+                    14 rows omitted
+</code></pre></div>
 <p>In short, the first argument in <code>@interpolate</code> must be the name of the macro argument it refers to, and the second argument is what you would like to replace it.</p>
 <p>We recognize this adds friction and that it is not ideal, but given the TidierDB macro expressions/string interplay, this is currently the most graceful and functional option available and hopefully a temporary solution to better interpolation.</p>
 <hr />

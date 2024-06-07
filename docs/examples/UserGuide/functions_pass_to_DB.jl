@@ -55,6 +55,7 @@
 # @interpolate((conditions, new_condition), (columns, new_cols));
 # @f1(new_condition, new_cols)
 # ```
+# ```
 # 20×2 DataFrame
 #  Row │ model              drat     
 #      │ String?            Float64? 

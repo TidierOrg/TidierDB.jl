@@ -76,11 +76,11 @@ end
 
 # ## Interpolation
 
-# To use !! Interpolation, instead of being able to define the alternate names/value in the global context, the user has to `add_interp_parameter!`. This will hopefully be fixed in future versions. Otherwise, the behavior is the same.
+# To use !! Interpolation, instead of being able to define the alternate names/value in the global context, the user has to use `@interpolate`. This will hopefully be fixed in future versions. Otherwise, the behavior is generally the same, although this creates friction around calling functions.
 
 # Also, when using interpolation with exponenents, the interpolated value must go inside of parenthesis. 
 
-add_interp_parameter!(:test, :percent) # this still supports strings, vectors of names, and values
+@interpolate(test, :percent) # this still supports strings, vectors of names, and values
 
 @chain db_table(db, :df_mem) begin
     @mutate(new_col = case_when((!!test)^2 > .5, "Pass",

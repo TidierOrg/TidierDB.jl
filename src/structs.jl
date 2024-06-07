@@ -62,7 +62,8 @@ macro interpolate( args...)
             throw(ArgumentError("Each argument must be a tuple"))
         end
         name, value = arg.args
-        push!(exprs, :(esc(add_interp_parameter!(Symbol($name), $((value))))))
+        quoted_name = QuoteNode(name)
+        push!(exprs, :(esc(add_interp_parameter!(Symbol($quoted_name), $((value))))))
     end
     return esc(Expr(:block, exprs...))
 end

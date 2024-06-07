@@ -14,67 +14,61 @@
 # copy_to(db, path, "mtcars");
 #
 # # STEP 1
-# macro f1(conditions, number)
+# macro f1(conditions, columns)
 #     return quote
 #     # add chain here
 #       @chain db_table(db, :mtcars) begin
-#             @filter(!starts_with(model, "M"))
-#             @group_by(cyl)
-#             @summarize(mpg = mean(mpg))
-#             @mutate(mpg_squared = mpg^2, 
-#                     mpg_rounded = round(mpg), 
-#                     mpg_efficiency = case_when(
-#                           mpg >= cyl^2 , "efficient",
-#                           mpg < !!number , "inefficient",
-#                           "moderate"))         
-#             @filter(mpg_efficiency in [!!conditions])
-#             @arrange(desc(mpg_rounded))
-#             @collect
+#            @filter(!!conditions > 3)
+#            @select(!!columns)
+#            @aside @show_query _
+#            @collect
 #          end # end chain
 #     end # end macro.
 # end
 # ```
 # ```julia
 # # STEP 2
-# conditions = ["moderate", "efficient"];
-# number = 15.2;
-# @interpolate((:conditions, conditions), (:number, number));
-# @f1(conditions, number)
+# variable = :gear;
+# cols = [:model, :mpg, :gear, :wt];
+# @interpolate((conditions, variable), (columns, cols));
+# @f1(variable, cols)
 # ```
-# ```2×5 DataFrame
-#  Row │ cyl     mpg       mpg_squared  mpg_rounded  mpg_efficiency 
-#      │ Int64?  Float64?  Float64?     Float64?     String?        
-# ─────┼────────────────────────────────────────────────────────────
-#    1 │      4   27.3444      747.719         27.0  efficient
-#    2 │      6   19.7333      389.404         20.0  moderate
+# ```
+# 17×4 DataFrame
+#  Row │ model           mpg       gear    wt       
+#      │ String?         Float64?  Int32?  Float64? 
+# ─────┼────────────────────────────────────────────
+#    1 │ Mazda RX4           21.0       4     2.62
+#    2 │ Mazda RX4 Wag       21.0       4     2.875
+#    3 │ Datsun 710          22.8       4     2.32
+#   ⋮  │       ⋮            ⋮        ⋮        ⋮
+#   15 │ Ferrari Dino        19.7       5     2.77
+#   16 │ Maserati Bora       15.0       5     3.57
+#   17 │ Volvo 142E          21.4       4     2.78
+#                                    11 rows omitted
 # ```
 
-# Lets say you wanted to change try a new condition with a new name, but use the name number, 
+# Lets say you wanted to filter on new variable with a different name and select new columns, 
 # ```julia
-# new_condition = ["moderate"];
-# @interpolate((:conditions, new_condition), (:number, number));
-# @f1(new_condition, number)
+# new_condition = :wt;
+# new_cols = [:model, :drat]
+# @interpolate((conditions, new_condition), (columns, new_cols));
+# @f1(new_condition, new_cols)
 # ```
-# ```
-# 1×5 DataFrame
-#  Row │ cyl     mpg       mpg_squared  mpg_rounded  mpg_efficiency 
-#      │ Int64?  Float64?  Float64?     Float64?     String?        
-# ─────┼────────────────────────────────────────────────────────────
-#    1 │      6   19.7333      389.404         20.0  moderate
-# ```
-
-# Lets say you wanted to just change `condition`, after making the change you would have to reinterpolate the difference. 
-# ```julia
-# condition = ["efficient"]
-# @interpolate((:conditions, condition))
-# @f1(condition, number)
-# ```
-# ```
-# 1×5 DataFrame
-#  Row │ cyl     mpg       mpg_squared  mpg_rounded  mpg_efficiency 
-#      │ Int64?  Float64?  Float64?     Float64?     String?        
-# ─────┼────────────────────────────────────────────────────────────
-#    1 │      4   27.3444      747.719         27.0  efficient
+# 20×2 DataFrame
+#  Row │ model              drat     
+#      │ String?            Float64? 
+# ─────┼─────────────────────────────
+#    1 │ Hornet 4 Drive         3.08
+#    2 │ Hornet Sportabout      3.15
+#    3 │ Valiant                2.76
+#   ⋮  │         ⋮             ⋮
+#   18 │ Pontiac Firebird       3.08
+#   19 │ Ford Pantera L         4.22
+#  20 │ Maserati Bora          3.54
+#                     14 rows omitted
 # ```
 
-# We recognize this is a bit verbose, and not ideal, but given the TidierDB macro expressions/string interplay, this is the most graceful and functional option available.
+# In short, the first argument in `@interpolate` must be the name of the macro argument it refers to, and the second argument is what you would like to replace it.
+
+# We recognize this adds friction and that it is not ideal, but given the TidierDB macro expressions/string interplay, this is currently the most graceful and functional option available and hopefully a temporary solution to better interpolation.

@@ -25,7 +25,7 @@ import DuckDB: connect as duckdb_connect
  export db_table, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
  @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
  @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, 
- @anti_join, connect, from_query, @interpolate
+ @anti_join, connect, from_query, @interpolate, add_interp_parameter!
 
 include("docstrings.jl")
 include("structs.jl")

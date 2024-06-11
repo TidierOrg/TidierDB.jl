@@ -1,5 +1,8 @@
 # TidierDB.jl updates
 
+## v0.1.6 - 2024-06-11
+- Adds `@interpolate` and documentation around building macros with TidierDB chains and interpolation
+
 ## v0.1.5 - 2024-06-05
 - Adjusts Athena backend join syntax to match all other backends
 

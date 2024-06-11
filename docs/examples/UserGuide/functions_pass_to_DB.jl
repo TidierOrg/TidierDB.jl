@@ -1,12 +1,12 @@
 # How can functions pass arguments to a TidierDB chain?
 
-# In short, you have to use a macro instead.
+# In short, you have to use a macro instead in conjuction with `@interpolate`
 
 # ## Setting up the macro
 # To write a macro that will take arguments and pass them to a TidierDB chain, there are 3 steps:
 #   1. Write macro with the desired argument(s), and, after the quote, add the chain. Arguments to be changed/interpolated must be prefixed with `!!`
-#   2. Use `@interpolate` to make these arguemnts accessible to the chain. `@interpolate` takes touples as argument (one for the `!!`name, and one for the actual info you want the chain to use) 
-#   3. Run `@interpolate` and then the new macro sequentially
+#   2. Use `@interpolate` to make these arguemnts accessible to the chain. `@interpolate` takes touples as argument (one for the `!!`name, and one for the actual content you want the chain to use) 
+#   3. Run `@interpolate` and then the chain macro sequentially
 
 # ```
 # using TidierDB
@@ -14,7 +14,7 @@
 # copy_to(db, path, "mtcars");
 #
 # # STEP 1
-# macro f1(conditions, columns)
+# macro f1(conditions, columns) # The arguemnt names will be names of the `!!` values
 #     return quote
 #     # add chain here
 #       @chain db_table(db, :mtcars) begin
@@ -22,9 +22,9 @@
 #            @select(!!columns)
 #            @aside @show_query _
 #            @collect
-#          end # end chain
-#     end # end macro.
-# end
+#          end # ends the chain
+#     end # ends the quote.
+# end # ends the macro
 # ```
 # ```julia
 # # STEP 2
@@ -66,10 +66,12 @@
 #   ⋮  │         ⋮             ⋮
 #   18 │ Pontiac Firebird       3.08
 #   19 │ Ford Pantera L         4.22
-#  20 │ Maserati Bora          3.54
+#   20 │ Maserati Bora          3.54
 #                     14 rows omitted
 # ```
 
+# You can also interpolate vectors of strings into a `@filter(col in (values))` as well by using the following syntax `@filter(col in [!!values])`
+
 # In short, the first argument in `@interpolate` must be the name of the macro argument it refers to, and the second argument is what you would like to replace it.
 
-# We recognize this adds friction and that it is not ideal, but given the TidierDB macro expressions/string interplay, this is currently the most graceful and functional option available and hopefully a temporary solution to better interpolation.
+# We recognize this adds friction and that it is not ideal, but given the TidierDB macro expressions/string interplay, this is currently the most graceful and functional option available and hopefully a temporary solution to better interpolation that mirrors TidierData.jl.

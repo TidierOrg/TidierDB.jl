@@ -499,22 +499,22 @@
   <h1>Writing Functions/Macros with TidierDB Chains</h1>
 
 <p>How can functions pass arguments to a TidierDB chain?</p>
-<p>In short, you have to use a macro instead.</p>
+<p>In short, you have to use a macro instead in conjuction with <code>@interpolate</code></p>
 <p><a id='Setting-up-the-macro'></a></p>
 <p><a id='Setting-up-the-macro-1'></a></p>
 <h2 id="setting-up-the-macro">Setting up the macro<a class="headerlink" href="#setting-up-the-macro" title="Permanent link">¤</a></h2>
 <p>To write a macro that will take arguments and pass them to a TidierDB chain, there are 3 steps:</p>
 <ol>
 <li>Write macro with the desired argument(s), and, after the quote, add the chain. Arguments to be changed/interpolated must be prefixed with <code>!!</code></li>
-<li>Use <code>@interpolate</code> to make these arguemnts accessible to the chain. <code>@interpolate</code> takes touples as argument (one for the <code>!!</code>name, and one for the actual info you want the chain to use)</li>
-<li>Run <code>@interpolate</code> and then the new macro sequentially</li>
+<li>Use <code>@interpolate</code> to make these arguemnts accessible to the chain. <code>@interpolate</code> takes touples as argument (one for the <code>!!</code>name, and one for the actual content you want the chain to use)</li>
+<li>Run <code>@interpolate</code> and then the chain macro sequentially</li>
 </ol>
 <div class="highlight"><pre><span></span><code>using TidierDB
 path = &quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;
 copy_to(db, path, &quot;mtcars&quot;);
 
 # STEP 1
-macro f1(conditions, columns)
+macro f1(conditions, columns) # The arguemnt names will be names of the `!!` values
     return quote
     # add chain here
       @chain db_table(db, :mtcars) begin
@@ -522,9 +522,9 @@ macro f1(conditions, columns)
            @select(!!columns)
            @aside @show_query _
            @collect
-         end # end chain
-    end # end macro.
-end
+         end # ends the chain
+    end # ends the quote.
+end # ends the macro
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c"># STEP 2</span>
 <span class="n">variable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:gear</span><span class="p">;</span>
@@ -561,11 +561,12 @@ end
   ⋮  │         ⋮             ⋮
   18 │ Pontiac Firebird       3.08
   19 │ Ford Pantera L         4.22
- 20 │ Maserati Bora          3.54
+  20 │ Maserati Bora          3.54
                     14 rows omitted
 </code></pre></div>
+<p>You can also interpolate vectors of strings into a <code>@filter(col in (values))</code> as well by using the following syntax <code>@filter(col in [!!values])</code></p>
 <p>In short, the first argument in <code>@interpolate</code> must be the name of the macro argument it refers to, and the second argument is what you would like to replace it.</p>
-<p>We recognize this adds friction and that it is not ideal, but given the TidierDB macro expressions/string interplay, this is currently the most graceful and functional option available and hopefully a temporary solution to better interpolation.</p>
+<p>We recognize this adds friction and that it is not ideal, but given the TidierDB macro expressions/string interplay, this is currently the most graceful and functional option available and hopefully a temporary solution to better interpolation that mirrors TidierData.jl.</p>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 

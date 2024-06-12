@@ -14,6 +14,7 @@ using Arrow
 using AWS
 using JSON3
 using GoogleCloud
+using Oracle
 
 @reexport using DataFrames: DataFrame
 @reexport using Chain
@@ -39,6 +40,7 @@ include("parsing_mssql.jl")
 include("parsing_clickhouse.jl")
 include("parsing_athena.jl")
 include("parsing_gbq.jl")
+include("parsing_oracle.jl")
 include("joins_sq.jl")
 include("slices_sq.jl")
 
@@ -68,6 +70,8 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
         return expr_to_sql_trino(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == :gbq
         return expr_to_sql_gbq(expr, sq; from_summarize=from_summarize)
+    elseif current_sql_mode[] == :oracle
+        return expr_to_sql_oracle(expr, sq; from_summarize=from_summarize)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
@@ -234,11 +238,27 @@ function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
+# Oracle
+function get_table_metadata(conn::Oracle.Connection, table_name::String)
+    table_name = uppercase(table_name)
+    query = """
+    SELECT column_name, data_type
+    FROM all_tab_columns
+    WHERE table_name = '$table_name'
+    ORDER BY column_id
+    """
+    result = Oracle.query(conn, query) |> DataFrame
+    result[!, :current_selxn] .= 1
+    result[!, :table_name] .= table_name
+    # Adjust the select statement to include the new table_name column
+    return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
+end
+
 function db_table(db, table, athena_params::Any=nothing)
     table_name = string(table)
     metadata = if current_sql_mode[] == :lite
         get_table_metadata(db, table_name)
-    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse || current_sql_mode[] == :gbq 
+    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse || current_sql_mode[] == :gbq || current_sql_mode[] == :oracle 
         get_table_metadata(db, table_name)
     elseif current_sql_mode[] == :athena
         get_table_metadata_athena(db, table_name, athena_params)

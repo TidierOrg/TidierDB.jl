@@ -1,5 +1,8 @@
 # TidierDB.jl updates
 
+## v0.1.7 - 2024-06-12
+- Adds Oracle backend support
+
 ## v0.1.6 - 2024-06-11
 - Adds `@interpolate` and documentation around building macros with TidierDB chains and interpolation
 

@@ -20,14 +20,16 @@
 # ```julia
 # conn = connect(:duckdb)
 # ```
-
+# * Oracle and AWS are not yet supported with `connect()` and will require using the respective libraries outlined below to establish a connection
 # Alternatively, you can use the packages outlined below to establish a connection through their respective methods.
 
+# - DuckDB: DuckDB.jl
 # - ClickHouse: ClickHouse.jl
 # - MySQL and MariaDB: MySQL.jl
 # - MSSQL: ODBC.jl 
 # - Postgres: LibPQ.jl
 # - SQLite: SQLite.jl
 # - Athena: AWS.jl
+# - Oracle: Oracle.jl
 
 # For DuckDB, SQLite, and MySQL, `copy_to()` lets you copy data to the database and query there. ClickHouse, MSSQL, and Postgres support for `copy_to()` has not been added yet.

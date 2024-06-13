@@ -1,4 +1,5 @@
 name: CI
+
 on:
   push:
     branches:
@@ -6,11 +7,11 @@ on:
     tags: ['*']
   pull_request:
   workflow_dispatch:
+
 concurrency:
-  # Skip intermediate builds: always.
-  # Cancel intermediate builds: only if it is a pull request build.
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -27,10 +28,36 @@ jobs:
           - x64
     steps:
       - uses: actions/checkout@v3
-      - uses: julia-actions/setup-julia@v1
+      
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - uses: julia-actions/cache@v1
+      
+      - name: Remove existing Manifest.toml for nightly
+        if: matrix.version == 'nightly'
+        run: rm -f Manifest.toml
+      
+      - name: Install dependencies
+        run: |
+          julia -e 'using Pkg; Pkg.instantiate()'
+          julia -e 'using Pkg; Pkg.update()'
+      
+      - name: Print Julia Version
+        run: julia -e 'using InteractiveUtils; versioninfo()'
+      
+      - name: Print Installed Packages
+        run: julia -e 'using Pkg; Pkg.status()'
+      
+      - name: Run tests
+        run: julia -e 'using Pkg; Pkg.test()'
+      
+      - name: Cache dependencies
+        uses: julia-actions/cache@v1
+        with:
+          path: ~/.julia/artifacts
+
       - uses: julia-actions/julia-buildpkg@v1
+      
       - uses: julia-actions/julia-runtest@v1

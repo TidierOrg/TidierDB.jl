@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
@@ -445,7 +445,7 @@
 <span class="k">import</span><span class="w"> </span><span class="n">TidierDB</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">DB</span>
 </code></pre></div>
 <p>Alternatively, <code>using Tidier</code> will import TidierDB in the above manner for you, where TidierDB functions and macros will be available as <code>DB.@mutate()</code> and so on, and the TidierData equivalent would be <code>@mutate()</code>.</p>
-<p>There are two ways to connect to the database.  you can use <code>connect</code> without any need to load any additional packages.</p>
+<p>There are two ways to connect to the database. You can use <code>connect</code> without any need to load any additional packages. However, Oracle and Athena do not support this method yet and will require you to load in ODBC.jl or AWS.jl respectively.</p>
 <p>For example Connecting to MySQL</p>
 <div class="highlight"><pre><span></span><code><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:mysql</span><span class="p">;</span><span class="w"> </span><span class="n">host</span><span class="o">=</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="s">&quot;root&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="o">=</span><span class="s">&quot;password&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">db</span><span class="o">=</span><span class="s">&quot;mydb&quot;</span><span class="p">)</span>
 </code></pre></div>
@@ -460,6 +460,7 @@
 <li>Postgres: LibPQ.jl</li>
 <li>SQLite: SQLite.jl</li>
 <li>Athena: AWS.jl</li>
+<li>Oracle: ODBC.jl</li>
 </ul>
 <p>For DuckDB, SQLite, and MySQL, <code>copy_to()</code> lets you copy data to the database and query there. ClickHouse, MSSQL, and Postgres support for <code>copy_to()</code> has not been added yet.</p>
 <hr />

@@ -39,6 +39,7 @@ include("parsing_mssql.jl")
 include("parsing_clickhouse.jl")
 include("parsing_athena.jl")
 include("parsing_gbq.jl")
+include("parsing_oracle.jl")
 include("joins_sq.jl")
 include("slices_sq.jl")
 
@@ -68,6 +69,8 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
         return expr_to_sql_trino(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == :gbq
         return expr_to_sql_gbq(expr, sq; from_summarize=from_summarize)
+    elseif current_sql_mode[] == :oracle
+        return expr_to_sql_oracle(expr, sq; from_summarize=from_summarize)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
@@ -131,7 +134,7 @@ function finalize_query(sqlquery::SQLQuery)
      "FROM )" => ")" ,  "SELECT SELECT " => "SELECT ", "SELECT  SELECT " => "SELECT ", "DISTINCT SELECT " => "DISTINCT ", 
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", )
 
-    if current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse || current_sql_mode[] == :athena || current_sql_mode[] == :gbq
+    if current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse || current_sql_mode[] == :athena || current_sql_mode[] == :gbq || current_sql_mode[] == :oracle
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end
 
@@ -200,20 +203,28 @@ end
 
 # MSSQL
 function get_table_metadata(conn::ODBC.Connection, table_name::String)
-    # Query to get column names and types from INFORMATION_SCHEMA
-    query = """
-    SELECT column_name, data_type
-    FROM information_schema.columns
-    WHERE table_name = '$table_name'
-    ORDER BY ordinal_position;
-    """
+    if current_sql_mode[] == :oracle
+        table_name = uppercase(table_name)
+        query = """
+        SELECT column_name, data_type
+        FROM all_tab_columns
+        WHERE table_name = '$table_name'
+        ORDER BY column_id
+        """
+    else
+        query = """
+        SELECT column_name, data_type
+        FROM information_schema.columns
+        WHERE table_name = '$table_name'
+        ORDER BY ordinal_position;
+        """
+    end
 
     result = DBInterface.execute(conn, query) |> DataFrame
-    #result[!, :DATA_TYPE] = map(x -> String(x), result.DATA_TYPE)
     result[!, :current_selxn] .= 1
     result[!, :table_name] .= table_name
     # Adjust the select statement to include the new table_name column
-    return select(result, :column_name => :name, :data_type => :type, :current_selxn, :table_name,)
+    return select(result, :column_name => :name, :data_type => :type, :current_selxn, :table_name)
 end
 
  # ClickHouse
@@ -238,7 +249,7 @@ function db_table(db, table, athena_params::Any=nothing)
     table_name = string(table)
     metadata = if current_sql_mode[] == :lite
         get_table_metadata(db, table_name)
-    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse || current_sql_mode[] == :gbq 
+    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse || current_sql_mode[] == :gbq || current_sql_mode[] == :oracle
         get_table_metadata(db, table_name)
     elseif current_sql_mode[] == :athena
         get_table_metadata_athena(db, table_name, athena_params)

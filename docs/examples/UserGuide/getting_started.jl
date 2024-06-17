@@ -9,7 +9,7 @@
 
 # Alternatively, `using Tidier` will import TidierDB in the above manner for you, where TidierDB functions and macros will be available as `DB.@mutate()` and so on, and the TidierData equivalent would be `@mutate()`.
 
-# There are two ways to connect to the database.  you can use `connect` without any need to load any additional packages.
+# There are two ways to connect to the database. You can use `connect` without any need to load any additional packages. However, Oracle and Athena do not support this method yet and will require you to load in ODBC.jl or AWS.jl respectively.
 
 # For example
 # Connecting to MySQL
@@ -29,5 +29,6 @@
 # - Postgres: LibPQ.jl
 # - SQLite: SQLite.jl
 # - Athena: AWS.jl
+# - Oracle: ODBC.jl 
 
 # For DuckDB, SQLite, and MySQL, `copy_to()` lets you copy data to the database and query there. ClickHouse, MSSQL, and Postgres support for `copy_to()` has not been added yet.

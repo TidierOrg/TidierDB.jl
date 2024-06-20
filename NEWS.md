@@ -1,6 +1,9 @@
 # TidierDB.jl updates
 
-## v0.1.8 - 2024-06-17
+## v0.1.9 - 2024-06-20
+- Small fix to internal `finalize_query` function for Snowflake
+
+## v0.1.8 - 2024-06-20
 - Adds support for Snowflake SQL Rest API using OAuth token connection
 - Adds Snowflake support for `connect()`
 - Adds docs for Snowflake use

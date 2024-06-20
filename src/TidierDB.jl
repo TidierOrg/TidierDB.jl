@@ -140,7 +140,7 @@ function finalize_query(sqlquery::SQLQuery)
      "FROM )" => ")" ,  "SELECT SELECT " => "SELECT ", "SELECT  SELECT " => "SELECT ", "DISTINCT SELECT " => "DISTINCT ", 
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", )
 
-    if current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse || current_sql_mode[] == :athena || current_sql_mode[] == :gbq || current_sql_mode[] == :oracle
+    if current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse || current_sql_mode[] == :athena || current_sql_mode[] == :gbq || current_sql_mode[] == :oracle  || current_sql_mode[] == :snowflake
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end
 

@@ -226,15 +226,6 @@ function execute_snowflake(conn::SnowflakeConnection, sql_query::String)
     end
 end
 
-@chain db_table(con, "MTCARS") begin
-    @select(wt)
-    @aside @show_query _
-    @collect
-end
-
-
-
-
 function get_table_metadata(conn::SnowflakeConnection, table_name::String)
     query = """
             SELECT COLUMN_NAME, DATA_TYPE

@@ -14,6 +14,9 @@ using Arrow
 using AWS
 using JSON3
 using GoogleCloud
+using HTTP
+using JSON3
+using GZip
 
 @reexport using DataFrames: DataFrame
 @reexport using Chain
@@ -39,6 +42,7 @@ include("parsing_mssql.jl")
 include("parsing_clickhouse.jl")
 include("parsing_athena.jl")
 include("parsing_gbq.jl")
+include("parsing_snowflake.jl")
 include("parsing_oracle.jl")
 include("joins_sq.jl")
 include("slices_sq.jl")
@@ -71,6 +75,8 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
         return expr_to_sql_gbq(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == :oracle
         return expr_to_sql_oracle(expr, sq; from_summarize=from_summarize)
+    elseif current_sql_mode[] == :snowflake
+        return expr_to_sql_snowflake(expr, sq; from_summarize=from_summarize)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
@@ -249,14 +255,21 @@ function db_table(db, table, athena_params::Any=nothing)
     table_name = string(table)
     metadata = if current_sql_mode[] == :lite
         get_table_metadata(db, table_name)
-    elseif current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse || current_sql_mode[] == :gbq || current_sql_mode[] == :oracle
+    elseif current_sql_mode[] in [:postgres, :duckdb, :mysql, :mssql, :clickhouse, :gbq, :oracle]
         get_table_metadata(db, table_name)
     elseif current_sql_mode[] == :athena
         get_table_metadata_athena(db, table_name, athena_params)
+    elseif current_sql_mode[] == :snowflake
+        get_table_metadata(db, table_name)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
-    return SQLQuery(from=table_name, metadata=metadata, db=db, athena_params=athena_params)
+    formatted_table_name = if current_sql_mode[] == :snowflake
+        "$(db.database).$(db.schema).$table_name"
+    else
+        table_name
+    end
+    return SQLQuery(from=formatted_table_name, metadata=metadata, db=db, athena_params=athena_params)
 end
 
 """

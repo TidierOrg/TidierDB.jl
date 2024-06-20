@@ -120,5 +120,6 @@ nav:
   - "Getting Started" : "examples/generated/UserGuide/getting_started.md"
   - "Reusing Part of a Query" : "examples/generated/UserGuide/from_queryex.md"
   - "Using Athena" : "examples/generated/UserGuide/athena.md"
+  - "Using Snowflake" : "examples/generated/UserGuide/Snowflake.md"
   - "Writing Functions/Macros with TidierDB Chains" : "examples/generated/UserGuide/functions_pass_to_DB.md"
   - "Reference" : "reference.md"

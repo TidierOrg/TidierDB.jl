@@ -23,8 +23,8 @@
 # stable_table_metadata = db_table(con, "MTCARS")
 # @chain from_query(stable_table_metadata) begin
 #    @select(WT)
-#    @mutate(test = WT *2)
-#    @aside @show_query _
+#    @mutate(TEST = WT *2)
+#    #@aside @show_query _
 #    @collect
 # end
 # ```

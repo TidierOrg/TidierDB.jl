@@ -3,6 +3,7 @@
 ## v0.1.8 - 2024-06-17
 - Adds support for Snowflake SQL Rest API using OAuth token connection
 - Adds Snowflake support for `connect()`
+- Adds docs for Snowflake use
 
 ## v0.1.7 - 2024-06-17
 - Adds support for Oracle backend via ODBC.jl connection

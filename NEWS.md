@@ -1,5 +1,9 @@
 # TidierDB.jl updates
 
+## v0.1.8 - 2024-06-17
+- Adds support for Snowflake SQL Rest API using OAuth token connection
+- Adds Snowflake support for `connect()`
+
 ## v0.1.7 - 2024-06-17
 - Adds support for Oracle backend via ODBC.jl connection
 

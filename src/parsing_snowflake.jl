@@ -176,9 +176,26 @@ function execute_snowflake(conn::SnowflakeConnection, sql_query::String)
         "Authorization" => "Bearer $(conn.auth_token)",
         "Content-Type" => "application/json"
     )
-    response = HTTP.post(conn.api_url, headers, json_body)
+
+    response = nothing  # Initialize response outside the try block
+    try
+        response = HTTP.post(conn.api_url, headers, json_body)
+    catch e
+        if isa(e, HTTP.StatusError)
+            # Extract and print the error message from the HTTP response
+            println("HTTP request failed with status $(e.status): $(String(e.response.body))")
+            return
+        else
+            rethrow(e)
+        end
+    end
+
+    if response === nothing
+        println("No response was obtained from the server.")
+        return
+    end
+
     if response.status == 200
-        # Check if the content is gzip-encoded
         content_encoding = ""
         for header in response.headers
             if header.first == "Content-Encoding"
@@ -186,6 +203,7 @@ function execute_snowflake(conn::SnowflakeConnection, sql_query::String)
                 break
             end
         end
+
         decompressed_body = ""
         if content_encoding == "gzip"
             try
@@ -203,20 +221,20 @@ function execute_snowflake(conn::SnowflakeConnection, sql_query::String)
         else
             decompressed_body = String(response.body)
         end
+
         json_data = JSON3.read(decompressed_body)
         column_names = Symbol[]
         for col in json_data.resultSetMetaData.rowType
             push!(column_names, Symbol(col.name))
         end
         data_matrix = [json_data.data[i] for i in 1:length(json_data.data)]
-
         transposed_data = permutedims(hcat(data_matrix...))
         df = DataFrame(transposed_data, column_names)
         transform!(df, names(df) .=> ByRow(x -> isnothing(x) ? missing : x), renamecols=false)
         
         for col in names(df)
-                if all(x -> ismissing(x) || can_convert_numeric(x), df[!, col])
-                    df[!, col] = [ismissing(x) ? missing : try_parse_numeric(x) for x in df[!, col]]
+            if all(x -> ismissing(x) || can_convert_numeric(x), df[!, col])
+                df[!, col] = [ismissing(x) ? missing : try_parse_numeric(x) for x in df[!, col]]
             end
         end 
         return df
@@ -240,10 +258,6 @@ function get_table_metadata(conn::SnowflakeConnection, table_name::String)
     # Adjust the select statement to include the new table_name column
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
-
-
-
-
 
 
 

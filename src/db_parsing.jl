@@ -40,7 +40,13 @@ function parse_tidy_db(exprs, metadata::DataFrame)
             if actual_expr.args[1] == :(:)
                 # Handle range expression
                 start_col = string(actual_expr.args[2])
+                if current_sql_mode[] == :snowflake
+                    start_col = uppercase(start_col)
+                end
                 end_col = string(actual_expr.args[3])
+                if current_sql_mode[] == :snowflake
+                    end_col = uppercase(end_col)
+                end
                 start_idx = findfirst(==(start_col), all_columns)
                 end_idx = findfirst(==(end_col), all_columns)
                 if isnothing(start_idx) || isnothing(end_idx) || start_idx > end_idx
@@ -55,6 +61,9 @@ function parse_tidy_db(exprs, metadata::DataFrame)
             elseif actual_expr.args[1] == :starts_with || actual_expr.args[1] == :ends_with || actual_expr.args[1] == :contains
                 # Handle starts_with, ends_with, and contains
                 substring = actual_expr.args[2]
+                if current_sql_mode[] == :snowflake
+                    substring = uppercase(substring)
+                end
                 match_columns = filter(col -> 
                     (actual_expr.args[1] == :starts_with && startswith(col, substring)) ||
                     (actual_expr.args[1] == :ends_with && endswith(col, substring)) ||
@@ -74,7 +83,11 @@ function parse_tidy_db(exprs, metadata::DataFrame)
                 push!(included_columns, string(actual_expr))
                 continue
             end
+
             col_name = isa(actual_expr, Symbol) ? string(actual_expr) : actual_expr
+            if current_sql_mode[] == :snowflake
+                col_name = uppercase(col_name)
+            end
             if is_excluded
                 push!(excluded_columns, col_name)
             else

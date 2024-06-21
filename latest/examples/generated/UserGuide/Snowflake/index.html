@@ -530,10 +530,9 @@
 <li>Schema Name</li>
 <li>Compute Warehouse name</li>
 </ul>
-<p>Three things to note:</p>
+<p>Two things to note:</p>
 <ul>
 <li>Your OAuth Token may frequently expire, which may require you to rerun your connection line.</li>
-<li>For the time being, to properly track columns in the local metadata, you must write them using ALL CAPS - this will likely be addressed and rectified in the future</li>
 <li>
 <p>Since each time <code>db_table</code> runs, it runs a query to pull the metadata, you may choose to use run <code>db_table</code> and save the results, and use these results with<code>from_query()</code></p>
 <ul>

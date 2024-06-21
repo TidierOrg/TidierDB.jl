@@ -7,7 +7,6 @@ macro select(sqlquery, exprs...)
 
     return quote
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
-
         let columns = parse_tidy_db($exprs_str, $(esc(sqlquery)).metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
             $(esc(sqlquery)).select = columns_str
@@ -159,6 +158,9 @@ end
 function process_mutate_expression(expr, sq, select_expressions, cte_name)
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
         col_name = string(expr.args[1])
+        if current_sql_mode[] == :snowflake
+            col_name = uppercase(col_name)
+        end
         col_expr = expr_to_sql(expr.args[2], sq)  # Convert to SQL expression
 
         # Determine whether the column already exists or needs to be added
@@ -371,6 +373,9 @@ function process_summary_expression(expr, sq, summary_str)
         summary_operation = string(summary_operation)
         summary_column = expr_to_sql(expr.args[1], sq, from_summarize = true)
         summary_column = string(summary_column)
+        if current_sql_mode[] == :snowflake
+            summary_column = uppercase(summary_column)
+        end
         push!(sq.metadata, Dict("name" => summary_column, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => sq.from))
     
         push!(summary_str, summary_operation * " AS " * summary_column)
@@ -665,9 +670,7 @@ macro collect(sqlquery)
             selected_columns_order = sq.metadata[sq.metadata.current_selxn .== 1, :name]
             df_result = df_result[:, selected_columns_order]
         elseif db isa GoogleSession{JSONCredentials}
-            df_result = collect_gbq(sq.db, final_query)
-        elseif current_sql_mode[] == :snowflake
-            df_result = execute_snowflake(db, final_query)
+                df_result = collect_gbq(sq.db, final_query)
         elseif current_sql_mode[] == :athena
             exe_query = Athena.start_query_execution(final_query, sq.athena_params; aws_config = db)
                 status = "RUNNING"

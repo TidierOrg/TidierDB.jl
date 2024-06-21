@@ -671,6 +671,8 @@ macro collect(sqlquery)
             df_result = df_result[:, selected_columns_order]
         elseif db isa GoogleSession{JSONCredentials}
                 df_result = collect_gbq(sq.db, final_query)
+        elseif current_sql_mode[] == :snowflake
+            df_result = execute_snowflake(db, final_query)
         elseif current_sql_mode[] == :athena
             exe_query = Athena.start_query_execution(final_query, sq.athena_params; aws_config = db)
                 status = "RUNNING"

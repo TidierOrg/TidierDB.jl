@@ -1,5 +1,8 @@
 # TidierDB.jl updates
 
+## v0.2.1 - 2024-06-21
+- `@collect` bug fix
+
 ## v0.2.0 - 2024-06-21
 - Fixes case sensitivity with TidierDB metadata to make queries case insensitive when using Snowflake
 

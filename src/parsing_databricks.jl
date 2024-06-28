@@ -39,6 +39,11 @@ function execute_databricks(conn::DatabricksConnection, query::String)
     transposed_data = permutedims(hcat(data...))
     df = DataFrame(transposed_data, column_names)
     transform!(df, names(df) .=> ByRow(x -> isnothing(x) ? missing : x), renamecols=false)
+    for col in names(df)
+        if all(x -> ismissing(x) || can_convert_numeric(x), df[!, col])
+            df[!, col] = [ismissing(x) ? missing : try_parse_numeric(x) for x in df[!, col]]
+        end
+    end 
     return df
 end
 

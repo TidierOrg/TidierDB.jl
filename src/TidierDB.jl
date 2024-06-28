@@ -23,12 +23,12 @@ using GZip
 
 import DuckDB: open as duckdb_open
 import DuckDB: connect as duckdb_connect
-
+#using TidierDB
 
  export db_table, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
  @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
  @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, 
- @anti_join, connect, from_query, @interpolate, add_interp_parameter!
+ @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con
 
 include("docstrings.jl")
 include("structs.jl")
@@ -44,6 +44,7 @@ include("parsing_athena.jl")
 include("parsing_gbq.jl")
 include("parsing_snowflake.jl")
 include("parsing_oracle.jl")
+include("parsing_databricks.jl")
 include("joins_sq.jl")
 include("slices_sq.jl")
 
@@ -266,6 +267,8 @@ function db_table(db, table, athena_params::Any=nothing)
     end
     formatted_table_name = if current_sql_mode[] == :snowflake
         "$(db.database).$(db.schema).$table_name"
+    elseif db isa DatabricksConnection
+        "$(db.database).$(db.schema).$table_name"
     else
         table_name
     end
@@ -367,6 +370,23 @@ function connect(backend::Symbol; kwargs...)
         return DuckDB.connect(mem)
     else
         throw(ArgumentError("Unsupported backend: $backend"))
+    end
+end
+
+function connect(backend::Symbol, identifier::String, auth_token::String, database::String, schema::String, warehouse::String)
+    if backend == :snowflake
+        # Snowflake specific settings
+        set_sql_mode(:snowflake)
+        api_url = "https://$identifier.snowflakecomputing.com/api/v2/statements"
+        return SnowflakeConnection(identifier, auth_token, database, schema, warehouse, api_url)
+    elseif backend == :databricks
+        # Databricks specific settings
+        # Remove any leading slash from workspace_id
+        identifier = lstrip(identifier, '/')
+        api_url = "https://$(identifier).cloud.databricks.com/api/2.0/sql/statements"
+        return DatabricksConnection(identifier, auth_token, database, schema, warehouse, api_url)
+    else
+        error("Unsupported backend type: $backend")
     end
 end
 

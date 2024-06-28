@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../databricks/">
+        <link rel="prev" href="../Snowflake/">
       
       
-        <link rel="next" href="../../../../reference/">
+        <link rel="next" href="../functions_pass_to_DB/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Writing Functions/Macros with TidierDB Chains - TidierDB.jl</title>
+        <title>Using Databricks - TidierDB.jl</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#setting-up-the-macro" class="md-skip">
+        <a href="#connecting" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Writing Functions/Macros with TidierDB Chains
+              Using Databricks
             
           </span>
         </div>
@@ -387,26 +387,6 @@
       
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../databricks/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Using Databricks
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
     
   
   
@@ -421,7 +401,7 @@
           
   
   <span class="md-ellipsis">
-    Writing Functions/Macros with TidierDB Chains
+    Using Databricks
   </span>
   
 
@@ -432,7 +412,7 @@
         
   
   <span class="md-ellipsis">
-    Writing Functions/Macros with TidierDB Chains
+    Using Databricks
   </span>
   
 
@@ -452,9 +432,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#setting-up-the-macro" class="md-nav__link">
+  <a href="#connecting" class="md-nav__link">
     <span class="md-ellipsis">
-      Setting up the macro
+      Connecting
     </span>
   </a>
   
@@ -464,6 +444,26 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions_pass_to_DB/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Writing Functions/Macros with TidierDB Chains
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -513,9 +513,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#setting-up-the-macro" class="md-nav__link">
+  <a href="#connecting" class="md-nav__link">
     <span class="md-ellipsis">
-      Setting up the macro
+      Connecting
     </span>
   </a>
   
@@ -536,77 +536,34 @@
                   
 
 
-  <h1>Writing Functions/Macros with TidierDB Chains</h1>
+  <h1>Using Databricks</h1>
 
-<p>How can functions pass arguments to a TidierDB chain?</p>
-<p>In short, you have to use a macro instead in conjuction with <code>@interpolate</code></p>
-<p><a id='Setting-up-the-macro'></a></p>
-<p><a id='Setting-up-the-macro-1'></a></p>
-<h2 id="setting-up-the-macro">Setting up the macro<a class="headerlink" href="#setting-up-the-macro" title="Permanent link">¤</a></h2>
-<p>To write a macro that will take arguments and pass them to a TidierDB chain, there are 3 steps:</p>
-<ol>
-<li>Write macro with the desired argument(s), and, after the quote, add the chain. Arguments to be changed/interpolated must be prefixed with <code>!!</code></li>
-<li>Use <code>@interpolate</code> to make these arguemnts accessible to the chain. <code>@interpolate</code> takes touples as argument (one for the <code>!!</code>name, and one for the actual content you want the chain to use)</li>
-<li>Run <code>@interpolate</code> and then the chain macro sequentially</li>
-</ol>
-<div class="highlight"><pre><span></span><code>using TidierDB
-path = &quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;
-copy_to(db, path, &quot;mtcars&quot;);
-
-# STEP 1
-macro f1(conditions, columns) # The arguemnt names will be names of the `!!` values
-    return quote
-    # add chain here
-      @chain db_table(db, :mtcars) begin
-           @filter(!!conditions &gt; 3)
-           @select(!!columns)
-           @aside @show_query _
-           @collect
-         end # ends the chain
-    end # ends the quote.
-end # ends the macro
+<p>Establishing a connection with the Databricks SQL Rest API requires a token.</p>
+<p><a id='Connecting'></a></p>
+<p><a id='Connecting-1'></a></p>
+<h2 id="connecting">Connecting<a class="headerlink" href="#connecting" title="Permanent link">¤</a></h2>
+<p>Connection is established with the <code>connect</code> function as shown below. Connection requires 5 items as strings</p>
+<ul>
+<li>account instance : <a href="https://docs.databricks.com/en/workspace/workspace-details.html">how do to find your instance</a></li>
+<li>OAuth token : <a href="https://docs.databricks.com/en/dev-tools/auth/pat.html">how to generate your token</a></li>
+<li>Database Name</li>
+<li>Schema Name</li>
+<li>warehouse_id</li>
+</ul>
+<p>Connecting will then proceed as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="n">instance_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;string_id&quot;</span>
+<span class="n">token</span><span class="w"> </span><span class="s">&quot;string_token&quot;</span>
+<span class="n">warehouse_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;e673cd4f387f964a&quot;</span>
+<span class="n">con</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:databricks</span><span class="p">,</span><span class="w"> </span><span class="n">instance_id</span><span class="p">,</span><span class="w"> </span><span class="n">token</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;DEMODB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PUBLIC&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">warehouse_id</span><span class="p">)</span>
+<span class="c"># After connection is established, a you may begin querying.</span>
+<span class="n">stable_table_metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MTCARS&quot;</span><span class="p">)</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">from_query</span><span class="p">(</span><span class="n">stable_table_metadata</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">   </span><span class="nd">@select</span><span class="p">(</span><span class="n">WT</span><span class="p">)</span>
+<span class="w">   </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">TEST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WT</span><span class="w"> </span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">   </span><span class="c">#@aside @show_query _</span>
+<span class="w">   </span><span class="nd">@collect</span>
+<span class="k">end</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c"># STEP 2</span>
-<span class="n">variable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:gear</span><span class="p">;</span>
-<span class="n">cols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="ss">:model</span><span class="p">,</span><span class="w"> </span><span class="ss">:mpg</span><span class="p">,</span><span class="w"> </span><span class="ss">:gear</span><span class="p">,</span><span class="w"> </span><span class="ss">:wt</span><span class="p">];</span>
-<span class="nd">@interpolate</span><span class="p">((</span><span class="n">conditions</span><span class="p">,</span><span class="w"> </span><span class="n">variable</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">columns</span><span class="p">,</span><span class="w"> </span><span class="n">cols</span><span class="p">));</span>
-<span class="nd">@f1</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span><span class="w"> </span><span class="n">cols</span><span class="p">)</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>17×4 DataFrame
- Row │ model           mpg       gear    wt
-     │ String?         Float64?  Int32?  Float64?
-─────┼────────────────────────────────────────────
-   1 │ Mazda RX4           21.0       4     2.62
-   2 │ Mazda RX4 Wag       21.0       4     2.875
-   3 │ Datsun 710          22.8       4     2.32
-  ⋮  │       ⋮            ⋮        ⋮        ⋮
-  15 │ Ferrari Dino        19.7       5     2.77
-  16 │ Maserati Bora       15.0       5     3.57
-  17 │ Volvo 142E          21.4       4     2.78
-                                   11 rows omitted
-</code></pre></div>
-<p>Lets say you wanted to filter on new variable with a different name and select new columns,</p>
-<div class="highlight"><pre><span></span><code><span class="n">new_condition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:wt</span><span class="p">;</span>
-<span class="n">new_cols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="ss">:model</span><span class="p">,</span><span class="w"> </span><span class="ss">:drat</span><span class="p">]</span>
-<span class="nd">@interpolate</span><span class="p">((</span><span class="n">conditions</span><span class="p">,</span><span class="w"> </span><span class="n">new_condition</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">columns</span><span class="p">,</span><span class="w"> </span><span class="n">new_cols</span><span class="p">));</span>
-<span class="nd">@f1</span><span class="p">(</span><span class="n">new_condition</span><span class="p">,</span><span class="w"> </span><span class="n">new_cols</span><span class="p">)</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>20×2 DataFrame
- Row │ model              drat
-     │ String?            Float64?
-─────┼─────────────────────────────
-   1 │ Hornet 4 Drive         3.08
-   2 │ Hornet Sportabout      3.15
-   3 │ Valiant                2.76
-  ⋮  │         ⋮             ⋮
-  18 │ Pontiac Firebird       3.08
-  19 │ Ford Pantera L         4.22
-  20 │ Maserati Bora          3.54
-                    14 rows omitted
-</code></pre></div>
-<p>You can also interpolate vectors of strings into a <code>@filter(col in (values))</code> as well by using the following syntax <code>@filter(col in [!!values])</code></p>
-<p>In short, the first argument in <code>@interpolate</code> must be the name of the macro argument it refers to, and the second argument is what you would like to replace it.</p>
-<p>We recognize this adds friction and that it is not ideal, but given the TidierDB macro expressions/string interplay, this is currently the most graceful and functional option available and hopefully a temporary solution to better interpolation that mirrors TidierData.jl.</p>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 
@@ -644,7 +601,7 @@ end # ends the macro
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../databricks/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Using Databricks">
+          <a href="../Snowflake/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Using Snowflake">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -654,20 +611,20 @@ end # ends the macro
                 Previous
               </span>
               <div class="md-ellipsis">
-                Using Databricks
+                Using Snowflake
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../../../reference/" class="md-footer__link md-footer__link--next" aria-label="Next: Reference">
+          <a href="../functions_pass_to_DB/" class="md-footer__link md-footer__link--next" aria-label="Next: Writing Functions/Macros with TidierDB Chains">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Reference
+                Writing Functions/Macros with TidierDB Chains
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -2,8 +2,8 @@
 
 ## v0.2.1 - 2024-06-27
 - Adds support for Databricks SQL Rest API
-- Add docs for Databricks use
-- Fixes float/int type issue in when Snowflake collects to dataframe
+- Adds docs for Databricks use
+- Fixes float/int type conversion when Snowflake collects to dataframe
 
 ## v0.2.1 - 2024-06-21
 - `@collect` bug fix

@@ -157,13 +157,6 @@ mutable struct SnowflakeConnection
     api_url::String
 end
 
-function connect(backend::Symbol, account_identifier::String, auth_token::String, database::String, schema::String, warehouse::String)
-    set_sql_mode(:snowflake)
-
-    api_url = "https://$account_identifier.snowflakecomputing.com/api/v2/statements"
-    return SnowflakeConnection(account_identifier, auth_token, database, schema, warehouse, api_url)
-end
-
 function execute_snowflake(conn::SnowflakeConnection, sql_query::String)
     json_body = JSON3.write(Dict(
         "statement" => sql_query,
@@ -263,10 +256,10 @@ end
 
 function try_parse_numeric(x)
     try
-        parse(Float64, x)
+        parse(Int, x)
     catch
         try
-            parse(Int, x)
+            parse(Float64, x)
         catch
             x 
         end
@@ -275,14 +268,18 @@ end
 
 function can_convert_numeric(x)
     try
-        parse(Float64, x)
+        parse(Int, x)
         return true
     catch
         try
-            parse(Int, x)
+            parse(Float64, x)
             return true
         catch
             return false
         end
     end
+end
+
+function update_con(con::SnowflakeConnection, new_token::String)
+    con.auth_token = new_token  # Update the token  # Return the updated connection
 end

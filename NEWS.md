@@ -1,5 +1,10 @@
 # TidierDB.jl updates
 
+## v0.2.2 - 2024-07-08
+- Adds direct path support for `db_table` when using DuckDB
+- Adds `connect` ability for AWS and Google Cloud to allow querying via S3 + DuckDB 
+- Adds documentation for S3 + DuckDB with TidierDB
+
 ## v0.2.1 - 2024-06-27
 - Adds support for Databricks SQL Rest API
 - Adds docs for Databricks use

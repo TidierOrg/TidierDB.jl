@@ -119,7 +119,7 @@ nav:
   - "Key Differences from TidierData.jl" : "examples/generated/UserGuide/key_differences.md"
   - "Getting Started" : "examples/generated/UserGuide/getting_started.md"
   - "Reusing Part of a Query" : "examples/generated/UserGuide/from_queryex.md"
-  - "S3 + DuckDB + TidierDB" : "examples/UserGuide/s3viaduckdb.md"
+  - "S3 + DuckDB + TidierDB" : "examples/generated/UserGuide/s3viaduckdb.md"
   - "Using Athena" : "examples/generated/UserGuide/athena.md"
   - "Using Snowflake" : "examples/generated/UserGuide/Snowflake.md"
   - "Using Databricks" : "examples/generated/UserGuide/databricks.md"

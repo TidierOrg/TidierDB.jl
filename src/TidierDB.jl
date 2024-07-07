@@ -20,7 +20,7 @@ using GZip
 
 @reexport using DataFrames: DataFrame
 @reexport using Chain
-
+@reexport using DuckDB
 import DuckDB: open as duckdb_open
 import DuckDB: connect as duckdb_connect
 #using TidierDB
@@ -177,13 +177,16 @@ end
 # DuckDB
 function get_table_metadata(conn::DuckDB.Connection, table_name::String)
     query = """
-    SELECT column_name, data_type
-    FROM information_schema.columns
-    WHERE table_name = '$table_name'
-    ORDER BY ordinal_position;
+    DESCRIBE SELECT * FROM '$(table_name)' LIMIT 0
     """
     result = DuckDB.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
+    table_name = if occursin(r"[:/]", table_name)
+         split(basename(table_name), '.')[1]
+        #"'$table_name'"
+    else
+        table_name
+    end
     result[!, :table_name] .= table_name
     # Adjust the select statement to include the new table_name column
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
@@ -269,6 +272,8 @@ function db_table(db, table, athena_params::Any=nothing)
         "$(db.database).$(db.schema).$table_name"
     elseif db isa DatabricksConnection
         "$(db.database).$(db.schema).$table_name"
+    elseif occursin(r"[:/]", table_name)
+        "'$table_name'"
     else
         table_name
     end
@@ -367,7 +372,14 @@ function connect(backend::Symbol; kwargs...)
     elseif backend == :DuckDB || backend == :duckdb
         mem = DuckDB.open(":memory:")
         set_sql_mode(:duckdb)
-        return DuckDB.connect(mem)
+        db = DuckDB.connect(mem)
+        DBInterface.execute(db, "SET autoinstall_known_extensions=1;")
+        DBInterface.execute(db, "SET autoload_known_extensions=1;")
+    
+        # Install and load the httpfs extension
+        DBInterface.execute(db, "INSTALL httpfs;")
+        DBInterface.execute(db, "LOAD httpfs;")
+        return db
     else
         throw(ArgumentError("Unsupported backend: $backend"))
     end
@@ -389,5 +401,37 @@ function connect(backend::Symbol, identifier::String, auth_token::String, databa
         error("Unsupported backend type: $backend")
     end
 end
+
+function connect(backend_type::Symbol, db_type::Symbol; access_key::String="", secret_key::String="", aws_access_key_id::String="", aws_secret_access_key::String="", aws_region::String="")
+    # Connect to the DuckDB database
+    mem = DuckDB.open(":memory:")
+    db = DuckDB.connect(mem)
+
+    # Enable auto-install and auto-load of known extensions
+    DBInterface.execute(db, "SET autoinstall_known_extensions=1;")
+    DBInterface.execute(db, "SET autoload_known_extensions=1;")
+
+    # Install and load the httpfs extension
+    DBInterface.execute(db, "INSTALL httpfs;")
+    DBInterface.execute(db, "LOAD httpfs;")
+
+    if db_type == :gbq
+        DuckDB.execute(db, """
+        CREATE SECRET (
+            TYPE GCS,
+            KEY_ID '$access_key',
+            SECRET '$secret_key'
+        );
+        """)
+    elseif db_type == :aws
+        DBInterface.execute(db, "SET s3_region='$aws_region';")
+        DBInterface.execute(db, "SET s3_access_key_id='$aws_access_key_id';")
+        DBInterface.execute(db, "SET s3_secret_access_key='$aws_secret_access_key';")
+    end
+
+    return db
+end
+
+
 
 end

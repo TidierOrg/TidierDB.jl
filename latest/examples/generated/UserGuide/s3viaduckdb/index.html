@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../athena/">
+        <link rel="prev" href="../from_queryex/">
       
       
-        <link rel="next" href="../databricks/">
+        <link rel="next" href="../athena/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Using Snowflake - TidierDB.jl</title>
+        <title>S3 + DuckDB + TidierDB - TidierDB.jl</title>
       
     
     
@@ -79,11 +79,6 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#connecting" class="md-skip">
-          Skip to content
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -115,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Using Snowflake
+              S3 + DuckDB + TidierDB
             
           </span>
         </div>
@@ -347,10 +342,17 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../s3viaduckdb/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -359,6 +361,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -387,28 +390,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Using Snowflake
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../Snowflake/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -417,33 +402,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#connecting" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connecting
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -526,23 +484,6 @@
   
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#connecting" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connecting
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -556,57 +497,39 @@
                   
 
 
-  <h1>Using Snowflake</h1>
+  <h1>S3 + DuckDB + TidierDB</h1>
 
-<p>Establishing a connection with the Snowflake SQL Rest API requires a OAuth token specific to the Role the user will use to query tables with.</p>
-<p><a id='Connecting'></a></p>
-<p><a id='Connecting-1'></a></p>
-<h2 id="connecting">Connecting<a class="headerlink" href="#connecting" title="Permanent link">¤</a></h2>
-<p>Connection is established with the <code>connect</code> function as shown below. Connection requires 5 items as strings</p>
-<ul>
-<li>account identifier</li>
-<li>OAuth token</li>
-<li>Database Name</li>
-<li>Schema Name</li>
-<li>Compute Warehouse name</li>
-</ul>
-<p>Two things to note:</p>
-<ul>
-<li>Your OAuth Token may frequently expire, which may require you to rerun your connection line.</li>
-<li>
-<p>Since each time <code>db_table</code> runs, it runs a query to pull the metadata, you may choose to use run <code>db_table</code> and save the results, and use these results with<code>from_query()</code></p>
-<ul>
-<li>This will reduce the number of queries to your database</li>
-<li>Allow you to build a a SQL query and <code>@show_query</code> even if the OAuth<em>token has expired. To <code>@collect</code> you will have to reconnect and rerun db</em>table if your OAuth token has expired</li>
-</ul>
-</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="n">ac_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;string_id&quot;</span>
-<span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;OAuth_token_string&quot;</span>
-<span class="n">con</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:snowflake</span><span class="p">,</span><span class="w"> </span><span class="n">ac_id</span><span class="p">,</span><span class="w"> </span><span class="n">token</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;DEMODB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PUBLIC&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;COMPUTE_WH&quot;</span><span class="p">)</span>
-<span class="c"># After connection is established, a you may begin querying.</span>
-<span class="n">stable_table_metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MTCARS&quot;</span><span class="p">)</span>
-<span class="nd">@chain</span><span class="w"> </span><span class="n">from_query</span><span class="p">(</span><span class="n">stable_table_metadata</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">   </span><span class="nd">@select</span><span class="p">(</span><span class="n">WT</span><span class="p">)</span>
-<span class="w">   </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">TEST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WT</span><span class="w"> </span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
-<span class="w">   </span><span class="c">#@aside @show_query _</span>
-<span class="w">   </span><span class="nd">@collect</span>
+<p>TidierDB allows you leverage DuckDB's seamless database integration.</p>
+<p>Using DuckDB, you can connect to an AWS or GoogleCloud Database to query directly without making any local copies.</p>
+<div class="highlight"><pre><span></span><code><span class="n">Using</span><span class="w"> </span><span class="n">TidierDB</span>
+
+<span class="c">#Connect to Google Cloud via DuckDB</span>
+<span class="c">#google_db = connect(:duckdb, :gbq, access_key=&quot;string&quot;, secret_key=&quot;string&quot;)</span>
+<span class="c">#Connect to AWS via DuckDB</span>
+<span class="n">aws_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect2</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">,</span><span class="w"> </span><span class="ss">:aws</span><span class="p">,</span><span class="w"> </span><span class="n">aws_access_key_id</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="nb">ENV</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AWS_ACCESS_KEY_ID&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;access_key&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">aws_secret_access_key</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="nb">ENV</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AWS_SECRET_ACCESS_KEY&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;secret_access key&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">aws_region</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="nb">ENV</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AWS_DEFAULT_REGION&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;us-east-1&quot;</span><span class="p">))</span>
+<span class="n">s3_csv_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;s3://path/to_data.csv&quot;</span>
+
+<span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">aws_db</span><span class="p">,</span><span class="w"> </span><span class="n">s3_csv_path</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@filter</span><span class="p">(</span><span class="o">!</span><span class="n">starts_with</span><span class="p">(</span><span class="n">column1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;M&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">))</span>
+<span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mpg_squared</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpg</span><span class="o">^</span><span class="mi">2</span><span class="p">,</span>
+<span class="w">               </span><span class="n">mpg_rounded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">mpg</span><span class="p">),</span>
+<span class="w">               </span><span class="n">mpg_efficiency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">case_when</span><span class="p">(</span>
+<span class="w">                                 </span><span class="n">mpg</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">cyl</span><span class="o">^</span><span class="mi">2</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s">&quot;efficient&quot;</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">mpg</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">15.2</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s">&quot;inefficient&quot;</span><span class="p">,</span>
+<span class="w">                                 </span><span class="s">&quot;moderate&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="nd">@filter</span><span class="p">(</span><span class="n">mpg_efficiency</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;moderate&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;efficient&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="nd">@arrange</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="n">mpg_rounded</span><span class="p">))</span>
+<span class="w">    </span><span class="nd">@collect</span>
 <span class="k">end</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>32×2 DataFrame
- Row │ WT       TEST
- │ Float64  Float64
-─────┼──────────────────
-1 │   2.62     5.24
-2 │   2.875    5.75
-3 │   2.32     4.64
-4 │   3.215    6.43
-⋮  │    ⋮        ⋮
-29 │   3.17     6.34
-30 │   2.77     5.54
-31 │   3.57     7.14
-32 │   2.78     5.56
-     24 rows omitted
+<div class="highlight"><pre><span></span><code>2×5 DataFrame
+ Row │ cyl     mpg       mpg_squared  mpg_rounded  mpg_efficiency
+     │ Int64?  Float64?  Float64?     Float64?     String?
+─────┼────────────────────────────────────────────────────────────
+   1 │      4   27.3444      747.719         27.0  efficient
+   2 │      6   19.7333      389.404         20.0  moderate
 </code></pre></div>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
@@ -645,7 +568,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../athena/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Using Athena">
+          <a href="../from_queryex/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Reusing Part of a Query">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -655,20 +578,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Using Athena
+                Reusing Part of a Query
               </div>
             </div>
           </a>
         
         
           
-          <a href="../databricks/" class="md-footer__link md-footer__link--next" aria-label="Next: Using Databricks">
+          <a href="../athena/" class="md-footer__link md-footer__link--next" aria-label="Next: Using Athena">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Using Databricks
+                Using Athena
               </div>
             </div>
             <div class="md-footer__button md-icon">

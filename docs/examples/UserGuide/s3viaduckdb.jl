@@ -1,16 +1,21 @@
 # TidierDB allows you leverage DuckDB's seamless database integration.
 
 # Using DuckDB, you can connect to an AWS or GoogleCloud Database to query directly without making any local copies. 
-# 
+
+# You can also use `DBInterface.execute` to set up any DuckDB database connection you need and then use that db to query with TidierDB
+
 # ```julia
 # Using TidierDB
 # 
 # #Connect to Google Cloud via DuckDB
 # #google_db = connect(:duckdb, :gbq, access_key="string", secret_key="string")
-# #Connect to AWS via DuckDB
-# aws_db = connect2(:duckdb, :aws, aws_access_key_id=get(ENV, "AWS_ACCESS_KEY_ID", "access_key"), aws_secret_access_key=get(ENV, "AWS_SECRET_ACCESS_KEY", "secret_access key"), aws_region=get(ENV, "AWS_DEFAULT_REGION", "us-east-1"))
-# s3_csv_path = "s3://path/to_data.csv"
 
+# #Connect to AWS via DuckDB
+# aws_db = connect(:duckdb, :aws, aws_access_key_id= "string", 
+#                                 aws_secret_access_key= "string", 
+#                                 aws_region="us-east-1")
+# s3_csv_path = "s3://path/to_data.csv"
+#
 # @chain db_table(aws_db, s3_csv_path) begin
 #     @filter(!starts_with(column1, "M"))
 #     @group_by(cyl)

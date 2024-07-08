@@ -501,12 +501,16 @@
 
 <p>TidierDB allows you leverage DuckDB's seamless database integration.</p>
 <p>Using DuckDB, you can connect to an AWS or GoogleCloud Database to query directly without making any local copies.</p>
+<p>You can also use <code>DBInterface.execute</code> to set up any DuckDB database connection you need and then use that db to query with TidierDB</p>
 <div class="highlight"><pre><span></span><code><span class="n">Using</span><span class="w"> </span><span class="n">TidierDB</span>
 
 <span class="c">#Connect to Google Cloud via DuckDB</span>
 <span class="c">#google_db = connect(:duckdb, :gbq, access_key=&quot;string&quot;, secret_key=&quot;string&quot;)</span>
+
 <span class="c">#Connect to AWS via DuckDB</span>
-<span class="n">aws_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect2</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">,</span><span class="w"> </span><span class="ss">:aws</span><span class="p">,</span><span class="w"> </span><span class="n">aws_access_key_id</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="nb">ENV</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AWS_ACCESS_KEY_ID&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;access_key&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">aws_secret_access_key</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="nb">ENV</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AWS_SECRET_ACCESS_KEY&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;secret_access key&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">aws_region</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="nb">ENV</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AWS_DEFAULT_REGION&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;us-east-1&quot;</span><span class="p">))</span>
+<span class="n">aws_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">,</span><span class="w"> </span><span class="ss">:aws</span><span class="p">,</span><span class="w"> </span><span class="n">aws_access_key_id</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="n">aws_secret_access_key</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="n">aws_region</span><span class="o">=</span><span class="s">&quot;us-east-1&quot;</span><span class="p">)</span>
 <span class="n">s3_csv_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;s3://path/to_data.csv&quot;</span>
 
 <span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">aws_db</span><span class="p">,</span><span class="w"> </span><span class="n">s3_csv_path</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>

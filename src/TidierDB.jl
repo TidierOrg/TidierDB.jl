@@ -261,10 +261,10 @@ function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
-function db_table(db, table, athena_params::Any=nothing; delta::Bool=false)
+function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false)
     table_name = string(table)
     
-    if delta
+    if iceberg
         DuckDB.execute(db, "INSTALL iceberg;")
         DuckDB.execute(db, "LOAD iceberg;")
         formatted_table_name = "iceberg_scan('$table_name', allow_moved_paths = true)"
@@ -273,7 +273,7 @@ function db_table(db, table, athena_params::Any=nothing; delta::Bool=false)
             "$(db.database).$(db.schema).$table_name"
         elseif db isa DatabricksConnection
             "$(db.database).$(db.schema).$table_name"
-        elseif occursin(r"[:/]", table_name) && !delta
+        elseif occursin(r"[:/]", table_name) && iceberg
             "'$table_name'"
         else
             table_name

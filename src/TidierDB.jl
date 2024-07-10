@@ -176,15 +176,15 @@ end
 
 # DuckDB
 function get_table_metadata(conn::DuckDB.Connection, table_name::String)
-    query = if occursin("iceberg_scan", table_name)
+    query = #if occursin("iceberg_scan", table_name)
         """
         DESCRIBE SELECT * FROM $(table_name) LIMIT 0
         """
-    else
-        """
-        DESCRIBE SELECT * FROM '$(table_name)' LIMIT 0
-        """
-    end
+   # else
+   #     """
+   #     DESCRIBE SELECT * FROM $(table_name) LIMIT 0
+   #     """
+   # end
     result = DuckDB.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
     table_name = if occursin(r"[:/]", table_name)
@@ -273,7 +273,7 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false)
             "$(db.database).$(db.schema).$table_name"
         elseif db isa DatabricksConnection
             "$(db.database).$(db.schema).$table_name"
-        elseif occursin(r"[:/]", table_name) && iceberg
+        elseif occursin(r"[:/]", table_name) && !iceberg
             "'$table_name'"
         else
             table_name

@@ -176,9 +176,15 @@ end
 
 # DuckDB
 function get_table_metadata(conn::DuckDB.Connection, table_name::String)
-    query = """
-    DESCRIBE SELECT * FROM '$(table_name)' LIMIT 0
-    """
+    query = if occursin("iceberg_scan", table_name)
+        """
+        DESCRIBE SELECT * FROM $(table_name) LIMIT 0
+        """
+    else
+        """
+        DESCRIBE SELECT * FROM '$(table_name)' LIMIT 0
+        """
+    end
     result = DuckDB.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
     table_name = if occursin(r"[:/]", table_name)
@@ -255,28 +261,37 @@ function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
-function db_table(db, table, athena_params::Any=nothing)
+function db_table(db, table, athena_params::Any=nothing; delta::Bool=false)
     table_name = string(table)
+    
+    if delta
+        DuckDB.execute(db, "INSTALL iceberg;")
+        DuckDB.execute(db, "LOAD iceberg;")
+        formatted_table_name = "iceberg_scan('$table_name', allow_moved_paths = true)"
+    else
+        formatted_table_name = if current_sql_mode[] == :snowflake
+            "$(db.database).$(db.schema).$table_name"
+        elseif db isa DatabricksConnection
+            "$(db.database).$(db.schema).$table_name"
+        elseif occursin(r"[:/]", table_name) && !delta
+            "'$table_name'"
+        else
+            table_name
+        end
+    end
+
     metadata = if current_sql_mode[] == :lite
-        get_table_metadata(db, table_name)
+        get_table_metadata(db, formatted_table_name)
     elseif current_sql_mode[] in [:postgres, :duckdb, :mysql, :mssql, :clickhouse, :gbq, :oracle]
-        get_table_metadata(db, table_name)
+        get_table_metadata(db, formatted_table_name)
     elseif current_sql_mode[] == :athena
-        get_table_metadata_athena(db, table_name, athena_params)
+        get_table_metadata_athena(db, formatted_table_name, athena_params)
     elseif current_sql_mode[] == :snowflake
-        get_table_metadata(db, table_name)
+        get_table_metadata(db, formatted_table_name)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
-    formatted_table_name = if current_sql_mode[] == :snowflake
-        "$(db.database).$(db.schema).$table_name"
-    elseif db isa DatabricksConnection
-        "$(db.database).$(db.schema).$table_name"
-    elseif occursin(r"[:/]", table_name)
-        "'$table_name'"
-    else
-        table_name
-    end
+
     return SQLQuery(from=formatted_table_name, metadata=metadata, db=db, athena_params=athena_params)
 end
 

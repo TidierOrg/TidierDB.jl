@@ -176,15 +176,10 @@ end
 
 # DuckDB
 function get_table_metadata(conn::DuckDB.Connection, table_name::String)
-    query = #if occursin("iceberg_scan", table_name)
+    query = 
         """
         DESCRIBE SELECT * FROM $(table_name) LIMIT 0
         """
-   # else
-   #     """
-   #     DESCRIBE SELECT * FROM $(table_name) LIMIT 0
-   #     """
-   # end
     result = DuckDB.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
     table_name = if occursin(r"[:/]", table_name)
@@ -261,19 +256,26 @@ function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
-function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false)
+function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, delta::Bool=false)
     table_name = string(table)
     
     if iceberg
         DuckDB.execute(db, "INSTALL iceberg;")
         DuckDB.execute(db, "LOAD iceberg;")
         formatted_table_name = "iceberg_scan('$table_name', allow_moved_paths = true)"
+        println(formatted_table_name)
+
+    elseif delta
+     #   DuckDB.execute(db, "INSTALL delta;")
+    #    DuckDB.execute(db, "LOAD delta;")
+        formatted_table_name = "delta_scan('$table_name')"
+        println(formatted_table_name)
     else
         formatted_table_name = if current_sql_mode[] == :snowflake
             "$(db.database).$(db.schema).$table_name"
         elseif db isa DatabricksConnection
             "$(db.database).$(db.schema).$table_name"
-        elseif occursin(r"[:/]", table_name) && !iceberg
+        elseif occursin(r"[:/]", table_name) && !(iceberg || delta)
             "'$table_name'"
         else
             table_name

@@ -175,7 +175,7 @@ end
 
 
 # DuckDB
-function get_table_metadata(conn::DuckDB.Connection, table_name::String)
+function get_table_metadata(conn::DuckDB.DB, table_name::String)
     query = 
         """
         DESCRIBE SELECT * FROM $(table_name) LIMIT 0
@@ -266,8 +266,8 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
         metadata = get_table_metadata(db, table_name)
     elseif current_sql_mode[] == :postgres ||current_sql_mode[] ==  :duckdb || current_sql_mode[] ==  :mysql || current_sql_mode[] ==  :mssql || current_sql_mode[] ==  :clickhouse || current_sql_mode[] ==  :gbq ||current_sql_mode[] ==  :oracle
         if iceberg
-            DuckDB.execute(db, "INSTALL iceberg;")
-            DuckDB.execute(db, "LOAD iceberg;")
+            DBInterface.execute(db, "INSTALL iceberg;")
+            DBInterface.execute(db, "LOAD iceberg;")
             table_name2 = "iceberg_scan('$table_name', allow_moved_paths = true)"
             metadata = get_table_metadata(db, table_name2)
         elseif delta
@@ -397,9 +397,8 @@ function connect(backend::Symbol; kwargs...)
         set_sql_mode(:lite)
         return SQLite.DB(db_path)
     elseif backend == :DuckDB || backend == :duckdb
-        mem = DuckDB.open(":memory:")
         set_sql_mode(:duckdb)
-        db = DuckDB.connect(mem)
+        db = DBInterface.connect(DuckDB.DB, ":memory:")
         DBInterface.execute(db, "SET autoinstall_known_extensions=1;")
         DBInterface.execute(db, "SET autoload_known_extensions=1;")
     

@@ -664,7 +664,7 @@ macro collect(sqlquery)
         # Determine the type of db and execute the query accordingly
         if db isa DatabricksConnection
             df_result = execute_databricks(db, final_query)
-        elseif db isa SQLite.DB || db isa LibPQ.Connection || db isa DuckDB.Connection || db isa MySQL.Connection || db isa ODBC.Connection
+        elseif db isa SQLite.DB || db isa LibPQ.Connection || db isa DuckDB.DB || db isa MySQL.Connection || db isa ODBC.Connection
             result = DBInterface.execute(db, final_query)
             df_result = DataFrame(result)
         elseif current_sql_mode[] == :clickhouse

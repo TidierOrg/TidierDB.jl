@@ -1042,3 +1042,45 @@ julia> @chain db_table(db, "df_mem") begin
    1 │ AA            1       0.1
 ```
 """
+
+const docstring_db_table =
+"""
+    db_table(database, table_name, athena_params, delta = false, iceberg = false)
+
+`db_table` starts the underlying SQL query struct, adding the metadata and table. 
+
+#arguments
+`database`: The Database or connection object
+`table_name`: tablename as a string. Table name can be a name of a table on the database or paths to the following types
+      -CSV  
+      -Parquet
+      -Json
+      -Iceberg
+      -Delta
+      -S3 tables from AWS or Google Cloud 
+`delta`: must be true to read delta 
+`iceberg`: must be true to read iceberg
+
+# Example
+```julia
+
+julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                        value = repeat(1:5, 2), 
+                        percent = 0.1:0.1:1.0);
+
+julia> db = connect(:duckdb);
+
+julia> copy_to(db, df, "df_mem");
+
+julia> db_table(db, "df_mem")
+TidierDB.SQLQuery("", "df_mem", "", "", "", "", "", "", false, false, 4×4 DataFrame
+ Row │ name     type     current_selxn  table_name 
+     │ String?  String?  Int64          String     
+─────┼─────────────────────────────────────────────
+   1 │ id       VARCHAR              1  df_mem
+   2 │ groups   VARCHAR              1  df_mem
+   3 │ value    BIGINT               1  df_mem
+   4 │ percent  DOUBLE               1  df_mem, false, DuckDB.Connection(":memory:"), TidierDB.CTE[], 0, nothing)
+```
+"""

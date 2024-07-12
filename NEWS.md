@@ -1,11 +1,16 @@
 # TidierDB.jl updates
 
-## v0.2.2 - 2024-07-07
+## v0.2.4 - 2024-07-12
+- Switches to DuckDB to 1.0 version
+- Adds support for `iceberg` tables via DuckDB to read iceberg paths in `db_table` when `iceberg = true` 
+- Adds support for DuckDB's beta `delta_scan` to read delta paths in `db_table` when `delta = true` 
+
+## v0.2.3 - 2024-07-07
 - Adds direct path support for `db_table` when using DuckDB
 - Adds `connect` ability for AWS and Google Cloud to allow querying via S3 + DuckDB 
 - Adds documentation for S3 + DuckDB with TidierDB
 
-## v0.2.1 - 2024-06-27
+## v0.2.2 - 2024-06-27
 - Adds support for Databricks SQL Rest API
 - Adds docs for Databricks use
 - Fixes float/int type conversion when Snowflake collects to dataframe

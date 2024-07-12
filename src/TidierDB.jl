@@ -175,10 +175,11 @@ end
 
 
 # DuckDB
-function get_table_metadata(conn::DuckDB.Connection, table_name::String)
-    query = """
-    DESCRIBE SELECT * FROM '$(table_name)' LIMIT 0
-    """
+function get_table_metadata(conn::DuckDB.DB, table_name::String)
+    query = 
+        """
+        DESCRIBE SELECT * FROM $(table_name) LIMIT 0
+        """
     result = DuckDB.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
     table_name = if occursin(r"[:/]", table_name)
@@ -255,28 +256,54 @@ function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
-function db_table(db, table, athena_params::Any=nothing)
+"""
+$docstring_db_table
+"""
+function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, delta::Bool=false)
     table_name = string(table)
-    metadata = if current_sql_mode[] == :lite
-        get_table_metadata(db, table_name)
-    elseif current_sql_mode[] in [:postgres, :duckdb, :mysql, :mssql, :clickhouse, :gbq, :oracle]
-        get_table_metadata(db, table_name)
+    
+    if current_sql_mode[] == :lite
+        metadata = get_table_metadata(db, table_name)
+    elseif current_sql_mode[] == :postgres ||current_sql_mode[] ==  :duckdb || current_sql_mode[] ==  :mysql || current_sql_mode[] ==  :mssql || current_sql_mode[] ==  :clickhouse || current_sql_mode[] ==  :gbq ||current_sql_mode[] ==  :oracle
+        if iceberg
+            DBInterface.execute(db, "INSTALL iceberg;")
+            DBInterface.execute(db, "LOAD iceberg;")
+            table_name2 = "iceberg_scan('$table_name', allow_moved_paths = true)"
+            metadata = get_table_metadata(db, table_name2)
+        elseif delta
+            DuckDB.execute(db, "INSTALL delta;")
+            DuckDB.execute(db, "LOAD delta;")
+            table_name2 = "delta_scan('$table_name')"
+           # println(table_name2)
+            metadata = get_table_metadata(db, table_name2)
+        elseif occursin(r"[:/]", table_name) 
+            table_name2 = "'$table_name'"
+            metadata = get_table_metadata(db, table_name2)
+        else
+            metadata = get_table_metadata(db, table_name)
+        end
     elseif current_sql_mode[] == :athena
-        get_table_metadata_athena(db, table_name, athena_params)
+        metadata = get_table_metadata_athena(db, table_name, athena_params)
     elseif current_sql_mode[] == :snowflake
-        get_table_metadata(db, table_name)
+        metadata = get_table_metadata(db, table_name)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
+
     formatted_table_name = if current_sql_mode[] == :snowflake
         "$(db.database).$(db.schema).$table_name"
     elseif db isa DatabricksConnection
         "$(db.database).$(db.schema).$table_name"
-    elseif occursin(r"[:/]", table_name)
+    elseif iceberg
+        "iceberg_scan('$table_name', allow_moved_paths = true)"
+    elseif delta
+        "delta_scan('$table_name')"
+    elseif occursin(r"[:/]", table_name) && !(iceberg || delta)
         "'$table_name'"
     else
         table_name
     end
+    
     return SQLQuery(from=formatted_table_name, metadata=metadata, db=db, athena_params=athena_params)
 end
 
@@ -370,9 +397,8 @@ function connect(backend::Symbol; kwargs...)
         set_sql_mode(:lite)
         return SQLite.DB(db_path)
     elseif backend == :DuckDB || backend == :duckdb
-        mem = DuckDB.open(":memory:")
         set_sql_mode(:duckdb)
-        db = DuckDB.connect(mem)
+        db = DBInterface.connect(DuckDB.DB, ":memory:")
         DBInterface.execute(db, "SET autoinstall_known_extensions=1;")
         DBInterface.execute(db, "SET autoload_known_extensions=1;")
     

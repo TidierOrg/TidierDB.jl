@@ -256,6 +256,9 @@ function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
+"""
+$docstring_db_table
+"""
 function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, delta::Bool=false)
     table_name = string(table)
     

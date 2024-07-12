@@ -72,6 +72,8 @@ Supported aggregate functions (as supported by the backend) with more to come
 - `@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.
 - `copy_to` (for DuckDB, MySQL, SQLite)
 
+With DuckDB, `db_table` supports direct paths for S3 bucket locations, iceberg tables, delta table, in addition to csv, parquet, etc.
+
 DuckDB specifically enables copy_to to directly reading in `.parquet`, `.json`, `.csv`, and `.arrow` file, including https file paths.
 
 ```julia

@@ -1,8 +1,9 @@
 # TidierDB.jl updates
 
-## v0.2.4 - 2024-07-10
-- Changes DuckDB compat to 1.0
-- Adds support for `iceberg` tables via DuckDB to allow iceberg paths in `db_table` when `iceberg = true` 
+## v0.2.4 - 2024-07-12
+- Switches to DuckDB to 1.0 version
+- Adds support for `iceberg` tables via DuckDB to read iceberg paths in `db_table` when `iceberg = true` 
+- Adds support for DuckDB's beta `delta_scan` to read delta paths in `db_table` when `delta = true` 
 
 ## v0.2.3 - 2024-07-07
 - Adds direct path support for `db_table` when using DuckDB

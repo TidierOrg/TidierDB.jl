@@ -987,13 +987,15 @@ This function establishes a database connection based on the specified backend a
 # Connect to Snowflake
 # conn = connect(:snowflake, "ac_id", "token", "Database_name", "Schema_name", "warehouse_name")
 # Connect to DuckDB
-julia> db = connect(:duckdb)
 # connect to Google Cloud via DuckDB
 # google_db = connect(:duckdb, :gbq, access_key="string", secret_key="string")
 # Connect to AWS via DuckDB
 # aws_db = connect2(:duckdb, :aws, aws_access_key_id=get(ENV, "AWS_ACCESS_KEY_ID", "access_key"), aws_secret_access_key=get(ENV, "AWS_SECRET_ACCESS_KEY", "secret_access key"), aws_region=get(ENV, "AWS_DEFAULT_REGION", "us-east-1"))
-
+# Connect to MotherDuck
+# connect(:duckdb, "token") for first connection, vs connect(:duckdb, "md:") for reconnection
+julia> db = connect(:duckdb)
 DuckDB.Connection(":memory:")
+```
 """
 
 const docstring_interpolate =

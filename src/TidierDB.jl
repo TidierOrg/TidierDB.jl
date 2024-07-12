@@ -458,6 +458,12 @@ function connect(backend_type::Symbol, db_type::Symbol; access_key::String="", s
     return db
 end
 
-
+function connect(symbol, token::String)
+    if token == "md:"
+        return DBInterface.connect(DuckDB.DB, "md:")
+    else
+        return DBInterface.connect(DuckDB.DB, "md:$token")
+    end 
+end
 
 end

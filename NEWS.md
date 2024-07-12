@@ -4,6 +4,7 @@
 - Switches to DuckDB to 1.0 version
 - Adds support for `iceberg` tables via DuckDB to read iceberg paths in `db_table` when `iceberg = true` 
 - Adds support for DuckDB's beta `delta_scan` to read delta paths in `db_table` when `delta = true` 
+- Adds `connect()` support for DuckDB MotherDuck 
 
 ## v0.2.3 - 2024-07-07
 - Adds direct path support for `db_table` when using DuckDB

@@ -752,6 +752,7 @@
 <li><code>@summarize</code> supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work</li>
 <li><code>copy_to</code> (for DuckDB, MySQL, SQLite)</li>
 </ul>
+<p>With DuckDB, <code>db_table</code> supports direct paths for S3 bucket locations, iceberg tables, delta table, in addition to csv, parquet, etc.</p>
 <p>DuckDB specifically enables copy_to to directly reading in <code>.parquet</code>, <code>.json</code>, <code>.csv</code>, and <code>.arrow</code> file, including https file paths.</p>
 <div class="highlight"><pre><span></span><code><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;file_path.parquet&quot;</span>
 <span class="n">copy_to</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">file_path</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;table_name&quot;</span><span class="p">)</span>

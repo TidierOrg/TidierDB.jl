@@ -1,6 +1,8 @@
 using Documenter, DocumenterMarkdown
 using TidierDB
 
+include("genfiles.jl")
+
 DocTestMeta = quote
     using TidierDB, DataFrames
 end

@@ -42,7 +42,6 @@ function TidierDB.get_table_metadata(conn::LibPQ.Connection, table_name::String)
 end
 
 
-# In SQLiteExt.jl
 function TidierDB.final_collect(sqlquery::TidierDB.SQLQuery)
     if TidierDB.current_sql_mode[] == :duckdb || TidierDB.current_sql_mode[] == :lite || TidierDB.current_sql_mode[] == :postgres || TidierDB.current_sql_mode[] == :mysql || TidierDB.current_sql_mode[] == :mssql  || TidierDB.current_sql_mode[] == :mariadb 
         final_query = TidierDB.finalize_query(sqlquery)
@@ -58,10 +57,6 @@ function TidierDB.final_collect(sqlquery::TidierDB.SQLQuery)
         return DataFrame(result)
     end
 end
-
-# In DuckDBExt.jl
-
-
 
 
 end

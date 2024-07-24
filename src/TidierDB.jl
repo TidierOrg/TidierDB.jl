@@ -76,6 +76,8 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
         return expr_to_sql_oracle(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == :snowflake
         return expr_to_sql_snowflake(expr, sq; from_summarize=from_summarize)
+    elseif current_sql_mode[] == :databricks
+        return expr_to_sql_duckdb(expr, sq; from_summarize=from_summarize)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end

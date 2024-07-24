@@ -9,7 +9,15 @@ function TidierDB.connect(backend::Symbol; kwargs...)
     if backend == :Clickhouse || backend == :clickhouse 
         set_sql_mode(:clickhouse)
         if haskey(kwargs, :host) && haskey(kwargs, :port)
-            return ClickHouse.connect(kwargs[:host], kwargs[:port]; (k => v for (k, v) in kwargs if k ∉ [:host, :port])...)
+            kwargs_filtered = Dict{Symbol, Any}()
+            for (k, v) in kwargs
+                if k == :user
+                    kwargs_filtered[:username] = v
+                elseif k ∉ [:host, :port]
+                    kwargs_filtered[k] = v
+                end
+            end
+            return ClickHouse.connect(kwargs[:host], kwargs[:port]; kwargs_filtered...)
         else
             throw(ArgumentError("Missing required positional arguments 'host' and 'port' for ClickHouse."))
         end

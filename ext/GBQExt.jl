@@ -114,7 +114,14 @@ function TidierDB.final_collect(sqlquery::TidierDB.SQLQuery)
     elseif TidierDB.current_sql_mode[] == :gbq
         final_query = TidierDB.finalize_query(sqlquery)
         return collect_gbq(sqlquery.db, final_query)
-
+    elseif TidierDB.current_sql_mode[] == :snowflake
+        final_query = TidierDB.finalize_query(sqlquery)
+        result = TidierDB.execute_snowflake(sqlquery.db, final_query)
+        return DataFrame(result)
+    elseif TidierDB.current_sql_mode[] == :databricks
+        final_query = TidierDB.finalize_query(sqlquery)
+        result = TidierDB.execute_databricks(sqlquery.db, final_query)
+        return DataFrame(result)
     end
 end
 

@@ -99,6 +99,14 @@ function TidierDB.final_collect(sqlquery::TidierDB.SQLQuery)
         end
         result = Athena.get_query_results(exe_query["QueryExecutionId"], sqlquery.athena_params; aws_config = sqlquery.db)
         return collect_athena(result)
+    elseif TidierDB.current_sql_mode[] == :snowflake
+        final_query = TidierDB.finalize_query(sqlquery)
+        result = execute_snowflake(sqlquery.db, final_query)
+        return DataFrame(result)
+    elseif TidierDB.current_sql_mode[] == :databricks
+        final_query = TidierDB.finalize_query(sqlquery)
+        result = execute_databricks(sqlquery.db, final_query)
+        return DataFrame(result)        
     end
     
 end

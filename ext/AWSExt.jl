@@ -72,7 +72,7 @@ function TidierDB.get_table_metadata(AWS_GLOBAL_CONFIG, table_name::String, athe
     column_types = [col["Type"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
     df = DataFrame(name = column_names, type = column_types)
     df[!, :current_selxn] .= 1
-    df[!, :table_name] .= table_name
+    df[!, :table_name] .= split(table_name, ".")[2]
 
     return select(df, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
@@ -101,11 +101,11 @@ function TidierDB.final_collect(sqlquery::TidierDB.SQLQuery)
         return collect_athena(result)
     elseif TidierDB.current_sql_mode[] == :snowflake
         final_query = TidierDB.finalize_query(sqlquery)
-        result = execute_snowflake(sqlquery.db, final_query)
+        result = TidierDB.execute_snowflake(sqlquery.db, final_query)
         return DataFrame(result)
     elseif TidierDB.current_sql_mode[] == :databricks
         final_query = TidierDB.finalize_query(sqlquery)
-        result = execute_databricks(sqlquery.db, final_query)
+        result = TidierDB.execute_databricks(sqlquery.db, final_query)
         return DataFrame(result)        
     end
     

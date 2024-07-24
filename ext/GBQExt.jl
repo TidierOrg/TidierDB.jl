@@ -100,8 +100,7 @@ function TidierDB.get_table_metadata(conn::GoogleSession{JSONCredentials}, table
     column_types = [field["type"] for field in response_data["schema"]["fields"]]
     result = DataFrame(name = column_names, type = column_types)
     result[!, :current_selxn] .= 1
-    result[!, :table_name] .= table_name
-
+    result[!, :table_name] .= split(table_name, ".")[2] 
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 

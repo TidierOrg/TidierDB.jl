@@ -238,6 +238,7 @@ function execute_snowflake(conn::SnowflakeConnection, sql_query::String)
 end
 
 function get_table_metadata(conn::SnowflakeConnection, table_name::String)
+    table_name = uppercase(table_name)
     query = """
             SELECT COLUMN_NAME, DATA_TYPE
             FROM $(conn.database).INFORMATION_SCHEMA.COLUMNS

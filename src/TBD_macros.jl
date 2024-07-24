@@ -653,49 +653,25 @@ macro show_query(sqlquery)
     end
 end
 
-macro collect(sqlquery)
-    return quote
-        # Extract the database connection from the SQLQuery object
-        db = $(esc(sqlquery)).db
-        sq = $(esc(sqlquery))
-        # Finalize the query to get the SQL string
-        final_query = finalize_query($(esc(sqlquery)))
-        df_result = DataFrame()
-        # Determine the type of db and execute the query accordingly
-        if db isa DatabricksConnection
-            df_result = execute_databricks(db, final_query)
-        elseif db isa SQLite.DB || db isa LibPQ.Connection || db isa DuckDB.DB || db isa MySQL.Connection || db isa ODBC.Connection
-            result = DBInterface.execute(db, final_query)
-            df_result = DataFrame(result)
-        elseif current_sql_mode[] == :clickhouse
-            df_result = ClickHouse.select_df(db, final_query)
-            selected_columns_order = sq.metadata[sq.metadata.current_selxn .== 1, :name]
-            df_result = df_result[:, selected_columns_order]
-        elseif db isa GoogleSession{JSONCredentials}
-                df_result = collect_gbq(sq.db, final_query)
+function final_collect(sqlquery::TidierDB.SQLQuery)
+        if current_sql_mode[] ==:duckdb
+            final_query = TidierDB.finalize_query(sqlquery)
+            result = DBInterface.execute(sqlquery.db, final_query)
+            return DataFrame(result)
         elseif current_sql_mode[] == :snowflake
-            df_result = execute_snowflake(db, final_query)
-        elseif current_sql_mode[] == :athena
-            exe_query = Athena.start_query_execution(final_query, sq.athena_params; aws_config = db)
-                status = "RUNNING"
-        while status in ["RUNNING", "QUEUED"]
-            sleep(1)  # Wait for 1 second before checking the status again to avoid flooding the API
-            query_status = Athena.get_query_execution(exe_query["QueryExecutionId"], sq.athena_params; aws_config = db)
-            status = query_status["QueryExecution"]["Status"]["State"]
-            if status == "FAILED"
-                error("Query failed: ", query_status["QueryExecution"]["Status"]["StateChangeReason"])
-            elseif status == "CANCELLED"
-                error("Query was cancelled.")
-            end
+            final_query = TidierDB.finalize_query(sqlquery)
+            result = execute_snowflake(sqlquery.db, final_query)
+            return DataFrame(result)
+        elseif current_sql_mode[] == :databricks
+            final_query = TidierDB.finalize_query(sqlquery)
+            result = execute_databricks(sqlquery.db, final_query)
+            return DataFrame(result)
         end
-        
-        # Fetch the results once the query completes
-        result = Athena.get_query_results(exe_query["QueryExecutionId"], sq.athena_params; aws_config = db)
-            df_result = collect_athena(result)
-        else
-            error("Unsupported database type: $(typeof(db))")
-        end
-        df_result
-    end
 end
 
+
+macro collect(sqlquery)
+    return quote
+        final_collect($(esc(sqlquery)))
+    end
+end

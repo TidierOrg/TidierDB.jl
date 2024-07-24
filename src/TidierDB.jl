@@ -1,19 +1,18 @@
 module TidierDB
 
-using LibPQ
+#using LibPQ
 using DataFrames
 using MacroTools
 using Chain
-using SQLite
+#using SQLite
 using Reexport
 using DuckDB
-using MySQL
-using ODBC 
-import ClickHouse
+#using MySQL
+#using ODBC 
+#import ClickHouse
 using Arrow
-using AWS
-using JSON3
-using GoogleCloud
+#using AWS
+#using GoogleCloud
 using HTTP
 using JSON3
 using GZip
@@ -21,8 +20,7 @@ using GZip
 @reexport using DataFrames: DataFrame
 @reexport using Chain
 @reexport using DuckDB
-import DuckDB: open as duckdb_open
-import DuckDB: connect as duckdb_connect
+
 #using TidierDB
 
  export db_table, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
@@ -149,29 +147,9 @@ function finalize_query(sqlquery::SQLQuery)
 end
 
 
-function get_table_metadata(db::SQLite.DB, table_name::String)
-    query = "PRAGMA table_info($table_name);"
-    result = SQLite.DBInterface.execute(db, query) |> DataFrame
-    result[!, :current_selxn] .= 1
-    resize!(result.current_selxn, nrow(result))
-    result[!, :table_name] .= table_name
-    # Adjust the select statement to include the new table_name column
-    return DataFrames.select(result, 2 => :name, 3 => :type, :current_selxn, :table_name)
-end
 
-function get_table_metadata(conn::LibPQ.Connection, table_name::String)
-    query = """
-    SELECT column_name, data_type
-    FROM information_schema.columns
-    WHERE table_name = '$table_name'
-    ORDER BY ordinal_position;
-    """
-    result = LibPQ.execute(conn, query) |> DataFrame
-    result[!, :current_selxn] .= 1
-    result[!, :table_name] .= table_name
-    # Adjust the select statement to include the new table_name column
-    return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
-end
+
+
 
 
 # DuckDB
@@ -193,68 +171,10 @@ function get_table_metadata(conn::DuckDB.DB, table_name::String)
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
-# MySQL
-function get_table_metadata(conn::MySQL.Connection, table_name::String)
-    # Query to get column names and types from INFORMATION_SCHEMA
-    query = """
-    SELECT column_name, data_type
-    FROM information_schema.columns
-    WHERE table_name = '$table_name'
-    AND TABLE_SCHEMA = '$(conn.db)'
-    ORDER BY ordinal_position;
-    """
 
-    result = DBInterface.execute(conn, query) |> DataFrame
-    result[!, 2] = map(x -> String(x), result[!, 2])
-    result[!, :current_selxn] .= 1
-    result[!, :table_name] .= table_name
-    # Adjust the select statement to include the new table_name column
-    return DataFrames.select(result, :1 => :name, 2 => :type, :current_selxn, :table_name)
-end
 
-# MSSQL
-function get_table_metadata(conn::ODBC.Connection, table_name::String)
-    if current_sql_mode[] == :oracle
-        table_name = uppercase(table_name)
-        query = """
-        SELECT column_name, data_type
-        FROM all_tab_columns
-        WHERE table_name = '$table_name'
-        ORDER BY column_id
-        """
-    else
-        query = """
-        SELECT column_name, data_type
-        FROM information_schema.columns
-        WHERE table_name = '$table_name'
-        ORDER BY ordinal_position;
-        """
-    end
 
-    result = DBInterface.execute(conn, query) |> DataFrame
-    result[!, :current_selxn] .= 1
-    result[!, :table_name] .= table_name
-    # Adjust the select statement to include the new table_name column
-    return select(result, :column_name => :name, :data_type => :type, :current_selxn, :table_name)
-end
 
- # ClickHouse
-function get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
-    # Query to get column names and types from INFORMATION_SCHEMA
-    query = """
-    SELECT
-        name AS column_name,
-        type AS data_type
-    FROM system.columns
-    WHERE table = '$table_name' AND database = 'default'
-    """
-    result = ClickHouse.select_df(conn,query)
-
-    result[!, :current_selxn] .= 1
-    result[!, :table_name] .= table_name
-    # Adjust the select statement to include the new table_name column
-    return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
-end
 
 """
 $docstring_db_table
@@ -283,8 +203,8 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             metadata = get_table_metadata(db, table_name)
         end
     elseif current_sql_mode[] == :athena
-        metadata = get_table_metadata_athena(db, table_name, athena_params)
-    elseif current_sql_mode[] == :snowflake
+        metadata = get_table_metadata(db, table_name, athena_params)
+    elseif current_sql_mode[] == :snowflake || current_sql_mode[] == :databricks
         metadata = get_table_metadata(db, table_name)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
@@ -292,7 +212,7 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
 
     formatted_table_name = if current_sql_mode[] == :snowflake
         "$(db.database).$(db.schema).$table_name"
-    elseif db isa DatabricksConnection
+    elseif db isa DatabricksConnection || current_sql_mode[] == :databricks
         "$(db.database).$(db.schema).$table_name"
     elseif iceberg
         "iceberg_scan('$table_name', allow_moved_paths = true)"
@@ -315,12 +235,6 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
     if isa(df_or_path, DataFrame)
         if current_sql_mode[] == :duckdb
             DuckDB.register_data_frame(conn, df_or_path, name)
-        elseif current_sql_mode[] == :lite
-            SQLite.load!(df_or_path, conn, name)
-        elseif current_sql_mode[] == :mysql
-            MySQL.load(df_or_path, conn, name)
-        else
-            error("Unsupported SQL mode: $(current_sql_mode[])")
         end
     # If the input is not a DataFrame, treat it as a file path
     elseif isa(df_or_path, AbstractString)
@@ -364,39 +278,7 @@ end
 $docstring_connect
 """
 function connect(backend::Symbol; kwargs...)
-    if backend == :MySQL || backend == :mysql 
-        set_sql_mode(:mysql)
-
-        # Required parameters by MySQL.jl: host and user
-        host = get(kwargs, :host, "localhost")
-        user = get(kwargs, :user, "")          
-        password = get(kwargs, :password, "")  
-        # Extract other optional parameters
-        db = get(kwargs, :db, nothing)  
-        port = get(kwargs, :port, nothing)     
-        return DBInterface.connect(MySQL.Connection, host, user, password; db=db, port=port)
-    elseif backend == :Postgres ||  backend == :postgres 
-        set_sql_mode(:postgres)
-        # Construct a connection string from kwargs for LibPQ
-        conn_str = join(["$(k)=$(v)" for (k, v) in kwargs], " ")
-        return LibPQ.Connection(conn_str)
-    elseif backend == :MsSQL || backend == :mssql 
-        set_sql_mode(:mssql)
-        # Construct a connection string for ODBC if required for MsSQL
-        conn_str = join(["$(k)=$(v)" for (k, v) in kwargs], ";")
-        return ODBC.Connection(conn_str)
-    elseif backend == :Clickhouse || backend == :clickhouse 
-        set_sql_mode(:clickhouse)
-        if haskey(kwargs, :host) && haskey(kwargs, :port)
-            return ClickHouse.connect(kwargs[:host], kwargs[:port]; (k => v for (k, v) in kwargs if k ∉ [:host, :port])...)
-        else
-            throw(ArgumentError("Missing required positional arguments 'host' and 'port' for ClickHouse."))
-        end
-    elseif backend == :SQLite || backend == :lite
-        db_path = get(kwargs, :db, ":memory:") 
-        set_sql_mode(:lite)
-        return SQLite.DB(db_path)
-    elseif backend == :DuckDB || backend == :duckdb
+   if backend == :DuckDB || backend == :duckdb
         set_sql_mode(:duckdb)
         db = DBInterface.connect(DuckDB.DB, ":memory:")
         DBInterface.execute(db, "SET autoinstall_known_extensions=1;")
@@ -459,7 +341,7 @@ function connect(backend_type::Symbol, db_type::Symbol; access_key::String="", s
 end
 
 function connect(symbol, token::String)
-    if token == "md:"
+    if token == "md:" 
         return DBInterface.connect(DuckDB.DB, "md:")
     else
         return DBInterface.connect(DuckDB.DB, "md:$token")

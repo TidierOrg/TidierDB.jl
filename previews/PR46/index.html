@@ -767,7 +767,7 @@
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierData</span>
 <span class="k">import</span><span class="w"> </span><span class="n">TidierDB</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">DB</span>
 
-<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">);</span>
+<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">());</span>
 <span class="n">path_or_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span>
 
 <span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">path_or_name</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>

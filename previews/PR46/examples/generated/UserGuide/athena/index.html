@@ -600,7 +600,7 @@
 <h2 id="connecting">Connecting<a class="headerlink" href="#connecting" title="Permanent link">¤</a></h2>
 <p>Connection is established through AWS.jl as shwon below.</p>
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span><span class="p">,</span><span class="w"> </span><span class="n">AWS</span>
-<span class="n">set_sql_mode</span><span class="p">(</span><span class="ss">:athena</span><span class="p">)</span>
+<span class="n">set_sql_mode</span><span class="p">(</span><span class="n">athena</span><span class="p">())</span>
 <span class="c"># Replace your credentials as needed below</span>
 <span class="n">aws_access_key_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="p">(</span><span class="nb">ENV</span><span class="p">,</span><span class="s">&quot;AWS_ACCESS_KEY_ID&quot;</span><span class="p">,</span><span class="s">&quot;key&quot;</span><span class="p">)</span>
 <span class="n">aws_secret_access_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="p">(</span><span class="nb">ENV</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AWS_SECRET_ACCESS_KEY&quot;</span><span class="p">,</span><span class="s">&quot;secret_key&quot;</span><span class="p">)</span>

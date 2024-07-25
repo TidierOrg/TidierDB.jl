@@ -505,10 +505,10 @@
 <div class="highlight"><pre><span></span><code><span class="n">Using</span><span class="w"> </span><span class="n">TidierDB</span>
 
 <span class="c">#Connect to Google Cloud via DuckDB</span>
-<span class="c">#google_db = connect(:duckdb, :gbq, access_key=&quot;string&quot;, secret_key=&quot;string&quot;)</span>
+<span class="c">#google_db = connect(duckdb(), :gbq, access_key=&quot;string&quot;, secret_key=&quot;string&quot;)</span>
 
 <span class="c">#Connect to AWS via DuckDB</span>
-<span class="n">aws_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:duckdb</span><span class="p">,</span><span class="w"> </span><span class="ss">:aws</span><span class="p">,</span><span class="w"> </span><span class="n">aws_access_key_id</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">,</span>
+<span class="n">aws_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">(),</span><span class="w"> </span><span class="ss">:aws</span><span class="p">,</span><span class="w"> </span><span class="n">aws_access_key_id</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">,</span>
 <span class="w">                                </span><span class="n">aws_secret_access_key</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">,</span>
 <span class="w">                                </span><span class="n">aws_region</span><span class="o">=</span><span class="s">&quot;us-east-1&quot;</span><span class="p">)</span>
 <span class="n">s3_csv_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;s3://path/to_data.csv&quot;</span>

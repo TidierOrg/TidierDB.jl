@@ -571,7 +571,8 @@
 <li>warehouse_id</li>
 </ul>
 <p>One thing to note, Since each time <code>db_table</code> runs, it runs a query to pull the metadata, you may choose to use run <code>db_table</code> and save the results, and use these results with <code>from_query()</code>. This will reduce the number of queries to your database and is illustrated below.</p>
-<div class="highlight"><pre><span></span><code><span class="n">instance_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;string_id&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="n">set_sql_mode</span><span class="p">(</span><span class="n">databricks</span><span class="p">())</span>
+<span class="n">instance_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;string_id&quot;</span>
 <span class="n">token</span><span class="w"> </span><span class="s">&quot;string_token&quot;</span>
 <span class="n">warehouse_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;e673cd4f387f964a&quot;</span>
 <span class="n">con</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:databricks</span><span class="p">,</span><span class="w"> </span><span class="n">instance_id</span><span class="p">,</span><span class="w"> </span><span class="n">token</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;DEMODB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PUBLIC&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">warehouse_id</span><span class="p">)</span>
@@ -584,20 +585,20 @@
 <span class="w">   </span><span class="nd">@collect</span>
 <span class="k">end</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code> 32×2 DataFrame
+<div class="highlight"><pre><span></span><code>32×2 DataFrame
  Row │ wt       test
-│ Float64  Float64
+     │ Float64  Float64
 ─────┼──────────────────
-1 │   2.62     5.24
-2 │   2.875    5.75
-3 │   2.32     4.64
-4 │   3.215    6.43
-⋮  │    ⋮        ⋮
-29 │   3.17     6.34
-30 │   2.77     5.54
-31 │   3.57     7.14
-32 │   2.78     5.56
-     24 rows omitted
+   1 │   2.62     5.24
+   2 │   2.875    5.75
+   3 │   2.32     4.64
+   4 │   3.215    6.43
+  ⋮  │    ⋮        ⋮
+  29 │   3.17     6.34
+  30 │   2.77     5.54
+  31 │   3.57     7.14
+  32 │   2.78     5.56
+         24 rows omitted
 </code></pre></div>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>

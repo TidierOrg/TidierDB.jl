@@ -5,9 +5,8 @@ using DataFrames
 import ClickHouse
 __init__() = println("Extension was loaded!")
 
-function TidierDB.connect(backend::Symbol; kwargs...)
-    if backend == :Clickhouse || backend == :clickhouse 
-        set_sql_mode(:clickhouse)
+function TidierDB.connect(::clickhouse; kwargs...)
+        set_sql_mode(clickhouse())
         if haskey(kwargs, :host) && haskey(kwargs, :port)
             kwargs_filtered = Dict{Symbol, Any}()
             for (k, v) in kwargs
@@ -21,20 +20,6 @@ function TidierDB.connect(backend::Symbol; kwargs...)
         else
             throw(ArgumentError("Missing required positional arguments 'host' and 'port' for ClickHouse."))
         end
-
-    elseif backend == :DuckDB || backend == :duckdb
-        set_sql_mode(:duckdb)
-        db = DBInterface.connect(DuckDB.DB, ":memory:")
-        DBInterface.execute(db, "SET autoinstall_known_extensions=1;")
-        DBInterface.execute(db, "SET autoload_known_extensions=1;")
-    
-        # Install and load the httpfs extension
-        DBInterface.execute(db, "INSTALL httpfs;")
-        DBInterface.execute(db, "LOAD httpfs;")
-        return db
-    else
-        throw(ArgumentError("Unsupported backend: $backend"))
-    end
 end
 
 
@@ -58,26 +43,12 @@ end
 
 
 
-function TidierDB.final_collect(sqlquery::TidierDB.SQLQuery)
-    if TidierDB.current_sql_mode[] == :duckdb || TidierDB.current_sql_mode[] == :lite || TidierDB.current_sql_mode[] == :postgres || TidierDB.current_sql_mode[] == :mysql
-        final_query = TidierDB.finalize_query(sqlquery)
-        result = DBInterface.execute(sqlquery.db, final_query)
-        return DataFrame(result)
-    elseif TidierDB.current_sql_mode[] == :clickhouse
-        final_query = TidierDB.finalize_query(sqlquery)
-        df_result = ClickHouse.select_df(sqlquery.db, final_query)
-        selected_columns_order = sqlquery.metadata[sqlquery.metadata.current_selxn .== 1, :name]
-        df_result = df_result[:, selected_columns_order]
-        return df_result
-    elseif TidierDB.current_sql_mode[] == :snowflake
-        final_query = TidierDB.finalize_query(sqlquery)
-        result = TidierDB.execute_snowflake(sqlquery.db, final_query)
-        return DataFrame(result)
-    elseif TidierDB.current_sql_mode[] == :databricks
-        final_query = TidierDB.finalize_query(sqlquery)
-        result = TidierDB.execute_databricks(sqlquery.db, final_query)
-        return DataFrame(result)
-    end
+function TidierDB.final_collect(sqlquery, ::Type{<:clickhouse})
+    final_query = TidierDB.finalize_query(sqlquery)
+    df_result = ClickHouse.select_df(sqlquery.db, final_query)
+    selected_columns_order = sqlquery.metadata[sqlquery.metadata.current_selxn .== 1, :name]
+    df_result = df_result[:, selected_columns_order]
+    return df_result
 end
 
 end

@@ -1,18 +1,11 @@
 module TidierDB
 
-#using LibPQ
 using DataFrames
 using MacroTools
 using Chain
-#using SQLite
 using Reexport
 using DuckDB
-#using MySQL
-#using ODBC 
-#import ClickHouse
 using Arrow
-#using AWS
-#using GoogleCloud
 using HTTP
 using JSON3
 using GZip
@@ -21,12 +14,33 @@ using GZip
 @reexport using Chain
 @reexport using DuckDB
 
-#using TidierDB
 
  export db_table, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
  @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
  @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, 
- @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con
+ @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,
+ clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery
+
+ abstract type SQLBackend end
+
+ struct clickhouse <: SQLBackend end
+ struct duckdb <: SQLBackend end
+ struct sqlite <: SQLBackend end
+ struct mysql <: SQLBackend end
+ struct mssql <: SQLBackend end
+ struct postgres <: SQLBackend end
+ struct athena <: SQLBackend end
+ struct snowflake <: SQLBackend end
+ struct gbq <: SQLBackend end
+ struct oracle <: SQLBackend end
+ struct databricks <: SQLBackend end
+ 
+ current_sql_mode = Ref{SQLBackend}(duckdb())
+ 
+ function set_sql_mode(mode::SQLBackend)
+     current_sql_mode[] = mode
+ end
+ 
 
 include("docstrings.jl")
 include("structs.jl")
@@ -47,36 +61,31 @@ include("joins_sq.jl")
 include("slices_sq.jl")
 
 
-current_sql_mode = Ref(:duckdb)
 
-# Function to switch modes
-function set_sql_mode(mode::Symbol)
-    current_sql_mode[] = mode
-end
 
 # Unified expr_to_sql function to use right mode
 function expr_to_sql(expr, sq; from_summarize::Bool = false)
-    if current_sql_mode[] == :lite
+    if current_sql_mode[] == sqlite()
         return expr_to_sql_lite(expr, sq, from_summarize=from_summarize)
-    elseif current_sql_mode[] == :postgres
+    elseif current_sql_mode[] == postgres()
         return expr_to_sql_postgres(expr, sq; from_summarize=from_summarize)
-    elseif current_sql_mode[] == :duckdb
+    elseif current_sql_mode[] == duckdb()
         return expr_to_sql_duckdb(expr, sq; from_summarize=from_summarize)
-    elseif current_sql_mode[] == :mysql
+    elseif current_sql_mode[] == mysql()
         return expr_to_sql_mysql(expr, sq; from_summarize=from_summarize)
-    elseif current_sql_mode[] == :mssql
+    elseif current_sql_mode[] == mssql()
         return expr_to_sql_mssql(expr, sq; from_summarize=from_summarize)
-    elseif current_sql_mode[] == :clickhouse
+    elseif current_sql_mode[] == clickhouse()
         return expr_to_sql_clickhouse(expr, sq; from_summarize=from_summarize)
-    elseif current_sql_mode[] == :athena
+    elseif current_sql_mode[] == athena()
         return expr_to_sql_trino(expr, sq; from_summarize=from_summarize)
-    elseif current_sql_mode[] == :gbq
+    elseif current_sql_mode[] == gbq()
         return expr_to_sql_gbq(expr, sq; from_summarize=from_summarize)
-    elseif current_sql_mode[] == :oracle
+    elseif current_sql_mode[] == oracle()
         return expr_to_sql_oracle(expr, sq; from_summarize=from_summarize)
-    elseif current_sql_mode[] == :snowflake
+    elseif current_sql_mode[] == snowflake()
         return expr_to_sql_snowflake(expr, sq; from_summarize=from_summarize)
-    elseif current_sql_mode[] == :databricks
+    elseif current_sql_mode[] == databricks()
         return expr_to_sql_duckdb(expr, sq; from_summarize=from_summarize)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
@@ -141,7 +150,7 @@ function finalize_query(sqlquery::SQLQuery)
      "FROM )" => ")" ,  "SELECT SELECT " => "SELECT ", "SELECT  SELECT " => "SELECT ", "DISTINCT SELECT " => "DISTINCT ", 
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", )
 
-    if current_sql_mode[] == :postgres || current_sql_mode[] == :duckdb || current_sql_mode[] == :mysql || current_sql_mode[] == :mssql || current_sql_mode[] == :clickhouse || current_sql_mode[] == :athena || current_sql_mode[] == :gbq || current_sql_mode[] == :oracle  || current_sql_mode[] == :snowflake
+    if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end
 
@@ -184,9 +193,9 @@ $docstring_db_table
 function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, delta::Bool=false)
     table_name = string(table)
     
-    if current_sql_mode[] == :lite
+    if current_sql_mode[] == sqlite()
         metadata = get_table_metadata(db, table_name)
-    elseif current_sql_mode[] == :postgres ||current_sql_mode[] ==  :duckdb || current_sql_mode[] ==  :mysql || current_sql_mode[] ==  :mssql || current_sql_mode[] ==  :clickhouse || current_sql_mode[] ==  :gbq ||current_sql_mode[] ==  :oracle
+    elseif current_sql_mode[] == postgres() ||current_sql_mode[] ==  duckdb() || current_sql_mode[] ==  mysql() || current_sql_mode[] ==  mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == gbq() ||current_sql_mode[] == oracle()
         if iceberg
             DBInterface.execute(db, "INSTALL iceberg;")
             DBInterface.execute(db, "LOAD iceberg;")
@@ -204,17 +213,17 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
         else
             metadata = get_table_metadata(db, table_name)
         end
-    elseif current_sql_mode[] == :athena
+    elseif current_sql_mode[] == athena()
         metadata = get_table_metadata(db, table_name, athena_params)
-    elseif current_sql_mode[] == :snowflake || current_sql_mode[] == :databricks
+    elseif current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         metadata = get_table_metadata(db, table_name)
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
 
-    formatted_table_name = if current_sql_mode[] == :snowflake
+    formatted_table_name = if current_sql_mode[] == snowflake()
         "$(db.database).$(db.schema).$table_name"
-    elseif db isa DatabricksConnection || current_sql_mode[] == :databricks
+    elseif db isa DatabricksConnection || current_sql_mode[] == databricks()
         "$(db.database).$(db.schema).$table_name"
     elseif iceberg
         "iceberg_scan('$table_name', allow_moved_paths = true)"
@@ -235,12 +244,12 @@ $docstring_copy_to
 function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::String)
     # Check if the input is a DataFrame
     if isa(df_or_path, DataFrame)
-        if current_sql_mode[] == :duckdb
+        if current_sql_mode[] == duckdb()
             DuckDB.register_data_frame(conn, df_or_path, name)
         end
     # If the input is not a DataFrame, treat it as a file path
     elseif isa(df_or_path, AbstractString)
-        if current_sql_mode[] != :duckdb
+        if current_sql_mode[] != duckdb()
             error("Direct file loading is only supported for DuckDB in this implementation.")
         end
         # Determine the file type based on the extension
@@ -279,40 +288,33 @@ end
 """
 $docstring_connect
 """
-function connect(backend::Symbol; kwargs...)
-   if backend == :DuckDB || backend == :duckdb
-        set_sql_mode(:duckdb)
-        db = DBInterface.connect(DuckDB.DB, ":memory:")
-        DBInterface.execute(db, "SET autoinstall_known_extensions=1;")
-        DBInterface.execute(db, "SET autoload_known_extensions=1;")
+function connect(::duckdb; kwargs...)
+    set_sql_mode(duckdb())
+    db = DBInterface.connect(DuckDB.DB, ":memory:")
+    DBInterface.execute(db, "SET autoinstall_known_extensions=1;")
+    DBInterface.execute(db, "SET autoload_known_extensions=1;")
     
-        # Install and load the httpfs extension
-        DBInterface.execute(db, "INSTALL httpfs;")
-        DBInterface.execute(db, "LOAD httpfs;")
-        return db
-    else
-        throw(ArgumentError("Unsupported backend: $backend"))
-    end
+    # Install and load the httpfs extension
+    DBInterface.execute(db, "INSTALL httpfs;")
+    DBInterface.execute(db, "LOAD httpfs;")
+    return db
 end
 
-function connect(backend::Symbol, identifier::String, auth_token::String, database::String, schema::String, warehouse::String)
-    if backend == :snowflake
-        # Snowflake specific settings
-        set_sql_mode(:snowflake)
+
+function connect(::snowflake, identifier::String, auth_token::String, database::String, schema::String, warehouse::String)
+        set_sql_mode(snowflake())
         api_url = "https://$identifier.snowflakecomputing.com/api/v2/statements"
         return SnowflakeConnection(identifier, auth_token, database, schema, warehouse, api_url)
-    elseif backend == :databricks
-        # Databricks specific settings
-        # Remove any leading slash from workspace_id
+end
+
+function connect(::databricks, identifier::String, auth_token::String, database::String, schema::String, warehouse::String)
+        set_sql_mode(databricks())
         identifier = lstrip(identifier, '/')
         api_url = "https://$(identifier).cloud.databricks.com/api/2.0/sql/statements"
         return DatabricksConnection(identifier, auth_token, database, schema, warehouse, api_url)
-    else
-        error("Unsupported backend type: $backend")
-    end
 end
 
-function connect(backend_type::Symbol, db_type::Symbol; access_key::String="", secret_key::String="", aws_access_key_id::String="", aws_secret_access_key::String="", aws_region::String="")
+function connect(::duckdb, db_type::Symbol; access_key::String="", secret_key::String="", aws_access_key_id::String="", aws_secret_access_key::String="", aws_region::String="")
     # Connect to the DuckDB database
     mem = DuckDB.open(":memory:")
     db = DuckDB.connect(mem)
@@ -342,7 +344,7 @@ function connect(backend_type::Symbol, db_type::Symbol; access_key::String="", s
     return db
 end
 
-function connect(symbol, token::String)
+function connect(::duckdb, token::String)
     if token == "md:" 
         return DBInterface.connect(DuckDB.DB, "md:")
     else

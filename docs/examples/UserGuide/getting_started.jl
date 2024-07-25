@@ -14,11 +14,11 @@
 # For example
 # Connecting to MySQL
 # ```julia
-# conn = connect(:mysql; host="localhost", user="root", password="password", db="mydb")
+# conn = connect(mysql(); host="localhost", user="root", password="password", db="mydb")
 # ```
 # versus connecting to DuckDB
 # ```julia
-# conn = connect(:duckdb)
+# conn = connect(duckdb())
 # ```
 
 # ## Package Extensions 

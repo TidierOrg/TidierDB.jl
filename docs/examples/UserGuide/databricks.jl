@@ -12,6 +12,7 @@
 # Since each time `db_table` runs, it runs a query to pull the metadata, you may choose to use run `db_table` and save the results, and use these results with `from_query()`. This will reduce the number of queries to your database and is illustrated below.
 
 # ```julia
+# set_sql_mode(databricks())
 # instance_id = "string_id"
 # token "string_token"
 # warehouse_id = "e673cd4f387f964a"
@@ -26,18 +27,18 @@
 # end
 # ```
 # ```
-#  32×2 DataFrame
+# 32×2 DataFrame
 #  Row │ wt       test    
-# │ Float64  Float64 
+#      │ Float64  Float64 
 # ─────┼──────────────────
-# 1 │   2.62     5.24
-# 2 │   2.875    5.75
-# 3 │   2.32     4.64
-# 4 │   3.215    6.43
-# ⋮  │    ⋮        ⋮
-# 29 │   3.17     6.34
-# 30 │   2.77     5.54
-# 31 │   3.57     7.14
-# 32 │   2.78     5.56
-#      24 rows omitted
+#    1 │   2.62     5.24
+#    2 │   2.875    5.75
+#    3 │   2.32     4.64
+#    4 │   3.215    6.43
+#   ⋮  │    ⋮        ⋮
+#   29 │   3.17     6.34
+#   30 │   2.77     5.54
+#   31 │   3.57     7.14
+#   32 │   2.78     5.56
+#          24 rows omitted
 # ```

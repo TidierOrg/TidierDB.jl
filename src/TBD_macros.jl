@@ -158,7 +158,7 @@ end
 function process_mutate_expression(expr, sq, select_expressions, cte_name)
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
         col_name = string(expr.args[1])
-        if current_sql_mode[] == :snowflake
+        if current_sql_mode[] == snowflake()
             col_name = uppercase(col_name)
         end
         col_expr = expr_to_sql(expr.args[2], sq)  # Convert to SQL expression
@@ -373,7 +373,7 @@ function process_summary_expression(expr, sq, summary_str)
         summary_operation = string(summary_operation)
         summary_column = expr_to_sql(expr.args[1], sq, from_summarize = true)
         summary_column = string(summary_column)
-        if current_sql_mode[] == :snowflake
+        if current_sql_mode[] == snowflake()
             summary_column = uppercase(summary_column)
         end
         push!(sq.metadata, Dict("name" => summary_column, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => sq.from))
@@ -653,25 +653,53 @@ macro show_query(sqlquery)
     end
 end
 
-function final_collect(sqlquery::TidierDB.SQLQuery)
-        if current_sql_mode[] ==:duckdb
-            final_query = TidierDB.finalize_query(sqlquery)
-            result = DBInterface.execute(sqlquery.db, final_query)
-            return DataFrame(result)
-        elseif current_sql_mode[] == :snowflake
-            final_query = TidierDB.finalize_query(sqlquery)
-            result = execute_snowflake(sqlquery.db, final_query)
-            return DataFrame(result)
-        elseif current_sql_mode[] == :databricks
-            final_query = TidierDB.finalize_query(sqlquery)
-            result = execute_databricks(sqlquery.db, final_query)
-            return DataFrame(result)
-        end
+
+
+function final_collect(sqlquery::SQLQuery, ::Type{<:duckdb})
+    final_query = finalize_query(sqlquery)
+    result = DBInterface.execute(sqlquery.db, final_query)
+    return DataFrame(result)
 end
 
+function final_collect(sqlquery::SQLQuery, ::Type{<:databricks})
+    final_query = finalize_query(sqlquery)
+    result = execute_databricks(sqlquery.db, final_query)
+    return DataFrame(result)
+end
+
+function final_collect(sqlquery::SQLQuery, ::Type{<:snowflake})
+    final_query = finalize_query(sqlquery)
+    result = execute_snowflake(sqlquery.db, final_query)
+    return DataFrame(result)
+end
 
 macro collect(sqlquery)
     return quote
-        final_collect($(esc(sqlquery)))
+        backend = current_sql_mode[]
+        if backend == duckdb()
+            final_collect($(esc(sqlquery)), duckdb)
+        elseif backend == clickhouse()
+            final_collect($(esc(sqlquery)), clickhouse)
+        elseif backend == sqlite()
+            final_collect($(esc(sqlquery)), sqlite)
+        elseif backend == mysql()
+            final_collect($(esc(sqlquery)), mysql)
+        elseif backend == mssql()
+            final_collect($(esc(sqlquery)), mssql)
+        elseif backend == postgres()
+            final_collect($(esc(sqlquery)), postgres)
+        elseif backend == athena()
+            final_collect($(esc(sqlquery)), athena)
+        elseif backend == snowflake()
+            final_collect($(esc(sqlquery)), snowflake)
+        elseif backend == gbq()
+            final_collect($(esc(sqlquery)), gbq)
+        elseif backend == oracle()
+            final_collect($(esc(sqlquery)), oracle)
+        elseif backend == databricks()
+            final_collect($(esc(sqlquery)), databricks)
+        else
+            throw(ArgumentError("Unsupported SQL mode: $backend"))
+        end
     end
 end

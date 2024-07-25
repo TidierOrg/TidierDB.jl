@@ -8,10 +8,10 @@
 # Using TidierDB
 # 
 # #Connect to Google Cloud via DuckDB
-# #google_db = connect(:duckdb, :gbq, access_key="string", secret_key="string")
+# #google_db = connect(duckdb(), :gbq, access_key="string", secret_key="string")
 
 # #Connect to AWS via DuckDB
-# aws_db = connect(:duckdb, :aws, aws_access_key_id= "string", 
+# aws_db = connect(duckdb(), :aws, aws_access_key_id= "string", 
 #                                 aws_secret_access_key= "string", 
 #                                 aws_region="us-east-1")
 # s3_csv_path = "s3://path/to_data.csv"

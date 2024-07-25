@@ -40,11 +40,11 @@ function parse_tidy_db(exprs, metadata::DataFrame)
             if actual_expr.args[1] == :(:)
                 # Handle range expression
                 start_col = string(actual_expr.args[2])
-                if current_sql_mode[] == :snowflake
+                if current_sql_mode[] == snowflake()
                     start_col = uppercase(start_col)
                 end
                 end_col = string(actual_expr.args[3])
-                if current_sql_mode[] == :snowflake
+                if current_sql_mode[] == snowflake()
                     end_col = uppercase(end_col)
                 end
                 start_idx = findfirst(==(start_col), all_columns)
@@ -61,7 +61,7 @@ function parse_tidy_db(exprs, metadata::DataFrame)
             elseif actual_expr.args[1] == :starts_with || actual_expr.args[1] == :ends_with || actual_expr.args[1] == :contains
                 # Handle starts_with, ends_with, and contains
                 substring = actual_expr.args[2]
-                if current_sql_mode[] == :snowflake
+                if current_sql_mode[] == snowflake()
                     substring = uppercase(substring)
                 end
                 match_columns = filter(col -> 
@@ -85,7 +85,7 @@ function parse_tidy_db(exprs, metadata::DataFrame)
             end
 
             col_name = isa(actual_expr, Symbol) ? string(actual_expr) : actual_expr
-            if current_sql_mode[] == :snowflake
+            if current_sql_mode[] == snowflake()
                 col_name = uppercase(col_name)
             end
             if is_excluded

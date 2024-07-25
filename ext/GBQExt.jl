@@ -12,10 +12,10 @@ mutable struct GBQ
     bigquery_method
 end
 
-function TidierDB.connect(type::Symbol, json_key_path::String, project_id::String) 
+function TidierDB.connect(::gbq, json_key_path::String, project_id::String) 
     # Expand the user's path to the JSON key
     creds_path = expanduser(json_key_path)
-    set_sql_mode(:gbq)
+    set_sql_mode(gbq())
     # Create credentials and session for Google Cloud
     creds = JSONCredentials(creds_path)
     session = GoogleSession(creds, ["https://www.googleapis.com/auth/bigquery"])
@@ -105,23 +105,10 @@ function TidierDB.get_table_metadata(conn::GoogleSession{JSONCredentials}, table
 end
 
 
-function TidierDB.final_collect(sqlquery::TidierDB.SQLQuery)
-    if TidierDB.current_sql_mode[] == :duckdb || TidierDB.current_sql_mode[] == :lite || TidierDB.current_sql_mode[] == :postgres || TidierDB.current_sql_mode[] == :mysql
-        final_query = TidierDB.finalize_query(sqlquery)
-        result = DBInterface.execute(sqlquery.db, final_query)
-        return DataFrame(result)
-    elseif TidierDB.current_sql_mode[] == :gbq
-        final_query = TidierDB.finalize_query(sqlquery)
-        return collect_gbq(sqlquery.db, final_query)
-    elseif TidierDB.current_sql_mode[] == :snowflake
-        final_query = TidierDB.finalize_query(sqlquery)
-        result = TidierDB.execute_snowflake(sqlquery.db, final_query)
-        return DataFrame(result)
-    elseif TidierDB.current_sql_mode[] == :databricks
-        final_query = TidierDB.finalize_query(sqlquery)
-        result = TidierDB.execute_databricks(sqlquery.db, final_query)
-        return DataFrame(result)
-    end
+
+function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:gbq})
+    final_query = TidierDB.finalize_query(sqlquery)
+    return collect_gbq(sqlquery.db, final_query)
 end
 
 end

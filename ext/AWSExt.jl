@@ -78,37 +78,22 @@ function TidierDB.get_table_metadata(AWS_GLOBAL_CONFIG, table_name::String, athe
 end
 
 
-function TidierDB.final_collect(sqlquery::TidierDB.SQLQuery)
-    if TidierDB.current_sql_mode[] == :duckdb || TidierDB.current_sql_mode[] == :lite || TidierDB.current_sql_mode[] == :postgres
-        final_query = TidierDB.finalize_query(sqlquery)
-        result = DBInterface.execute(sqlquery.db, final_query)
-        return DataFrame(result)
-    elseif TidierDB.current_sql_mode[] == :athena
-        final_query = TidierDB.finalize_query(sqlquery)
-        exe_query = Athena.start_query_execution(final_query, sqlquery.athena_params; aws_config = sqlquery.db)
-        status = "RUNNING"
-        while status in ["RUNNING", "QUEUED"]
-            sleep(1)  # Wait for 1 second before checking the status again to avoid flooding the API
-            query_status = Athena.get_query_execution(exe_query["QueryExecutionId"], sqlquery.athena_params; aws_config = sqlquery.db)
-            status = query_status["QueryExecution"]["Status"]["State"]
-            if status == "FAILED"
-                error("Query failed: ", query_status["QueryExecution"]["Status"]["StateChangeReason"])
-            elseif status == "CANCELLED"
-                error("Query was cancelled.")
-            end
+function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:athena})
+    final_query = TidierDB.finalize_query(sqlquery)
+    exe_query = Athena.start_query_execution(final_query, sqlquery.athena_params; aws_config = sqlquery.db)
+    status = "RUNNING"
+    while status in ["RUNNING", "QUEUED"]
+        sleep(1)  # Wait for 1 second before checking the status again to avoid flooding the API
+        query_status = Athena.get_query_execution(exe_query["QueryExecutionId"], sqlquery.athena_params; aws_config = sqlquery.db)
+        status = query_status["QueryExecution"]["Status"]["State"]
+        if status == "FAILED"
+            error("Query failed: ", query_status["QueryExecution"]["Status"]["StateChangeReason"])
+        elseif status == "CANCELLED"
+            error("Query was cancelled.")
         end
-        result = Athena.get_query_results(exe_query["QueryExecutionId"], sqlquery.athena_params; aws_config = sqlquery.db)
-        return collect_athena(result)
-    elseif TidierDB.current_sql_mode[] == :snowflake
-        final_query = TidierDB.finalize_query(sqlquery)
-        result = TidierDB.execute_snowflake(sqlquery.db, final_query)
-        return DataFrame(result)
-    elseif TidierDB.current_sql_mode[] == :databricks
-        final_query = TidierDB.finalize_query(sqlquery)
-        result = TidierDB.execute_databricks(sqlquery.db, final_query)
-        return DataFrame(result)        
     end
-    
+    result = Athena.get_query_results(exe_query["QueryExecutionId"], sqlquery.athena_params; aws_config = sqlquery.db)
+    return collect_athena(result)
 end
 
 

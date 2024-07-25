@@ -1,7 +1,7 @@
 function gbq_join_parse(input)
     input = string(input)
     parts = split(input, ".")
-    if current_sql_mode[] == :gbq && length(parts) >=2
+    if current_sql_mode[] == gbq() && length(parts) >=2
         return join(parts[2:end], ".")
     else
         return input

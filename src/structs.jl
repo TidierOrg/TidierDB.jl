@@ -5,12 +5,6 @@ mutable struct CTE
     where::String
     groupBy::String
     having::String
-    # Additional fields as necessary
-
-    # Default constructor
-    #CTE() = new("", "", "", "", "", "")
-
-    # Custom constructor accepting keyword arguments
     function CTE(;name::String="", select::String="", from::String="", where::String="", groupBy::String="", having::String="")
         new(name, select, from, where, groupBy, having)
     end

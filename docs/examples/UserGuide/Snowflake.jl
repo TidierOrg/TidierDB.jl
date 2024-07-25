@@ -15,6 +15,7 @@
 #   - Allow you to build a a SQL query and `@show_query` even if the OAuth_token has expired. To `@collect` you will have to reconnect and rerun db_table if your OAuth token has expired
 
 # ```julia
+# set_sql_mode(snowflake())
 # ac_id = "string_id"
 # token = "OAuth_token_string" 
 # con = connect(:snowflake, ac_id, token, "DEMODB", "PUBLIC", "COMPUTE_WH")

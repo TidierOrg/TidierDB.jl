@@ -5,7 +5,7 @@
 
 # ```julia
 # using TidierDB, AWS
-# set_sql_mode(:athena)
+# set_sql_mode(athena())
 # # Replace your credentials as needed below
 # aws_access_key_id = get(ENV,"AWS_ACCESS_KEY_ID","key")
 # aws_secret_access_key = get(ENV, "AWS_SECRET_ACCESS_KEY","secret_key")

@@ -1,5 +1,11 @@
 # TidierDB.jl updates
 
+## v0.3. - 2024-07-25
+- Introduces package extensions for:
+    - Postgres, ClickHouse, MySQL, MsSQL, SQLite, Oracle, Athena, and Google BigQuery
+    - (Documentation)[https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/getting_started/] updated for using these backends.  
+- Change `set_sql_mode()` to use types not symbols (ie `set_sql_mode(snowflake())` not `set_sql_mode(:snowflake)`)
+
 ## v0.2.4 - 2024-07-12
 - Switches to DuckDB to 1.0 version
 - Adds support for `iceberg` tables via DuckDB to read iceberg paths in `db_table` when `iceberg = true` 

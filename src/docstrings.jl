@@ -992,7 +992,7 @@ This function establishes a database connection based on the specified backend a
 # Connect to AWS via DuckDB
 # aws_db = connect2(duckdb(), :aws, aws_access_key_id=get(ENV, "AWS_ACCESS_KEY_ID", "access_key"), aws_secret_access_key=get(ENV, "AWS_SECRET_ACCESS_KEY", "secret_access key"), aws_region=get(ENV, "AWS_DEFAULT_REGION", "us-east-1"))
 # Connect to MotherDuck
-# connect(duckdb(), "token") for first connection, vs connect(:duckdb, "md:") for reconnection
+# connect(duckdb(), "token") for first connection, vs connect(duckdb(), "md:") for reconnection
 julia> db = connect(duckdb())
 DuckDB.Connection(":memory:")
 ```

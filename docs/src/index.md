@@ -89,7 +89,7 @@ Even though the code reads similarly to TidierData, note that no computational w
 using TidierData
 import TidierDB as DB
 
-db = DB.connect(:duckdb);
+db = DB.connect(duckdb());
 path_or_name = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
 
 @chain DB.db_table(db, path_or_name) begin

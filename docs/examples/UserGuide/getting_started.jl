@@ -27,7 +27,7 @@
 # - ClickHouse: `using ClickHouse`
 # - MySQL and MariaDB: `using MySQL`
 # - MSSQL: `using ODBC` 
-# - Postgres: `using LibPQ``
+# - Postgres: `using LibPQ`
 # - SQLite: `using SQLite`
 # - Athena: `using AWS`
 # - Oracle: `using ODBC` 

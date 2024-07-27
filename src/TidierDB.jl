@@ -207,6 +207,9 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             table_name2 = "delta_scan('$table_name')"
            # println(table_name2)
             metadata = get_table_metadata(db, table_name2)
+        elseif startswith(table_name, "read") 
+            table_name2 = "$table_name"
+           metadata = get_table_metadata(db, table_name2)
         elseif occursin(r"[:/]", table_name) 
             table_name2 = "'$table_name'"
             metadata = get_table_metadata(db, table_name2)
@@ -229,8 +232,10 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
         "iceberg_scan('$table_name', allow_moved_paths = true)"
     elseif delta
         "delta_scan('$table_name')"
-    elseif occursin(r"[:/]", table_name) && !(iceberg || delta)
+    elseif occursin(r"[:/]", table_name) && !(iceberg || delta) && !startswith(table_name, "read") 
         "'$table_name'"
+     elseif startswith(table_name, "read") 
+         "$table_name"  
     else
         table_name
     end

@@ -207,6 +207,9 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             table_name2 = "delta_scan('$table_name')"
            # println(table_name2)
             metadata = get_table_metadata(db, table_name2)
+        elseif startswith(table_name, "read") 
+            table_name2 = "$table_name"
+           metadata = get_table_metadata(db, table_name2)
         elseif occursin(r"[:/]", table_name) 
             table_name2 = "'$table_name'"
             metadata = get_table_metadata(db, table_name2)
@@ -229,12 +232,39 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
         "iceberg_scan('$table_name', allow_moved_paths = true)"
     elseif delta
         "delta_scan('$table_name')"
-    elseif occursin(r"[:/]", table_name) && !(iceberg || delta)
+    elseif occursin(r"[:/]", table_name) && !(iceberg || delta) && !startswith(table_name, "read") 
         "'$table_name'"
+     elseif startswith(table_name, "read") 
+         "$table_name"  
     else
         table_name
     end
     
+    return SQLQuery(from=formatted_table_name, metadata=metadata, db=db, athena_params=athena_params)
+end
+
+function db_table(db, table::Vector{String}, athena_params::Any=nothing)
+    if isempty(table)
+        error("Empty vector of file paths provided")
+    end
+
+    # Get file type from the first file
+    file_type = lowercase(splitext(first(table))[2])
+
+    # Format paths: wrap each in single quotes and join with commas
+    formatted_paths = join(map(path -> "'$path'", table), ", ")
+
+    formatted_table_name = if file_type == ".csv"
+        "read_csv([$formatted_paths])"
+    elseif file_type == ".parquet"
+        "read_parquet([$formatted_paths])"
+    else
+        error("Unsupported file type: $file_type")
+    end
+    meta_vec = first(table)
+    # Get metadata from the first file
+    metadata = get_table_metadata(db, "'$meta_vec'")
+
     return SQLQuery(from=formatted_table_name, metadata=metadata, db=db, athena_params=athena_params)
 end
 

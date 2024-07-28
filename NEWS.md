@@ -1,6 +1,12 @@
 # TidierDB.jl updates
 
-## v0.3. - 2024-07-25
+## v0.3.1 - 2024-07-28
+- adds support for reading from multiple files at once as a vector of paths in `db_table` when using DuckDB
+    - ie `db_table(db, ["path1", "path2"])`
+- adds streaming support when using DuckDB with `@collect(stream = true)`
+- allows user to customize file reading via `db_table(db, "read_*(path, args)")` when using DuckDB"
+
+## v0.3.0 - 2024-07-25
 - Introduces package extensions for:
     - Postgres, ClickHouse, MySQL, MsSQL, SQLite, Oracle, Athena, and Google BigQuery
     - (Documentation)[https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/getting_started/] updated for using these backends.  

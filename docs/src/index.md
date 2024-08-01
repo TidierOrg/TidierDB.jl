@@ -64,16 +64,9 @@ From TidierDates.jl:
 Supported aggregate functions (as supported by the backend) with more to come
 - `mean`, `minimium`, `maximum`, `std`, `sum`, `cumsum`, `cor`, `cov`, `var`
 - `@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work 
-- `copy_to` (for DuckDB, MySQL, SQLite)
 
-With DuckDB, `db_table` supports direct paths for S3 bucket locations, iceberg tables, delta table, in addition to csv, parquet, etc.
+When using the DuckDB backend, if `db_table` recieves a file path ( `.parquet`, `.json`, `.csv`, `iceberg` or `delta`), it does not copy it into memory. This allows for queries on files too big for memory. `db_table` also supports S3 bucket locations via DuckDB.
 
-DuckDB specifically enables copy_to to directly reading in `.parquet`, `.json`, `.csv`, and `.arrow` file, including https file paths.
-
-```julia
-path = "file_path.parquet"
-copy_to(conn, file_path, "table_name")
-```
 
 ## What is the recommended way to use TidierDB?
 
@@ -89,7 +82,7 @@ Even though the code reads similarly to TidierData, note that no computational w
 using TidierData
 import TidierDB as DB
 
-db = DB.connect(duckdb());
+db = DB.connect(DB.duckdb());
 path_or_name = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
 
 @chain DB.db_table(db, path_or_name) begin

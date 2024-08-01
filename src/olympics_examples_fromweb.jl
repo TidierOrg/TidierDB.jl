@@ -2,7 +2,7 @@ using TidierData
 
 con = duckdb_connect("memory"); # opening DuckDB database connection.
 db = duckdb_open("con");
-copy_to(db, "https://raw.githubusercontent.com/rahkum96/Olympics-Dataset-by-sql/main/noc_regions.csv" "noc_regions")
+copy_to(db, "https://raw.githubusercontent.com/rahkum96/Olympics-Dataset-by-sql/main/noc_regions.csv", "noc_regions")
 copy_to(db, "https://raw.githubusercontent.com/rahkum96/Olympics-Dataset-by-sql/main/olympic_event.csv", "athlete_events")
 
 

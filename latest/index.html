@@ -750,13 +750,8 @@
 <ul>
 <li><code>mean</code>, <code>minimium</code>, <code>maximum</code>, <code>std</code>, <code>sum</code>, <code>cumsum</code>, <code>cor</code>, <code>cov</code>, <code>var</code></li>
 <li><code>@summarize</code> supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work</li>
-<li><code>copy_to</code> (for DuckDB, MySQL, SQLite)</li>
 </ul>
-<p>With DuckDB, <code>db_table</code> supports direct paths for S3 bucket locations, iceberg tables, delta table, in addition to csv, parquet, etc.</p>
-<p>DuckDB specifically enables copy_to to directly reading in <code>.parquet</code>, <code>.json</code>, <code>.csv</code>, and <code>.arrow</code> file, including https file paths.</p>
-<div class="highlight"><pre><span></span><code><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;file_path.parquet&quot;</span>
-<span class="n">copy_to</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">file_path</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;table_name&quot;</span><span class="p">)</span>
-</code></pre></div>
+<p>When using the DuckDB backend, if <code>db_table</code> recieves a file path ( <code>.parquet</code>, <code>.json</code>, <code>.csv</code>, <code>iceberg</code> or <code>delta</code>), it does not copy it into memory. This allows for queries on files too big for memory. <code>db_table</code> also supports S3 bucket locations via DuckDB.</p>
 <p><a id='What-is-the-recommended-way-to-use-TidierDB?'></a></p>
 <p><a id='What-is-the-recommended-way-to-use-TidierDB?-1'></a></p>
 <h2 id="what-is-the-recommended-way-to-use-tidierdb">What is the recommended way to use TidierDB?<a class="headerlink" href="#what-is-the-recommended-way-to-use-tidierdb" title="Permanent link">¤</a></h2>
@@ -767,7 +762,7 @@
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierData</span>
 <span class="k">import</span><span class="w"> </span><span class="n">TidierDB</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">DB</span>
 
-<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">());</span>
+<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">duckdb</span><span class="p">());</span>
 <span class="n">path_or_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span>
 
 <span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">path_or_name</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>

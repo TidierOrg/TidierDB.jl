@@ -2,7 +2,7 @@
 
 # ## Connecting 
 # Connection is established with the `connect` function as shown below. Connection requires 5 items as strings
-# - account instance : [how do to find your instance](https://docs.databricks.com/en/workspace/workspace-details.html)
+# - Account Instance : [how to find your instance](https://docs.databricks.com/en/workspace/workspace-details.html)
 # - OAuth token : [how to generate your token](https://docs.databricks.com/en/dev-tools/auth/pat.html)
 # - Database Name
 # - Schema Name

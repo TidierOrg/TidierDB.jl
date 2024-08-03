@@ -1,6 +1,6 @@
-# While using the DuckDB backend, TidierDB's lazy intferace allows you to query datasets larger than your available RAM. 
+# While using the DuckDB backend, TidierDB's lazy intferace enables querying datasets larger than your available RAM. 
 
-# To illustrate this, we will recreate the [Hugging Face x polars](https://huggingface.co/docs/dataset-viewer/en/polars) example. The final table results are shown below and in this [Hugging Face x DuckDB example](https://huggingface.co/docs/dataset-viewer/en/duckdb)
+# To illustrate this, we will recreate the [Hugging Face x Polars](https://huggingface.co/docs/dataset-viewer/en/polars) example. The final table results are shown below and in this [Hugging Face x DuckDB example](https://huggingface.co/docs/dataset-viewer/en/duckdb)
 
 # First we will load TidierDB, set up a local database and then set the URLs for the 2 training datasets from huggingface.co
 # ```julia
@@ -21,7 +21,7 @@
 #     @collect(stream = true)
 # end
 # ```
-# Placing `@aside @show_query _` before `@collect` above lets us see the query and collect it to a local DataFrame at the same time.
+# Placing `@aside @show_query _` before `@collect` above lets us see the SQL query and collect it to a local DataFrame at the same time.
 # ```
 # SELECT horoscope, COUNT(*) AS count, AVG(length(text)) AS avg_blog_length
 #         FROM read_parquet(['https://huggingface.co/datasets/blog_authorship_corpus/resolve/refs%2Fconvert%2Fparquet/blog_authorship_corpus/train/0000.parquet', 'https://huggingface.co/datasets/blog_authorship_corpus/resolve/refs%2Fconvert%2Fparquet/blog_authorship_corpus/train/0001.parquet'])

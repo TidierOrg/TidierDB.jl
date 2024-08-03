@@ -5,7 +5,7 @@
 # You can also use `DBInterface.execute` to set up any DuckDB database connection you need and then use that db to query with TidierDB
 
 # ```julia
-# Using TidierDB
+# using TidierDB
 # 
 # #Connect to Google Cloud via DuckDB
 # #google_db = connect(duckdb(), :gbq, access_key="string", secret_key="string")

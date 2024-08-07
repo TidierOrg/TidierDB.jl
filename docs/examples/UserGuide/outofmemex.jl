@@ -14,14 +14,14 @@
 # DuckDB.execute(db, "SET max_temp_directory_size = '100B';")
 # ```
 
-# Executing a query on a large table is slower, so we will copy the tables into this our database
+# Executing a query on a large table is slower, so we will copy the tables into this our database. 
 # ```julia
 # urls = ["https://huggingface.co/datasets/blog_authorship_corpus/resolve/refs%2Fconvert%2Fparquet/blog_authorship_corpus/train/0000.parquet",
 #  "https://huggingface.co/datasets/blog_authorship_corpus/resolve/refs%2Fconvert%2Fparquet/blog_authorship_corpus/train/0001.parquet"];
 # copy_to(db, urls, "astro");
 # ```
 
-# We will also set stream = true in `@collect`` to stream the result and now query and collect the table.
+# We will also set `stream = true` in `@collect` to stream the results. Now, query the table and collect.
 # ```julia
 # @chain db_table(db, "astro") begin
 #     @group_by(horoscope)

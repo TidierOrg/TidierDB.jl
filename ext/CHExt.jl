@@ -25,20 +25,46 @@ end
 
  # ClickHouse
  function TidierDB.get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
-    # Query to get column names and types from INFORMATION_SCHEMA
-    query = """
-    SELECT
-        name AS column_name,
-        type AS data_type
-    FROM system.columns
-    WHERE table = '$table_name' AND database = 'default'
-    """
-    result = ClickHouse.select_df(conn,query)
+    if occursin("/", table_name) || occursin("http", table_name)
 
-    result[!, :current_selxn] .= 1
-    result[!, :table_name] .= table_name
-    # Adjust the select statement to include the new table_name column
-    return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
+     
+            query = "DESCRIBE url($table_name)
+            SETTINGS enable_url_encoding=0, 
+             max_http_get_redirects=10
+            "
+           # println(query)
+            column_info = ClickHouse.select_df(conn, query)
+            column_info = select(column_info, :name, :type)
+    
+        # Prepare the column_info DataFrame
+        
+        # Add the table name and selection marker
+        column_info[!, :current_selxn] .= 1
+        table_name = if occursin(r"[:/]", table_name)
+            split(basename(table_name), '.')[1]
+           #"'$table_name'"
+       else
+           table_name
+       end
+        column_info[!, :table_name] .= table_name
+        
+    else
+        # Standard case: Querying from system.columns
+        query = """
+        SELECT
+            name AS column_name,
+            type AS data_type
+        FROM system.columns
+        WHERE table = '$table_name' AND database = 'default'
+        """
+        column_info = ClickHouse.select_df(conn, query)
+        
+        # Add the table name and selection marker
+        column_info[!, :current_selxn] .= 1
+        column_info[!, :table_name] .= table_name
+    end
+    # Return the result with relevant columns
+    return select(column_info, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
 

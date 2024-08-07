@@ -1,5 +1,9 @@
 # TidierDB.jl updates
 
+## v0.3.2 - 2024-08-15
+- adds read in support for URLs for ClickHouse
+- adds support for reading from multiple URLs at once as a vector of paths in `db_table` when using ClickHouse
+
 ## v0.3.1 - 2024-07-28
 - adds support for reading from multiple files at once as a vector of paths in `db_table` when using DuckDB
     - ie `db_table(db, ["path1", "path2"])`

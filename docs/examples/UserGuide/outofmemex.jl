@@ -2,28 +2,19 @@
 
 # To illustrate this, we will recreate the [Hugging Face x Polars](https://huggingface.co/docs/dataset-viewer/en/polars) example. The final table results are shown below and in this [Hugging Face x DuckDB example](https://huggingface.co/docs/dataset-viewer/en/duckdb)
 
-# First we will load TidierDB and set up a local database.
+# First we will load TidierDB, set up a local database and then set the URLs for the 2 training datasets from huggingface.co
 # ```julia
 # using TidierDB
 # db = connect(duckdb())
-# ```
-# To run queries on larger than RAM files, we will set up our `db` as DuckDB outlines [here](https://duckdb.org/2024/07/09/memory-management.html#:~:text=DuckDB%20deals%20with%20these%20scenarios,tries%20to%20minimize%20disk%20spilling.)
-# ```julia
-# DBinterface.execute(db, "SET memory_limit = '2GB';");
-# DuckDB.execute(db, "SET temp_directory = '/tmp/duckdb_swap';");
-# DuckDB.execute(db, "SET max_temp_directory_size = '100B';")
-# ```
 
-# Executing a query on a large table is slower, so we will copy the tables into this our database. 
-# ```julia
 # urls = ["https://huggingface.co/datasets/blog_authorship_corpus/resolve/refs%2Fconvert%2Fparquet/blog_authorship_corpus/train/0000.parquet",
 #  "https://huggingface.co/datasets/blog_authorship_corpus/resolve/refs%2Fconvert%2Fparquet/blog_authorship_corpus/train/0001.parquet"];
-# copy_to(db, urls, "astro");
 # ```
 
-# We will also set `stream = true` in `@collect` to stream the results. Now, query the table and collect.
+# Here, we pass the vector of URLs to `db_table`, which will not copy them into memory. Since these datasets are so large, we will also set `stream = true` in `@collect` to stream the results.
+# Of note, reading these files from URLs is not as rapid as reading them from local files. 
 # ```julia
-# @chain db_table(db, "astro") begin
+# @chain db_table(db, urls) begin
 #     @group_by(horoscope)
 #     @summarise(count = n(), avg_blog_length = mean(length(text)))
 #     @arrange(desc(count))
@@ -54,3 +45,6 @@
 #   11 │ Virgo         64629          996.684
 #   12 │ Aries         69134          918.081
 # ```
+
+# To learn more about memory efficient queries on larger than RAM files, this [blog from DuckDB](https://duckdb.org/2024/07/09/memory-management.html#:~:text=DuckDB%20deals%20with%20these%20scenarios,tries%20to%20minimize%20disk%20spilling.) 
+# will help maximize your local `db`

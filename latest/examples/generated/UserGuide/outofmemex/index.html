@@ -521,22 +521,15 @@
 
 <p>While using the DuckDB backend, TidierDB's lazy intferace enables querying datasets larger than your available RAM.</p>
 <p>To illustrate this, we will recreate the <a href="https://huggingface.co/docs/dataset-viewer/en/polars">Hugging Face x Polars</a> example. The final table results are shown below and in this <a href="https://huggingface.co/docs/dataset-viewer/en/duckdb">Hugging Face x DuckDB example</a></p>
-<p>First we will load TidierDB and set up a local database.</p>
+<p>First we will load TidierDB, set up a local database and then set the URLs for the 2 training datasets from huggingface.co</p>
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span>
 <span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">())</span>
-</code></pre></div>
-<p>To run queries on larger than RAM files, we will set up our <code>db</code> as DuckDB outlines <a href="https://duckdb.org/2024/07/09/memory-management.html#:~:text=DuckDB%20deals%20with%20these%20scenarios,tries%20to%20minimize%20disk%20spilling.">here</a></p>
-<div class="highlight"><pre><span></span><code><span class="n">DBinterface</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SET memory_limit = &#39;2GB&#39;;&quot;</span><span class="p">);</span>
-<span class="n">DuckDB</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SET temp_directory = &#39;/tmp/duckdb_swap&#39;;&quot;</span><span class="p">);</span>
-<span class="n">DuckDB</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SET max_temp_directory_size = &#39;100B&#39;;&quot;</span><span class="p">)</span>
-</code></pre></div>
-<p>Executing a query on a large table is slower, so we will copy the tables into this our database.</p>
-<div class="highlight"><pre><span></span><code><span class="n">urls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;https://huggingface.co/datasets/blog_authorship_corpus/resolve/refs</span><span class="si">%2F</span><span class="s">convert</span><span class="si">%2F</span><span class="s">parquet/blog_authorship_corpus/train/0000.parquet&quot;</span><span class="p">,</span>
+
+<span class="n">urls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;https://huggingface.co/datasets/blog_authorship_corpus/resolve/refs</span><span class="si">%2F</span><span class="s">convert</span><span class="si">%2F</span><span class="s">parquet/blog_authorship_corpus/train/0000.parquet&quot;</span><span class="p">,</span>
 <span class="w"> </span><span class="s">&quot;https://huggingface.co/datasets/blog_authorship_corpus/resolve/refs</span><span class="si">%2F</span><span class="s">convert</span><span class="si">%2F</span><span class="s">parquet/blog_authorship_corpus/train/0001.parquet&quot;</span><span class="p">];</span>
-<span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">urls</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;astro&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p>We will also set <code>stream = true</code> in <code>@collect</code> to stream the results. Now, query the table and collect.</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;astro&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<p>Here, we pass the vector of URLs to <code>db_table</code>, which will not copy them into memory. Since these datasets are so large, we will also set <code>stream = true</code> in <code>@collect</code> to stream the results. Of note, reading these files from URLs is not as rapid as reading them from local files.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">urls</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">horoscope</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@summarise</span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">(),</span><span class="w"> </span><span class="n">avg_blog_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">text</span><span class="p">)))</span>
 <span class="w">    </span><span class="nd">@arrange</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
@@ -566,6 +559,7 @@
   11 │ Virgo         64629          996.684
   12 │ Aries         69134          918.081
 </code></pre></div>
+<p>To learn more about memory efficient queries on larger than RAM files, this <a href="https://duckdb.org/2024/07/09/memory-management.html#:~:text=DuckDB%20deals%20with%20these%20scenarios,tries%20to%20minimize%20disk%20spilling.">blog from DuckDB</a> will help maximize your local <code>db</code></p>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 

@@ -27,9 +27,9 @@ mutable struct SQLQuery
     ctes::Vector{CTE}
     cte_count::Int
     athena_params::Any    
-
     limit::String
-
+    ch_settings::String
+    
     function SQLQuery(;select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
         window_order::String="", windowFrame::String="", is_aggregated::Bool=false, post_aggregation::Bool=false, metadata::DataFrame=DataFrame(), 
         distinct::Bool=false, db::Any=nothing, ctes::Vector{CTE}=Vector{CTE}(), cte_count::Int=0, athena_params::Any=nothing, limit::String="", 

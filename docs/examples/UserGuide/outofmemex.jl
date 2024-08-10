@@ -12,6 +12,8 @@
 # ```
 
 # Here, we pass the vector of URLs to `db_table`, which will not copy them into memory. Since these datasets are so large, we will also set `stream = true` in `@collect` to stream the results.
+# If we wanted to read all the files in the folder we could have replace the `0000` with `*` (wildcard)
+# `db_table(db, "Path/to/folder/*.parquet")`
 # Of note, reading these files from URLs is not as rapid as reading them from local files. 
 # ```julia
 # @chain db_table(db, urls) begin

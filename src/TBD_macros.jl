@@ -745,3 +745,18 @@ macro collect(sqlquery, stream = false)
         end
     end
 end
+
+
+"""
+$docstring_head
+"""
+macro head(sqlquery, value)
+    value = string(value)
+    return quote
+        sq = $(esc(sqlquery))
+        if $value != ""
+        sq.limit = $value
+        end
+        sq
+    end
+end

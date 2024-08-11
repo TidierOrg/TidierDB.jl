@@ -12,6 +12,9 @@
 # ```
 
 # Here, we pass the vector of URLs to `db_table`, which will not copy them into memory. Since these datasets are so large, we will also set `stream = true` in `@collect` to stream the results.
+# If we wanted to read all the files in the folder we could have replace the `0000` with `*` (wildcard)
+# `db_table(db, "Path/to/folder/*.parquet")`
+# Of note, reading these files from URLs is not as rapid as reading them from local files. 
 # ```julia
 # @chain db_table(db, urls) begin
 #     @group_by(horoscope)
@@ -44,3 +47,6 @@
 #   11 │ Virgo         64629          996.684
 #   12 │ Aries         69134          918.081
 # ```
+
+# To learn more about memory efficient queries on larger than RAM files, this [blog from DuckDB](https://duckdb.org/2024/07/09/memory-management.html#:~:text=DuckDB%20deals%20with%20these%20scenarios,tries%20to%20minimize%20disk%20spilling.) 
+# will help maximize your local `db`

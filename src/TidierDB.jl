@@ -17,7 +17,7 @@ using GZip
  export db_table, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
  @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
  @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, 
- @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,
+ @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,  @head, 
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery
 
  abstract type SQLBackend end
@@ -143,6 +143,8 @@ function finalize_query(sqlquery::SQLQuery)
     if !isempty(sqlquery.groupBy) push!(query_parts, "" * sqlquery.groupBy) end
     if !isempty(sqlquery.having) push!(query_parts, " " * sqlquery.having) end
     if !isempty(sqlquery.orderBy) push!(query_parts, " " * sqlquery.orderBy) end
+    if !isempty(sqlquery.limit) push!(query_parts, " LIMIT " * sqlquery.limit) end
+    
     complete_query = join(filter(!isempty, query_parts), " ")
 
     if !isempty(sqlquery.ch_settings) && current_sql_mode[] == clickhouse()

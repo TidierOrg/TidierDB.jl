@@ -1052,30 +1052,20 @@ const docstring_db_table =
 `db_table` starts the underlying SQL query struct, adding the metadata and table. If paths are passed directly to db_table instead of a 
 name it will not copy it to memory, but rather ready directly from the file.
 
-
 # Arguments
-
-`database`: The Database or connection object
-`table_name`: tablename as a string. Table name can be a name of a table on the database or paths to the following types
-      --CSV  
-      
-      --Parquet
-      
-      --Json
-      
-      --Iceberg
-      
-      --Delta
-      
-      --S3 tables from AWS or Google Cloud 
-      
-      --vector of CSV or Parquet paths to read multiple at once
-DuckDB and ClickHouse support vectors of paths and URLs. 
-DuckDB also supports use of `*` wildcards to read all files of a type in a location such as:
-`db_table(db, "Path/to/testing_files/*.parquet")`
-
-`delta`: must be true to read delta files
-`iceberg`: must be true to read iceberg finalize_ctes
+- `database`: The Database or connection object
+- `table_name`: tablename as a string (name, local path, or URL).
+      - CSV/TSV  
+      - Parquet
+      - Json 
+      - Iceberg
+      - Delta
+      - S3 tables from AWS or Google Cloud 
+     - DuckDB and ClickHouse support vectors of paths and URLs. 
+     - DuckDB and ClickHouse also support use of `*` wildcards to read all files of a type in a location such as:
+- `db_table(db, "Path/to/testing_files/*.parquet")`
+- `delta`: must be true to read delta files
+- `iceberg`: must be true to read iceberg finalize_ctes
 
 # Example
 ```julia
@@ -1138,3 +1128,37 @@ julia> @collect db_table(db, "df_mem")
   10 │ AJ       aa            5       1.0
 ```
 """ 
+
+const docstring_head =
+"""
+    @head(sql_query, value)
+
+Limit SQL table number of rows returned based on specified value. 
+`LIMIT` in SQL
+
+# Arguments
+- `sql_query`: The SQL query to operate on.
+- `value`: Number to limit how many rows are returned.
+
+# Examples
+```jldoctest
+julia> db = connect(duckdb());
+
+julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                        value = repeat(1:5, 2), 
+                        percent = 0.1:0.1:1.0);
+
+julia> copy_to(db, df, "df_mem");                     
+
+julia> @chain db_table(db, :df_mem) begin
+        @head(1) ## supports expressions ie `3-2` would return the same df below
+        @collect
+       end
+1×4 DataFrame
+ Row │ id       groups   value   percent  
+     │ String?  String?  Int64?  Float64? 
+─────┼────────────────────────────────────
+   1 │ AA       bb            1       0.1
+```
+"""

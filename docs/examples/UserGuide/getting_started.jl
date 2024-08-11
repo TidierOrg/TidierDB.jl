@@ -14,17 +14,17 @@
 # For example
 # Connecting to MySQL
 # ```julia
-# conn = connect(mysql(); host="localhost", user="root", password="password", db="mydb")
+# conn = DB.connect(DB.mysql(); host="localhost", user="root", password="password", db="mydb")
 # ```
 # versus connecting to DuckDB
 # ```julia
-# conn = connect(duckdb())
+# conn = DB.connect(DB.duckdb())
 # ```
 
 # ## Package Extensions 
 # The following backends utilize package extensions. To use one of backends listed below, you will need to write `using Library`
 
-# - ClickHouse: `using ClickHouse`
+# - ClickHouse: `import ClickHouse`
 # - MySQL and MariaDB: `using MySQL`
 # - MSSQL: `using ODBC` 
 # - Postgres: `using LibPQ`
@@ -33,3 +33,14 @@
 # - Oracle: `using ODBC` 
 # - Google BigQuery: `using GoogleCloud`
 
+# ## `db_table`
+# What does `db_table` do? 
+# `db_table` starts the underlying SQL query struct, in addition to pulling the table metadata and storing it there. Storing metadata is what enables a lazy interface that also supports tidy selection.  
+# `db_table` has two required arguments: `connection` and `table`
+# `table` can be a table name on a database or a path/url to file to read.  When passing `db_table` a path or url, the table is not copied into memory.
+# With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use `*` read in all files matching the pattern. 
+# For example, the below would read all files that end in `.csv` in the given folder.
+# ```julia
+# db_table(db, "folder/path/*.csv")
+# ``` 
+# `db_table` also supports iceberg, delta, and S3 file paths via DuckDB.

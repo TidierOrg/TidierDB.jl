@@ -60,3 +60,50 @@
 #    2 │ Toyota Corolla         4      33.9
 #    3 │ Hornet 4 Drive         6      21.4
 # ```
+
+# ## Preview an intermediate table
+# While querying a dataset, you may wish to see an intermediate table, or even save it. You can use `@aside` and `from_query(_)`, illustrated below, to do just that. 
+# While we opted to print the results in this simple example below, we could have saved them by using `name = DB.@chain...`
+
+# ```julia
+# import ClickHouse;
+# conn = conn = DB.connect(DB.clickhouse(); host="localhost", port=19000, database="default", user="default", password="")
+# path = "https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet"
+# DB.@chain DB.db_table(conn, path) begin
+#    DB.@count(cyl)
+#    @aside println(DB.@chain DB.from_query(_) DB.@head(5) DB.@collect)
+#    DB.@arrange(desc(count))
+#    DB.@collect
+# end
+# ```
+# ```
+# 5×2 DataFrame
+#  Row │ artists  count      
+#      │ String?  UInt64 
+# ─────┼─────────────────
+#    1 │ missing       1
+#    2 │ Wizo          3
+#    3 │ MAGIC!        3
+#    4 │ Macaco        1
+#    5 │ SOYOU         1
+# 31438×2 DataFrame
+#    Row │ artists          count      
+#        │ String?          UInt64 
+# ───────┼─────────────────────────
+#      1 │ The Beatles         279
+#      2 │ George Jones        271
+#      3 │ Stevie Wonder       236
+#      4 │ Linkin Park         224
+#      5 │ Ella Fitzgerald     222
+#      6 │ Prateek Kuhad       217
+#      7 │ Feid                202
+#    ⋮   │        ⋮           ⋮
+#  31432 │ Leonard               1
+#  31433 │ marcos g              1
+#  31434 │ BLVKSHP               1
+#  31435 │ Memtrix               1
+#  31436 │ SOYOU                 1
+#  31437 │ Macaco                1
+#  31438 │ missing               1
+#                31424 rows omitted
+# ```

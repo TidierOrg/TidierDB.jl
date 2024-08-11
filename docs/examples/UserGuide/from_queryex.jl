@@ -61,7 +61,7 @@
 #    3 │ Hornet 4 Drive         6      21.4
 # ```
 
-# ## Preview an intermediate table
+# ## Preview or save an intermediate table
 # While querying a dataset, you may wish to see an intermediate table, or even save it. You can use `@aside` and `from_query(_)`, illustrated below, to do just that. 
 # While we opted to print the results in this simple example below, we could have saved them by using `name = DB.@chain...`
 

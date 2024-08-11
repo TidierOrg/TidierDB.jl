@@ -9,6 +9,7 @@
 
 # Alternatively, `using Tidier` will import TidierDB in the above manner for you, where TidierDB functions and macros will be available as `DB.@mutate()` and so on, and the TidierData equivalent would be `@mutate()`.
 
+# ## Connecting
 # To connect to a database, you can uset the `connect` function  as shown below, or establish your own connection through the respecitve libraries.
 
 # For example
@@ -20,6 +21,8 @@
 # ```julia
 # conn = DB.connect(DB.duckdb())
 # ```
+
+# You can also use establish a connection through an alternate method that you preferred, and use that as your connection as well. 
 
 # ## Package Extensions 
 # The following backends utilize package extensions. To use one of backends listed below, you will need to write `using Library`

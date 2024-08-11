@@ -1053,26 +1053,19 @@ const docstring_db_table =
 name it will not copy it to memory, but rather ready directly from the file.
 
 # Arguments
-`database`: The Database or connection object
-`table_name`: tablename as a string. Table name can be a name of a table on the database or paths to the following types
-      --CSV  
-      
-      --Parquet
-      
-      --Json
-      
-      --Iceberg
-      
-      --Delta
-      
-      --S3 tables from AWS or Google Cloud 
-      
-      --vector of CSV or Parquet paths to read multiple at once
-DuckDB and ClickHouse support vectors of paths and URLs. 
-DuckDB and ClickHouse also support use of `*` wildcards to read all files of a type in a location such as:
-`db_table(db, "Path/to/testing_files/*.parquet")`
-`delta`: must be true to read delta files
-`iceberg`: must be true to read iceberg finalize_ctes
+- `database`: The Database or connection object
+- `table_name`: tablename as a string (name, local path, or URL).
+      - CSV/TSV  
+      - Parquet
+      - Json 
+      - Iceberg
+      - Delta
+      - S3 tables from AWS or Google Cloud 
+     - DuckDB and ClickHouse support vectors of paths and URLs. 
+     - DuckDB and ClickHouse also support use of `*` wildcards to read all files of a type in a location such as:
+- `db_table(db, "Path/to/testing_files/*.parquet")`
+- `delta`: must be true to read delta files
+- `iceberg`: must be true to read iceberg finalize_ctes
 
 # Example
 ```julia

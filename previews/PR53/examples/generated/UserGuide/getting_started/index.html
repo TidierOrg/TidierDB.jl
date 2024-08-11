@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#package-extensions" class="md-skip">
+        <a href="#connecting" class="md-skip">
           Skip to content
         </a>
       
@@ -352,6 +352,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#connecting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Connecting
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#package-extensions" class="md-nav__link">
     <span class="md-ellipsis">
       Package Extensions
@@ -562,6 +571,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#connecting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Connecting
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#package-extensions" class="md-nav__link">
     <span class="md-ellipsis">
       Package Extensions
@@ -602,6 +620,9 @@
 <span class="k">import</span><span class="w"> </span><span class="n">TidierDB</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">DB</span>
 </code></pre></div>
 <p>Alternatively, <code>using Tidier</code> will import TidierDB in the above manner for you, where TidierDB functions and macros will be available as <code>DB.@mutate()</code> and so on, and the TidierData equivalent would be <code>@mutate()</code>.</p>
+<p><a id='Connecting'></a></p>
+<p><a id='Connecting-1'></a></p>
+<h2 id="connecting">Connecting<a class="headerlink" href="#connecting" title="Permanent link">¤</a></h2>
 <p>To connect to a database, you can uset the <code>connect</code> function  as shown below, or establish your own connection through the respecitve libraries.</p>
 <p>For example Connecting to MySQL</p>
 <div class="highlight"><pre><span></span><code><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">mysql</span><span class="p">();</span><span class="w"> </span><span class="n">host</span><span class="o">=</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="s">&quot;root&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="o">=</span><span class="s">&quot;password&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">db</span><span class="o">=</span><span class="s">&quot;mydb&quot;</span><span class="p">)</span>
@@ -609,6 +630,7 @@
 <p>versus connecting to DuckDB</p>
 <div class="highlight"><pre><span></span><code><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">duckdb</span><span class="p">())</span>
 </code></pre></div>
+<p>You can also use establish a connection through an alternate method that you preferred, and use that as your connection as well.</p>
 <p><a id='Package-Extensions'></a></p>
 <p><a id='Package-Extensions-1'></a></p>
 <h2 id="package-extensions">Package Extensions<a class="headerlink" href="#package-extensions" title="Permanent link">¤</a></h2>

@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#preview-an-intermediate-table" class="md-skip">
+        <a href="#preview-or-save-an-intermediate-table" class="md-skip">
           Skip to content
         </a>
       
@@ -372,9 +372,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#preview-an-intermediate-table" class="md-nav__link">
+  <a href="#preview-or-save-an-intermediate-table" class="md-nav__link">
     <span class="md-ellipsis">
-      Preview an intermediate table
+      Preview or save an intermediate table
     </span>
   </a>
   
@@ -553,9 +553,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#preview-an-intermediate-table" class="md-nav__link">
+  <a href="#preview-or-save-an-intermediate-table" class="md-nav__link">
     <span class="md-ellipsis">
-      Preview an intermediate table
+      Preview or save an intermediate table
     </span>
   </a>
   
@@ -630,9 +630,9 @@
    2 │ Toyota Corolla         4      33.9
    3 │ Hornet 4 Drive         6      21.4
 </code></pre></div>
-<p><a id='Preview-an-intermediate-table'></a></p>
-<p><a id='Preview-an-intermediate-table-1'></a></p>
-<h2 id="preview-an-intermediate-table">Preview an intermediate table<a class="headerlink" href="#preview-an-intermediate-table" title="Permanent link">¤</a></h2>
+<p><a id='Preview-or-save-an-intermediate-table'></a></p>
+<p><a id='Preview-or-save-an-intermediate-table-1'></a></p>
+<h2 id="preview-or-save-an-intermediate-table">Preview or save an intermediate table<a class="headerlink" href="#preview-or-save-an-intermediate-table" title="Permanent link">¤</a></h2>
 <p>While querying a dataset, you may wish to see an intermediate table, or even save it. You can use <code>@aside</code> and <code>from_query(_)</code>, illustrated below, to do just that. While we opted to print the results in this simple example below, we could have saved them by using <code>name = DB.@chain...</code></p>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="n">ClickHouse</span><span class="p">;</span>
 <span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">clickhouse</span><span class="p">();</span><span class="w"> </span><span class="n">host</span><span class="o">=</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">port</span><span class="o">=</span><span class="mi">19000</span><span class="p">,</span><span class="w"> </span><span class="n">database</span><span class="o">=</span><span class="s">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="s">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">)</span>

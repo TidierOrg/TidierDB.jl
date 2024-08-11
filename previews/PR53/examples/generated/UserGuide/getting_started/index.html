@@ -360,6 +360,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#db_table" class="md-nav__link">
+    <span class="md-ellipsis">
+      db_table
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -561,6 +570,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#db_table" class="md-nav__link">
+    <span class="md-ellipsis">
+      db_table
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -586,17 +604,17 @@
 <p>Alternatively, <code>using Tidier</code> will import TidierDB in the above manner for you, where TidierDB functions and macros will be available as <code>DB.@mutate()</code> and so on, and the TidierData equivalent would be <code>@mutate()</code>.</p>
 <p>To connect to a database, you can uset the <code>connect</code> function  as shown below, or establish your own connection through the respecitve libraries.</p>
 <p>For example Connecting to MySQL</p>
-<div class="highlight"><pre><span></span><code><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">mysql</span><span class="p">();</span><span class="w"> </span><span class="n">host</span><span class="o">=</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="s">&quot;root&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="o">=</span><span class="s">&quot;password&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">db</span><span class="o">=</span><span class="s">&quot;mydb&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">mysql</span><span class="p">();</span><span class="w"> </span><span class="n">host</span><span class="o">=</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="s">&quot;root&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="o">=</span><span class="s">&quot;password&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">db</span><span class="o">=</span><span class="s">&quot;mydb&quot;</span><span class="p">)</span>
 </code></pre></div>
 <p>versus connecting to DuckDB</p>
-<div class="highlight"><pre><span></span><code><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">())</span>
+<div class="highlight"><pre><span></span><code><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">duckdb</span><span class="p">())</span>
 </code></pre></div>
 <p><a id='Package-Extensions'></a></p>
 <p><a id='Package-Extensions-1'></a></p>
 <h2 id="package-extensions">Package Extensions<a class="headerlink" href="#package-extensions" title="Permanent link">¤</a></h2>
 <p>The following backends utilize package extensions. To use one of backends listed below, you will need to write <code>using Library</code></p>
 <ul>
-<li>ClickHouse: <code>using ClickHouse</code></li>
+<li>ClickHouse: <code>import ClickHouse</code></li>
 <li>MySQL and MariaDB: <code>using MySQL</code></li>
 <li>MSSQL: <code>using ODBC</code></li>
 <li>Postgres: <code>using LibPQ</code></li>
@@ -605,6 +623,13 @@
 <li>Oracle: <code>using ODBC</code></li>
 <li>Google BigQuery: <code>using GoogleCloud</code></li>
 </ul>
+<p><a id='db_table'></a></p>
+<p><a id='db_table-1'></a></p>
+<h2 id="db_table"><code>db_table</code><a class="headerlink" href="#db_table" title="Permanent link">¤</a></h2>
+<p>What does <code>db_table</code> do? <code>db_table</code> starts the underlying SQL query struct, in addition to pulling the table metadata and storing it there. Storing metadata is what enables a lazy interface that also supports tidy selection. <code>db_table</code> has two required arguments: <code>connection</code> and <code>table</code> <code>table</code> can be a table name on a database or a path/url to file to read.  When passing <code>db_table</code> a path or url, the table is not copied into memory. With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use <code>*</code> read in all files matching the pattern. For example, the below would read all files that end in <code>.csv</code> in the given folder.</p>
+<div class="highlight"><pre><span></span><code><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;folder/path/*.csv&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><code>db_table</code> also supports iceberg, delta, and S3 file paths via DuckDB.</p>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 

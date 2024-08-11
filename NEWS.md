@@ -1,10 +1,15 @@
 # TidierDB.jl updates
 
-## v0.3.2 - 2024-07-28
+
+## v0.3.2 - 2024-08-**
 - adds `@head` for limiting number of collected rows
 - adds support for reading URLS in `db_table` with ClickHouse 
 - adds support for reading from multiple files at once as a vector of urls in `db_table` when using ClickHouse
     - ie `db_table(db, ["url1", "url2"])`
+- adds docs around using `*` for reading in multiple files from folder
+- adds docs for `db_table`
+- adds docs for previewing or saving intermediate tables in ongoing `@chain`
+- Bugfix: `@count` updates metadata
 
 ## v0.3.1 - 2024-07-28
 - adds support for reading from multiple files at once as a vector of paths in `db_table` when using DuckDB

@@ -455,15 +455,26 @@ macro count(sqlquery, group_by_columns...)
     group_clause = join(group_by_cols_str, ", ")
 
     return quote
+
         sq = $(esc(sqlquery))
         if isa(sq, SQLQuery)
             # Interpolate `group_clause` directly into the quoted code to avoid scope issues
             if !isempty($group_clause)
+                for col in $group_by_cols_str
+                    $(esc(sqlquery)).metadata.current_selxn .= 0
+                    matching_indices = findall($(esc(sqlquery)).metadata.name .== col)
+                    $(esc(sqlquery)).metadata.current_selxn[matching_indices] .= 1
+                 end
                 sq.select = "SELECT " * $group_clause * ", COUNT(*) AS count"
                 sq.groupBy = "GROUP BY " * $group_clause
+                push!(sq.metadata, Dict("name" => "count", "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => sq.from))
+
             else
                 # If no grouping columns are specified, just count all records
+                $(esc(sqlquery)).metadata.current_selxn .= 0
                 sq.select = "SELECT COUNT(*) AS count"
+                push!(sq.metadata, Dict("name" => "count", "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => sq.from))
+
             end
             
             # Adjustments for previously set GROUP BY or ORDER BY clauses might be needed here

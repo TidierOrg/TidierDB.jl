@@ -14,7 +14,6 @@ using GZip
 @reexport using Chain
 @reexport using DuckDB
 
-
  export db_table, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
  @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
  @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, 
@@ -145,8 +144,12 @@ function finalize_query(sqlquery::SQLQuery)
     if !isempty(sqlquery.having) push!(query_parts, " " * sqlquery.having) end
     if !isempty(sqlquery.orderBy) push!(query_parts, " " * sqlquery.orderBy) end
     if !isempty(sqlquery.limit) push!(query_parts, " LIMIT " * sqlquery.limit) end
-
+    
     complete_query = join(filter(!isempty, query_parts), " ")
+
+    if !isempty(sqlquery.ch_settings) && current_sql_mode[] == clickhouse()
+        complete_query = complete_query * " \n " * string(sqlquery.ch_settings)
+    end
     complete_query = replace(complete_query, "&&" => " AND ", "||" => " OR ",
      "FROM )" => ")" ,  "SELECT SELECT " => "SELECT ", "SELECT  SELECT " => "SELECT ", "DISTINCT SELECT " => "DISTINCT ", 
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", )
@@ -224,11 +227,14 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
     else
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
-
+    clickhouse_settings =""
     formatted_table_name = if current_sql_mode[] == snowflake()
         "$(db.database).$(db.schema).$table_name"
     elseif db isa DatabricksConnection || current_sql_mode[] == databricks()
         "$(db.database).$(db.schema).$table_name"
+    elseif current_sql_mode[] == clickhouse() && occursin(r"[:/]", table_name)
+       clickhouse_settings = " SETTINGS enable_url_encoding=0, max_http_get_redirects=10 "
+        "url('$table_name')"
     elseif iceberg
         "iceberg_scan('$table_name', allow_moved_paths = true)"
     elseif delta
@@ -241,7 +247,7 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
         table_name
     end
     
-    return SQLQuery(from=formatted_table_name, metadata=metadata, db=db, athena_params=athena_params)
+    return SQLQuery(from=formatted_table_name, metadata=metadata, db=db, athena_params=athena_params, ch_settings=clickhouse_settings)
 end
 
 function db_table(db, table::Vector{String}, athena_params::Any=nothing)
@@ -250,23 +256,49 @@ function db_table(db, table::Vector{String}, athena_params::Any=nothing)
     end
 
     # Get file type from the first file
-    file_type = lowercase(splitext(first(table))[2])
 
-    # Format paths: wrap each in single quotes and join with commas
-    formatted_paths = join(map(path -> "'$path'", table), ", ")
+    # Check the current SQL mode
+    if current_sql_mode[] == duckdb()
+        file_type = lowercase(splitext(first(table))[2])
 
-    formatted_table_name = if file_type == ".csv"
-        "read_csv([$formatted_paths])"
-    elseif file_type == ".parquet"
-        "read_parquet([$formatted_paths])"
+        # Format paths: wrap each in single quotes and join with commas
+        formatted_paths = join(map(path -> "'$path'", table), ", ")
+
+        formatted_table_name = if file_type == ".csv"
+            "read_csv([$formatted_paths])"
+        elseif file_type == ".parquet"
+            "read_parquet([$formatted_paths])"
+        else
+            error("Unsupported file type: $file_type")
+        end
+
+        # Get metadata from the first file
+        meta_vec = first(table)
+        metadata = get_table_metadata(db, "'$meta_vec'")
+
+        return SQLQuery(from=formatted_table_name, metadata=metadata, db=db, athena_params=athena_params)
+
+    elseif current_sql_mode[] == clickhouse()
+
+        # Construct the ClickHouse SQL query with UNION ALL for each file
+        union_queries = join(map(path -> """
+            SELECT *
+            FROM url('$path')
+        """, table), " UNION ALL ")
+
+        # Wrap the union_queries in a subquery for further processing
+        formatted_table_name = "($union_queries)"
+        if occursin(r"[:/]", first(table))
+            clickhouse_settings = " SETTINGS enable_url_encoding=0, max_http_get_redirects=10 "
+        end
+        meta_vec = first(table)
+        metadata = get_table_metadata(db, "'$meta_vec'")
+
+        return SQLQuery(from=formatted_table_name, metadata=metadata, db=db, athena_params=athena_params, ch_settings = clickhouse_settings)
+
     else
-        error("Unsupported file type: $file_type")
+        error("Unsupported SQL mode: $(current_sql_mode[])")
     end
-    meta_vec = first(table)
-    # Get metadata from the first file
-    metadata = get_table_metadata(db, "'$meta_vec'")
-
-    return SQLQuery(from=formatted_table_name, metadata=metadata, db=db, athena_params=athena_params)
 end
 
 """

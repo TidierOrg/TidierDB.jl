@@ -38,12 +38,25 @@
 
 # ## `db_table`
 # What does `db_table` do? 
+
 # `db_table` starts the underlying SQL query struct, in addition to pulling the table metadata and storing it there. Storing metadata is what enables a lazy interface that also supports tidy selection.  
-# `db_table` has two required arguments: `connection` and `table`
-# `table` can be a table name on a database or a path/url to file to read.  When passing `db_table` a path or url, the table is not copied into memory.
-# With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use `*` read in all files matching the pattern. 
-# For example, the below would read all files that end in `.csv` in the given folder.
+# - `db_table` has two required arguments: `connection` and `table`
+# - `table` can be a table name on a database or a path/url to file to read.  When passing `db_table` a path or url, the table is not copied into memory.
+# - With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use `*` read in all files matching the pattern. 
+# - For example, the below would read all files that end in `.csv` in the given folder.
 # ```julia
 # db_table(db, "folder/path/*.csv")
 # ``` 
 # `db_table` also supports iceberg, delta, and S3 file paths via DuckDB.
+
+# ## Minimizing Compute Costs
+# If you are working with a backend where compute cost is important, it will be important to minimize using `db_table` as this will requery for metadata each time. 
+# Compute costs are relevant to backends such as AWS, databricks and Snowflake. 
+
+# To do this, save the results of `db_table` and use them with `from_query`. Using `from_query` pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time
+# ```julia
+# table = DB.db_table(con, "path")
+# @chain DB.from_query(table) begin
+#     ## data wrangling here 
+# end 
+# ```

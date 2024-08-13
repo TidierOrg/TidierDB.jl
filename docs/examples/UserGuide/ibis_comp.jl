@@ -248,7 +248,7 @@
 # TidierDB does not require names to be prefixed and, like TidierData, tidy column selection with `starts_with`, `ends_with`, and `contains` is supported at base. TidierDB also supports providing column names as strings, although this would only be needed in the setting of renaming a column with a space in it.
 
 # TidierDB
-# ```
+# ```julia
 # @chain t(mtcars) @select(starts_with("m"), "drat", wt) @collect
 # ```
 # ```
@@ -297,7 +297,7 @@
 # In TidierDB, `@filter` will automatically determine whether the criteria belong in a `WHERE` or `HAVING` SQL clause.  
 
 # TidierDB
-# ```
+# ```julia
 # @chain t(mtcars) begin
 #     @group_by(cyl)
 #     @summarize(total_hp = sum(hp),

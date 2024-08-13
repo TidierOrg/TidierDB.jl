@@ -276,7 +276,7 @@
 # Aggregating data is done with `aggregate` in Ibis and `@summarize` in TidierDB. To group data, Ibis uses `by = ` within the `aggregate` call vs TidierDB adheres to `@group_by` convention
 
 # Ibis
-# ```
+# ```python
 # mtcars.aggregate(
 #     total_hp=_.hp.sum(),
 #     avg_hp=_.hp.mean(),

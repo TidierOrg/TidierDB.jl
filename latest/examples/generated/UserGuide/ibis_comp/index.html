@@ -1001,12 +1001,12 @@
 <h2 id="multi-step-queries-and-summarizing">Multi step queries and summarizing<a class="headerlink" href="#multi-step-queries-and-summarizing" title="Permanent link">¤</a></h2>
 <p>Aggregating data is done with <code>aggregate</code> in Ibis and <code>@summarize</code> in TidierDB. To group data, Ibis uses <code>by =</code> within the <code>aggregate</code> call vs TidierDB adheres to <code>@group_by</code> convention</p>
 <p>Ibis</p>
-<div class="highlight"><pre><span></span><code>mtcars.aggregate(
-    total_hp=_.hp.sum(),
-    avg_hp=_.hp.mean(),
-    having=_.hp.sum() &lt; 1000,
-    by=[&#39;cyl&#39;]
-)
+<div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
+    <span class="n">total_hp</span><span class="o">=</span><span class="n">_</span><span class="o">.</span><span class="n">hp</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+    <span class="n">avg_hp</span><span class="o">=</span><span class="n">_</span><span class="o">.</span><span class="n">hp</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+    <span class="n">having</span><span class="o">=</span><span class="n">_</span><span class="o">.</span><span class="n">hp</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cyl&#39;</span><span class="p">]</span>
+<span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>┏━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┓
 ┃ cyl   ┃ total_hp ┃ avg_hp     ┃

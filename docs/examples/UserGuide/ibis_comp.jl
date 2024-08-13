@@ -31,6 +31,7 @@
 # ```
 # ## Previewing the data
 # TidierDB and Ibis use `head`/`@head` to preview the first rows of a dataset.
+# Ibis
 # ```python
 # mtcars.head(6)
 # ```
@@ -48,7 +49,7 @@
 # │ Valiant           │    18.1 │     6 │   225.0 │   105 │    2.76 │   3.460 │   20.22 │     1 │     0 │     3 │     1 │
 # └───────────────────┴─────────┴───────┴─────────┴───────┴─────────┴─────────┴─────────┴───────┴───────┴───────┴───────┘
 # ```
-
+# TidierDB
 # ```julia
 # @chain t(mtcars) @head(6) @collect
 # ```
@@ -67,6 +68,7 @@
 
 # ## Filtering
 # The example below demonstrates how to filter using multiple criteria in both Ibis and TidierData
+# Ibis
 # ```python
 # mtcars.filter(((_.mpg > 22) & (_.drat > 4) | (_.hp == 113)))
 # ```
@@ -106,6 +108,7 @@
 
 # ## Creating new columns
 # Both TidierDB and Ibis use `mutate`/`@mutate` to add new columns
+# Ibis
 # ```python
 # (
 #    mtcars
@@ -132,7 +135,7 @@
 # │ …                 │       … │
 # └───────────────────┴─────────┘
 # ```
-# 
+# TidierDB
 # ```julia
 # @chain t(mtcars) begin 
 #        @mutate(kpg = mpg * 1.61)
@@ -163,6 +166,7 @@
 
 # ## Sorting columns
 # Ibis uses `order_by` similar to SQLs `ORDER BY`
+# Ibis
 # ```python
 # mtcars.order_by(_.mpg)
 # ```
@@ -186,6 +190,7 @@
 # └─────────────────────┴─────────┴───────┴─────────┴───────┴─────────┴─────────┴─────────┴───────┴───────┴───────┴───────┘
 # ```
 # While TidierDB uses `@arrange` like TidierData.jl
+# TidierDB
 # ```
 # @chain t(mtcars) @arrange(mpg) @collect
 # ```
@@ -212,6 +217,7 @@
 
 # ## Selecting columns
 # In Ibis, columns must be prefixed with the table name, or in this case `_`, or they can be given as a string. Finally to using helper functions like `startswith` requires importing selectors as above.
+# Ibis
 # ```
 # mtcars.select(s.startswith("m"), "drat", _.wt)
 # ```
@@ -234,13 +240,12 @@
 # │ …                 │       … │       … │       … │
 # └───────────────────┴─────────┴─────────┴─────────┘
 # ```
-#
 # TidierDB does not require names to be prefixed and, like TidierData, tidy column selection with `starts_with`, `ends_with`, and `contains` is supported at base. TidierDB also supports providing column names as strings, although this would only be needed in the setting of renaming a column with a space in it.
+# TidierDB
 # ```
 # @chain t(mtcars) @select(starts_with("m"), "drat", wt) @collect
 # ```
 # ```
-# 32×2 DataFrame
 # 32×4 DataFrame
 #  Row │ model              mpg       drat      wt       
 #      │ String?            Float64?  Float64?  Float64? 
@@ -262,7 +267,8 @@
 # ```
 
 # ## Multi step queries and summarizing
-# Aggregating data is done with `aggregate` in ibis and `@summarize` in TidierDB. There is a slight difference in grouping data. Ibis uses `by = ` within the `aggregate` call vs TidierDB adheres to `@group_by` convention
+# Aggregating data is done with `aggregate` in Ibis and `@summarize` in TidierDB. To group data, Ibis uses `by = ` within the `aggregate` call vs TidierDB adheres to `@group_by` convention
+# Ibis
 # ```
 # mtcars.aggregate(
 #     total_hp=_.hp.sum(),
@@ -281,7 +287,8 @@
 # │     4 │      909 │  82.636364 │
 # └───────┴──────────┴────────────┘
 # ```
-# In TidierDB, `@filter` will automatically determine whether the criteria belong in a WHERE or HAVING in SQL clause.  
+# In TidierDB, `@filter` will automatically determine whether the criteria belong in a `WHERE` or `HAVING` SQL clause.  
+# TidierDB
 # ```
 # @chain t(mtcars) begin
 #     @group_by(cyl)
@@ -302,6 +309,7 @@
 
 # ## Renaming columns
 # Both tools use `rename`/@rename to rename columns
+# Ibis
 # ```python
 # mtcars.rename(make_model = "model").select(_.make_model)
 # ```
@@ -324,7 +332,7 @@
 # │ …                 │
 # └───────────────────┘
 # ```
-
+# TidierDB
 # ```julia
 # @chain t(mtcars) @rename(model_make = model) @select(model_make) @collect
 # ```

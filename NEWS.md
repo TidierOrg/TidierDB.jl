@@ -10,6 +10,8 @@
 - adds docs for `db_table`
 - adds docs for previewing or saving intermediate tables in ongoing `@chain`
 - Bugfix: `@count` updates metadata
+- Bugfix: `update_con` can be part of chain (useful for expiring Snowflake tokens) 
+- adds docs comparing TidierDB to Ibis 
 
 ## v0.3.1 - 2024-07-28
 - adds support for reading from multiple files at once as a vector of paths in `db_table` when using DuckDB

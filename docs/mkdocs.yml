@@ -125,4 +125,5 @@ nav:
   - "Using Databricks" : "examples/generated/UserGuide/databricks.md"
   - "Writing Functions/Macros with TidierDB Chains" : "examples/generated/UserGuide/functions_pass_to_DB.md"
   - "Working With Larger than RAM Datasets" : "examples/generated/UserGuide/outofmemex.md"
+  - "TidierDB.jl vs Ibis" : "examples/generated/UserGuide/ibis_comp.md"
   - "Reference" : "reference.md"

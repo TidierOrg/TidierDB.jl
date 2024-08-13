@@ -778,7 +778,7 @@
 <p><a id='Previewing-the-data'></a></p>
 <p><a id='Previewing-the-data-1'></a></p>
 <h2 id="previewing-the-data">Previewing the data<a class="headerlink" href="#previewing-the-data" title="Permanent link">¤</a></h2>
-<p>TidierDB and Ibis use <code>head</code>/<code>@head</code> to preview the first rows of a dataset.</p>
+<p>TidierDB and Ibis use <code>head</code>/<code>@head</code> to preview the first rows of a dataset. Ibis</p>
 <div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┓
@@ -794,6 +794,7 @@
 │ Valiant           │    18.1 │     6 │   225.0 │   105 │    2.76 │   3.460 │   20.22 │     1 │     0 │     3 │     1 │
 └───────────────────┴─────────┴───────┴─────────┴───────┴─────────┴─────────┴─────────┴───────┴───────┴───────┴───────┘
 </code></pre></div>
+<p>TidierDB</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="nd">@head</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="nd">@collect</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>6×12 DataFrame
@@ -810,7 +811,7 @@
 <p><a id='Filtering'></a></p>
 <p><a id='Filtering-1'></a></p>
 <h2 id="filtering">Filtering<a class="headerlink" href="#filtering" title="Permanent link">¤</a></h2>
-<p>The example below demonstrates how to filter using multiple criteria in both Ibis and TidierData</p>
+<p>The example below demonstrates how to filter using multiple criteria in both Ibis and TidierData Ibis</p>
 <div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="o">.</span><span class="n">filter</span><span class="p">(((</span><span class="n">_</span><span class="o">.</span><span class="n">mpg</span> <span class="o">&gt;</span> <span class="mi">22</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">_</span><span class="o">.</span><span class="n">drat</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">_</span><span class="o">.</span><span class="n">hp</span> <span class="o">==</span> <span class="mi">113</span><span class="p">)))</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>┏━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┓
@@ -846,7 +847,7 @@
 <p><a id='Creating-new-columns'></a></p>
 <p><a id='Creating-new-columns-1'></a></p>
 <h2 id="creating-new-columns">Creating new columns<a class="headerlink" href="#creating-new-columns" title="Permanent link">¤</a></h2>
-<p>Both TidierDB and Ibis use <code>mutate</code>/<code>@mutate</code> to add new columns</p>
+<p>Both TidierDB and Ibis use <code>mutate</code>/<code>@mutate</code> to add new columns Ibis</p>
 <div class="highlight"><pre><span></span><code><span class="p">(</span>
    <span class="n">mtcars</span>
         <span class="o">.</span><span class="n">mutate</span><span class="p">(</span><span class="n">kpg</span> <span class="o">=</span> <span class="n">_</span><span class="o">.</span><span class="n">mpg</span> <span class="o">*</span> <span class="mf">1.61</span><span class="p">)</span>
@@ -871,6 +872,7 @@
 │ …                 │       … │
 └───────────────────┴─────────┘
 </code></pre></div>
+<p>TidierDB</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">       </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">kpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpg</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1.61</span><span class="p">)</span>
 <span class="w">       </span><span class="nd">@select</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">kpg</span><span class="p">)</span>
@@ -899,7 +901,7 @@
 <p><a id='Sorting-columns'></a></p>
 <p><a id='Sorting-columns-1'></a></p>
 <h2 id="sorting-columns">Sorting columns<a class="headerlink" href="#sorting-columns" title="Permanent link">¤</a></h2>
-<p>Ibis uses <code>order_by</code> similar to SQLs <code>ORDER BY</code></p>
+<p>Ibis uses <code>order_by</code> similar to SQLs <code>ORDER BY</code> Ibis</p>
 <div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">_</span><span class="o">.</span><span class="n">mpg</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┓
@@ -920,7 +922,7 @@
 │ …                   │       … │     … │       … │     … │       … │       … │       … │     … │     … │     … │     … │
 └─────────────────────┴─────────┴───────┴─────────┴───────┴─────────┴─────────┴─────────┴───────┴───────┴───────┴───────┘
 </code></pre></div>
-<p>While TidierDB uses <code>@arrange</code> like TidierData.jl</p>
+<p>While TidierDB uses <code>@arrange</code> like TidierData.jl TidierDB</p>
 <div class="highlight"><pre><span></span><code>@chain t(mtcars) @arrange(mpg) @collect
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>32×12 DataFrame
@@ -945,7 +947,7 @@
 <p><a id='Selecting-columns'></a></p>
 <p><a id='Selecting-columns-1'></a></p>
 <h2 id="selecting-columns">Selecting columns<a class="headerlink" href="#selecting-columns" title="Permanent link">¤</a></h2>
-<p>In Ibis, columns must be prefixed with the table name, or in this case <code>_</code>, or they can be given as a string. Finally to using helper functions like <code>startswith</code> requires importing selectors as above.</p>
+<p>In Ibis, columns must be prefixed with the table name, or in this case <code>_</code>, or they can be given as a string. Finally to using helper functions like <code>startswith</code> requires importing selectors as above. Ibis</p>
 <div class="highlight"><pre><span></span><code>mtcars.select(s.startswith(&quot;m&quot;), &quot;drat&quot;, _.wt)
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┓
@@ -966,11 +968,10 @@
 │ …                 │       … │       … │       … │
 └───────────────────┴─────────┴─────────┴─────────┘
 </code></pre></div>
-<p>TidierDB does not require names to be prefixed and, like TidierData, tidy column selection with <code>starts_with</code>, <code>ends_with</code>, and <code>contains</code> is supported at base. TidierDB also supports providing column names as strings, although this would only be needed in the setting of renaming a column with a space in it.</p>
+<p>TidierDB does not require names to be prefixed and, like TidierData, tidy column selection with <code>starts_with</code>, <code>ends_with</code>, and <code>contains</code> is supported at base. TidierDB also supports providing column names as strings, although this would only be needed in the setting of renaming a column with a space in it. TidierDB</p>
 <div class="highlight"><pre><span></span><code>@chain t(mtcars) @select(starts_with(&quot;m&quot;), &quot;drat&quot;, wt) @collect
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>32×2 DataFrame
-32×4 DataFrame
+<div class="highlight"><pre><span></span><code>32×4 DataFrame
  Row │ model              mpg       drat      wt
      │ String?            Float64?  Float64?  Float64?
 ─────┼─────────────────────────────────────────────────
@@ -992,7 +993,7 @@
 <p><a id='Multi-step-queries-and-summarizing'></a></p>
 <p><a id='Multi-step-queries-and-summarizing-1'></a></p>
 <h2 id="multi-step-queries-and-summarizing">Multi step queries and summarizing<a class="headerlink" href="#multi-step-queries-and-summarizing" title="Permanent link">¤</a></h2>
-<p>Aggregating data is done with <code>aggregate</code> in ibis and <code>@summarize</code> in TidierDB. There is a slight difference in grouping data. Ibis uses <code>by =</code> within the <code>aggregate</code> call vs TidierDB adheres to <code>@group_by</code> convention</p>
+<p>Aggregating data is done with <code>aggregate</code> in Ibis and <code>@summarize</code> in TidierDB. To group data, Ibis uses <code>by =</code> within the <code>aggregate</code> call vs TidierDB adheres to <code>@group_by</code> convention Ibis</p>
 <div class="highlight"><pre><span></span><code>mtcars.aggregate(
     total_hp=_.hp.sum(),
     avg_hp=_.hp.mean(),
@@ -1009,7 +1010,7 @@
 │     4 │      909 │  82.636364 │
 └───────┴──────────┴────────────┘
 </code></pre></div>
-<p>In TidierDB, <code>@filter</code> will automatically determine whether the criteria belong in a WHERE or HAVING in SQL clause.</p>
+<p>In TidierDB, <code>@filter</code> will automatically determine whether the criteria belong in a <code>WHERE</code> or <code>HAVING</code> SQL clause. TidierDB</p>
 <div class="highlight"><pre><span></span><code>@chain t(mtcars) begin
     @group_by(cyl)
     @summarize(total_hp = sum(hp),
@@ -1028,7 +1029,7 @@ end
 <p><a id='Renaming-columns'></a></p>
 <p><a id='Renaming-columns-1'></a></p>
 <h2 id="renaming-columns">Renaming columns<a class="headerlink" href="#renaming-columns" title="Permanent link">¤</a></h2>
-<p>Both tools use <code>rename</code>/@rename to rename columns</p>
+<p>Both tools use <code>rename</code>/@rename to rename columns Ibis</p>
 <div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">make_model</span> <span class="o">=</span> <span class="s2">&quot;model&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">_</span><span class="o">.</span><span class="n">make_model</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>┏━━━━━━━━━━━━━━━━━━━┓
@@ -1049,6 +1050,7 @@ end
 │ …                 │
 └───────────────────┘
 </code></pre></div>
+<p>TidierDB</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="nd">@rename</span><span class="p">(</span><span class="n">model_make</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="p">)</span><span class="w"> </span><span class="nd">@select</span><span class="p">(</span><span class="n">model_make</span><span class="p">)</span><span class="w"> </span><span class="nd">@collect</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>32×1 DataFrame

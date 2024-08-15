@@ -10,6 +10,8 @@
 # import ibis.selectors as s # allows for different styles of column selection
 # from ibis import _ # eliminates need to type table name before each column vs typing cols as strings
 # ibis.options.interactive = True # automatically collects first 10 rows of table
+# 
+# con = ibis.connect("duckdb://")
 # ```
 # TidierDB
 # ```julia
@@ -23,7 +25,7 @@
 # ## Loading Data
 # With Ibis, there are specific functions to read in different file types
 # ```python
-# mtcars = ibis.read_csv("https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv")
+# mtcars = con.read_csv("https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv")
 # ```
 # In TidierDB, there is only `db_table`, which determines the file type and generates the syntax appropriate for the backend in use.
 # ```julia

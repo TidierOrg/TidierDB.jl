@@ -32,4 +32,8 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:postgres})
     return DataFrame(result)
 end
 
+function TidierDB.show_tables(con::LibPQ.Connection)
+    return DataFrame(DBInterface.execute(con, "SHOW TABLES"))
+end
+
 end

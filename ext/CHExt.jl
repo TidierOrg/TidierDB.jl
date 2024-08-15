@@ -77,4 +77,8 @@ function TidierDB.final_collect(sqlquery, ::Type{<:clickhouse})
     return df_result
 end
 
+function TidierDB.show_tables(con::ClickHouse.ClickHouseSock)
+    return ClickHouse.select_df(con, "SHOW TABLES")
+end
+
 end

@@ -771,3 +771,19 @@ macro head(sqlquery, value)
         sq
     end
 end
+
+macro head(sqlquery)
+    return quote
+        sq = $(esc(sqlquery))
+        sq.limit = "6"
+         sq
+    end
+    sq
+end
+
+"""
+$docstring_show_tables
+"""
+function show_tables(con::DuckDB.DB)
+    return DataFrame(DBInterface.execute(con, "SHOW TABLES"))
+end

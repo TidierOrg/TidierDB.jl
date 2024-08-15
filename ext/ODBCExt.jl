@@ -45,4 +45,8 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:oracle})
     return DataFrame(result)
 end
 
+function TidierDB.show_tables(con::ODBC.Connection)
+    return DataFrame(DBInterface.execute(con, "SHOW TABLES"))
+end
+
 end

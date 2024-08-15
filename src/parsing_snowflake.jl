@@ -281,7 +281,17 @@ function can_convert_numeric(x)
     end
 end
 
-function update_con(sqlquery, new_token::String)
+function update_con(sqlquery::SQLQuery, new_token::String)
     sqlquery.db.auth_token = new_token
     return sqlquery
+end
+
+function update_con(con::SnowflakeConnection, new_token::String)
+    con.auth_token = new_token
+end
+
+
+function show_tables(con::SnowflakeConnection)
+    result = execute_snowflake(con, "SHOW TABLES in SCHEMA $(con.schema)")
+    return DataFrame(result)
 end

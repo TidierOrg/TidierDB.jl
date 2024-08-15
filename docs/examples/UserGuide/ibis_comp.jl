@@ -223,7 +223,7 @@
 # In Ibis, columns must be prefixed with the table name, or in this case `_`, or they can be given as a string. Finally to using helper functions like `startswith` requires importing selectors as above.
 
 # Ibis
-# ```
+# ```python
 # mtcars.select(s.startswith("m"), "drat", _.wt)
 # ```
 # ```
@@ -273,16 +273,13 @@
 # ```
 
 # ## Multi step queries and summarizing
-# Aggregating data is done with `aggregate` in Ibis and `@summarize` in TidierDB. To group data, Ibis uses `by = ` within the `aggregate` call vs TidierDB adheres to `@group_by` convention
-
+# Aggregating data is done with `aggregate` in Ibis and `@summarize` in TidierDB. To group data, both utilze `group_by`/`@group_by`
 # Ibis
 # ```python
-# mtcars.aggregate(
+# mtcars.group_by(._cyl).aggregate(
 #     total_hp=_.hp.sum(),
-#     avg_hp=_.hp.mean(),
-#     having=_.hp.sum() < 1000,
-#     by=['cyl']
-# )
+#     avg_hp=_.hp.mean()
+# ).filter(_.total_hp < 1000)
 # ```
 # ```
 # ┏━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┓

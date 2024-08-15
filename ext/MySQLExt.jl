@@ -44,7 +44,8 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:mysql})
     return DataFrame(result)
 end
 
-
-
+function TidierDB.show_tables(conn::MySQL.Connection)
+    return DataFrame(DBInterface.execute(conn, "SHOW TABLES"))
+end
 
 end

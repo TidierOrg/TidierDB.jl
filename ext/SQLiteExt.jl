@@ -35,5 +35,12 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:sqlite})
     return DataFrame(result)
 end
 
+function TidierDB.show_tables(con::SQLite.DB)
+    return DataFrame(DBInterface.execute(con, "SELECT name 
+                                                FROM sqlite_master 
+                                                WHERE type = 'table' 
+                                                ORDER BY name;
+                                                "))
+end
 
 end

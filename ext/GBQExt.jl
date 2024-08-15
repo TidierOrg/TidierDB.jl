@@ -111,4 +111,12 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:gbq})
     return collect_gbq(sqlquery.db, final_query)
 end
 
+function TidierDB.show_tables(con::GoogleSession{JSONCredentials}, project_id, datasetname)
+    query = """
+    SELECT table_name
+    FROM `$project_id.$datasetname.INFORMATION_SCHEMA.TABLES`
+    """
+    return collect_gbq(con, query)
+end
+
 end

@@ -761,7 +761,7 @@ end
 """
 $docstring_head
 """
-macro head(sqlquery, value)
+macro head(sqlquery, value = 6)
     value = string(value)
     return quote
         sq = $(esc(sqlquery))
@@ -770,15 +770,6 @@ macro head(sqlquery, value)
         end
         sq
     end
-end
-
-macro head(sqlquery)
-    return quote
-        sq = $(esc(sqlquery))
-        sq.limit = "6"
-         sq
-    end
-    sq
 end
 
 """

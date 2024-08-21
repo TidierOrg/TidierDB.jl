@@ -6,12 +6,16 @@ using LibPQ
 __init__() = println("Extension was loaded!")
 
 function TidierDB.connect(::postgres; kwargs...)
+        set_sql_mode(postgres())
         conn_str = join(["$(k)=$(v)" for (k, v) in kwargs], " ")
         return LibPQ.Connection(conn_str)
 end
 
 
 function TidierDB.get_table_metadata(conn::LibPQ.Connection, table_name::String)
+    if occursin(".", table_name)
+        table_name = split(table_name, ".")[2]
+    end
     query = """
     SELECT column_name, data_type
     FROM information_schema.columns
@@ -28,12 +32,12 @@ end
 
 function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:postgres})
     final_query = TidierDB.finalize_query(sqlquery)
-    result = DBInterface.execute(sqlquery.db, final_query)
+    result = LibPQ.execute(sqlquery.db, final_query)
     return DataFrame(result)
 end
 
 function TidierDB.show_tables(con::LibPQ.Connection)
-    return DataFrame(DBInterface.execute(con, "SHOW TABLES"))
+    return DataFrame(LibPQ.execute(con, "SHOW TABLES"))
 end
 
 end

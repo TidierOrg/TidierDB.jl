@@ -8,6 +8,7 @@
     - ie `db_table(db, ["url1", "url2"])`
 - Bugfix: `@count` updates metadata
 - Bugfix: `update_con` can be part of chain (useful for expiring Snowflake tokens) 
+- Bugfix to allow CrateDB and RisingWave backends via LibPQ
 - adds `show_tables` for most backends to view exisiting tables
 - adds docs comparing TidierDB to Ibis 
 - adds docs around using `*` for reading in multiple files from folder

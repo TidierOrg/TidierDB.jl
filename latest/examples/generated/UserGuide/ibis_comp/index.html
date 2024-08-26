@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.33">
     
     
       
@@ -758,6 +758,8 @@
 <span class="kn">import</span> <span class="nn">ibis.selectors</span> <span class="k">as</span> <span class="nn">s</span> <span class="c1"># allows for different styles of column selection</span>
 <span class="kn">from</span> <span class="nn">ibis</span> <span class="kn">import</span> <span class="n">_</span> <span class="c1"># eliminates need to type table name before each column vs typing cols as strings</span>
 <span class="n">ibis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">interactive</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># automatically collects first 10 rows of table</span>
+
+<span class="n">con</span> <span class="o">=</span> <span class="n">ibis</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;duckdb://&quot;</span><span class="p">)</span>
 </code></pre></div>
 <p>TidierDB</p>
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span>
@@ -770,7 +772,7 @@
 <p><a id='Loading-Data-1'></a></p>
 <h2 id="loading-data">Loading Data<a class="headerlink" href="#loading-data" title="Permanent link">¤</a></h2>
 <p>With Ibis, there are specific functions to read in different file types</p>
-<div class="highlight"><pre><span></span><code><span class="n">mtcars</span> <span class="o">=</span> <span class="n">ibis</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">mtcars</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span><span class="p">)</span>
 </code></pre></div>
 <p>In TidierDB, there is only <code>db_table</code>, which determines the file type and generates the syntax appropriate for the backend in use.</p>
 <div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span><span class="p">);</span>
@@ -953,7 +955,7 @@
 <h2 id="selecting-columns">Selecting columns<a class="headerlink" href="#selecting-columns" title="Permanent link">¤</a></h2>
 <p>In Ibis, columns must be prefixed with the table name, or in this case <code>_</code>, or they can be given as a string. Finally to using helper functions like <code>startswith</code> requires importing selectors as above.</p>
 <p>Ibis</p>
-<div class="highlight"><pre><span></span><code>mtcars.select(s.startswith(&quot;m&quot;), &quot;drat&quot;, _.wt)
+<div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">),</span> <span class="s2">&quot;drat&quot;</span><span class="p">,</span> <span class="n">_</span><span class="o">.</span><span class="n">wt</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┓
 ┃ model             ┃ mpg     ┃ drat    ┃ wt      ┃
@@ -999,14 +1001,11 @@
 <p><a id='Multi-step-queries-and-summarizing'></a></p>
 <p><a id='Multi-step-queries-and-summarizing-1'></a></p>
 <h2 id="multi-step-queries-and-summarizing">Multi step queries and summarizing<a class="headerlink" href="#multi-step-queries-and-summarizing" title="Permanent link">¤</a></h2>
-<p>Aggregating data is done with <code>aggregate</code> in Ibis and <code>@summarize</code> in TidierDB. To group data, Ibis uses <code>by =</code> within the <code>aggregate</code> call vs TidierDB adheres to <code>@group_by</code> convention</p>
-<p>Ibis</p>
-<div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
+<p>Aggregating data is done with <code>aggregate</code> in Ibis and <code>@summarize</code> in TidierDB. To group data, both utilze <code>group_by</code>/<code>@group_by</code> Ibis</p>
+<div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="o">.</span><span class="n">_cyl</span><span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
     <span class="n">total_hp</span><span class="o">=</span><span class="n">_</span><span class="o">.</span><span class="n">hp</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
-    <span class="n">avg_hp</span><span class="o">=</span><span class="n">_</span><span class="o">.</span><span class="n">hp</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
-    <span class="n">having</span><span class="o">=</span><span class="n">_</span><span class="o">.</span><span class="n">hp</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">,</span>
-    <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cyl&#39;</span><span class="p">]</span>
-<span class="p">)</span>
+    <span class="n">avg_hp</span><span class="o">=</span><span class="n">_</span><span class="o">.</span><span class="n">hp</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">_</span><span class="o">.</span><span class="n">total_hp</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>┏━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┓
 ┃ cyl   ┃ total_hp ┃ avg_hp     ┃
@@ -1204,7 +1203,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.copy", "content.code.annotate", "navigation.top", "navigation.footer", "search.highlight", "search.share", "search.suggest", "toc.follow", "header.autohide"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.af256bd8.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

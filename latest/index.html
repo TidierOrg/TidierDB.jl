@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.33">
     
     
       
@@ -731,19 +731,54 @@
 <p><a id='Currently-supported-backends-include:'></a></p>
 <p><a id='Currently-supported-backends-include:-1'></a></p>
 <h2 id="currently-supported-backends-include">Currently supported backends include:<a class="headerlink" href="#currently-supported-backends-include" title="Permanent link">¤</a></h2>
-<ul>
-<li>DuckDB (the default) <code>duckdb()</code></li>
-<li>ClickHouse <code>clickhouse()</code></li>
-<li>SQLite <code>sqlite()</code></li>
-<li>MySQL and MariaDB <code>mysql()</code></li>
-<li>MSSQL <code>mssql()</code></li>
-<li>Postgres <code>postgres()</code></li>
-<li>Athena <code>athena()</code></li>
-<li>Snowflake <code>snowflake()</code></li>
-<li>Google Big Query <code>gbq()</code></li>
-<li>Oracle <code>oracle()</code></li>
-<li>Databricks <code>databricks()</code></li>
-</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;"></th>
+<th style="text-align: right;"></th>
+<th style="text-align: right;"></th>
+<th style="text-align: right;"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">DuckDB (default)</td>
+<td style="text-align: right;"><code>duckdb()</code></td>
+<td style="text-align: right;">ClickHouse</td>
+<td style="text-align: right;"><code>clickhouse()</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">SQLite</td>
+<td style="text-align: right;"><code>sqlite()</code></td>
+<td style="text-align: right;">Postgres</td>
+<td style="text-align: right;"><code>postgres()</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">MySQL</td>
+<td style="text-align: right;"><code>mysql()</code></td>
+<td style="text-align: right;">MariaDB</td>
+<td style="text-align: right;"><code>mysql()</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">MSSQL</td>
+<td style="text-align: right;"><code>mssql()</code></td>
+<td style="text-align: right;">Athena</td>
+<td style="text-align: right;"><code>athena()</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">Snowflake</td>
+<td style="text-align: right;"><code>snowflake()</code></td>
+<td style="text-align: right;">Databricks</td>
+<td style="text-align: right;"><code>databricks()</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">Google Big Query</td>
+<td style="text-align: right;"><code>gbq()</code></td>
+<td style="text-align: right;">Oracle</td>
+<td style="text-align: right;"><code>oracle()</code></td>
+</tr>
+</tbody>
+</table>
 <p>Change the backend using <code>set_sql_mode()</code> - for example  - <code>set_sql_mode(databricks())</code></p>
 <p><a id='Installation'></a></p>
 <p><a id='Installation-1'></a></p>
@@ -751,46 +786,50 @@
 <p>For the stable version:</p>
 <div class="highlight"><pre><span></span><code>] add TidierDB
 </code></pre></div>
-<p>TidierDB.jl currently supports the following top-level macros:</p>
-<ul>
-<li><code>@arrange</code></li>
-<li><code>@group_by</code></li>
-<li><code>@filter</code></li>
-<li><code>@select</code></li>
-<li><code>@mutate</code>, which supports <code>across()</code></li>
-<li><code>@summarize</code> and <code>@summarise</code>, which supports <code>across()</code></li>
-<li><code>@distinct</code></li>
-<li><code>@left_join</code>, <code>@right_join</code>, <code>@inner_join</code>, <code>@anti_join</code>, <code>@full_join</code>, and <code>@semi_join</code> (slight syntax differences from TidierData.jl)</li>
-<li><code>@count</code></li>
-<li><code>@slice_min</code>, <code>@slice_max</code>, <code>@slice_sample</code></li>
-<li><code>@window_order</code> and <code>window_frame</code></li>
-<li><code>@show_query</code></li>
-<li><code>@collect</code></li>
-</ul>
-<p>Supported helper functions for most backends include:</p>
-<ul>
-<li><code>across()</code></li>
-<li><code>desc()</code></li>
-<li><code>if_else()</code> and <code>case_when()</code></li>
-<li><code>n()</code></li>
-<li><code>starts_with()</code>, <code>ends_with()</code>, and <code>contains()</code></li>
-<li><code>as_float()</code>, <code>as_integer()</code>, and <code>as_string()</code></li>
-<li><code>is_missing()</code></li>
-<li><code>missing_if()</code> and <code>replace_missing()</code></li>
-</ul>
-<p>From TidierStrings.jl:</p>
-<ul>
-<li><code>str_detect</code>, <code>str_replace</code>, <code>str_replace_all</code>, <code>str_remove_all</code>, <code>str_remove</code></li>
-</ul>
-<p>From TidierDates.jl:</p>
-<ul>
-<li><code>year</code>, <code>month</code>, <code>day</code>, <code>hour</code>, <code>min</code>, <code>second</code>, <code>floor_date</code>, <code>difftime</code></li>
-</ul>
-<p>Supported aggregate functions (as supported by the backend) with more to come</p>
-<ul>
-<li><code>mean</code>, <code>minimium</code>, <code>maximum</code>, <code>std</code>, <code>sum</code>, <code>cumsum</code>, <code>cor</code>, <code>cov</code>, <code>var</code></li>
-<li><code>@summarize</code> supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work</li>
-</ul>
+<p>TidierDB.jl currently supports:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;"><strong>Category</strong></th>
+<th style="text-align: right;"><strong>Supported Macros and Functions</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><strong>Data Manipulation</strong></td>
+<td style="text-align: right;"><code>@arrange</code>, <code>@group_by</code>, <code>@filter</code>, <code>@select</code>, <code>@mutate</code> (supports <code>across</code>), <code>@summarize</code>/<code>@summarise</code> (supports <code>across</code>), <code>@distinct</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>Joining</strong></td>
+<td style="text-align: right;"><code>@left_join</code>, <code>@right_join</code>, <code>@inner_join</code>, <code>@anti_join</code>, <code>@full_join</code>, <code>@semi_join</code> (slight syntax differences from TidierData.jl)</td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>Slice and Order</strong></td>
+<td style="text-align: right;"><code>@slice_min</code>, <code>@slice_max</code>, <code>@slice_sample</code>, <code>@order</code>, <code>@window_order</code>, <code>@window_frame</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>Utility</strong></td>
+<td style="text-align: right;"><code>@show_query</code>, <code>@collect</code>, <code>@head</code>, <code>@count</code>, <code>show_tables</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>Helper Functions</strong></td>
+<td style="text-align: right;"><code>across</code>, <code>desc</code>, <code>if_else</code>, <code>case_when</code>, <code>n</code>, <code>starts_with</code>, <code>ends_with</code>, <code>contains</code>, <code>as_float</code>, <code>as_integer</code>, <code>as_string</code>, <code>is_missing</code>, <code>missing_if</code>, <code>replace_missing</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>TidierStrings.jl Functions</strong></td>
+<td style="text-align: right;"><code>str_detect</code>, <code>str_replace</code>, <code>str_replace_all</code>, <code>str_remove_all</code>, <code>str_remove</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>TidierDates.jl Functions</strong></td>
+<td style="text-align: right;"><code>year</code>, <code>month</code>, <code>day</code>, <code>hour</code>, <code>min</code>, <code>second</code>, <code>floor_date</code>, <code>difftime</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>Aggregate Functions</strong></td>
+<td style="text-align: right;"><code>mean</code>, <code>minimum</code>, <code>maximum</code>, <code>std</code>, <code>sum</code>, <code>cumsum</code>, <code>cor</code>, <code>cov</code>, <code>var</code>,</td>
+</tr>
+</tbody>
+</table>
+<p><code>@summarize</code> supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.                                                                                                    |</p>
 <p>When using the DuckDB backend, if <code>db_table</code> recieves a file path ( <code>.parquet</code>, <code>.json</code>, <code>.csv</code>, <code>iceberg</code> or <code>delta</code>), it does not copy it into memory. This allows for queries on files too big for memory. <code>db_table</code> also supports S3 bucket locations via DuckDB.</p>
 <p><a id='What-is-the-recommended-way-to-use-TidierDB?'></a></p>
 <p><a id='What-is-the-recommended-way-to-use-TidierDB?-1'></a></p>
@@ -1029,7 +1068,7 @@ SELECT *
     <script id="__config" type="application/json">{"base": ".", "features": ["content.code.copy", "content.code.annotate", "navigation.top", "navigation.footer", "search.highlight", "search.share", "search.suggest", "toc.follow", "header.autohide"], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      <script src="assets/javascripts/bundle.af256bd8.min.js"></script>
       
         <script src="javascripts/mathjax.js"></script>
       

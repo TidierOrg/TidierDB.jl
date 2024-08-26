@@ -14,6 +14,7 @@ end
 
 
 function TidierDB.get_table_metadata(db::SQLite.DB, table_name::String)
+    set_sql_mode(sqlite());
     query = "PRAGMA table_info($table_name);"
     result = SQLite.DBInterface.execute(db, query) |> DataFrame
     result[!, :current_selxn] .= 1

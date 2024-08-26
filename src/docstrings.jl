@@ -986,6 +986,8 @@ This function establishes a database connection based on the specified backend a
 # conn = connect(gbq(), "json_user_key_path", "project_id")
 # Connect to Snowflake
 # conn = connect(snowflake(), "ac_id", "token", "Database_name", "Schema_name", "warehouse_name")
+# Connect to Microsoft SQL Server
+# conn = connect(mssql(), "DRIVER={ODBC Driver 18 for SQL Server};SERVER=host,1433;UID=sa;PWD=YourPassword;Encrypt=no;TrustServerCertificate=yes")
 # Connect to DuckDB
 # connect to Google Cloud via DuckDB
 # google_db = connect(duckdb(), :gbq, access_key="string", secret_key="string")

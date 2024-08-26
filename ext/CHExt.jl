@@ -25,6 +25,7 @@ end
 
  # ClickHouse
  function TidierDB.get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
+    set_sql_mode(clickhouse());
     if occursin("/", table_name) || occursin("http", table_name)
 
      

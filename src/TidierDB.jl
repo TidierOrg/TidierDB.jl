@@ -169,6 +169,7 @@ end
 
 # DuckDB
 function get_table_metadata(conn::DuckDB.DB, table_name::String)
+    set_sql_mode(duckdb());
     query = 
         """
         DESCRIBE SELECT * FROM $(table_name) LIMIT 0

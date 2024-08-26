@@ -43,6 +43,7 @@ function TidierDB.connect(::gbq, json_key_path::String, project_id::String)
 end
 
 function collect_gbq(conn, query)
+    set_sql_mode(gbq());
     query_data = Dict(
     "query" => query,
     "useLegacySql" => false,

@@ -13,6 +13,7 @@ end
 
 
 function TidierDB.get_table_metadata(conn::LibPQ.Connection, table_name::String)
+    set_sql_mode(libpq());
     if occursin(".", table_name)
         table_name = split(table_name, ".")[2]
     end

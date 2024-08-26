@@ -14,17 +14,14 @@ The main goal of TidierDB.jl is to bring the syntax of Tidier.jl to multiple SQL
 
 ## Currently supported backends include:
 
-- DuckDB (the default) `duckdb()`
-- ClickHouse `clickhouse()`
-- SQLite `sqlite()`
-- MySQL and MariaDB `mysql()`
-- MSSQL `mssql()`
-- Postgres `postgres()`
-- Athena `athena()`
-- Snowflake `snowflake()`
-- Google Big Query `gbq()`
-- Oracle `oracle()`
-- Databricks `databricks()`
+|   |   |   |   | 
+|---------|----------|----------|----------|
+| DuckDB (default) | `duckdb()` |ClickHouse | `clickhouse()`
+| SQLite | `sqlite()` | Postgres | `postgres()` |
+| MySQL | `mysql()` | MariaDB | `mysql()` |
+| MSSQL | `mssql()` | Athena | `athena()` |
+| Snowflake | `snowflake()` | Databricks | `databricks()` |
+| Google Big Query | `gbq()` | Oracle | `oracle()` |
 
 Change the backend using `set_sql_mode()` - for example  - `set_sql_mode(databricks())`
 

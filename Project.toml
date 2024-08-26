@@ -31,6 +31,7 @@ GBQExt = "GoogleCloud"
 AWSExt = "AWS"
 MySQLExt = "MySQL"
 CHExt = "ClickHouse"
+ODBCExt = "ODBC"
 
 [compat]
 AWS = "1.9"

@@ -731,19 +731,54 @@
 <p><a id='Currently-supported-backends-include:'></a></p>
 <p><a id='Currently-supported-backends-include:-1'></a></p>
 <h2 id="currently-supported-backends-include">Currently supported backends include:<a class="headerlink" href="#currently-supported-backends-include" title="Permanent link">¤</a></h2>
-<ul>
-<li>DuckDB (the default) <code>duckdb()</code></li>
-<li>ClickHouse <code>clickhouse()</code></li>
-<li>SQLite <code>sqlite()</code></li>
-<li>MySQL and MariaDB <code>mysql()</code></li>
-<li>MSSQL <code>mssql()</code></li>
-<li>Postgres <code>postgres()</code></li>
-<li>Athena <code>athena()</code></li>
-<li>Snowflake <code>snowflake()</code></li>
-<li>Google Big Query <code>gbq()</code></li>
-<li>Oracle <code>oracle()</code></li>
-<li>Databricks <code>databricks()</code></li>
-</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;"></th>
+<th style="text-align: right;"></th>
+<th style="text-align: right;"></th>
+<th style="text-align: right;"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">DuckDB (default)</td>
+<td style="text-align: right;"><code>duckdb()</code></td>
+<td style="text-align: right;">ClickHouse</td>
+<td style="text-align: right;"><code>clickhouse()</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">SQLite</td>
+<td style="text-align: right;"><code>sqlite()</code></td>
+<td style="text-align: right;">Postgres</td>
+<td style="text-align: right;"><code>postgres()</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">MySQL</td>
+<td style="text-align: right;"><code>mysql()</code></td>
+<td style="text-align: right;">MariaDB</td>
+<td style="text-align: right;"><code>mysql()</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">MSSQL</td>
+<td style="text-align: right;"><code>mssql()</code></td>
+<td style="text-align: right;">Athena</td>
+<td style="text-align: right;"><code>athena()</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">Snowflake</td>
+<td style="text-align: right;"><code>snowflake()</code></td>
+<td style="text-align: right;">Databricks</td>
+<td style="text-align: right;"><code>databricks()</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">Google Big Query</td>
+<td style="text-align: right;"><code>gbq()</code></td>
+<td style="text-align: right;">Oracle</td>
+<td style="text-align: right;"><code>oracle()</code></td>
+</tr>
+</tbody>
+</table>
 <p>Change the backend using <code>set_sql_mode()</code> - for example  - <code>set_sql_mode(databricks())</code></p>
 <p><a id='Installation'></a></p>
 <p><a id='Installation-1'></a></p>

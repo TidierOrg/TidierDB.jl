@@ -43,6 +43,7 @@ function TidierDB.connect(::gbq, json_key_path::String, project_id::String)
 end
 
 function collect_gbq(conn, query)
+    set_sql_mode(gbq());
     query_data = Dict(
     "query" => query,
     "useLegacySql" => false,
@@ -109,6 +110,14 @@ end
 function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:gbq})
     final_query = TidierDB.finalize_query(sqlquery)
     return collect_gbq(sqlquery.db, final_query)
+end
+
+function TidierDB.show_tables(con::GoogleSession{JSONCredentials}, project_id, datasetname)
+    query = """
+    SELECT table_name
+    FROM `$project_id.$datasetname.INFORMATION_SCHEMA.TABLES`
+    """
+    return collect_gbq(con, query)
 end
 
 end

@@ -10,6 +10,8 @@
 # import ibis.selectors as s # allows for different styles of column selection
 # from ibis import _ # eliminates need to type table name before each column vs typing cols as strings
 # ibis.options.interactive = True # automatically collects first 10 rows of table
+# 
+# con = ibis.connect("duckdb://")
 # ```
 # TidierDB
 # ```julia
@@ -23,7 +25,7 @@
 # ## Loading Data
 # With Ibis, there are specific functions to read in different file types
 # ```python
-# mtcars = ibis.read_csv("https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv")
+# mtcars = con.read_csv("https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv")
 # ```
 # In TidierDB, there is only `db_table`, which determines the file type and generates the syntax appropriate for the backend in use.
 # ```julia
@@ -223,7 +225,7 @@
 # In Ibis, columns must be prefixed with the table name, or in this case `_`, or they can be given as a string. Finally to using helper functions like `startswith` requires importing selectors as above.
 
 # Ibis
-# ```
+# ```python
 # mtcars.select(s.startswith("m"), "drat", _.wt)
 # ```
 # ```
@@ -273,16 +275,13 @@
 # ```
 
 # ## Multi step queries and summarizing
-# Aggregating data is done with `aggregate` in Ibis and `@summarize` in TidierDB. To group data, Ibis uses `by = ` within the `aggregate` call vs TidierDB adheres to `@group_by` convention
-
+# Aggregating data is done with `aggregate` in Ibis and `@summarize` in TidierDB. To group data, both utilze `group_by`/`@group_by`
 # Ibis
 # ```python
-# mtcars.aggregate(
+# mtcars.group_by(._cyl).aggregate(
 #     total_hp=_.hp.sum(),
-#     avg_hp=_.hp.mean(),
-#     having=_.hp.sum() < 1000,
-#     by=['cyl']
-# )
+#     avg_hp=_.hp.mean()
+# ).filter(_.total_hp < 1000)
 # ```
 # ```
 # ┏━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┓

@@ -188,28 +188,54 @@ end
 
 function parse_char_matching(expr) 
     MacroTools.postwalk(expr) do x
-        if isa(x, Expr) && x.head == :call && (x.args[1] == :(==) || x.args[1] == :(!=))
-            column = x.args[2]
-            comparison = x.args[1]  # Either :(==) or :(!=)
-            pattern_func = x.args[3]
-
-            # Ensure we are dealing with a pattern matching function call
-            if isa(pattern_func, Expr) && pattern_func.head == :call
-                func_name = pattern_func.args[1]
-                pattern = pattern_func.args[2]
-
-                like_expr = if func_name == :starts_with 
-                    "$(column) LIKE '$(pattern)%'"
-                elseif func_name == :ends_with
-                    "$(column) LIKE '%$(pattern)'"
-                elseif func_name == :contains
-                    "$(column) LIKE '%$(pattern)%'"
-                else
-                    return x  # Unrecognized function, return unmodified
+        if isa(x, Expr) && x.head == :call
+            if x.args[1] == :! && length(x.args) == 2 && isa(x.args[2], Expr) && x.args[2].head == :call
+                # Handle negation case
+                inner_func = x.args[2].args[1]
+                if inner_func in (:starts_with, :ends_with, :contains)
+                    column = x.args[2].args[2]
+                    pattern = x.args[2].args[3]
+                    if current_sql_mode[] == clickhouse()
+                        like_expr = if inner_func == :starts_with 
+                            "NOT startsWith($(column), '$(pattern)')"
+                        elseif inner_func == :ends_with
+                            "NOT endsWith($(column), '$(pattern)')"
+                        elseif inner_func == :contains
+                            "NOT position($(column), '$(pattern)') > 0"
+                        end
+                    else
+                        like_expr = if inner_func == :starts_with 
+                            "$(column) NOT LIKE '$(pattern)%'"
+                        elseif inner_func == :ends_with
+                            "$(column) NOT LIKE '%$(pattern)'"
+                        elseif inner_func == :contains
+                            "$(column) NOT LIKE '%$(pattern)%'"
+                        end
+                    end
+                    return like_expr
                 end
-
-                # Construct the appropriate SQL expression based on the comparison operator
-                return comparison == :(==) ? like_expr : "NOT ($like_expr)"
+            elseif x.args[1] in (:starts_with, :ends_with, :contains)
+                # Handle positive case
+                column = x.args[2]
+                pattern = x.args[3]
+                if current_sql_mode[] == clickhouse()
+                    like_expr = if x.args[1] == :starts_with 
+                        "startsWith($(column), '$(pattern)')"
+                    elseif x.args[1] == :ends_with
+                        "endsWith($(column), '$(pattern)')"
+                    elseif x.args[1] == :contains
+                        "position($(column), '$(pattern)') > 0"
+                    end
+                else
+                    like_expr = if x.args[1] == :starts_with 
+                        "$(column) LIKE '$(pattern)%'"
+                    elseif x.args[1] == :ends_with
+                        "$(column) LIKE '%$(pattern)'"
+                    elseif x.args[1] == :contains
+                        "$(column) LIKE '%$(pattern)%'"
+                    end
+                end
+                return like_expr
             end
         end
         return x  # Return the expression unchanged if no specific handling applies

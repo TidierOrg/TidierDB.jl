@@ -1,7 +1,7 @@
 name = "TidierDB"
 uuid = "86993f9b-bbba-4084-97c5-ee15961ad48b"
 authors = ["Daniel Rizk <rizk.daniel.12@gmail.com> and contributors"]
-version = "0.3.1"
+version = "0.3.2"
 
 [deps]
 Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45"
@@ -12,7 +12,6 @@ GZip = "92fee26a-97fe-5a0c-ad85-20a5f3185b63"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
 MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
-ODBC = "be6f12e9-ca4f-5eb2-a339-a4f995cc0291"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [weakdeps]
@@ -22,6 +21,7 @@ GoogleCloud = "55e21f81-8b0a-565e-b5ad-6816892a5ee7"
 AWS = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"
 MySQL = "39abe10b-433b-5dbd-92d4-e302a9df00cd"
 ClickHouse = "82f2e89e-b495-11e9-1d9d-fb40d7cf2130"
+ODBC = "be6f12e9-ca4f-5eb2-a339-a4f995cc0291"
 
 
 [extensions]
@@ -31,6 +31,7 @@ GBQExt = "GoogleCloud"
 AWSExt = "AWS"
 MySQLExt = "MySQL"
 CHExt = "ClickHouse"
+ODBCExt = "ODBC"
 
 [compat]
 AWS = "1.9"

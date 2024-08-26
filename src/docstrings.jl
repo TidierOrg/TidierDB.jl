@@ -986,6 +986,8 @@ This function establishes a database connection based on the specified backend a
 # conn = connect(gbq(), "json_user_key_path", "project_id")
 # Connect to Snowflake
 # conn = connect(snowflake(), "ac_id", "token", "Database_name", "Schema_name", "warehouse_name")
+# Connect to Microsoft SQL Server
+# conn = connect(mssql(), "DRIVER={ODBC Driver 18 for SQL Server};SERVER=host,1433;UID=sa;PWD=YourPassword;Encrypt=no;TrustServerCertificate=yes")
 # Connect to DuckDB
 # connect to Google Cloud via DuckDB
 # google_db = connect(duckdb(), :gbq, access_key="string", secret_key="string")
@@ -1138,7 +1140,7 @@ Limit SQL table number of rows returned based on specified value.
 
 # Arguments
 - `sql_query`: The SQL query to operate on.
-- `value`: Number to limit how many rows are returned.
+- `value`: Number to limit how many rows are returned. If left empty, it will default to 6 rows
 
 # Examples
 ```jldoctest
@@ -1160,5 +1162,27 @@ julia> @chain db_table(db, :df_mem) begin
      │ String?  String?  Int64?  Float64? 
 ─────┼────────────────────────────────────
    1 │ AA       bb            1       0.1
+```
+"""
+
+const docstring_show_tables =
+"""
+    show_tables(con; GBQ_project_id, GBQ_datasetname)
+
+Shows tables available in database. currently supports DuckDB, databricks, Snowflake, GBQ, SQLite, LibPQ
+
+# Arguments
+- `con` : connection to backend
+- `GBQ_project_id` : string of project id
+- `GBQ_datasetname` : string of dataset name
+# Examples
+```jldoctest
+julia> db = connect(duckdb());
+
+julia> show_tables(db) # there are no tables in when first loading so df below is empty.
+0×1 DataFrame
+ Row │ name   
+     │ String 
+─────┴────────
 ```
 """

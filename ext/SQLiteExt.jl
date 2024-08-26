@@ -14,6 +14,7 @@ end
 
 
 function TidierDB.get_table_metadata(db::SQLite.DB, table_name::String)
+    set_sql_mode(sqlite());
     query = "PRAGMA table_info($table_name);"
     result = SQLite.DBInterface.execute(db, query) |> DataFrame
     result[!, :current_selxn] .= 1
@@ -35,5 +36,12 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:sqlite})
     return DataFrame(result)
 end
 
+function TidierDB.show_tables(con::SQLite.DB)
+    return DataFrame(DBInterface.execute(con, "SELECT name 
+                                                FROM sqlite_master 
+                                                WHERE type = 'table' 
+                                                ORDER BY name;
+                                                "))
+end
 
 end

@@ -61,3 +61,9 @@ function get_table_metadata(conn::DatabricksConnection, table_name::String)
     # Adjust the select statement to include the new table_name column
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
+
+
+function show_tables(con::DatabricksConnection)
+    result = execute_databricks(con, "SHOW TABLES IN $(con.schema)")
+    return DataFrame(result)
+end

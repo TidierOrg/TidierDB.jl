@@ -25,6 +25,7 @@ end
 
  # ClickHouse
  function TidierDB.get_table_metadata(conn::ClickHouse.ClickHouseSock, table_name::String)
+    set_sql_mode(clickhouse());
     if occursin("/", table_name) || occursin("http", table_name)
 
      
@@ -75,6 +76,10 @@ function TidierDB.final_collect(sqlquery, ::Type{<:clickhouse})
     selected_columns_order = sqlquery.metadata[sqlquery.metadata.current_selxn .== 1, :name]
     df_result = df_result[:, selected_columns_order]
     return df_result
+end
+
+function TidierDB.show_tables(con::ClickHouse.ClickHouseSock)
+    return ClickHouse.select_df(con, "SHOW TABLES")
 end
 
 end

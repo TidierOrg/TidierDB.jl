@@ -1,6 +1,6 @@
 ## snowflake connection and execution begins around 150
 function expr_to_sql_snowflake(expr, sq; from_summarize::Bool)
-    expr = parse_char_matching(expr)
+   # expr = parse_char_matching(expr)
     expr = exc_capture_bug(expr, names_to_modify)
     MacroTools.postwalk(expr) do x
         # Handle basic arithmetic and functions
@@ -281,7 +281,17 @@ function can_convert_numeric(x)
     end
 end
 
-function update_con(sqlquery, new_token::String)
+function update_con(sqlquery::SQLQuery, new_token::String)
     sqlquery.db.auth_token = new_token
     return sqlquery
+end
+
+function update_con(con::SnowflakeConnection, new_token::String)
+    con.auth_token = new_token
+end
+
+
+function show_tables(con::SnowflakeConnection)
+    result = execute_snowflake(con, "SHOW TABLES in SCHEMA $(con.schema)")
+    return DataFrame(result)
 end

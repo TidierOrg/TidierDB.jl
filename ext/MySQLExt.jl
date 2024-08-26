@@ -21,6 +21,7 @@ end
 # MySQL
 function TidierDB.get_table_metadata(conn::MySQL.Connection, table_name::String)
     # Query to get column names and types from INFORMATION_SCHEMA
+    set_sql_mode(mysql());
     query = """
     SELECT column_name, data_type
     FROM information_schema.columns
@@ -44,7 +45,8 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:mysql})
     return DataFrame(result)
 end
 
-
-
+function TidierDB.show_tables(conn::MySQL.Connection)
+    return DataFrame(DBInterface.execute(conn, "SHOW TABLES"))
+end
 
 end

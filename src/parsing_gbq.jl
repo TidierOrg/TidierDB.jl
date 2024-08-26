@@ -28,7 +28,7 @@ end
 
 
 function expr_to_sql_gbq(expr, sq; from_summarize::Bool)
-    expr = parse_char_matching(expr)
+   # expr = parse_char_matching(expr)
     expr = exc_capture_bug(expr, names_to_modify)
     MacroTools.postwalk(expr) do x
         # Handle basic arithmetic and functions

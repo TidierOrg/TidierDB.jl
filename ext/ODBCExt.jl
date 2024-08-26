@@ -8,7 +8,8 @@ __init__() = println("Extension was loaded!")
 
 # MSSQL
 function TidierDB.get_table_metadata(conn::ODBC.Connection, table_name::String)
-    if current_sql_mode[] == :oracle
+    if TidierDB.current_sql_mode[] == oracle()
+        set_sql_mode(oracle());
         table_name = uppercase(table_name)
         query = """
         SELECT column_name, data_type
@@ -17,6 +18,7 @@ function TidierDB.get_table_metadata(conn::ODBC.Connection, table_name::String)
         ORDER BY column_id
         """
     else
+        set_sql_mode(mssql());
         query = """
         SELECT column_name, data_type
         FROM information_schema.columns
@@ -43,6 +45,16 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:oracle})
     final_query = TidierDB.finalize_query(sqlquery)
     result = DBInterface.execute(sqlquery.db, final_query)
     return DataFrame(result)
+end
+
+function TidierDB.show_tables(con::ODBC.Connection)
+    return DataFrame(DBInterface.execute(con, "SELECT name 
+                                               FROM sys.tables;"))
+end
+
+function TidierDB.connect(::mssql, connection_string::String)
+    set_sql_mode(mssql())
+    return ODBC.Connection(connection_string)
 end
 
 end

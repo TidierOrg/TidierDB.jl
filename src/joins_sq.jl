@@ -28,7 +28,7 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column)
                 cte_name = "cte_" * string(sq.cte_count)
 
                 most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
-                
+
                 join_sql = " " * most_recent_source * ".*, " * string(gbq_join_parse($(esc(join_table)))) * ".* FROM " * gbq_join_parse(most_recent_source) *
                             " LEFT JOIN " * string($(esc(join_table))) * " ON " * string(gbq_join_parse($(esc(join_table))), ".", $lhs_col_str, " = ", gbq_join_parse(most_recent_source), ".", $rhs_col_str)
 

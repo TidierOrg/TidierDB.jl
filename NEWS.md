@@ -1,7 +1,7 @@
 # TidierDB.jl updates
 
 
-## v0.3.2 - 2024-08-**
+## v0.3.2 - 2024-08-26
 - adds `@head` for limiting number of collected rows
 - adds support for reading URLS in `db_table` with ClickHouse 
 - adds support for reading from multiple files at once as a vector of urls in `db_table` when using ClickHouse

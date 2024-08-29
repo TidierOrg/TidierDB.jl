@@ -126,13 +126,13 @@ function expr_to_sql_trino(expr, sq; from_summarize::Bool)
                 return parse_if_else(x)
             elseif x.args[1] == :as_float && length(x.args) == 2
                 column = x.args[2]
-                return "CAST(" * string(column) * " AS DECIMAL)"
+                return Expr(:call, Symbol("CAST"), column, Symbol("AS DECIMAL"))
             elseif x.args[1] == :as_integer && length(x.args) == 2
                 column = x.args[2]
-                return "CAST(" * string(column) * " AS INT)"
+                return Expr(:call, Symbol("CAST"), column, Symbol("AS INT"))
             elseif x.args[1] == :as_string && length(x.args) == 2
                 column = x.args[2]
-                return "CAST(" * string(column) * " AS STRING)"
+                return Expr(:call, Symbol("CAST"), column, Symbol("AS STRING"))
             elseif x.args[1] == :case_when
                 return parse_case_when(x)
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :!  && x.args[1] != :!= && length(x.args) == 2

@@ -1,5 +1,7 @@
 # TidierDB.jl updates
 
+## v0.3.3 - 2024-08-29
+- Bugfix: `@mutate` allows type conversion as part of larger mutate expressions
 
 ## v0.3.2 - 2024-08-26
 - adds `@head` for limiting number of collected rows

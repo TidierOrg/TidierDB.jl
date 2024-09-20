@@ -1,5 +1,11 @@
 # TidierDB.jl updates
 
+## v0.3.4 - 2024
+- docs around using UDFs flexibility of TidierDB parsing
+- adds `agg()` to allow any built in sql aggregate function to be used in `@mutate`
+- `t()` as alias for `from_query()` for convenience
+- Bugfix: fixes MsSQL joins 
+
 ## v0.3.3 - 2024-08-29
 - Bugfix: `@mutate` allows type conversion as part of larger mutate expressions
 

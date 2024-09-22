@@ -82,11 +82,15 @@ function expr_to_sql_oracle(expr, sq; from_summarize::Bool)
                 window_clause = construct_window_clause(sq)
                 return  "VAR_SAMP($(string(a))) $(window_clause)"
             end
-       elseif @capture(x, agg(str_))
+        elseif @capture(x, Expr(:call, :agg, args...))
             if from_summarize
-                return  error("agg is only needed with aggregate functions in @mutate")
+                return error("agg is only needed with aggregate functions in @mutate")
             else
                 window_clause = construct_window_clause(sq)
+                
+                # Create the SQL string representation of the aggregate function call
+                arg_str = join(map(string, args), ", ")  # Join arguments into a string
+                str = "agg($(arg_str))"                   # Construct the function call string
                 return "$(str) $(window_clause)"
             end
         elseif !isempty(sq.window_order) && isa(x, Expr) && x.head == :call

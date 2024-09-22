@@ -55,11 +55,15 @@ function expr_to_sql_lite(expr, sq; from_summarize::Bool)
                 window_clause = construct_window_clause(sq, from_cumsum = true)
                 return  "SUM($(string(a))) $(window_clause)"
             end
-        elseif @capture(x, agg(str_))
+         elseif isa(x, Expr) && x.head == :call && x.args[1] == :agg
+            args = x.args[2:end]       # Capture all arguments to agg
             if from_summarize
-                return  error("agg is only needed with aggregate functions in @mutate")
+                return error("agg is only needed with aggregate functions in @mutate")
             else
                 window_clause = construct_window_clause(sq)
+                # Create the SQL string representation of the agg function call
+                arg_str = join(map(string, args), ", ")
+                str = "$(arg_str)"
                 return "$(str) $(window_clause)"
             end
     # exc_capture_bug used above to allow proper _ function name capturing

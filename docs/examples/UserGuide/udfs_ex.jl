@@ -28,11 +28,11 @@
 # ```
 
 # ## aggregate functions in `@mutate`
-
+# To aggregate sql functions that are builtin to any database, but exist outside of the TidierDB parser, simply wrap the function call in `agg()`
 # ```
 # @chain t(mtcars) begin 
 #     @group_by(cyl)
-#     @mutate(kurt = agg("kurtosis(mpg)"))
+#     @mutate(kurt = agg(kurtosis(mpg)))
 #     @select cyl mpg kurt
 #     @collect 
 # end

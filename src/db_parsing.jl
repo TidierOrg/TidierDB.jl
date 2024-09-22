@@ -244,14 +244,13 @@ end
 
 function parse_across(expr, metadata)
     columns_expr, funcs_expr = expr.args[2], expr.args[3]
+    
+    # Existing column selection logic remains unchanged
     if isa(columns_expr, String)
-        # Split the string on commas and trim any whitespace around the names
-        columns_exprs = map(Symbol, split(strip(columns_expr), ", "))
+        columns_exprs = map(Symbol, split(strip(columns_expr), ","))
     elseif isa(columns_expr, Expr) && columns_expr.head == :tuple
-        # If columns_expr is a tuple expression, extract its arguments
         columns_exprs = columns_expr.args
     else
-        # Handle single columns or other expressions by wrapping in an array
         columns_exprs = [columns_expr]
     end
 
@@ -261,13 +260,12 @@ function parse_across(expr, metadata)
 
     for func in funcs
         for col_name in resolved_columns
-            func_name = isa(func, Symbol) ? func : func.args[1]
-            result_name = Symbol(string(func_name), "_", col_name)
-            
-            # Ensure column names are treated as symbols (identifiers)
             col_symbol = Meta.parse(col_name)  # Convert string back to symbol
-            
-            new_expr = :($result_name = $func_name($col_symbol))
+            func_filled = insert_col_into_func(func, col_symbol)
+            # Specify "agg" to be skipped in the result name
+            func_name_str = generate_func_name(func, ["agg"])
+            result_name = Symbol(func_name_str, "_", col_name)
+            new_expr = Expr(:(=), result_name, func_filled)
             push!(result_exprs, new_expr)
         end
     end
@@ -275,6 +273,48 @@ function parse_across(expr, metadata)
     combined_expr = Expr(:tuple, result_exprs...)
     return combined_expr
 end
+
+function insert_col_into_func(func_expr, col_symbol)
+    if isa(func_expr, Symbol)
+        # Simple function name; create a call with the column symbol
+        return Expr(:call, func_expr, col_symbol)
+    elseif isa(func_expr, Expr) && func_expr.head == :call
+        # Function call; recursively insert the column symbol into arguments
+        func_name = func_expr.args[1]
+        args = func_expr.args[2:end]
+        new_args = [insert_col_into_func(arg, col_symbol) for arg in args]
+        return Expr(:call, func_name, new_args...)
+    else
+        # Other expressions; return as-is
+        return func_expr
+    end
+end
+function generate_func_name(func_expr, skip_funcs=String[])
+    if isa(func_expr, Symbol)
+        return string(func_expr)
+    elseif isa(func_expr, Expr) && func_expr.head == :call
+        func_name_expr = func_expr.args[1]
+        if isa(func_name_expr, Symbol)
+            func_name = string(func_name_expr)
+        else
+            func_name = generate_func_name(func_name_expr, skip_funcs)
+        end
+        # Process nested function names
+        nested_names = [generate_func_name(arg, skip_funcs) for arg in func_expr.args[2:end]]
+        # Exclude function names in skip_funcs
+        if func_name in skip_funcs
+            # Skip adding this function name
+            return join(nested_names, "_")
+        else
+            # Remove empty strings from nested_names
+            nested_names = filter(n -> n != "", nested_names)
+            return join([func_name; nested_names], "_")
+        end
+    else
+        return ""
+    end
+end
+
 
 function parse_interpolation2(expr)
     MacroTools.postwalk(expr) do x

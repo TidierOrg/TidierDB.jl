@@ -60,7 +60,6 @@
 
 # ```
 
-
 # ##  DuckDB function chaining
 # In DuckDB, functions can be chained together with `.`. TidierDB lets you leverage this. 
 # ```
@@ -106,92 +105,40 @@
 #    1 │ Hornet Sportabout      18.7       8     360.0     175
 # ```
 
-# ## UDFs in `@mutate`
-# The UDF drops inplace with no further adjustments. Continue below to learn how to create a UDF in DuckDB.jl
+# ## UDF SQLite Example
 # ```
-# @chain t(mtcars) begin
-#        @mutate(test = diff_of_squares(cyl, hp))
-#        @select(test, cyl, hp)
-#        @collect
+# using SQLite
+# sql = connect(sqlite());
+# df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+#                         groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+#                         value = repeat(1:5, 2), 
+#                         percent = 0.1:0.1:1.0);
+# 
+# copy_to(db, sql, "df_mem");
+# SQLite.@register sql function diff_of_squares(x, y)
+#               x^2 - y^2
+#               end;
+# 
+# @chain db_table(sql, "df_mem") begin 
+#       @select(value, percent)
+#       @mutate(plus3 = diff_of_squares(value, percent))
+#       @collect
 # end
-# 32×3 DataFrame
-#  Row │ test     cyl    hp    
-#      │ Int64    Int64  Int64 
-# ─────┼───────────────────────
-#    1 │  -12064      6    110
-#    2 │  -12064      6    110
-#    3 │   -8633      4     93
-#    4 │  -12064      6    110
-#    5 │  -30561      8    175
-#    6 │  -10989      6    105
-#    7 │  -59961      8    245
-#   ⋮  │    ⋮       ⋮      ⋮
-#   27 │   -8265      4     91
-#   28 │  -12753      4    113
-#   29 │  -69632      8    264
-#   30 │  -30589      6    175
-#   31 │ -112161      8    335
-#   32 │  -11865      4    109
-#               19 rows omitted
+# 10×3 DataFrame
+#  Row │ value  percent  plus3   
+#      │ Int64  Float64  Float64 
+# ─────┼─────────────────────────
+#    1 │     1      0.1     0.99
+#    2 │     2      0.2     3.96
+#    3 │     3      0.3     8.91
+#    4 │     4      0.4    15.84
+#    5 │     5      0.5    24.75
+#    6 │     1      0.6     0.64
+#    7 │     2      0.7     3.51
+#    8 │     3      0.8     8.36
+#    9 │     4      0.9    15.19
+#   10 │     5      1.0    24.0
 # ```
 
-
-# ## How to create UDF in DuckDB.jl
-# Once a UDF is regestered in your DuckDB db, you can use it as you would any other SQL function, with no decorators. 
-# This next section will walk through defining a function, how to register it and finally, how to use it with TidierDB.
-# Of note, if other 
-
-# ## Defining a UDF 
-# First, lets define a function that calculates the difference of squares. 
-# Input and Output Types:
-# - `input::DuckDB.duckdb_data_chunk` is the incoming data chunk (a batch of rows) that DuckDB passes to the function.
-# - `output::DuckDB.duckdb_vector` is where the result of the function is written.
-# ```
-# function DiffOfSquares(info::DuckDB.duckdb_function_info, input::DuckDB.duckdb_data_chunk, output::DuckDB.duckdb_vector)
-#        # We first convert the raw input to a DataChunk object using `DuckDB.DataChunk(input, false)`
-#     input = DuckDB.DataChunk(input, false)
-#        # Determine how many rows (n) are in the chunk using `DuckDB.get_size(input)`.
-#     n = DuckDB.get_size(input)
-#        # We retrieve the first and second input columns with DuckDB.get_vector() 
-#        # And convert them into Julia arrays with DuckDB.get_array. 
-#     a_data = DuckDB.get_array(DuckDB.get_vector(input, 1), Int64, n)
-#     b_data = DuckDB.get_array(DuckDB.get_vector(input, 2), Int64, n)
-#        # create an output array output_data corresponding to the output column
-#     output_data = DuckDB.get_array(DuckDB.Vec(output), Int64, n)
-#        # loop through each row, perform the desired operation and store the result in output_data[row].
-#     for row in 1:n
-#         output_data[row] = a_data[row]^2 - b_data[row]^2
-#     end
-# end;
-# ```
-
-# ## Configure the UDF
-# Once the function is defined, the next step is to register it in  your DuckDB db. This involves creating a scalar function object, specifying the input/output types, linking the function, and registering it with the database.
-# ```
-# # Create scalar function object
-# f = DuckDB.duckdb_create_scalar_function()
-# DuckDB.duckdb_scalar_function_set_name(f, "diff_of_squares")
-# ```
-
-# Input parameters are defined with `duckdb_create_logical_type(type)` where type is, for example, `DUCKDB_TYPE_BIGINT` for integers or `DUCKDB_TYPE_VARCHAR` for strings.
-# ```
-# # Define input parameters as BIGINT
-# type = DuckDB.duckdb_create_logical_type(DuckDB.DUCKDB_TYPE_BIGINT)
-# DuckDB.duckdb_table_function_add_parameter(f, type)
-# DuckDB.duckdb_table_function_add_parameter(f, type)
-
-# # Define return type as BIGINT
-# DuckDB.duckdb_scalar_function_set_return_type(f, type)
-# DuckDB.duckdb_destroy_logical_type(type)
-# ```
-
-# ## Link and Register the Julia Function 
-# `@cfunction` is used to convert the Julia function into a callable C function, which DuckDB can invoke.
-# ```
-# CDiffOfSquares = @cfunction(DiffOfSquares, Cvoid, (DuckDB.duckdb_function_info, DuckDB.duckdb_data_chunk, DuckDB.duckdb_vector))
-
-# # Set the function handler and register
-# DuckDB.duckdb_scalar_function_set_function(f, CDiffOfSquares)
-# DuckDB.duckdb_register_scalar_function(con.handle, f)
-# ```
-
+# ## How to create UDF in DuckDB
+# Example coming soon..

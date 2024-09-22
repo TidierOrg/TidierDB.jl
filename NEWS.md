@@ -1,15 +1,17 @@
 # TidierDB.jl updates
 
 ## v0.3.4 - 2024
-- adds docs around using UDFs flexibility of TidierDB parsing
-- Adds `agg()` to use any aggregate built into a database to be used in `@mutate`. (`@summarize` continues to support all without `agg()`)
-- Adds `t(query)` as a more efficient way to reference tables.
+TidierDB works with any exisiting SQL function 
+- Docs on using any exisiting SQL function in TidierDB
+- Docs on user defined functions (UDFs) in TidierDB
+- Adds `agg()` to use any aggregate built into a database to be used in `@mutate`. (`@summarize` continues to all aggregate SQL functions without `agg()`)
+- Adds `t(query)` as a more efficient alternative to reference tables.
 ```
 table = db_table(db, "name")
-@chain t(table) ...
+@chain t(table) ... 
 ```
 - Bugfix: fixes MsSQL joins 
-- Fixes windowing 
+- Bugfix: window functions
 
 ## v0.3.3 - 2024-08-29
 - Bugfix: `@mutate` allows type conversion as part of larger mutate expressions

@@ -1186,3 +1186,92 @@ julia> show_tables(db) # there are no tables in when first loading so df below i
 ─────┴────────
 ```
 """
+
+
+const docstring_from_query =
+"""
+    from_query(query)
+
+This is an alias for `t()`. Refer to SQL query without changing the underlying struct. This is an alternate and convenient way to refer to an exisiting DB table
+
+# Arguments
+- `query`: The SQL query to reference
+
+# Examples
+```julia
+
+julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                        value = repeat(1:5, 2), 
+                        percent = 0.1:0.1:1.0);
+
+julia> db = connect(duckdb());
+
+julia> copy_to(db, df, "df_mem");
+
+julia> df_mem = db_table(db, "df_mem");
+
+julia> from_query(df_mem)
+SQLQuery("", "df_mem", "", "", "", "", "", "", false, false, 4×4 DataFrame
+ Row │ name     type     current_selxn  table_name 
+     │ String?  String?  Int64          String     
+─────┼─────────────────────────────────────────────
+   1 │ id       VARCHAR              1  df_mem
+   2 │ groups   VARCHAR              1  df_mem
+   3 │ value    BIGINT               1  df_mem
+   4 │ percent  DOUBLE               1  df_mem, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
+```
+"""
+
+
+const docstring_t =
+"""
+    t(query)
+
+Alias for from_query. Refer to SQL query without changing the underlying struct. This is an alternate and convenient way to refer to an exisiting DB table
+
+# Arguments
+- `query`: The SQL query to reference
+
+# Examples
+```julia
+
+julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                        value = repeat(1:5, 2), 
+                        percent = 0.1:0.1:1.0);
+
+julia> db = connect(duckdb());
+
+julia> copy_to(db, df, "df_mem");
+
+julia> df_mem = db_table(db, "df_mem");
+
+
+julia> @chain t(df_mem) @collect
+10×4 DataFrame
+ Row │ id       groups   value   percent  
+     │ String?  String?  Int64?  Float64? 
+─────┼────────────────────────────────────
+   1 │ AA       bb            1       0.1
+   2 │ AB       aa            2       0.2
+   3 │ AC       bb            3       0.3
+   4 │ AD       aa            4       0.4
+   5 │ AE       bb            5       0.5
+   6 │ AF       aa            1       0.6
+   7 │ AG       bb            2       0.7
+   8 │ AH       aa            3       0.8
+   9 │ AI       bb            4       0.9
+  10 │ AJ       aa            5       1.0
+
+julia> query_part =  @chain t(df_mem) @select groups:percent; 
+
+julia> @chain t(query_part) @filter(value == 4) @collect
+2×3 DataFrame
+ Row │ groups   value   percent  
+     │ String?  Int64?  Float64? 
+─────┼───────────────────────────
+   1 │ aa            4       0.4
+   2 │ bb            4       0.9
+```
+"""

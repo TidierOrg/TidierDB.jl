@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../key_differences/">
+        <link rel="prev" href="../ibis_comp/">
       
       
-        <link rel="next" href="../from_queryex/">
+        <link rel="next" href="../../../../reference/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Getting Started - TidierDB.jl</title>
+        <title>Flexible Syntax and UDFs - TidierDB.jl</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#connecting" class="md-skip">
+        <a href="#aggregate-function-in-summarize" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Getting Started
+              Flexible Syntax and UDFs
             
           </span>
         </div>
@@ -307,28 +307,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Getting Started
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -337,60 +319,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#connecting" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connecting
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#package-extensions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Package Extensions
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#db_table" class="md-nav__link">
-    <span class="md-ellipsis">
-      db_table
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#minimizing-compute-costs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Minimizing Compute Costs
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -559,10 +487,28 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../udfs_ex/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -571,6 +517,78 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#aggregate-function-in-summarize" class="md-nav__link">
+    <span class="md-ellipsis">
+      aggregate function in @summarize
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aggregate-functions-in-mutate" class="md-nav__link">
+    <span class="md-ellipsis">
+      aggregate functions in @mutate
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duckdb-function-chaining" class="md-nav__link">
+    <span class="md-ellipsis">
+      DuckDB function chaining
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rowid-and-pseudocolumns" class="md-nav__link">
+    <span class="md-ellipsis">
+      rowid and pseudocolumns
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#udf-sqlite-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      UDF SQLite Example
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-create-udf-in-duckdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to create UDF in DuckDB
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -620,36 +638,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#connecting" class="md-nav__link">
+  <a href="#aggregate-function-in-summarize" class="md-nav__link">
     <span class="md-ellipsis">
-      Connecting
+      aggregate function in @summarize
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#package-extensions" class="md-nav__link">
+  <a href="#aggregate-functions-in-mutate" class="md-nav__link">
     <span class="md-ellipsis">
-      Package Extensions
+      aggregate functions in @mutate
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#db_table" class="md-nav__link">
+  <a href="#duckdb-function-chaining" class="md-nav__link">
     <span class="md-ellipsis">
-      db_table
+      DuckDB function chaining
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#minimizing-compute-costs" class="md-nav__link">
+  <a href="#rowid-and-pseudocolumns" class="md-nav__link">
     <span class="md-ellipsis">
-      Minimizing Compute Costs
+      rowid and pseudocolumns
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#udf-sqlite-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      UDF SQLite Example
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-create-udf-in-duckdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to create UDF in DuckDB
     </span>
   </a>
   
@@ -670,65 +706,149 @@
                   
 
 
-  <h1>Getting Started</h1>
+  <h1>Flexible Syntax and UDFs</h1>
 
-<p>To use TidierDB.jl, you will have to set up a connection. TidierDB.jl gives you access to duckdb via <code>duckdb_open</code> and <code>duckdb_connect</code>. However, to use MySql, ClickHouse, MSSQL, Postgres, or SQLite, you will have to load those packages in first.</p>
-<p>If you plan to use TidierDB.jl with TidierData.jl or Tidier.jl, it is most convenenient to load the packages as follows:</p>
-<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierData</span>
-<span class="k">import</span><span class="w"> </span><span class="n">TidierDB</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">DB</span>
+<p>TidierDB is unique in its statement parsing flexiblility.  This means that using any built in SQL function or user defined functions (or UDFS) or is readily avaialable. To use any function built into a database in <code>@mutate</code> or in <code>@summarize</code>, simply correctly write the correctly, but replace <code>'</code> with <code>"</code>. This also applies to any UDF. The example below will illustrate UDFs in the context of DuckDB.</p>
+<div class="highlight"><pre><span></span><code># Set up the connection
+using TidierDB  #rexports DuckDB
+db = DuckDB.DB()
+con = DuckDB.connect(db) # this will be important for UDFs
+mtcars_path = &quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;
+mtcars = db_tbable(con, mtcars_path);
 </code></pre></div>
-<p>Alternatively, <code>using Tidier</code> will import TidierDB in the above manner for you, where TidierDB functions and macros will be available as <code>DB.@mutate()</code> and so on, and the TidierData equivalent would be <code>@mutate()</code>.</p>
-<p><a id='Connecting'></a></p>
-<p><a id='Connecting-1'></a></p>
-<h2 id="connecting">Connecting<a class="headerlink" href="#connecting" title="Permanent link">¤</a></h2>
-<p>To connect to a database, you can uset the <code>connect</code> function  as shown below, or establish your own connection through the respecitve libraries.</p>
-<p>For example Connecting to MySQL</p>
-<div class="highlight"><pre><span></span><code><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">mysql</span><span class="p">();</span><span class="w"> </span><span class="n">host</span><span class="o">=</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="s">&quot;root&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="o">=</span><span class="s">&quot;password&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">db</span><span class="o">=</span><span class="s">&quot;mydb&quot;</span><span class="p">)</span>
+<p><a id='aggregate-function-in-@summarize'></a></p>
+<p><a id='aggregate-function-in-@summarize-1'></a></p>
+<h2 id="aggregate-function-in-summarize">aggregate function in <code>@summarize</code><a class="headerlink" href="#aggregate-function-in-summarize" title="Permanent link">¤</a></h2>
+<p>Lets use the DuckDB <code>kurtosis</code> aggregate function</p>
+<div class="highlight"><pre><span></span><code>@chain t(mtcars) begin
+      @group_by cyl
+      @summarize(kurt = kurtosis(mpg))
+      @collect
+end
+3×2 DataFrame
+ Row │ cyl     kurt
+     │ Int64?  Float64?
+─────┼───────────────────
+   1 │      4  -1.43411
+   2 │      6  -1.82944
+   3 │      8   0.330061
 </code></pre></div>
-<p>versus connecting to DuckDB</p>
-<div class="highlight"><pre><span></span><code><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">duckdb</span><span class="p">())</span>
+<p><a id='aggregate-functions-in-@mutate'></a></p>
+<p><a id='aggregate-functions-in-@mutate-1'></a></p>
+<h2 id="aggregate-functions-in-mutate">aggregate functions in <code>@mutate</code><a class="headerlink" href="#aggregate-functions-in-mutate" title="Permanent link">¤</a></h2>
+<p>To aggregate sql functions that are builtin to any database, but exist outside of the TidierDB parser, simply wrap the function call in <code>agg()</code></p>
+<div class="highlight"><pre><span></span><code>@chain t(mtcars) begin
+    @group_by(cyl)
+    @mutate(kurt = agg(kurtosis(mpg)))
+    @select cyl mpg kurt
+    @collect
+end
+
+32×3 DataFrame
+ Row │ cyl     mpg       kurt
+     │ Int64?  Float64?  Float64?
+─────┼─────────────────────────────
+   1 │      8      18.7   0.330061
+   2 │      8      14.3   0.330061
+   3 │      8      16.4   0.330061
+   4 │      8      17.3   0.330061
+   5 │      8      15.2   0.330061
+   6 │      8      10.4   0.330061
+   7 │      8      10.4   0.330061
+  ⋮  │   ⋮        ⋮          ⋮
+  27 │      6      21.0  -1.82944
+  28 │      6      21.4  -1.82944
+  29 │      6      18.1  -1.82944
+  30 │      6      19.2  -1.82944
+  31 │      6      17.8  -1.82944
+  32 │      6      19.7  -1.82944
+                    19 rows omitted
+end
 </code></pre></div>
-<p>You can also use establish a connection through an alternate method that you preferred, and use that as your connection as well.</p>
-<p><a id='Package-Extensions'></a></p>
-<p><a id='Package-Extensions-1'></a></p>
-<h2 id="package-extensions">Package Extensions<a class="headerlink" href="#package-extensions" title="Permanent link">¤</a></h2>
-<p>The following backends utilize package extensions. To use one of backends listed below, you will need to write <code>using Library</code></p>
-<ul>
-<li>ClickHouse: <code>import ClickHouse</code></li>
-<li>MySQL and MariaDB: <code>using MySQL</code></li>
-<li>MSSQL: <code>using ODBC</code></li>
-<li>Postgres: <code>using LibPQ</code></li>
-<li>SQLite: <code>using SQLite</code></li>
-<li>Athena: <code>using AWS</code></li>
-<li>Oracle: <code>using ODBC</code></li>
-<li>Google BigQuery: <code>using GoogleCloud</code></li>
-</ul>
-<p><a id='db_table'></a></p>
-<p><a id='db_table-1'></a></p>
-<h2 id="db_table"><code>db_table</code><a class="headerlink" href="#db_table" title="Permanent link">¤</a></h2>
-<p>What does <code>db_table</code> do?</p>
-<p><code>db_table</code> starts the underlying SQL query struct, in addition to pulling the table metadata and storing it there. Storing metadata is what enables a lazy interface that also supports tidy selection.</p>
-<ul>
-<li><code>db_table</code> has two required arguments: <code>connection</code> and <code>table</code></li>
-<li><code>table</code> can be a table name on a database or a path/url to file to read.  When passing <code>db_table</code> a path or url, the table is not copied into memory.</li>
-<li>With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use <code>*</code> read in all files matching the pattern.</li>
-<li>For example, the below would read all files that end in <code>.csv</code> in the given folder.</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;folder/path/*.csv&quot;</span><span class="p">)</span>
+<p><a id='DuckDB-function-chaining'></a></p>
+<p><a id='DuckDB-function-chaining-1'></a></p>
+<h2 id="duckdb-function-chaining">DuckDB function chaining<a class="headerlink" href="#duckdb-function-chaining" title="Permanent link">¤</a></h2>
+<p>In DuckDB, functions can be chained together with <code>.</code>. TidierDB lets you leverage this.</p>
+<div class="highlight"><pre><span></span><code>@chain t(mtcars) begin
+    @mutate(model2 = model.upper().string_split(&quot; &quot;).list_aggr(&quot;string_agg&quot;,&quot;.&quot;).concat(&quot;.&quot;))
+    @select model model2
+    @collect
+end
+32×2 DataFrame
+ Row │ model              model2
+     │ String?            String?
+─────┼───────────────────────────────────────
+   1 │ Mazda RX4          MAZDA.RX4.
+   2 │ Mazda RX4 Wag      MAZDA.RX4.WAG.
+   3 │ Datsun 710         DATSUN.710.
+   4 │ Hornet 4 Drive     HORNET.4.DRIVE.
+   5 │ Hornet Sportabout  HORNET.SPORTABOUT.
+   6 │ Valiant            VALIANT.
+   7 │ Duster 360         DUSTER.360.
+  ⋮  │         ⋮                  ⋮
+  27 │ Porsche 914-2      PORSCHE.914-2.
+  28 │ Lotus Europa       LOTUS.EUROPA.
+  29 │ Ford Pantera L     FORD.PANTERA.L.
+  30 │ Ferrari Dino       FERRARI.DINO.
+  31 │ Maserati Bora      MASERATI.BORA.
+  32 │ Volvo 142E         VOLVO.142E.
+                              19 rows omitted
 </code></pre></div>
-<p><code>db_table</code> also supports iceberg, delta, and S3 file paths via DuckDB.</p>
-<p><a id='Minimizing-Compute-Costs'></a></p>
-<p><a id='Minimizing-Compute-Costs-1'></a></p>
-<h2 id="minimizing-compute-costs">Minimizing Compute Costs<a class="headerlink" href="#minimizing-compute-costs" title="Permanent link">¤</a></h2>
-<p>If you are working with a backend where compute cost is important, it will be important to minimize using <code>db_table</code> as this will requery for metadata each time. Compute costs are relevant to backends such as AWS, databricks and Snowflake.</p>
-<p>To do this, save the results of <code>db_table</code> and use them with <code>from_query</code>. Using <code>from_query</code> pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time</p>
-<div class="highlight"><pre><span></span><code><span class="n">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;path&quot;</span><span class="p">)</span>
-<span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">from_query</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">    </span><span class="c">## data wrangling here</span>
-<span class="k">end</span>
+<p><a id='rowid-and-pseudocolumns'></a></p>
+<p><a id='rowid-and-pseudocolumns-1'></a></p>
+<h2 id="rowid-and-pseudocolumns"><code>rowid</code> and pseudocolumns<a class="headerlink" href="#rowid-and-pseudocolumns" title="Permanent link">¤</a></h2>
+<p>When a table is not being read directly from a file, <code>rowid</code> is avaialable for use. In general, TidierDB should support all pseudocolumns.</p>
+<div class="highlight"><pre><span></span><code>copy_to(db, mtcars_path, &quot;mtcars&quot;); # copying table in for demostration purposes
+@chain db_table(con, :mtcars) begin
+      @filter(rowid == 4)
+      @select(model:hp)
+      @collect
+end
+1×5 DataFrame
+ Row │ model              mpg       cyl     disp      hp
+     │ String?            Float64?  Int64?  Float64?  Int64?
+─────┼───────────────────────────────────────────────────────
+   1 │ Hornet Sportabout      18.7       8     360.0     175
 </code></pre></div>
-<hr />
-<p>Tip: <code>t()</code> is an alias for <code>from_query</code> This means after saving the results of <code>db_table</code> use <code>t(table)</code> refer to the table or prior query –-</p>
+<p><a id='UDF-SQLite-Example'></a></p>
+<p><a id='UDF-SQLite-Example-1'></a></p>
+<h2 id="udf-sqlite-example">UDF SQLite Example<a class="headerlink" href="#udf-sqlite-example" title="Permanent link">¤</a></h2>
+<div class="highlight"><pre><span></span><code>using SQLite
+sql = connect(sqlite());
+df = DataFrame(id = [string(&#39;A&#39; + i ÷ 26, &#39;A&#39; + i % 26) for i in 0:9],
+                        groups = [i % 2 == 0 ? &quot;aa&quot; : &quot;bb&quot; for i in 1:10],
+                        value = repeat(1:5, 2),
+                        percent = 0.1:0.1:1.0);
+
+copy_to(db, sql, &quot;df_mem&quot;);
+SQLite.@register sql function diff_of_squares(x, y)
+              x^2 - y^2
+              end;
+
+@chain db_table(sql, &quot;df_mem&quot;) begin
+      @select(value, percent)
+      @mutate(plus3 = diff_of_squares(value, percent))
+      @collect
+end
+10×3 DataFrame
+ Row │ value  percent  plus3
+     │ Int64  Float64  Float64
+─────┼─────────────────────────
+   1 │     1      0.1     0.99
+   2 │     2      0.2     3.96
+   3 │     3      0.3     8.91
+   4 │     4      0.4    15.84
+   5 │     5      0.5    24.75
+   6 │     1      0.6     0.64
+   7 │     2      0.7     3.51
+   8 │     3      0.8     8.36
+   9 │     4      0.9    15.19
+  10 │     5      1.0    24.0
+</code></pre></div>
+<p><a id='How-to-create-UDF-in-DuckDB'></a></p>
+<p><a id='How-to-create-UDF-in-DuckDB-1'></a></p>
+<h2 id="how-to-create-udf-in-duckdb">How to create UDF in DuckDB<a class="headerlink" href="#how-to-create-udf-in-duckdb" title="Permanent link">¤</a></h2>
+<p>Example coming soon..</p>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 
@@ -766,7 +886,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../key_differences/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Key Differences from TidierData.jl">
+          <a href="../ibis_comp/" class="md-footer__link md-footer__link--prev" aria-label="Previous: TidierDB.jl vs Ibis">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -776,20 +896,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Key Differences from TidierData.jl
+                TidierDB.jl vs Ibis
               </div>
             </div>
           </a>
         
         
           
-          <a href="../from_queryex/" class="md-footer__link md-footer__link--next" aria-label="Next: Reusing Part of a Query">
+          <a href="../../../../reference/" class="md-footer__link md-footer__link--next" aria-label="Next: Reference">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Reusing Part of a Query
+                Reference
               </div>
             </div>
             <div class="md-footer__button md-icon">

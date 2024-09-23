@@ -414,6 +414,8 @@ end
 function connect(::duckdb, token::String)
     if token == "md:" 
         return DBInterface.connect(DuckDB.DB, "md:")
+    elseif endswith(token, ".duckdb")
+        return DuckDB.DB(token)
     else
         return DBInterface.connect(DuckDB.DB, "md:$token")
     end 

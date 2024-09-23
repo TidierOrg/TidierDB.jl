@@ -103,7 +103,4 @@ function from_query(query::TidierDB.SQLQuery)
     return new_query
 end
 
-"""
-$docstring_t
-"""
 t(table) = from_query(table)

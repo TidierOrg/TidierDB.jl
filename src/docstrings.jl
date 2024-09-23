@@ -25,38 +25,38 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 10×3 DataFrame
- Row │ groups   value   percent  
-     │ String?  Int64?  Float64? 
-─────┼───────────────────────────
-   1 │ bb            1       0.1
-   2 │ aa            2       0.2
-   3 │ bb            3       0.3
-   4 │ aa            4       0.4
-   5 │ bb            5       0.5
-   6 │ aa            1       0.6
-   7 │ bb            2       0.7
-   8 │ aa            3       0.8
-   9 │ bb            4       0.9
-  10 │ aa            5       1.0
+ Row │ groups  value  percent 
+     │ String  Int64  Float64 
+─────┼────────────────────────
+   1 │ bb          1      0.1
+   2 │ aa          2      0.2
+   3 │ bb          3      0.3
+   4 │ aa          4      0.4
+   5 │ bb          5      0.5
+   6 │ aa          1      0.6
+   7 │ bb          2      0.7
+   8 │ aa          3      0.8
+   9 │ bb          4      0.9
+  10 │ aa          5      1.0
 
 julia> @chain db_table(db, :df_mem) begin
          @select(contains("e"))
          @collect
        end
 10×2 DataFrame
- Row │ value   percent  
-     │ Int64?  Float64? 
-─────┼──────────────────
-   1 │      1       0.1
-   2 │      2       0.2
-   3 │      3       0.3
-   4 │      4       0.4
-   5 │      5       0.5
-   6 │      1       0.6
-   7 │      2       0.7
-   8 │      3       0.8
-   9 │      4       0.9
-  10 │      5       1.0
+ Row │ value  percent 
+     │ Int64  Float64 
+─────┼────────────────
+   1 │     1      0.1
+   2 │     2      0.2
+   3 │     3      0.3
+   4 │     4      0.4
+   5 │     5      0.5
+   6 │     1      0.6
+   7 │     2      0.7
+   8 │     3      0.8
+   9 │     4      0.9
+  10 │     5      1.0
 ```
 """
 
@@ -90,14 +90,14 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 5×4 DataFrame
- Row │ id       groups   value   percent  
-     │ String?  String?  Int64?  Float64? 
-─────┼────────────────────────────────────
-   1 │ AF       aa            1       0.6
-   2 │ AG       bb            2       0.7
-   3 │ AH       aa            3       0.8
-   4 │ AI       bb            4       0.9
-   5 │ AJ       aa            5       1.0
+ Row │ id      groups  value  percent 
+     │ String  String  Int64  Float64 
+─────┼────────────────────────────────
+   1 │ AF      aa          1      0.6
+   2 │ AG      bb          2      0.7
+   3 │ AH      aa          3      0.8
+   4 │ AI      bb          4      0.9
+   5 │ AJ      aa          5      1.0
 
 julia> @chain db_table(db, :df_mem) begin
          @group_by(groups)
@@ -110,11 +110,11 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×2 DataFrame
- Row │ groups   mean     
-     │ String?  Float64? 
-─────┼───────────────────
-   1 │ aa            0.6
-   2 │ bb            0.5
+ Row │ groups  mean    
+     │ String  Float64 
+─────┼─────────────────
+   1 │ aa          0.6
+   2 │ bb          0.5
 ```
 """
 
@@ -145,9 +145,9 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×1 DataFrame
- Row │ groups  
-     │ String? 
-─────┼─────────
+ Row │ groups 
+     │ String 
+─────┼────────
    1 │ aa
    2 │ bb
 ```
@@ -178,19 +178,19 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 10×5 DataFrame
- Row │ id       groups   value   percent   new_col  
-     │ String?  String?  Int64?  Float64?  Float64? 
-─────┼──────────────────────────────────────────────
-   1 │ AA       bb            4       0.1      0.01
-   2 │ AB       aa            8       0.2      0.04
-   3 │ AC       bb           12       0.3      0.09
-   4 │ AD       aa           16       0.4      0.16
-   5 │ AE       bb           20       0.5      0.25
-   6 │ AF       aa            4       0.6      0.36
-   7 │ AG       bb            8       0.7      0.49
-   8 │ AH       aa           12       0.8      0.64
-   9 │ AI       bb           16       0.9      0.81
-  10 │ AJ       aa           20       1.0      1.0
+ Row │ id      groups  value  percent  new_col 
+     │ String  String  Int64  Float64  Float64 
+─────┼─────────────────────────────────────────
+   1 │ AA      bb          4      0.1     0.01
+   2 │ AB      aa          8      0.2     0.04
+   3 │ AC      bb         12      0.3     0.09
+   4 │ AD      aa         16      0.4     0.16
+   5 │ AE      bb         20      0.5     0.25
+   6 │ AF      aa          4      0.6     0.36
+   7 │ AG      bb          8      0.7     0.49
+   8 │ AH      aa         12      0.8     0.64
+   9 │ AI      bb         16      0.9     0.81
+  10 │ AJ      aa         20      1.0     1.0
 ```
 """
 
@@ -221,11 +221,11 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×5 DataFrame
- Row │ groups   mean_value  mean_percent  sum_value  sum_percent 
-     │ String?  Float64?    Float64?      Int128?    Float64?    
-─────┼───────────────────────────────────────────────────────────
-   1 │ aa              3.0           0.6         15          3.0
-   2 │ bb              3.0           0.5         15          2.5
+ Row │ groups  mean_value  mean_percent  sum_value  sum_percent 
+     │ String  Float64     Float64       Int128     Float64     
+─────┼──────────────────────────────────────────────────────────
+   1 │ aa             3.0           0.6         15          3.0
+   2 │ bb             3.0           0.5         15          2.5
 
 julia> @chain db_table(db, :df_mem) begin
          @group_by(groups)
@@ -234,11 +234,11 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×3 DataFrame
- Row │ groups   test      n      
-     │ String?  Float64?  Int64? 
-─────┼───────────────────────────
-   1 │ aa            3.0       5
-   2 │ bb            2.5       5
+ Row │ groups  test     n     
+     │ String  Float64  Int64 
+─────┼────────────────────────
+   1 │ aa          3.0      5
+   2 │ bb          2.5      5
 ```
 """
 const docstring_summarise =
@@ -268,11 +268,11 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×5 DataFrame
- Row │ groups   mean_value  mean_percent  sum_value  sum_percent 
-     │ String?  Float64?    Float64?      Int128?    Float64?    
-─────┼───────────────────────────────────────────────────────────
-   1 │ aa              3.0           0.6         15          3.0
-   2 │ bb              3.0           0.5         15          2.5
+ Row │ groups  mean_value  mean_percent  sum_value  sum_percent 
+     │ String  Float64     Float64       Int128     Float64     
+─────┼──────────────────────────────────────────────────────────
+   1 │ aa             3.0           0.6         15          3.0
+   2 │ bb             3.0           0.5         15          2.5
 
 julia> @chain db_table(db, :df_mem) begin
          @group_by(groups)
@@ -281,11 +281,11 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×3 DataFrame
- Row │ groups   test      n      
-     │ String?  Float64?  Int64? 
-─────┼───────────────────────────
-   1 │ aa            3.0       5
-   2 │ bb            2.5       5
+ Row │ groups  test     n     
+     │ String  Float64  Int64 
+─────┼────────────────────────
+   1 │ aa          3.0      5
+   2 │ bb          2.5      5
 ```
 """
 
@@ -322,11 +322,11 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×5 DataFrame
- Row │ id       groups   value   percent   rank_col 
-     │ String?  String?  Int64?  Float64?  Int64?   
-─────┼──────────────────────────────────────────────
-   1 │ AA       bb            1       0.1         1
-   2 │ AF       aa            1       0.6         1
+ Row │ id      groups  value  percent  rank_col 
+     │ String  String  Int64  Float64  Int64    
+─────┼──────────────────────────────────────────
+   1 │ AA      bb          1      0.1         1
+   2 │ AF      aa          1      0.6         1
 ```
 """
 
@@ -363,11 +363,11 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×5 DataFrame
- Row │ id       groups   value   percent   rank_col 
-     │ String?  String?  Int64?  Float64?  Int64?   
-─────┼──────────────────────────────────────────────
-   1 │ AE       bb            5       0.5         1
-   2 │ AJ       aa            5       1.0         1
+ Row │ id      groups  value  percent  rank_col 
+     │ String  String  Int64  Float64  Int64    
+─────┼──────────────────────────────────────────
+   1 │ AE      bb          5      0.5         1
+   2 │ AJ      aa          5      1.0         1
 ```
 """
 
@@ -430,19 +430,19 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 10×4 DataFrame
- Row │ id       groups   value   percent  
-     │ String?  String?  Int64?  Float64? 
-─────┼────────────────────────────────────
-   1 │ AF       aa            1       0.6
-   2 │ AA       bb            1       0.1
-   3 │ AG       bb            2       0.7
-   4 │ AB       aa            2       0.2
-   5 │ AH       aa            3       0.8
-   6 │ AC       bb            3       0.3
-   7 │ AI       bb            4       0.9
-   8 │ AD       aa            4       0.4
-   9 │ AJ       aa            5       1.0
-  10 │ AE       bb            5       0.5
+ Row │ id      groups  value  percent 
+     │ String  String  Int64  Float64 
+─────┼────────────────────────────────
+   1 │ AF      aa          1      0.6
+   2 │ AA      bb          1      0.1
+   3 │ AG      bb          2      0.7
+   4 │ AB      aa          2      0.2
+   5 │ AH      aa          3      0.8
+   6 │ AC      bb          3      0.3
+   7 │ AI      bb          4      0.9
+   8 │ AD      aa          4      0.4
+   9 │ AJ      aa          5      1.0
+  10 │ AE      bb          5      0.5
 ```
 """
 
@@ -473,11 +473,11 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×2 DataFrame
- Row │ groups   count  
-     │ String?  Int64? 
-─────┼─────────────────
-   1 │ aa            5
-   2 │ bb            5
+ Row │ groups  count 
+     │ String  Int64 
+─────┼───────────────
+   1 │ aa          5
+   2 │ bb          5
 ```
 """
 
@@ -509,14 +509,14 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 5×1 DataFrame
- Row │ value  
-     │ Int64? 
-─────┼────────
-   1 │      1
-   2 │      2
-   3 │      3
-   4 │      4
-   5 │      5
+ Row │ value 
+     │ Int64 
+─────┼───────
+   1 │     1
+   2 │     2
+   3 │     3
+   4 │     4
+   5 │     5
 
 julia> @chain db_table(db, :df_mem) begin
          @distinct
@@ -524,19 +524,19 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 10×4 DataFrame
- Row │ id       groups   value   percent  
-     │ String?  String?  Int64?  Float64? 
-─────┼────────────────────────────────────
-   1 │ AA       bb            1       0.1
-   2 │ AB       aa            2       0.2
-   3 │ AC       bb            3       0.3
-   4 │ AD       aa            4       0.4
-   5 │ AE       bb            5       0.5
-   6 │ AF       aa            1       0.6
-   7 │ AG       bb            2       0.7
-   8 │ AH       aa            3       0.8
-   9 │ AI       bb            4       0.9
-  10 │ AJ       aa            5       1.0
+ Row │ id      groups  value  percent 
+     │ String  String  Int64  Float64 
+─────┼────────────────────────────────
+   1 │ AA      bb          1      0.1
+   2 │ AB      aa          2      0.2
+   3 │ AC      bb          3      0.3
+   4 │ AD      aa          4      0.4
+   5 │ AE      bb          5      0.5
+   6 │ AF      aa          1      0.6
+   7 │ AG      bb          2      0.7
+   8 │ AH      aa          3      0.8
+   9 │ AI      bb          4      0.9
+  10 │ AJ      aa          5      1.0
 ```
 """
 
@@ -577,19 +577,19 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 10×7 DataFrame
- Row │ id       groups   value   percent   id2      category  score   
-     │ String?  String?  Int64?  Float64?  String?  String?   Int64?  
-─────┼────────────────────────────────────────────────────────────────
-   1 │ AA       bb            1       0.1  AA       X              88
-   2 │ AC       bb            3       0.3  AC       Y              92
-   3 │ AE       bb            5       0.5  AE       X              77
-   4 │ AG       bb            2       0.7  AG       Y              83
-   5 │ AI       bb            4       0.9  AI       X              95
-   6 │ AB       aa            2       0.2  missing  missing   missing 
-   7 │ AD       aa            4       0.4  missing  missing   missing 
-   8 │ AF       aa            1       0.6  missing  missing   missing 
-   9 │ AH       aa            3       0.8  missing  missing   missing 
-  10 │ AJ       aa            5       1.0  missing  missing   missing 
+ Row │ id      groups  value  percent  id2      category  score   
+     │ String  String  Int64  Float64  String?  String?   Int64?  
+─────┼────────────────────────────────────────────────────────────
+   1 │ AA      bb          1      0.1  AA       X              88
+   2 │ AC      bb          3      0.3  AC       Y              92
+   3 │ AE      bb          5      0.5  AE       X              77
+   4 │ AG      bb          2      0.7  AG       Y              83
+   5 │ AI      bb          4      0.9  AI       X              95
+   6 │ AB      aa          2      0.2  missing  missing   missing 
+   7 │ AD      aa          4      0.4  missing  missing   missing 
+   8 │ AF      aa          1      0.6  missing  missing   missing 
+   9 │ AH      aa          3      0.8  missing  missing   missing 
+  10 │ AJ      aa          5      1.0  missing  missing   missing 
 ```
 """
 
@@ -630,16 +630,16 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 7×7 DataFrame
- Row │ id       groups   value    percent    id2      category  score  
-     │ String?  String?  Int64?   Float64?   String?  String?   Int64? 
-─────┼─────────────────────────────────────────────────────────────────
-   1 │ AA       bb             1        0.1  AA       X             88
-   2 │ AC       bb             3        0.3  AC       Y             92
-   3 │ AE       bb             5        0.5  AE       X             77
-   4 │ AG       bb             2        0.7  AG       Y             83
-   5 │ AI       bb             4        0.9  AI       X             95
-   6 │ missing  missing  missing  missing    AK       Y             68
-   7 │ missing  missing  missing  missing    AM       X             74
+ Row │ id       groups   value    percent    id2     category  score 
+     │ String?  String?  Int64?   Float64?   String  String    Int64 
+─────┼───────────────────────────────────────────────────────────────
+   1 │ AA       bb             1        0.1  AA      X            88
+   2 │ AC       bb             3        0.3  AC      Y            92
+   3 │ AE       bb             5        0.5  AE      X            77
+   4 │ AG       bb             2        0.7  AG      Y            83
+   5 │ AI       bb             4        0.9  AI      X            95
+   6 │ missing  missing  missing  missing    AK      Y            68
+   7 │ missing  missing  missing  missing    AM      X            74
 ```
 """
 
@@ -680,14 +680,14 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 5×7 DataFrame
- Row │ id       groups   value   percent   id2      category  score  
-     │ String?  String?  Int64?  Float64?  String?  String?   Int64? 
-─────┼───────────────────────────────────────────────────────────────
-   1 │ AA       bb            1       0.1  AA       X             88
-   2 │ AC       bb            3       0.3  AC       Y             92
-   3 │ AE       bb            5       0.5  AE       X             77
-   4 │ AG       bb            2       0.7  AG       Y             83
-   5 │ AI       bb            4       0.9  AI       X             95
+ Row │ id      groups  value  percent  id2     category  score 
+     │ String  String  Int64  Float64  String  String    Int64 
+─────┼─────────────────────────────────────────────────────────
+   1 │ AA      bb          1      0.1  AA      X            88
+   2 │ AC      bb          3      0.3  AC      Y            92
+   3 │ AE      bb          5      0.5  AE      X            77
+   4 │ AG      bb          2      0.7  AG      Y            83
+   5 │ AI      bb          4      0.9  AI      X            95
 ```
 """
 const docstring_full_join =
@@ -782,14 +782,14 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 5×4 DataFrame
- Row │ id       groups   value   percent  
-     │ String?  String?  Int64?  Float64? 
-─────┼────────────────────────────────────
-   1 │ AA       bb            1       0.1
-   2 │ AC       bb            3       0.3
-   3 │ AE       bb            5       0.5
-   4 │ AG       bb            2       0.7
-   5 │ AI       bb            4       0.9
+ Row │ id      groups  value  percent 
+     │ String  String  Int64  Float64 
+─────┼────────────────────────────────
+   1 │ AA      bb          1      0.1
+   2 │ AC      bb          3      0.3
+   3 │ AE      bb          5      0.5
+   4 │ AG      bb          2      0.7
+   5 │ AI      bb          4      0.9
 ```
 """
 
@@ -830,14 +830,14 @@ julia> @chain db_table(db, :df_mem) begin
         @collect
        end
 5×4 DataFrame
- Row │ id       groups   value   percent  
-     │ String?  String?  Int64?  Float64? 
-─────┼────────────────────────────────────
-   1 │ AB       aa            2       0.2
-   2 │ AD       aa            4       0.4
-   3 │ AF       aa            1       0.6
-   4 │ AH       aa            3       0.8
-   5 │ AJ       aa            5       1.0
+ Row │ id      groups  value  percent 
+     │ String  String  Int64  Float64 
+─────┼────────────────────────────────
+   1 │ AB      aa          2      0.2
+   2 │ AD      aa          4      0.4
+   3 │ AF      aa          1      0.6
+   4 │ AH      aa          3      0.8
+   5 │ AJ      aa          5      1.0
 ```
 """
 
@@ -868,19 +868,19 @@ julia> @chain db_table(db, :df_mem) begin
        @collect
        end
 10×4 DataFrame
- Row │ id       groups   value   new_name 
-     │ String?  String?  Int64?  Float64? 
-─────┼────────────────────────────────────
-   1 │ AA       bb            1       0.1
-   2 │ AB       aa            2       0.2
-   3 │ AC       bb            3       0.3
-   4 │ AD       aa            4       0.4
-   5 │ AE       bb            5       0.5
-   6 │ AF       aa            1       0.6
-   7 │ AG       bb            2       0.7
-   8 │ AH       aa            3       0.8
-   9 │ AI       bb            4       0.9
-  10 │ AJ       aa            5       1.0
+ Row │ id      groups  value  new_name 
+     │ String  String  Int64  Float64  
+─────┼─────────────────────────────────
+   1 │ AA      bb          1       0.1
+   2 │ AB      aa          2       0.2
+   3 │ AC      bb          3       0.3
+   4 │ AD      aa          4       0.4
+   5 │ AE      bb          5       0.5
+   6 │ AF      aa          1       0.6
+   7 │ AG      bb          2       0.7
+   8 │ AH      aa          3       0.8
+   9 │ AI      bb          4       0.9
+  10 │ AJ      aa          5       1.0
 ```
 """
 
@@ -1040,10 +1040,10 @@ julia> @chain db_table(db, "df_mem") begin
           @collect
           end
 1×3 DataFrame
- Row │ id       value   percent  
-     │ String?  Int64?  Float64? 
-─────┼───────────────────────────
-   1 │ AA            1       0.1
+ Row │ id      value  percent 
+     │ String  Int64  Float64 
+─────┼────────────────────────
+   1 │ AA          1      0.1
 ```
 """
 
@@ -1115,19 +1115,19 @@ julia> copy_to(db, df, "df_mem");
 
 julia> @collect db_table(db, "df_mem")
 10×4 DataFrame
- Row │ id       groups   value   percent  
-     │ String?  String?  Int64?  Float64? 
-─────┼────────────────────────────────────
-   1 │ AA       bb            1       0.1
-   2 │ AB       aa            2       0.2
-   3 │ AC       bb            3       0.3
-   4 │ AD       aa            4       0.4
-   5 │ AE       bb            5       0.5
-   6 │ AF       aa            1       0.6
-   7 │ AG       bb            2       0.7
-   8 │ AH       aa            3       0.8
-   9 │ AI       bb            4       0.9
-  10 │ AJ       aa            5       1.0
+ Row │ id      groups  value  percent 
+     │ String  String  Int64  Float64 
+─────┼────────────────────────────────
+   1 │ AA      bb          1      0.1
+   2 │ AB      aa          2      0.2
+   3 │ AC      bb          3      0.3
+   4 │ AD      aa          4      0.4
+   5 │ AE      bb          5      0.5
+   6 │ AF      aa          1      0.6
+   7 │ AG      bb          2      0.7
+   8 │ AH      aa          3      0.8
+   9 │ AI      bb          4      0.9
+  10 │ AJ      aa          5      1.0
 ```
 """ 
 
@@ -1158,10 +1158,10 @@ julia> @chain db_table(db, :df_mem) begin
         @collect
        end
 1×4 DataFrame
- Row │ id       groups   value   percent  
-     │ String?  String?  Int64?  Float64? 
-─────┼────────────────────────────────────
-   1 │ AA       bb            1       0.1
+ Row │ id      groups  value  percent 
+     │ String  String  Int64  Float64 
+─────┼────────────────────────────────
+   1 │ AA      bb          1      0.1
 ```
 """
 
@@ -1211,58 +1211,22 @@ julia> copy_to(db, df, "df_mem");
 
 julia> df_mem = db_table(db, "df_mem");
 
-julia> from_query(df_mem)
-SQLQuery("", "df_mem", "", "", "", "", "", "", false, false, 4×4 DataFrame
- Row │ name     type     current_selxn  table_name 
-     │ String?  String?  Int64          String     
-─────┼─────────────────────────────────────────────
-   1 │ id       VARCHAR              1  df_mem
-   2 │ groups   VARCHAR              1  df_mem
-   3 │ value    BIGINT               1  df_mem
-   4 │ percent  DOUBLE               1  df_mem, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
-```
-"""
-
-
-const docstring_t =
-"""
-    t(query)
-
-Alias for from_query. Refer to SQL query without changing the underlying struct. This is an alternate and convenient way to refer to an exisiting DB table
-
-# Arguments
-- `query`: The SQL query to reference
-
-# Examples
-```julia
-
-julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
-                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
-                        value = repeat(1:5, 2), 
-                        percent = 0.1:0.1:1.0);
-
-julia> db = connect(duckdb());
-
-julia> copy_to(db, df, "df_mem");
-
-julia> df_mem = db_table(db, "df_mem");
-
 
 julia> @chain t(df_mem) @collect
 10×4 DataFrame
- Row │ id       groups   value   percent  
-     │ String?  String?  Int64?  Float64? 
-─────┼────────────────────────────────────
-   1 │ AA       bb            1       0.1
-   2 │ AB       aa            2       0.2
-   3 │ AC       bb            3       0.3
-   4 │ AD       aa            4       0.4
-   5 │ AE       bb            5       0.5
-   6 │ AF       aa            1       0.6
-   7 │ AG       bb            2       0.7
-   8 │ AH       aa            3       0.8
-   9 │ AI       bb            4       0.9
-  10 │ AJ       aa            5       1.0
+ Row │ id      groups  value  percent 
+     │ String  String  Int64  Float64 
+─────┼────────────────────────────────
+   1 │ AA      bb          1      0.1
+   2 │ AB      aa          2      0.2
+   3 │ AC      bb          3      0.3
+   4 │ AD      aa          4      0.4
+   5 │ AE      bb          5      0.5
+   6 │ AF      aa          1      0.6
+   7 │ AG      bb          2      0.7
+   8 │ AH      aa          3      0.8
+   9 │ AI      bb          4      0.9
+  10 │ AJ      aa          5      1.0
 
 julia> query_part =  @chain t(df_mem) @select groups:percent; 
 
@@ -1273,5 +1237,15 @@ julia> @chain t(query_part) @filter(value == 4) @collect
 ─────┼───────────────────────────
    1 │ aa            4       0.4
    2 │ bb            4       0.9
+
+julia> from_query(df_mem)
+SQLQuery("", "df_mem", "", "", "", "", "", "", false, false, 4×4 DataFrame
+ Row │ name     type     current_selxn  table_name 
+     │ String?  String?  Int64          String     
+─────┼─────────────────────────────────────────────
+   1 │ id       VARCHAR              1  df_mem
+   2 │ groups   VARCHAR              1  df_mem
+   3 │ value    BIGINT               1  df_mem
+   4 │ percent  DOUBLE               1  df_mem, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
 ```
 """

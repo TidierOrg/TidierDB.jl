@@ -724,7 +724,7 @@
 <span class="n">julia</span><span class="o">&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">())</span>
 <span class="n">DuckDB</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TidierDB.jl#L356-L401' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TidierDB.jl#L356-L401' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.copy_to-Tuple{Any, Union{AbstractString, DataFrame}, String}' href='#TidierDB.copy_to-Tuple{Any, Union{AbstractString, DataFrame}, String}'>#</a>
 <strong><code>TidierDB.copy_to</code></strong> &mdash; <em>Method</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span><span class="n">copy_to</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">df_or_path</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;name&quot;</span><span class="p">)</span>
@@ -742,7 +742,7 @@
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TidierDB.jl#L309-L328' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TidierDB.jl#L309-L328' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.db_table' href='#TidierDB.db_table'>#</a>
 <strong><code>TidierDB.db_table</code></strong> &mdash; <em>Function</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">db_table</span><span class="p">(</span><span class="n">database</span><span class="p">,</span><span class="w"> </span><span class="n">table_name</span><span class="p">,</span><span class="w"> </span><span class="n">athena_params</span><span class="p">,</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="n">iceberg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">)</span>
@@ -782,7 +782,7 @@
 <span class="w">   </span><span class="mi">3</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">value</span><span class="w">    </span><span class="n">BIGINT</span><span class="w">               </span><span class="mi">1</span><span class="w">  </span><span class="n">df_mem</span>
 <span class="w">   </span><span class="mi">4</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">percent</span><span class="w">  </span><span class="n">DOUBLE</span><span class="w">               </span><span class="mi">1</span><span class="w">  </span><span class="n">df_mem</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="n">DuckDB</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="s">&quot;:memory:&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">TidierDB</span><span class="o">.</span><span class="n">CTE</span><span class="p">[],</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">nothing</span><span class="p">)</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TidierDB.jl#L199-L242' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TidierDB.jl#L199-L242' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.show_tables-Tuple{DuckDB.DB}' href='#TidierDB.show_tables-Tuple{DuckDB.DB}'>#</a>
 <strong><code>TidierDB.show_tables</code></strong> &mdash; <em>Method</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">show_tables</span><span class="p">(</span><span class="n">con</span><span class="p">;</span><span class="w"> </span><span class="n">GBQ_project_id</span><span class="p">,</span><span class="w"> </span><span class="n">GBQ_datasetname</span><span class="p">)</span>
@@ -803,7 +803,7 @@
 <span class="go">     │ String </span>
 <span class="go">─────┴────────</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L775-L794' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L775-L794' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@anti_join-NTuple{4, Any}' href='#TidierDB.@anti_join-NTuple{4, Any}'>#</a>
 <strong><code>TidierDB.@anti_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@anti_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="p">)</span>
@@ -837,16 +837,16 @@
 <span class="w">        </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">5×4 DataFrame</span>
-<span class="go"> Row │ id       groups   value   percent  </span>
-<span class="go">     │ String?  String?  Int64?  Float64? </span>
-<span class="go">─────┼────────────────────────────────────</span>
-<span class="go">   1 │ AB       aa            2       0.2</span>
-<span class="go">   2 │ AD       aa            4       0.4</span>
-<span class="go">   3 │ AF       aa            1       0.6</span>
-<span class="go">   4 │ AH       aa            3       0.8</span>
-<span class="go">   5 │ AJ       aa            5       1.0</span>
+<span class="go"> Row │ id      groups  value  percent </span>
+<span class="go">     │ String  String  Int64  Float64 </span>
+<span class="go">─────┼────────────────────────────────</span>
+<span class="go">   1 │ AB      aa          2      0.2</span>
+<span class="go">   2 │ AD      aa          4      0.4</span>
+<span class="go">   3 │ AF      aa          1      0.6</span>
+<span class="go">   4 │ AH      aa          3      0.8</span>
+<span class="go">   5 │ AJ      aa          5      1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/joins_sq.jl#L262-L307' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/joins_sq.jl#L262-L307' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@arrange-Tuple{Any, Vararg{Any}}' href='#TidierDB.@arrange-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@arrange</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@arrange</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -872,21 +872,21 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">10×4 DataFrame</span>
-<span class="go"> Row │ id       groups   value   percent  </span>
-<span class="go">     │ String?  String?  Int64?  Float64? </span>
-<span class="go">─────┼────────────────────────────────────</span>
-<span class="go">   1 │ AF       aa            1       0.6</span>
-<span class="go">   2 │ AA       bb            1       0.1</span>
-<span class="go">   3 │ AG       bb            2       0.7</span>
-<span class="go">   4 │ AB       aa            2       0.2</span>
-<span class="go">   5 │ AH       aa            3       0.8</span>
-<span class="go">   6 │ AC       bb            3       0.3</span>
-<span class="go">   7 │ AI       bb            4       0.9</span>
-<span class="go">   8 │ AD       aa            4       0.4</span>
-<span class="go">   9 │ AJ       aa            5       1.0</span>
-<span class="go">  10 │ AE       bb            5       0.5</span>
+<span class="go"> Row │ id      groups  value  percent </span>
+<span class="go">     │ String  String  Int64  Float64 </span>
+<span class="go">─────┼────────────────────────────────</span>
+<span class="go">   1 │ AF      aa          1      0.6</span>
+<span class="go">   2 │ AA      bb          1      0.1</span>
+<span class="go">   3 │ AG      bb          2      0.7</span>
+<span class="go">   4 │ AB      aa          2      0.2</span>
+<span class="go">   5 │ AH      aa          3      0.8</span>
+<span class="go">   6 │ AC      bb          3      0.3</span>
+<span class="go">   7 │ AI      bb          4      0.9</span>
+<span class="go">   8 │ AD      aa          4      0.4</span>
+<span class="go">   9 │ AJ      aa          5      1.0</span>
+<span class="go">  10 │ AE      bb          5      0.5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L120-L159' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L120-L159' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@collect' href='#TidierDB.@collect'>#</a>
 <strong><code>TidierDB.@collect</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@collect</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">)</span>
@@ -909,21 +909,21 @@
 
 <span class="n">julia</span><span class="o">&gt;</span><span class="w"> </span><span class="nd">@collect</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">)</span>
 <span class="mi">10</span><span class="o">×</span><span class="mi">4</span><span class="w"> </span><span class="n">DataFrame</span>
-<span class="w"> </span><span class="n">Row</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">id</span><span class="w">       </span><span class="n">groups</span><span class="w">   </span><span class="n">value</span><span class="w">   </span><span class="n">percent</span><span class="w">  </span>
-<span class="w">     </span><span class="n">│</span><span class="w"> </span><span class="kt">String</span><span class="o">?</span><span class="w">  </span><span class="kt">String</span><span class="o">?</span><span class="w">  </span><span class="kt">Int64</span><span class="o">?</span><span class="w">  </span><span class="kt">Float64</span><span class="o">?</span><span class="w"> </span>
-<span class="n">─────┼────────────────────────────────────</span>
-<span class="w">   </span><span class="mi">1</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AA</span><span class="w">       </span><span class="n">bb</span><span class="w">            </span><span class="mi">1</span><span class="w">       </span><span class="mf">0.1</span>
-<span class="w">   </span><span class="mi">2</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AB</span><span class="w">       </span><span class="n">aa</span><span class="w">            </span><span class="mi">2</span><span class="w">       </span><span class="mf">0.2</span>
-<span class="w">   </span><span class="mi">3</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AC</span><span class="w">       </span><span class="n">bb</span><span class="w">            </span><span class="mi">3</span><span class="w">       </span><span class="mf">0.3</span>
-<span class="w">   </span><span class="mi">4</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AD</span><span class="w">       </span><span class="n">aa</span><span class="w">            </span><span class="mi">4</span><span class="w">       </span><span class="mf">0.4</span>
-<span class="w">   </span><span class="mi">5</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AE</span><span class="w">       </span><span class="n">bb</span><span class="w">            </span><span class="mi">5</span><span class="w">       </span><span class="mf">0.5</span>
-<span class="w">   </span><span class="mi">6</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AF</span><span class="w">       </span><span class="n">aa</span><span class="w">            </span><span class="mi">1</span><span class="w">       </span><span class="mf">0.6</span>
-<span class="w">   </span><span class="mi">7</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AG</span><span class="w">       </span><span class="n">bb</span><span class="w">            </span><span class="mi">2</span><span class="w">       </span><span class="mf">0.7</span>
-<span class="w">   </span><span class="mi">8</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AH</span><span class="w">       </span><span class="n">aa</span><span class="w">            </span><span class="mi">3</span><span class="w">       </span><span class="mf">0.8</span>
-<span class="w">   </span><span class="mi">9</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AI</span><span class="w">       </span><span class="n">bb</span><span class="w">            </span><span class="mi">4</span><span class="w">       </span><span class="mf">0.9</span>
-<span class="w">  </span><span class="mi">10</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AJ</span><span class="w">       </span><span class="n">aa</span><span class="w">            </span><span class="mi">5</span><span class="w">       </span><span class="mf">1.0</span>
+<span class="w"> </span><span class="n">Row</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">id</span><span class="w">      </span><span class="n">groups</span><span class="w">  </span><span class="n">value</span><span class="w">  </span><span class="n">percent</span><span class="w"> </span>
+<span class="w">     </span><span class="n">│</span><span class="w"> </span><span class="kt">String</span><span class="w">  </span><span class="kt">String</span><span class="w">  </span><span class="kt">Int64</span><span class="w">  </span><span class="kt">Float64</span><span class="w"> </span>
+<span class="n">─────┼────────────────────────────────</span>
+<span class="w">   </span><span class="mi">1</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AA</span><span class="w">      </span><span class="n">bb</span><span class="w">          </span><span class="mi">1</span><span class="w">      </span><span class="mf">0.1</span>
+<span class="w">   </span><span class="mi">2</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AB</span><span class="w">      </span><span class="n">aa</span><span class="w">          </span><span class="mi">2</span><span class="w">      </span><span class="mf">0.2</span>
+<span class="w">   </span><span class="mi">3</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AC</span><span class="w">      </span><span class="n">bb</span><span class="w">          </span><span class="mi">3</span><span class="w">      </span><span class="mf">0.3</span>
+<span class="w">   </span><span class="mi">4</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AD</span><span class="w">      </span><span class="n">aa</span><span class="w">          </span><span class="mi">4</span><span class="w">      </span><span class="mf">0.4</span>
+<span class="w">   </span><span class="mi">5</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AE</span><span class="w">      </span><span class="n">bb</span><span class="w">          </span><span class="mi">5</span><span class="w">      </span><span class="mf">0.5</span>
+<span class="w">   </span><span class="mi">6</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AF</span><span class="w">      </span><span class="n">aa</span><span class="w">          </span><span class="mi">1</span><span class="w">      </span><span class="mf">0.6</span>
+<span class="w">   </span><span class="mi">7</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AG</span><span class="w">      </span><span class="n">bb</span><span class="w">          </span><span class="mi">2</span><span class="w">      </span><span class="mf">0.7</span>
+<span class="w">   </span><span class="mi">8</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AH</span><span class="w">      </span><span class="n">aa</span><span class="w">          </span><span class="mi">3</span><span class="w">      </span><span class="mf">0.8</span>
+<span class="w">   </span><span class="mi">9</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AI</span><span class="w">      </span><span class="n">bb</span><span class="w">          </span><span class="mi">4</span><span class="w">      </span><span class="mf">0.9</span>
+<span class="w">  </span><span class="mi">10</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AJ</span><span class="w">      </span><span class="n">aa</span><span class="w">          </span><span class="mi">5</span><span class="w">      </span><span class="mf">1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L721-L756' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L721-L756' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@count-Tuple{Any, Vararg{Any}}' href='#TidierDB.@count-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@count</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@count</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -950,13 +950,13 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">2×2 DataFrame</span>
-<span class="go"> Row │ groups   count  </span>
-<span class="go">     │ String?  Int64? </span>
-<span class="go">─────┼─────────────────</span>
-<span class="go">   1 │ aa            5</span>
-<span class="go">   2 │ bb            5</span>
+<span class="go"> Row │ groups  count </span>
+<span class="go">     │ String  Int64 </span>
+<span class="go">─────┼───────────────</span>
+<span class="go">   1 │ aa          5</span>
+<span class="go">   2 │ bb          5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L448-L480' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L448-L480' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@distinct-Tuple{Any, Vararg{Any}}' href='#TidierDB.@distinct-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@distinct</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@distinct</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -980,14 +980,14 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">5×1 DataFrame</span>
-<span class="go"> Row │ value  </span>
-<span class="go">     │ Int64? </span>
-<span class="go">─────┼────────</span>
-<span class="go">   1 │      1</span>
-<span class="go">   2 │      2</span>
-<span class="go">   3 │      3</span>
-<span class="go">   4 │      4</span>
-<span class="go">   5 │      5</span>
+<span class="go"> Row │ value </span>
+<span class="go">     │ Int64 </span>
+<span class="go">─────┼───────</span>
+<span class="go">   1 │     1</span>
+<span class="go">   2 │     2</span>
+<span class="go">   3 │     3</span>
+<span class="go">   4 │     4</span>
+<span class="go">   5 │     5</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">         </span><span class="nd">@distinct</span>
@@ -995,21 +995,21 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">10×4 DataFrame</span>
-<span class="go"> Row │ id       groups   value   percent  </span>
-<span class="go">     │ String?  String?  Int64?  Float64? </span>
-<span class="go">─────┼────────────────────────────────────</span>
-<span class="go">   1 │ AA       bb            1       0.1</span>
-<span class="go">   2 │ AB       aa            2       0.2</span>
-<span class="go">   3 │ AC       bb            3       0.3</span>
-<span class="go">   4 │ AD       aa            4       0.4</span>
-<span class="go">   5 │ AE       bb            5       0.5</span>
-<span class="go">   6 │ AF       aa            1       0.6</span>
-<span class="go">   7 │ AG       bb            2       0.7</span>
-<span class="go">   8 │ AH       aa            3       0.8</span>
-<span class="go">   9 │ AI       bb            4       0.9</span>
-<span class="go">  10 │ AJ       aa            5       1.0</span>
+<span class="go"> Row │ id      groups  value  percent </span>
+<span class="go">     │ String  String  Int64  Float64 </span>
+<span class="go">─────┼────────────────────────────────</span>
+<span class="go">   1 │ AA      bb          1      0.1</span>
+<span class="go">   2 │ AB      aa          2      0.2</span>
+<span class="go">   3 │ AC      bb          3      0.3</span>
+<span class="go">   4 │ AD      aa          4      0.4</span>
+<span class="go">   5 │ AE      bb          5      0.5</span>
+<span class="go">   6 │ AF      aa          1      0.6</span>
+<span class="go">   7 │ AG      bb          2      0.7</span>
+<span class="go">   8 │ AH      aa          3      0.8</span>
+<span class="go">   9 │ AI      bb          4      0.9</span>
+<span class="go">  10 │ AJ      aa          5      1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L327-L383' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L327-L383' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@filter-Tuple{Any, Vararg{Any}}' href='#TidierDB.@filter-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@filter</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@filter</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">conditions</span><span class="o">...</span><span class="p">)</span>
@@ -1039,14 +1039,14 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">5×4 DataFrame</span>
-<span class="go"> Row │ id       groups   value   percent  </span>
-<span class="go">     │ String?  String?  Int64?  Float64? </span>
-<span class="go">─────┼────────────────────────────────────</span>
-<span class="go">   1 │ AF       aa            1       0.6</span>
-<span class="go">   2 │ AG       bb            2       0.7</span>
-<span class="go">   3 │ AH       aa            3       0.8</span>
-<span class="go">   4 │ AI       bb            4       0.9</span>
-<span class="go">   5 │ AJ       aa            5       1.0</span>
+<span class="go"> Row │ id      groups  value  percent </span>
+<span class="go">     │ String  String  Int64  Float64 </span>
+<span class="go">─────┼────────────────────────────────</span>
+<span class="go">   1 │ AF      aa          1      0.6</span>
+<span class="go">   2 │ AG      bb          2      0.7</span>
+<span class="go">   3 │ AH      aa          3      0.8</span>
+<span class="go">   4 │ AI      bb          4      0.9</span>
+<span class="go">   5 │ AJ      aa          5      1.0</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">         </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
@@ -1059,13 +1059,13 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">2×2 DataFrame</span>
-<span class="go"> Row │ groups   mean     </span>
-<span class="go">     │ String?  Float64? </span>
-<span class="go">─────┼───────────────────</span>
-<span class="go">   1 │ aa            0.6</span>
-<span class="go">   2 │ bb            0.5</span>
+<span class="go"> Row │ groups  mean    </span>
+<span class="go">     │ String  Float64 </span>
+<span class="go">─────┼─────────────────</span>
+<span class="go">   1 │ aa          0.6</span>
+<span class="go">   2 │ bb          0.5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L38-L93' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L38-L93' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@full_join-NTuple{4, Any}' href='#TidierDB.@full_join-NTuple{4, Any}'>#</a>
 <strong><code>TidierDB.@full_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@inner_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="p">)</span>
@@ -1115,7 +1115,7 @@
 <span class="go">  11 │ missing  missing  missing  missing    AK       Y              68</span>
 <span class="go">  12 │ missing  missing  missing  missing    AM       X              74</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/joins_sq.jl#L166-L218' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/joins_sq.jl#L166-L218' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@group_by-Tuple{Any, Vararg{Any}}' href='#TidierDB.@group_by-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@group_by</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@group_by</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -1142,13 +1142,13 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">2×1 DataFrame</span>
-<span class="go"> Row │ groups  </span>
-<span class="go">     │ String? </span>
-<span class="go">─────┼─────────</span>
+<span class="go"> Row │ groups </span>
+<span class="go">     │ String </span>
+<span class="go">─────┼────────</span>
 <span class="go">   1 │ aa</span>
 <span class="go">   2 │ bb</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L288-L320' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L288-L320' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@head' href='#TidierDB.@head'>#</a>
 <strong><code>TidierDB.@head</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@head</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
@@ -1174,12 +1174,12 @@
 <span class="w">        </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">1×4 DataFrame</span>
-<span class="go"> Row │ id       groups   value   percent  </span>
-<span class="go">     │ String?  String?  Int64?  Float64? </span>
-<span class="go">─────┼────────────────────────────────────</span>
-<span class="go">   1 │ AA       bb            1       0.1</span>
+<span class="go"> Row │ id      groups  value  percent </span>
+<span class="go">     │ String  String  Int64  Float64 </span>
+<span class="go">─────┼────────────────────────────────</span>
+<span class="go">   1 │ AA      bb          1      0.1</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L761-L792' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L761-L792' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@inner_join-NTuple{4, Any}' href='#TidierDB.@inner_join-NTuple{4, Any}'>#</a>
 <strong><code>TidierDB.@inner_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@inner_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="p">)</span>
@@ -1213,16 +1213,16 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">5×7 DataFrame</span>
-<span class="go"> Row │ id       groups   value   percent   id2      category  score  </span>
-<span class="go">     │ String?  String?  Int64?  Float64?  String?  String?   Int64? </span>
-<span class="go">─────┼───────────────────────────────────────────────────────────────</span>
-<span class="go">   1 │ AA       bb            1       0.1  AA       X             88</span>
-<span class="go">   2 │ AC       bb            3       0.3  AC       Y             92</span>
-<span class="go">   3 │ AE       bb            5       0.5  AE       X             77</span>
-<span class="go">   4 │ AG       bb            2       0.7  AG       Y             83</span>
-<span class="go">   5 │ AI       bb            4       0.9  AI       X             95</span>
+<span class="go"> Row │ id      groups  value  percent  id2     category  score </span>
+<span class="go">     │ String  String  Int64  Float64  String  String    Int64 </span>
+<span class="go">─────┼─────────────────────────────────────────────────────────</span>
+<span class="go">   1 │ AA      bb          1      0.1  AA      X            88</span>
+<span class="go">   2 │ AC      bb          3      0.3  AC      Y            92</span>
+<span class="go">   3 │ AE      bb          5      0.5  AE      X            77</span>
+<span class="go">   4 │ AG      bb          2      0.7  AG      Y            83</span>
+<span class="go">   5 │ AI      bb          4      0.9  AI      X            95</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/joins_sq.jl#L118-L163' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/joins_sq.jl#L118-L163' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@interpolate-Tuple' href='#TidierDB.@interpolate-Tuple'>#</a>
 <strong><code>TidierDB.@interpolate</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@interpolate</span><span class="p">(</span><span class="n">args</span><span class="o">...</span><span class="p">)</span>
@@ -1265,12 +1265,12 @@
 <span class="w">          </span><span class="nd">@collect</span>
 <span class="w">          </span><span class="k">end</span>
 <span class="mi">1</span><span class="o">×</span><span class="mi">3</span><span class="w"> </span><span class="n">DataFrame</span>
-<span class="w"> </span><span class="n">Row</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">id</span><span class="w">       </span><span class="n">value</span><span class="w">   </span><span class="n">percent</span><span class="w">  </span>
-<span class="w">     </span><span class="n">│</span><span class="w"> </span><span class="kt">String</span><span class="o">?</span><span class="w">  </span><span class="kt">Int64</span><span class="o">?</span><span class="w">  </span><span class="kt">Float64</span><span class="o">?</span><span class="w"> </span>
-<span class="n">─────┼───────────────────────────</span>
-<span class="w">   </span><span class="mi">1</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AA</span><span class="w">            </span><span class="mi">1</span><span class="w">       </span><span class="mf">0.1</span>
+<span class="w"> </span><span class="n">Row</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">id</span><span class="w">      </span><span class="n">value</span><span class="w">  </span><span class="n">percent</span><span class="w"> </span>
+<span class="w">     </span><span class="n">│</span><span class="w"> </span><span class="kt">String</span><span class="w">  </span><span class="kt">Int64</span><span class="w">  </span><span class="kt">Float64</span><span class="w"> </span>
+<span class="n">─────┼────────────────────────</span>
+<span class="w">   </span><span class="mi">1</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AA</span><span class="w">          </span><span class="mi">1</span><span class="w">      </span><span class="mf">0.1</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/structs.jl#L60-L104' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/structs.jl#L60-L104' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@left_join-NTuple{4, Any}' href='#TidierDB.@left_join-NTuple{4, Any}'>#</a>
 <strong><code>TidierDB.@left_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@left_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="p">)</span>
@@ -1304,21 +1304,21 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">10×7 DataFrame</span>
-<span class="go"> Row │ id       groups   value   percent   id2      category  score   </span>
-<span class="go">     │ String?  String?  Int64?  Float64?  String?  String?   Int64?  </span>
-<span class="go">─────┼────────────────────────────────────────────────────────────────</span>
-<span class="go">   1 │ AA       bb            1       0.1  AA       X              88</span>
-<span class="go">   2 │ AC       bb            3       0.3  AC       Y              92</span>
-<span class="go">   3 │ AE       bb            5       0.5  AE       X              77</span>
-<span class="go">   4 │ AG       bb            2       0.7  AG       Y              83</span>
-<span class="go">   5 │ AI       bb            4       0.9  AI       X              95</span>
-<span class="go">   6 │ AB       aa            2       0.2  missing  missing   missing </span>
-<span class="go">   7 │ AD       aa            4       0.4  missing  missing   missing </span>
-<span class="go">   8 │ AF       aa            1       0.6  missing  missing   missing </span>
-<span class="go">   9 │ AH       aa            3       0.8  missing  missing   missing </span>
-<span class="go">  10 │ AJ       aa            5       1.0  missing  missing   missing </span>
+<span class="go"> Row │ id      groups  value  percent  id2      category  score   </span>
+<span class="go">     │ String  String  Int64  Float64  String?  String?   Int64?  </span>
+<span class="go">─────┼────────────────────────────────────────────────────────────</span>
+<span class="go">   1 │ AA      bb          1      0.1  AA       X              88</span>
+<span class="go">   2 │ AC      bb          3      0.3  AC       Y              92</span>
+<span class="go">   3 │ AE      bb          5      0.5  AE       X              77</span>
+<span class="go">   4 │ AG      bb          2      0.7  AG       Y              83</span>
+<span class="go">   5 │ AI      bb          4      0.9  AI       X              95</span>
+<span class="go">   6 │ AB      aa          2      0.2  missing  missing   missing </span>
+<span class="go">   7 │ AD      aa          4      0.4  missing  missing   missing </span>
+<span class="go">   8 │ AF      aa          1      0.6  missing  missing   missing </span>
+<span class="go">   9 │ AH      aa          3      0.8  missing  missing   missing </span>
+<span class="go">  10 │ AJ      aa          5      1.0  missing  missing   missing </span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/joins_sq.jl#L24-L74' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/joins_sq.jl#L24-L74' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@mutate-Tuple{Any, Vararg{Any}}' href='#TidierDB.@mutate-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@mutate</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@mutate</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">exprs</span><span class="o">...</span><span class="p">)</span>
@@ -1344,21 +1344,21 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">10×5 DataFrame</span>
-<span class="go"> Row │ id       groups   value   percent   new_col  </span>
-<span class="go">     │ String?  String?  Int64?  Float64?  Float64? </span>
-<span class="go">─────┼──────────────────────────────────────────────</span>
-<span class="go">   1 │ AA       bb            4       0.1      0.01</span>
-<span class="go">   2 │ AB       aa            8       0.2      0.04</span>
-<span class="go">   3 │ AC       bb           12       0.3      0.09</span>
-<span class="go">   4 │ AD       aa           16       0.4      0.16</span>
-<span class="go">   5 │ AE       bb           20       0.5      0.25</span>
-<span class="go">   6 │ AF       aa            4       0.6      0.36</span>
-<span class="go">   7 │ AG       bb            8       0.7      0.49</span>
-<span class="go">   8 │ AH       aa           12       0.8      0.64</span>
-<span class="go">   9 │ AI       bb           16       0.9      0.81</span>
-<span class="go">  10 │ AJ       aa           20       1.0      1.0</span>
+<span class="go"> Row │ id      groups  value  percent  new_col </span>
+<span class="go">     │ String  String  Int64  Float64  Float64 </span>
+<span class="go">─────┼─────────────────────────────────────────</span>
+<span class="go">   1 │ AA      bb          4      0.1     0.01</span>
+<span class="go">   2 │ AB      aa          8      0.2     0.04</span>
+<span class="go">   3 │ AC      bb         12      0.3     0.09</span>
+<span class="go">   4 │ AD      aa         16      0.4     0.16</span>
+<span class="go">   5 │ AE      bb         20      0.5     0.25</span>
+<span class="go">   6 │ AF      aa          4      0.6     0.36</span>
+<span class="go">   7 │ AG      bb          8      0.7     0.49</span>
+<span class="go">   8 │ AH      aa         12      0.8     0.64</span>
+<span class="go">   9 │ AI      bb         16      0.9     0.81</span>
+<span class="go">  10 │ AJ      aa         20      1.0     1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L183-L221' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L183-L221' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@rename-Tuple{Any, Vararg{Any}}' href='#TidierDB.@rename-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@rename</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@rename</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">renamings</span><span class="o">...</span><span class="p">)</span>
@@ -1381,21 +1381,21 @@
 <span class="w">       </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">10×4 DataFrame</span>
-<span class="go"> Row │ id       groups   value   new_name </span>
-<span class="go">     │ String?  String?  Int64?  Float64? </span>
-<span class="go">─────┼────────────────────────────────────</span>
-<span class="go">   1 │ AA       bb            1       0.1</span>
-<span class="go">   2 │ AB       aa            2       0.2</span>
-<span class="go">   3 │ AC       bb            3       0.3</span>
-<span class="go">   4 │ AD       aa            4       0.4</span>
-<span class="go">   5 │ AE       bb            5       0.5</span>
-<span class="go">   6 │ AF       aa            1       0.6</span>
-<span class="go">   7 │ AG       bb            2       0.7</span>
-<span class="go">   8 │ AH       aa            3       0.8</span>
-<span class="go">   9 │ AI       bb            4       0.9</span>
-<span class="go">  10 │ AJ       aa            5       1.0</span>
+<span class="go"> Row │ id      groups  value  new_name </span>
+<span class="go">     │ String  String  Int64  Float64  </span>
+<span class="go">─────┼─────────────────────────────────</span>
+<span class="go">   1 │ AA      bb          1       0.1</span>
+<span class="go">   2 │ AB      aa          2       0.2</span>
+<span class="go">   3 │ AC      bb          3       0.3</span>
+<span class="go">   4 │ AD      aa          4       0.4</span>
+<span class="go">   5 │ AE      bb          5       0.5</span>
+<span class="go">   6 │ AF      aa          1       0.6</span>
+<span class="go">   7 │ AG      bb          2       0.7</span>
+<span class="go">   8 │ AH      aa          3       0.8</span>
+<span class="go">   9 │ AI      bb          4       0.9</span>
+<span class="go">  10 │ AJ      aa          5       1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L488-L527' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L488-L527' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@right_join-NTuple{4, Any}' href='#TidierDB.@right_join-NTuple{4, Any}'>#</a>
 <strong><code>TidierDB.@right_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@right_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="p">)</span>
@@ -1429,18 +1429,18 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">7×7 DataFrame</span>
-<span class="go"> Row │ id       groups   value    percent    id2      category  score  </span>
-<span class="go">     │ String?  String?  Int64?   Float64?   String?  String?   Int64? </span>
-<span class="go">─────┼─────────────────────────────────────────────────────────────────</span>
-<span class="go">   1 │ AA       bb             1        0.1  AA       X             88</span>
-<span class="go">   2 │ AC       bb             3        0.3  AC       Y             92</span>
-<span class="go">   3 │ AE       bb             5        0.5  AE       X             77</span>
-<span class="go">   4 │ AG       bb             2        0.7  AG       Y             83</span>
-<span class="go">   5 │ AI       bb             4        0.9  AI       X             95</span>
-<span class="go">   6 │ missing  missing  missing  missing    AK       Y             68</span>
-<span class="go">   7 │ missing  missing  missing  missing    AM       X             74</span>
+<span class="go"> Row │ id       groups   value    percent    id2     category  score </span>
+<span class="go">     │ String?  String?  Int64?   Float64?   String  String    Int64 </span>
+<span class="go">─────┼───────────────────────────────────────────────────────────────</span>
+<span class="go">   1 │ AA       bb             1        0.1  AA      X            88</span>
+<span class="go">   2 │ AC       bb             3        0.3  AC      Y            92</span>
+<span class="go">   3 │ AE       bb             5        0.5  AE      X            77</span>
+<span class="go">   4 │ AG       bb             2        0.7  AG      Y            83</span>
+<span class="go">   5 │ AI       bb             4        0.9  AI      X            95</span>
+<span class="go">   6 │ missing  missing  missing  missing    AK      Y            68</span>
+<span class="go">   7 │ missing  missing  missing  missing    AM      X            74</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/joins_sq.jl#L70-L117' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/joins_sq.jl#L70-L117' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@select-Tuple{Any, Vararg{Any}}' href='#TidierDB.@select-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@select</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@select</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="p">)</span>
@@ -1466,19 +1466,19 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">10×3 DataFrame</span>
-<span class="go"> Row │ groups   value   percent  </span>
-<span class="go">     │ String?  Int64?  Float64? </span>
-<span class="go">─────┼───────────────────────────</span>
-<span class="go">   1 │ bb            1       0.1</span>
-<span class="go">   2 │ aa            2       0.2</span>
-<span class="go">   3 │ bb            3       0.3</span>
-<span class="go">   4 │ aa            4       0.4</span>
-<span class="go">   5 │ bb            5       0.5</span>
-<span class="go">   6 │ aa            1       0.6</span>
-<span class="go">   7 │ bb            2       0.7</span>
-<span class="go">   8 │ aa            3       0.8</span>
-<span class="go">   9 │ bb            4       0.9</span>
-<span class="go">  10 │ aa            5       1.0</span>
+<span class="go"> Row │ groups  value  percent </span>
+<span class="go">     │ String  Int64  Float64 </span>
+<span class="go">─────┼────────────────────────</span>
+<span class="go">   1 │ bb          1      0.1</span>
+<span class="go">   2 │ aa          2      0.2</span>
+<span class="go">   3 │ bb          3      0.3</span>
+<span class="go">   4 │ aa          4      0.4</span>
+<span class="go">   5 │ bb          5      0.5</span>
+<span class="go">   6 │ aa          1      0.6</span>
+<span class="go">   7 │ bb          2      0.7</span>
+<span class="go">   8 │ aa          3      0.8</span>
+<span class="go">   9 │ bb          4      0.9</span>
+<span class="go">  10 │ aa          5      1.0</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">         </span><span class="nd">@select</span><span class="p">(</span><span class="n">contains</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">))</span>
@@ -1499,7 +1499,7 @@
 <span class="go">   9 │      4       0.9</span>
 <span class="go">  10 │      5       1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L1-L60' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L1-L60' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@semi_join-NTuple{4, Any}' href='#TidierDB.@semi_join-NTuple{4, Any}'>#</a>
 <strong><code>TidierDB.@semi_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@semi_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="p">)</span>
@@ -1533,16 +1533,16 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">5×4 DataFrame</span>
-<span class="go"> Row │ id       groups   value   percent  </span>
-<span class="go">     │ String?  String?  Int64?  Float64? </span>
-<span class="go">─────┼────────────────────────────────────</span>
-<span class="go">   1 │ AA       bb            1       0.1</span>
-<span class="go">   2 │ AC       bb            3       0.3</span>
-<span class="go">   3 │ AE       bb            5       0.5</span>
-<span class="go">   4 │ AG       bb            2       0.7</span>
-<span class="go">   5 │ AI       bb            4       0.9</span>
+<span class="go"> Row │ id      groups  value  percent </span>
+<span class="go">     │ String  String  Int64  Float64 </span>
+<span class="go">─────┼────────────────────────────────</span>
+<span class="go">   1 │ AA      bb          1      0.1</span>
+<span class="go">   2 │ AC      bb          3      0.3</span>
+<span class="go">   3 │ AE      bb          5      0.5</span>
+<span class="go">   4 │ AG      bb          2      0.7</span>
+<span class="go">   5 │ AI      bb          4      0.9</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/joins_sq.jl#L214-L259' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/joins_sq.jl#L214-L259' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@slice_max' href='#TidierDB.@slice_max'>#</a>
 <strong><code>TidierDB.@slice_max</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@slice_max</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
@@ -1575,13 +1575,13 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">2×5 DataFrame</span>
-<span class="go"> Row │ id       groups   value   percent   rank_col </span>
-<span class="go">     │ String?  String?  Int64?  Float64?  Int64?   </span>
-<span class="go">─────┼──────────────────────────────────────────────</span>
-<span class="go">   1 │ AE       bb            5       0.5         1</span>
-<span class="go">   2 │ AJ       aa            5       1.0         1</span>
+<span class="go"> Row │ id      groups  value  percent  rank_col </span>
+<span class="go">     │ String  String  Int64  Float64  Int64    </span>
+<span class="go">─────┼──────────────────────────────────────────</span>
+<span class="go">   1 │ AE      bb          5      0.5         1</span>
+<span class="go">   2 │ AJ      aa          5      1.0         1</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/slices_sq.jl#L89-L127' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/slices_sq.jl#L89-L127' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@slice_min' href='#TidierDB.@slice_min'>#</a>
 <strong><code>TidierDB.@slice_min</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@slice_min</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
@@ -1614,13 +1614,13 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">2×5 DataFrame</span>
-<span class="go"> Row │ id       groups   value   percent   rank_col </span>
-<span class="go">     │ String?  String?  Int64?  Float64?  Int64?   </span>
-<span class="go">─────┼──────────────────────────────────────────────</span>
-<span class="go">   1 │ AA       bb            1       0.1         1</span>
-<span class="go">   2 │ AF       aa            1       0.6         1</span>
+<span class="go"> Row │ id      groups  value  percent  rank_col </span>
+<span class="go">     │ String  String  Int64  Float64  Int64    </span>
+<span class="go">─────┼──────────────────────────────────────────</span>
+<span class="go">   1 │ AA      bb          1      0.1         1</span>
+<span class="go">   2 │ AF      aa          1      0.6         1</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/slices_sq.jl#L1-L39' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/slices_sq.jl#L1-L39' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@slice_sample' href='#TidierDB.@slice_sample'>#</a>
 <strong><code>TidierDB.@slice_sample</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@slice_sample</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
@@ -1652,7 +1652,7 @@
 <span class="w">       </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span><span class="p">;</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/slices_sq.jl#L179-L209' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/slices_sq.jl#L179-L209' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@summarise-Tuple{Any, Vararg{Any}}' href='#TidierDB.@summarise-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@summarise</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span><span class="nd">@summarise</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">exprs</span><span class="o">...</span><span class="p">)</span>
@@ -1680,11 +1680,11 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">2×5 DataFrame</span>
-<span class="go"> Row │ groups   mean_value  mean_percent  sum_value  sum_percent </span>
-<span class="go">     │ String?  Float64?    Float64?      Int128?    Float64?    </span>
-<span class="go">─────┼───────────────────────────────────────────────────────────</span>
-<span class="go">   1 │ aa              3.0           0.6         15          3.0</span>
-<span class="go">   2 │ bb              3.0           0.5         15          2.5</span>
+<span class="go"> Row │ groups  mean_value  mean_percent  sum_value  sum_percent </span>
+<span class="go">     │ String  Float64     Float64       Int128     Float64     </span>
+<span class="go">─────┼──────────────────────────────────────────────────────────</span>
+<span class="go">   1 │ aa             3.0           0.6         15          3.0</span>
+<span class="go">   2 │ bb             3.0           0.5         15          2.5</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">         </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
@@ -1693,13 +1693,13 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">2×3 DataFrame</span>
-<span class="go"> Row │ groups   test      n      </span>
-<span class="go">     │ String?  Float64?  Int64? </span>
-<span class="go">─────┼───────────────────────────</span>
-<span class="go">   1 │ aa            3.0       5</span>
-<span class="go">   2 │ bb            2.5       5</span>
+<span class="go"> Row │ groups  test     n     </span>
+<span class="go">     │ String  Float64  Int64 </span>
+<span class="go">─────┼────────────────────────</span>
+<span class="go">   1 │ aa          3.0      5</span>
+<span class="go">   2 │ bb          2.5      5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L441-L486' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L441-L486' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@summarize-Tuple{Any, Vararg{Any}}' href='#TidierDB.@summarize-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@summarize</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">exprs</span><span class="o">...</span><span class="p">)</span>
@@ -1727,11 +1727,11 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">2×5 DataFrame</span>
-<span class="go"> Row │ groups   mean_value  mean_percent  sum_value  sum_percent </span>
-<span class="go">     │ String?  Float64?    Float64?      Int128?    Float64?    </span>
-<span class="go">─────┼───────────────────────────────────────────────────────────</span>
-<span class="go">   1 │ aa              3.0           0.6         15          3.0</span>
-<span class="go">   2 │ bb              3.0           0.5         15          2.5</span>
+<span class="go"> Row │ groups  mean_value  mean_percent  sum_value  sum_percent </span>
+<span class="go">     │ String  Float64     Float64       Int128     Float64     </span>
+<span class="go">─────┼──────────────────────────────────────────────────────────</span>
+<span class="go">   1 │ aa             3.0           0.6         15          3.0</span>
+<span class="go">   2 │ bb             3.0           0.5         15          2.5</span>
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="ss">:df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">         </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
@@ -1740,13 +1740,13 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span>
 <span class="go">2×3 DataFrame</span>
-<span class="go"> Row │ groups   test      n      </span>
-<span class="go">     │ String?  Float64?  Int64? </span>
-<span class="go">─────┼───────────────────────────</span>
-<span class="go">   1 │ aa            3.0       5</span>
-<span class="go">   2 │ bb            2.5       5</span>
+<span class="go"> Row │ groups  test     n     </span>
+<span class="go">     │ String  Float64  Int64 </span>
+<span class="go">─────┼────────────────────────</span>
+<span class="go">   1 │ aa          3.0      5</span>
+<span class="go">   2 │ bb          2.5      5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L387-L432' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L387-L432' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@window_frame-Tuple{Any, Int64, Int64}' href='#TidierDB.@window_frame-Tuple{Any, Int64, Int64}'>#</a>
 <strong><code>TidierDB.@window_frame</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@window_frame</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">frame_start</span><span class="o">::</span><span class="kt">Int</span><span class="p">,</span><span class="w"> </span><span class="n">frame_end</span><span class="o">::</span><span class="kt">Int</span><span class="p">)</span>
@@ -1768,7 +1768,7 @@
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L597-L618' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L597-L618' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@window_order-Tuple{Any, Vararg{Any}}' href='#TidierDB.@window_order-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@window_order</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span><span class="nd">@window_order</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -1789,7 +1789,7 @@
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_mem&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/5898be3843da39a772857e1d0a6d25a423d1b360/src/TBD_macros.jl#L555-L574' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/975b97147a88f0d544cab8a7dbfc64c5a256afd2/src/TBD_macros.jl#L555-L574' class='documenter-source'>source</a><br></p>
 <p><a id='Reference-Internal-functions'></a></p>
 <p><a id='Reference-Internal-functions-1'></a></p>
 <h2 id="reference-internal-functions">Reference - Internal functions<a class="headerlink" href="#reference-internal-functions" title="Permanent link">¤</a></h2>

@@ -154,10 +154,9 @@ function finalize_query(sqlquery::SQLQuery)
     complete_query = replace(complete_query, "&&" => " AND ", "||" => " OR ",
      "FROM )" => ")" ,  "SELECT SELECT " => "SELECT ", "SELECT  SELECT " => "SELECT ", "DISTINCT SELECT " => "DISTINCT ", 
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", 
-     r"var\"(.*?)\"" => s"\1")
+     r"var\"(.*?)\"" => s"\1", r"\"\\\$" => "\"\$")
       
      complete_query = replace(complete_query, ", AS " => " AS ")
-
     if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end

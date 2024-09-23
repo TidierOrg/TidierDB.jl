@@ -1,10 +1,10 @@
 # TidierDB.jl updates
 
-## v0.3.4 - 2024
-TidierDB works with any exisiting SQL function 
+## v0.3.4 - 2024 2024-09-23
+TidierDB works with nearly any exisiting SQL function, now there are docs about it.
 - Docs on using any exisiting SQL function in TidierDB
 - Docs on user defined functions (UDFs) in TidierDB
-- Adds `agg()` to use any aggregate built into a database to be used in `@mutate`. (`@summarize` continues to all aggregate SQL functions without `agg()`)
+- Adds `agg()` to use any aggregate built into a database to be used in `@mutate`. support for `agg()` in across. (`@summarize` continues to all aggregate SQL functions without `agg()`)
 - Adds `t(query)` as a more efficient alternative to reference tables.
 ```
 table = db_table(db, "name")
@@ -12,6 +12,7 @@ table = db_table(db, "name")
 ```
 - Bugfix: fixes MsSQL joins 
 - Bugfix: window functions
+- Bugfix: json paths supported for `json` DuckDB functions
 
 ## v0.3.3 - 2024-08-29
 - Bugfix: `@mutate` allows type conversion as part of larger mutate expressions

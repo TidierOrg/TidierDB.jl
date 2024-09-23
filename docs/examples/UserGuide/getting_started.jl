@@ -61,6 +61,6 @@
 # end 
 # ```
 # ---
-# Tip: Setting `t(table) = from_query(table)` will save some keystrokes. 
-# This means after saving the results of `db_table` you can start all chains/refer to the data with `t(table)`
+# Tip: `t()` is an alias for `from_query`
+# This means after saving the results of `db_table` use `t(table)` refer to the table or prior query 
 # --- 

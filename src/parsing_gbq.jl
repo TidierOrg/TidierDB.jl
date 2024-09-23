@@ -111,13 +111,26 @@ function expr_to_sql_gbq(expr, sq; from_summarize::Bool)
                 window_clause = construct_window_clause(sq)
                 return  "VAR_SAMP($(string(a))) $(window_clause)"
             end
-        #elseif @capture(x, sql_agg(str_))
-        #    if from_summarize
-        #        return  error("sql_agg is only needed with aggregate functions in @mutate")
-        #    else
-        #        window_clause = construct_window_clause(sq)
-        #        return "$(str) $(window_clause)"
-        #    end
+        elseif isa(x, Expr) && x.head == :call && x.args[1] == :agg
+            args = x.args[2:end]       # Capture all arguments to agg
+            if from_summarize
+                return error("agg is only needed with aggregate functions in @mutate")
+            else
+                window_clause = construct_window_clause(sq)
+                # Create the SQL string representation of the agg function call
+                arg_str = join(map(string, args), ", ")
+                str = "$(arg_str)"
+                return "$(str) $(window_clause)"
+            end
+        elseif !isempty(sq.window_order) && isa(x, Expr) && x.head == :call
+            function_name = x.args[1]  # This will be `lead`
+            args = x.args[2:end]       # Capture all arguments from the second position onward
+            window_clause = construct_window_clause(sq)
+        
+            # Create the SQL string representation of the function call
+            arg_str = join(map(string, args), ", ")  # Join arguments into a string
+            str = "$(function_name)($(arg_str))"      # Construct the function call string
+            return "$(str) $(window_clause)"
         #stringr functions, have to use function that removes _ so capture can capture name
         elseif @capture(x, strreplaceall(str_, pattern_, replace_))
             return :(REGEXP_REPLACE($str, $pattern, $replace, 'g'))

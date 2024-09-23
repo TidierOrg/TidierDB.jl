@@ -102,3 +102,5 @@ function from_query(query::TidierDB.SQLQuery)
     )
     return new_query
 end
+
+t(table) = from_query(table)

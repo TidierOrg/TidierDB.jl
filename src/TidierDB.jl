@@ -18,7 +18,7 @@ using GZip
  @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
  @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, 
  @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,  @head, 
- clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables
+ clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, t
 
  abstract type SQLBackend end
 
@@ -154,10 +154,9 @@ function finalize_query(sqlquery::SQLQuery)
     complete_query = replace(complete_query, "&&" => " AND ", "||" => " OR ",
      "FROM )" => ")" ,  "SELECT SELECT " => "SELECT ", "SELECT  SELECT " => "SELECT ", "DISTINCT SELECT " => "DISTINCT ", 
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", 
-     r"var\"(.*?)\"" => s"\1")
+     r"var\"(.*?)\"" => s"\1", r"\"\\\$" => "\"\$")
       
      complete_query = replace(complete_query, ", AS " => " AS ")
-
     if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end
@@ -172,7 +171,7 @@ end
 
 
 # DuckDB
-function get_table_metadata(conn::DuckDB.DB, table_name::String)
+function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_name::String)
     set_sql_mode(duckdb());
     query = 
         """

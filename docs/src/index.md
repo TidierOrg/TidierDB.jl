@@ -39,9 +39,10 @@ TidierDB.jl currently supports:
 | **Helper Functions**             | `across`, `desc`, `if_else`, `case_when`, `n`, `starts_with`, `ends_with`, `contains`, `as_float`, `as_integer`, `as_string`, `is_missing`, `missing_if`, `replace_missing` |
 | **TidierStrings.jl Functions** | `str_detect`, `str_replace`, `str_replace_all`, `str_remove_all`, `str_remove`                                                                                               |
 | **TidierDates.jl Functions**   | `year`, `month`, `day`, `hour`, `min`, `second`, `floor_date`, `difftime`                                                                                                   |
-| **Aggregate Functions**          | `mean`, `minimum`, `maximum`, `std`, `sum`, `cumsum`, `cor`, `cov`, `var`, 
+| **Aggregate Functions**          | `mean`, `minimum`, `maximum`, `std`, `sum`, `cumsum`, `cor`, `cov`, `var`, all SQL aggregate
 
-`@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.                                                                                                    |
+`@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.
+`@mutate` supports nearly all functions built into SQL as well.                                                                                                          
 
 
 When using the DuckDB backend, if `db_table` recieves a file path ( `.parquet`, `.json`, `.csv`, `iceberg` or `delta`), it does not copy it into memory. This allows for queries on files too big for memory. `db_table` also supports S3 bucket locations via DuckDB.

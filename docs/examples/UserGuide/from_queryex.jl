@@ -1,4 +1,4 @@
-# While using TidierDB, you may need to generate part of a query and reuse it multiple times. `from_query()` enables a query portion to be reused multiple times as shown below.
+# While using TidierDB, you may need to generate part of a query and reuse it multiple times. `from_query()` or `t()` enable a query portion to be reused multiple times as shown below.
 
 # ```julia
 # import TidierDB as DB

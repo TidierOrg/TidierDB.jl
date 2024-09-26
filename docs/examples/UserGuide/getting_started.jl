@@ -53,10 +53,10 @@
 # If you are working with a backend where compute cost is important, it will be important to minimize using `db_table` as this will requery for metadata each time. 
 # Compute costs are relevant to backends such as AWS, databricks and Snowflake. 
 
-# To do this, save the results of `db_table` and use them with `from_query`. Using `from_query` pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time
+# To do this, save the results of `db_table` and use them with `t`. Using `t` pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time
 # ```julia
 # table = DB.db_table(con, "path")
-# @chain DB.from_query(table) begin
+# @chain DB.t(table) begin
 #     ## data wrangling here 
 # end 
 # ```

@@ -20,7 +20,9 @@ julia> db = connect(duckdb());
 
 julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> df_mem = db_table(db, :df_mem);
+
+julia> @chain t(df_mem) begin
          @select(groups:percent)
          @collect
        end
@@ -39,7 +41,7 @@ julia> @chain db_table(db, :df_mem) begin
    9 │ bb          4      0.9
   10 │ aa          5      1.0
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain t(df_mem) begin
          @select(contains("e"))
          @collect
        end
@@ -925,20 +927,30 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 julia> copy_to(db, df, "df_mem");
+
+julia> @chain db_table(db, :df_mem) begin
+        @group_by groups
+        @window_frame(3)
+        @window_order(desc(percent))
+        @mutate(avg = mean(value))
+       #@show_query 
+       end;
 ```
 """
 
 const docstring_window_frame = 
 """
-    @window_frame(sql_query, frame_start::Int, frame_end::Int)
+    @window_frame(sql_query, args...)
 
 Define the window frame for window functions in a SQL query, specifying the range of rows to include in the calculation relative to the current row.
 
 # Arguments
-sql_query: The SQL query to operate on, expected to be an instance of SQLQuery.
-- `frame_start`: The starting point of the window frame. A positive value indicates the start after the current row (FOLLOWING), a negative value indicates before the current row (PRECEDING), and 0 indicates the current row.
-- `frame_end`: The ending point of the window frame. A positive value indicates the end after the current row (FOLLOWING), a negative value indicates before the current row (PRECEDING), and 0 indicates the current row.
-
+- `sqlquery::SQLQuery`: The SQLQuery instance to which the window frame will be applied.
+- `args...`: A variable number of arguments specifying the frame boundaries. These can be:
+    - `from`: The starting point of the frame. Can be a positive or negative integer, 0 or empty. When empty, it will use UNBOUNDED
+    - `to`: The ending point of the frame. Can be a positive or negative integer,  0 or empty. When empty, it will use UNBOUNDED
+    - if only one integer is provided without specifying `to` or `from` it will default to from, and to will be UNBOUNDED.
+    - if no arguments are given, both will be UNBOUNDED
 # Examples 
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -949,6 +961,36 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 julia> copy_to(db, df, "df_mem");
+
+julia> df_mem = db_table(db, :df_mem);
+
+julia> @chain t(df_mem) begin
+        @group_by groups
+        @window_frame(3)
+        @mutate(avg = mean(percent))
+        #@show_query
+       end;
+
+julia> @chain t(df_mem) begin
+        @group_by groups
+        @window_frame(-3, 3)
+        @mutate(avg = mean(percent))
+        #@show_query
+       end;
+
+julia> @chain t(df_mem) begin
+        @group_by groups
+        @window_frame(to = -3)
+        @mutate(avg = mean(percent))
+        #@show_query
+       end;
+
+julia> @chain t(df_mem) begin
+        @group_by groups
+        @window_frame()
+        @mutate(avg = mean(percent))
+        #@show_query
+       end;
 ```
 """
 

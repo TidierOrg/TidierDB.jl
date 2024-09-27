@@ -573,7 +573,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @left_join(df_join, id2, id)
+         @left_join(:df_join, id2, id)
          @collect
        end
 10×7 DataFrame
@@ -723,10 +723,11 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @full_join(df_join, id2, id)
+         @full_join((@chain db_table(db, :df_join) @filter(score > 70)), id2, id)
+         #@aside @show_query _
          @collect
        end
-12×7 DataFrame
+11×7 DataFrame
  Row │ id       groups   value    percent    id2      category  score   
      │ String?  String?  Int64?   Float64?   String?  String?   Int64?  
 ─────┼──────────────────────────────────────────────────────────────────
@@ -740,8 +741,7 @@ julia> @chain db_table(db, :df_mem) begin
    8 │ AF       aa             1        0.6  missing  missing   missing 
    9 │ AH       aa             3        0.8  missing  missing   missing 
   10 │ AJ       aa             5        1.0  missing  missing   missing 
-  11 │ missing  missing  missing  missing    AK       Y              68
-  12 │ missing  missing  missing  missing    AM       X              74
+  11 │ missing  missing  missing  missing    AM       X              74
 ```
 """
 
@@ -1247,5 +1247,67 @@ SQLQuery("", "df_mem", "", "", "", "", "", "", false, false, 4×4 DataFrame
    2 │ groups   VARCHAR              1  df_mem
    3 │ value    BIGINT               1  df_mem
    4 │ percent  DOUBLE               1  df_mem, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
+```
+"""
+
+const docstring_union = 
+"""
+    @union(sql_query1, sql_query2)
+
+Combine two SQL queries using the `UNION` operator.
+
+# Arguments
+- `sql_query1`: The first SQL query to combine.
+- `sql_query2`: The second SQL query to combine.
+
+# Returns
+- A new SQL query struct representing the combined queries.
+
+# Examples
+```julia
+julia> db = connect(duckdb());
+
+julia> df1 = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
+
+julia> df2 = DataFrame(id = [4, 5, 6], value = [40, 50, 60]);
+
+julia> copy_to(db, df1, "df1");
+
+julia> copy_to(db, df2, "df2");
+
+julia> df1_table = db_table(db, "df1");
+
+julia> df2_table = db_table(db, "df2");
+
+julia> @chain t(df1_table) @union(df2_table) @collect
+6×2 DataFrame
+ Row │ id     value 
+     │ Int64  Int64 
+─────┼──────────────
+   1 │     1     10
+   2 │     2     20
+   3 │     3     30
+   4 │     4     40
+   5 │     5     50
+   6 │     6     60
+
+julia> query = @chain t(df2_table) @filter(value >40);
+
+
+julia> @chain t(df1_table) begin 
+  @union(t(query)) 
+  @collect
+end
+
+julia> @chain t(df1_table) @union("df2") @collect
+5×2 DataFrame
+ Row │ id     value 
+     │ Int64  Int64 
+─────┼──────────────
+   1 │     1     10
+   2 │     2     20
+   3 │     3     30
+   4 │     5     50
+   5 │     6     60
 ```
 """

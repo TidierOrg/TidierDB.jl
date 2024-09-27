@@ -1036,7 +1036,10 @@ This function establishes a database connection based on the specified backend a
 # Connect to AWS via DuckDB
 # aws_db = connect2(duckdb(), :aws, aws_access_key_id=get(ENV, "AWS_ACCESS_KEY_ID", "access_key"), aws_secret_access_key=get(ENV, "AWS_SECRET_ACCESS_KEY", "secret_access key"), aws_region=get(ENV, "AWS_DEFAULT_REGION", "us-east-1"))
 # Connect to MotherDuck
-# connect(duckdb(), "token") for first connection, vs connect(duckdb(), "md:") for reconnection
+# connect(duckdb(), ""md://..."") for first connection, vs connect(duckdb(), "md:") for reconnection
+# Connect to exisiting database file
+# connect(duckdb(), "path/to/database.duckdb")
+# Open an in-memory database
 julia> db = connect(duckdb())
 DuckDB.Connection(":memory:")
 ```
@@ -1094,7 +1097,7 @@ const docstring_db_table =
     db_table(database, table_name, athena_params, delta = false, iceberg = false)
 
 `db_table` starts the underlying SQL query struct, adding the metadata and table. If paths are passed directly to db_table instead of a 
-name it will not copy it to memory, but rather ready directly from the file.
+name it will not copy it to memory, but rather ready directly from the file. `db_table` only supports direct file paths to a table. It does not support database file paths such as `dbname.duckdb` or `dbname.sqlite`. Such files must be used with `connect first`
 
 # Arguments
 - `database`: The Database or connection object
@@ -1221,11 +1224,7 @@ Shows tables available in database. currently supports DuckDB, databricks, Snowf
 ```jldoctest
 julia> db = connect(duckdb());
 
-julia> show_tables(db) # there are no tables in when first loading so df below is empty.
-0×1 DataFrame
- Row │ name   
-     │ String 
-─────┴────────
+julia> show_tables(db);
 ```
 """
 

@@ -361,6 +361,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#connect-to-a-local-database-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Connect to a local database file
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#package-extensions" class="md-nav__link">
     <span class="md-ellipsis">
       Package Extensions
@@ -373,15 +382,6 @@
   <a href="#db_table" class="md-nav__link">
     <span class="md-ellipsis">
       db_table
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#minimizing-compute-costs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Minimizing Compute Costs
     </span>
   </a>
   
@@ -629,6 +629,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#connect-to-a-local-database-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Connect to a local database file
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#package-extensions" class="md-nav__link">
     <span class="md-ellipsis">
       Package Extensions
@@ -641,15 +650,6 @@
   <a href="#db_table" class="md-nav__link">
     <span class="md-ellipsis">
       db_table
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#minimizing-compute-costs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Minimizing Compute Costs
     </span>
   </a>
   
@@ -688,7 +688,13 @@
 <p>versus connecting to DuckDB</p>
 <div class="highlight"><pre><span></span><code><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">duckdb</span><span class="p">())</span>
 </code></pre></div>
-<p>You can also use establish a connection through an alternate method that you preferred, and use that as your connection as well.</p>
+<p><a id='Connect-to-a-local-database-file'></a></p>
+<p><a id='Connect-to-a-local-database-file-1'></a></p>
+<h2 id="connect-to-a-local-database-file">Connect to a local database file<a class="headerlink" href="#connect-to-a-local-database-file" title="Permanent link">¤</a></h2>
+<p>You can also connect to an existing database by passing the database file path as a string.</p>
+<div class="highlight"><pre><span></span><code><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">duckdb</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;mydb.duckdb&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>You can also establish any DuckDB connection through an alternate method that you prefer, and use that as your connection as well.</p>
 <p><a id='Package-Extensions'></a></p>
 <p><a id='Package-Extensions-1'></a></p>
 <h2 id="package-extensions">Package Extensions<a class="headerlink" href="#package-extensions" title="Permanent link">¤</a></h2>
@@ -710,25 +716,25 @@
 <p><code>db_table</code> starts the underlying SQL query struct, in addition to pulling the table metadata and storing it there. Storing metadata is what enables a lazy interface that also supports tidy selection.</p>
 <ul>
 <li><code>db_table</code> has two required arguments: <code>connection</code> and <code>table</code></li>
-<li><code>table</code> can be a table name on a database or a path/url to file to read.  When passing <code>db_table</code> a path or url, the table is not copied into memory.</li>
+<li>
+<p><code>table</code> can be a table name on a database or a path/url to file to read.  When passing <code>db_table</code> a path or url, the table is not copied into memory.</p>
+<ul>
+<li>Of note, <code>db_table</code> only support direct file paths to a table. It does not support database file paths such as <code>dbname.duckdb</code> or <code>dbname.sqlite</code>. Such files must be used with <code>connect</code> first.</li>
 <li>With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use <code>*</code> read in all files matching the pattern.</li>
 <li>For example, the below would read all files that end in <code>.csv</code> in the given folder.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;folder/path/*.csv&quot;</span><span class="p">)</span>
+</li>
+</ul>
+<p>db_table(db, "folder/path/*.csv")</p>
+<div class="highlight"><pre><span></span><code>`db_table` also supports iceberg, delta, and S3 file paths via DuckDB.
+
+## Minimizing Compute Costs
+If you are working with a backend where compute cost is important, it will be important to minimize using `db_table` as this will requery for metadata each time.
+Compute costs are relevant to backends such as AWS, databricks and Snowflake.
+
+To do this, save the results of `db_table` and use them with `t`. Using `t` pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time
 </code></pre></div>
-<p><code>db_table</code> also supports iceberg, delta, and S3 file paths via DuckDB.</p>
-<p><a id='Minimizing-Compute-Costs'></a></p>
-<p><a id='Minimizing-Compute-Costs-1'></a></p>
-<h2 id="minimizing-compute-costs">Minimizing Compute Costs<a class="headerlink" href="#minimizing-compute-costs" title="Permanent link">¤</a></h2>
-<p>If you are working with a backend where compute cost is important, it will be important to minimize using <code>db_table</code> as this will requery for metadata each time. Compute costs are relevant to backends such as AWS, databricks and Snowflake.</p>
-<p>To do this, save the results of <code>db_table</code> and use them with <code>t</code>. Using <code>t</code> pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time</p>
-<div class="highlight"><pre><span></span><code><span class="n">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;path&quot;</span><span class="p">)</span>
-<span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">    </span><span class="c">## data wrangling here</span>
-<span class="k">end</span>
-</code></pre></div>
-<hr />
-<p>Tip: <code>t()</code> is an alias for <code>from_query</code> This means after saving the results of <code>db_table</code> use <code>t(table)</code> refer to the table or prior query –-</p>
+<p>julia table = DB.db<em>table(con, "path") @chain DB.t(table) begin     ## data wrangling here end <code>``--- Tip:</code>t()<code>is an alias for</code>from</em>query<code>This means after saving the results of</code>db_table<code>use</code>t(table)` refer to the table or prior query –-</p>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 

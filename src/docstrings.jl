@@ -626,7 +626,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @right_join(df_join, id2, id)
+         @right_join("df_join", id2, id)
          @collect
        end
 7×7 DataFrame
@@ -676,7 +676,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @inner_join(df_join, id2, id)
+         @inner_join("df_join", id2, id)
          @collect
        end
 5×7 DataFrame
@@ -723,7 +723,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @full_join((@chain db_table(db, :df_join) @filter(score > 70)), id2, id)
+         @full_join((@chain db_table(db, "df_join") @filter(score > 70)), id2, id)
          #@aside @show_query _
          @collect
        end
@@ -778,7 +778,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @semi_join(df_join, id2, id)
+         @semi_join("df_join", id2, id)
          @collect
        end
 5×4 DataFrame
@@ -826,7 +826,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-        @anti_join(df_join, id2, id)
+        @anti_join("df_join", id2, id)
         @collect
        end
 5×4 DataFrame
@@ -1291,15 +1291,12 @@ julia> @chain t(df1_table) @union(df2_table) @collect
    5 │     5     50
    6 │     6     60
 
-julia> query = @chain t(df2_table) @filter(value >40);
-
+julia> query = @chain t(df2_table) @filter(value > 40);
 
 julia> @chain t(df1_table) begin 
-  @union(t(query)) 
-  @collect
-end
-
-julia> @chain t(df1_table) @union("df2") @collect
+        @union(t(query)) 
+        @collect
+       end
 5×2 DataFrame
  Row │ id     value 
      │ Int64  Int64 

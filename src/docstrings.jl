@@ -1291,13 +1291,13 @@ julia> @chain t(df1_table) @union(df2_table) @collect
    5 │     5     50
    6 │     6     60
 
-julia> query = @chain t(df2_table) @filter(value > 40);
+julia> query = @chain t(df2_table) @filter(value == 50);
 
 julia> @chain t(df1_table) begin 
-        @union(t(query)) 
+        @union(t(query))
         @collect
        end
-5×2 DataFrame
+4×2 DataFrame
  Row │ id     value 
      │ Int64  Int64 
 ─────┼──────────────
@@ -1305,6 +1305,5 @@ julia> @chain t(df1_table) begin
    2 │     2     20
    3 │     3     30
    4 │     5     50
-   5 │     6     60
 ```
 """

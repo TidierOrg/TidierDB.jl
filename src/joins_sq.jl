@@ -691,12 +691,12 @@ macro union(sqlquery, union_query)
                 # Determine if uq needs a new CTE
                 needs_new_cte_uq = !isempty(uq.select) || !isempty(uq.where) || uq.is_aggregated || !isempty(uq.ctes)
                 if needs_new_cte_uq
-                    #for cte in uq.ctes
-                    #    cte.name = "j" * cte.name
-                    #end
+                    for cte in uq.ctes
+                        cte.name = "j" * cte.name
+                    end
                     uq.cte_count += 1
-                    cte_name_uq = "cte_" * string(uq.cte_count)
-                    most_recent_source_uq = !isempty(uq.ctes) ? "cte_" * string(uq.cte_count - 1) : uq.from
+                    cte_name_uq = "jcte_" * string(uq.cte_count)
+                    most_recent_source_uq = !isempty(uq.ctes) ? "jcte_" * string(uq.cte_count - 1) : uq.from
                     select_sql_uq = "SELECT * FROM " * most_recent_source_uq
                     new_cte_uq = CTE(name=cte_name_uq, select=select_sql_uq)
                     push!(uq.ctes, new_cte_uq)
@@ -723,7 +723,7 @@ macro union(sqlquery, union_query)
 
             # Create a new CTE for the union
             sq.cte_count += 1
-            union_cte_name = "jcte_" * string(sq.cte_count)
+            union_cte_name = "cte_" * string(sq.cte_count)
             union_cte = CTE(name=union_cte_name, select=union_sql)
             push!(sq.ctes, union_cte)
             sq.from = union_cte_name

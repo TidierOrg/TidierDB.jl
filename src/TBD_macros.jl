@@ -552,92 +552,6 @@ macro rename(sqlquery, renamings...)
     end
 end
 
-"""
-$docstring_window_order
-"""
-macro window_order(sqlquery, order_by_expr...)
-    order_by_expr = parse_interpolation2.(order_by_expr)
-
-    return quote
-        sq = $(esc(sqlquery))
-        if isa(sq, SQLQuery)
-            # Convert order_by_expr to SQL order by string
-            order_by_sql = join([expr_to_sql(expr, sq) for expr in $(esc(order_by_expr))], ", ")
-            
-            # Update the orderBy field of the SQLQuery instance
-            sq.window_order = order_by_sql
-            
-            # If this is the first operation after an aggregation, wrap current state in a CTE
-            if sq.post_aggregation
-                sq.post_aggregation = false
-                cte_name = "cte_" * string(sq.cte_count + 1)
-                cte_sql = "SELECT * FROM " * sq.from
-                
-                if !isempty(sq.where)
-                    cte_sql *= " WHERE " * sq.where
-                end
-                
-                new_cte = CTE(name=cte_name, select=cte_sql, from=sq.from)
-                push!(sq.ctes, new_cte)
-                sq.cte_count += 1
-                
-                # Reset the from to reference the new CTE
-                sq.from = cte_name
-            end
-            
-            # Note: Actual window functions would be applied in subsequent @mutate calls or similar,
-            # potentially using the orderBy set here for their OVER() clauses.
-        else
-            error("Expected sqlquery to be an instance of SQLQuery")
-        end
-        sq
-    end
-end
-
-"""
-$docstring_window_frame
-"""
-macro window_frame(sqlquery, frame_start::Int, frame_end::Int)
-    return quote
-        sq = $(esc(sqlquery))
-        if isa(sq, SQLQuery)
-            # Validate frame_start and frame_end
-            if $frame_end < $frame_start
-                error("frame_end must be greater than or equal to frame_start")
-            end
-
-            # Calculate absolute values for frame_start and frame_end
-            abs_frame_start = abs($frame_start)
-            abs_frame_end = abs($frame_end)
-
-            # Determine the direction and clause for frame_start
-            frame_start_clause = if $frame_start < 0
-                string(abs_frame_start, " PRECEDING")
-            else
-                string(abs_frame_start, " FOLLOWING")
-            end
-
-            # Determine the direction and clause for frame_end
-            frame_end_clause = if $frame_end < 0
-                string(abs_frame_end, " PRECEDING")
-            else
-                string(abs_frame_end, " FOLLOWING")
-            end
-
-            # Construct the window frame clause
-            frame_clause = string("ROWS BETWEEN ", frame_start_clause, " AND ", frame_end_clause)
-
-            # Update the windowFrame field of the SQLQuery instance
-            sq.windowFrame = frame_clause
-        else
-            error("Expected sqlquery to be an instance of SQLQuery")
-        end
-        sq
-    end
-end
-
-
-
 
 macro show_query(sqlquery)
     return quote
@@ -776,5 +690,5 @@ end
 $docstring_show_tables
 """
 function show_tables(con::Union{DuckDB.DB, DuckDB.Connection})
-    return DataFrame(DBInterface.execute(con, "SHOW TABLES"))
+    return DataFrame(DBInterface.execute(con, "SHOW ALL TABLES"))
 end

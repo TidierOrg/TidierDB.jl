@@ -22,7 +22,13 @@
 # conn = DB.connect(DB.duckdb())
 # ```
 
-# You can also use establish a connection through an alternate method that you preferred, and use that as your connection as well. 
+# ## Connect to a local database file
+# You can also connect to an existing database by passing the database file path as a string.
+# ```julia
+# db = DB.connect(DB.duckdb(), "mydb.duckdb")
+# ```
+
+# You can also establish any DuckDB connection through an alternate method that you prefer, and use that as your connection as well. 
 
 # ## Package Extensions 
 # The following backends utilize package extensions. To use one of backends listed below, you will need to write `using Library`
@@ -42,9 +48,9 @@
 # `db_table` starts the underlying SQL query struct, in addition to pulling the table metadata and storing it there. Storing metadata is what enables a lazy interface that also supports tidy selection.  
 # - `db_table` has two required arguments: `connection` and `table`
 # - `table` can be a table name on a database or a path/url to file to read.  When passing `db_table` a path or url, the table is not copied into memory.
+#   - Of note, `db_table` only support direct file paths to a table. It does not support database file paths such as `dbname.duckdb` or `dbname.sqlite`. Such files must be used with `connect` first.
 # - With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use `*` read in all files matching the pattern. 
 # - For example, the below would read all files that end in `.csv` in the given folder.
-# ```julia
 # db_table(db, "folder/path/*.csv")
 # ``` 
 # `db_table` also supports iceberg, delta, and S3 file paths via DuckDB.
@@ -53,10 +59,10 @@
 # If you are working with a backend where compute cost is important, it will be important to minimize using `db_table` as this will requery for metadata each time. 
 # Compute costs are relevant to backends such as AWS, databricks and Snowflake. 
 
-# To do this, save the results of `db_table` and use them with `from_query`. Using `from_query` pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time
+# To do this, save the results of `db_table` and use them with `t`. Using `t` pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time
 # ```julia
 # table = DB.db_table(con, "path")
-# @chain DB.from_query(table) begin
+# @chain DB.t(table) begin
 #     ## data wrangling here 
 # end 
 # ```

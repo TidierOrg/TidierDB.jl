@@ -26,7 +26,7 @@
 # Now, `from_query` will allow you to reuse the query to calculate the average horsepower for each efficiency category
 # ```julia
 # DB.@chain DB.from_query(query) begin
-#    DB.@left_join(mtcars2, cyl, cyl)
+#    DB.@left_join("mtcars2", cyl, cyl)
 #    DB.@group_by(efficiency)
 #    DB.@summarize(avg_hp = mean(hp))
 #    DB.@collect
@@ -44,7 +44,7 @@
 # Reuse the query again to find the car with the highest MPG for each cylinder category
 # ```julia
 # DB.@chain DB.from_query(query) begin
-#    DB.@left_join(mtcars2, cyl, cyl)
+#    DB.@left_join("mtcars2", cyl, cyl)
 #    DB.@group_by cyl
 #    DB.@slice_max(mpg)
 #    DB.@select model cyl mpg

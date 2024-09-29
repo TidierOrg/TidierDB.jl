@@ -572,8 +572,8 @@ julia> copy_to(db, df, "df_mem");
 
 julia> copy_to(db, df2, "df_join");
 
-julia> @chain db_table(db, :df_mem) begin
-         @left_join(:df_join, id2, id)
+julia> @chain db_table(db, "df_mem") begin
+         @left_join("df_join", id2, id)
          @collect
        end
 10×7 DataFrame
@@ -590,6 +590,30 @@ julia> @chain db_table(db, :df_mem) begin
    8 │ AF      aa          1      0.6  missing  missing   missing 
    9 │ AH      aa          3      0.8  missing  missing   missing 
   10 │ AJ      aa          5      1.0  missing  missing   missing 
+
+julia> query = @chain db_table(db, "df_join") begin
+                  @filter(score > 85) # only show scores above 85 in joining table
+                end;
+
+julia> @chain db_table(db, "df_mem") begin
+         @left_join(t(query), id2, id)
+         @collect
+       end
+10×7 DataFrame
+ Row │ id      groups  value  percent  id2      category  score   
+     │ String  String  Int64  Float64  String?  String?   Int64?  
+─────┼────────────────────────────────────────────────────────────
+   1 │ AA      bb          1      0.1  AA       X              88
+   2 │ AC      bb          3      0.3  AC       Y              92
+   3 │ AI      bb          4      0.9  AI       X              95
+   4 │ AB      aa          2      0.2  missing  missing   missing 
+   5 │ AD      aa          4      0.4  missing  missing   missing 
+   6 │ AE      bb          5      0.5  missing  missing   missing 
+   7 │ AF      aa          1      0.6  missing  missing   missing 
+   8 │ AG      bb          2      0.7  missing  missing   missing 
+   9 │ AH      aa          3      0.8  missing  missing   missing 
+  10 │ AJ      aa          5      1.0  missing  missing   missing 
+
 ```
 """
 
@@ -640,6 +664,25 @@ julia> @chain db_table(db, :df_mem) begin
    5 │ AI       bb             4        0.9  AI      X            95
    6 │ missing  missing  missing  missing    AK      Y            68
    7 │ missing  missing  missing  missing    AM      X            74
+
+julia> query = @chain db_table(db, "df_join") begin
+                  @filter(score >= 74) # only show scores above 85 in joining table
+                end;
+
+julia> @chain db_table(db, :df_mem) begin
+         @right_join(t(query), id2, id)
+         @collect
+       end
+6×7 DataFrame
+ Row │ id       groups   value    percent    id2     category  score 
+     │ String?  String?  Int64?   Float64?   String  String    Int64 
+─────┼───────────────────────────────────────────────────────────────
+   1 │ AA       bb             1        0.1  AA      X            88
+   2 │ AC       bb             3        0.3  AC      Y            92
+   3 │ AE       bb             5        0.5  AE      X            77
+   4 │ AG       bb             2        0.7  AG      Y            83
+   5 │ AI       bb             4        0.9  AI      X            95
+   6 │ missing  missing  missing  missing    AM      X            74
 ```
 """
 
@@ -1186,7 +1229,6 @@ julia> show_tables(db) # there are no tables in when first loading so df below i
 ─────┴────────
 ```
 """
-
 
 const docstring_from_query =
 """

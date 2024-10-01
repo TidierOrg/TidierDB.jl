@@ -17,8 +17,6 @@
 # ```julia
 # using TidierDB
 # db = connect(duckdb())
-# # This next line is optional, but it will let us avoid writing `db_table` or `from_query` for each query
-# t(table) = from_query(table)
 # ```
 # Of note, TidierDB does not yet have an "interactive mode" so each example result will be collected.
 

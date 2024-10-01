@@ -10,6 +10,10 @@
 - improves DuckDB `connect()` interface and documentation 
 - enhances `@window_frame` to allow for just a `to` or `from` argument, as well as autodetection for `preceding`, `following` and `unbounded` for the frame boundaries. 
 
+## v0.3.5 - 2024-09-
+- improves DuckDB `connect()` interface and documentation 
+- enhances `@window_frame` to allow for just a `to` or `from` argument, as well as autodetection for `preceding`, `following` and `unbounded` for the frame boundaries. 
+
 ## v0.3.4 - 2024 2024-09-23
 TidierDB works with nearly any exisiting SQL function, now there are docs about it.
 - Docs on using any exisiting SQL function in TidierDB

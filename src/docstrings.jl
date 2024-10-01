@@ -1345,3 +1345,47 @@ julia> @chain t(df1_table) begin
    4 │     5     50
 ```
 """
+
+const docstring_create_view =
+"""
+    @view(sql_query, name)
+
+Create a view from a SQL query.
+
+# Arguments
+- `sql_query`: The SQL query to create a view from.
+- `name`: The name of the view to create.
+
+# Examples
+```julia
+julia> db = connect(duckdb());
+
+julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
+
+julia> copy_to(db, df, "df1");
+
+julia> @chain db_table(db, "df1") @create_view(viewer);
+
+julia> db_table(db, "viewer")
+SQLQuery("", "viewer", "", "", "", "", "", "", false, false, 2×4 DataFrame
+ Row │ name    type    current_selxn  table_name 
+     │ String  String  Int64          String     
+─────┼───────────────────────────────────────────
+   1 │ id      BIGINT              1  viewer
+   2 │ value   BIGINT              1  viewer, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
+```
+"""
+
+const docstring_drop_view =
+"""
+    drop_view(db, name)
+
+Drop a view from a database.
+
+# Arguments
+- `db`: The database to drop the view from.
+- `name`: The name of the view to drop.
+
+# Examples
+`drop_view(db, "viewer")`
+"""

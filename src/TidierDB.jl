@@ -19,7 +19,7 @@ using GZip
  @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, 
  @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,  @head, 
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, 
- t, @union
+ t, @union, @create_view, drop_view
 
  abstract type SQLBackend end
 

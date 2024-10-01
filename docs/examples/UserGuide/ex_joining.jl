@@ -87,3 +87,38 @@
 # #    4 │ Hornet 4 Drive     Hornet 4 Drive
 # #    5 │ Hornet Sportabout  Hornet Sportabout
 # # ```
+
+# ## Leveraging Views
+# You can also use `@create_view` to create views and then join them. This is an alternate reuse complex queries.
+# ```julia
+# @chain t(mtcars) begin
+#            @group_by cyl
+#            @summarize begin
+#                across(mpg, (mean, minimum, maximum))
+#                num_cars = n()
+#                end
+#            @mutate begin
+#                efficiency = case_when(
+#                    mean_mpg >= 25, "High",
+#                    mean_mpg >= 15, "Moderate",
+#                    "Low" )
+#              end
+#        @create_view(plz)
+#        end;
+#
+#
+# @chain db_table(db, :plz) begin
+#            @left_join(t(query2), cyl, cyl)
+#            @group_by(efficiency)
+#            @summarize(avg_mean = mean(mpg))
+#            @mutate(mean = avg_mean / 4 )
+#            @aside @show_query _
+#            @collect
+# end
+# 2×3 DataFrame
+#  Row │ efficiency  avg_mean  mean    
+#      │ String      Float64   Float64 
+# ─────┼───────────────────────────────
+#    1 │ High        106.655   26.6636
+#    2 │ Moderate     84.5333  21.1333
+# ```

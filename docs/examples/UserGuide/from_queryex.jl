@@ -61,6 +61,42 @@
 #    3 │ Hornet 4 Drive         6      21.4
 # ```
 
+# ## @create_view
+# This can also be done with `@create_view`.
+# ```julia
+# query2 = @chain t(mtcars) @filter(mpg>20) @mutate(mpg = mpg *4); 
+# DB.@chain  DB.db_table(db, "mtcars") begin
+#            DB.@group_by cyl
+#            DB.@summarize begin
+#                across(mpg, (mean, minimum, maximum))
+#                num_cars = n()
+#                end
+#            DB.@mutate begin
+#                efficiency = case_when(
+#                    mean_mpg >= 25, "High",
+#                    mean_mpg >= 15, "Moderate",
+#                    "Low" )
+#              end
+#        DB.@create_view(viewer)
+#        end;
+#
+#
+# DB.@chain DB.db_table(db, "viewer") begin
+#            DB.@left_join(DB.t(query2), cyl, cyl)
+#            DB.@group_by(efficiency)
+#            DB.@summarize(avg_mean = mean(mpg))
+#            DB.@mutate(mean = avg_mean / 4 )
+#            DB.@aside DB.@show_query _
+#            DB.@collect
+# end
+# 2×3 DataFrame
+#  Row │ efficiency  avg_mean  mean    
+#      │ String      Float64   Float64 
+# ─────┼───────────────────────────────
+#    1 │ High        106.655   26.6636
+#    2 │ Moderate     84.5333  21.1333
+# ```
+
 # ## Preview or save an intermediate table
 # While querying a dataset, you may wish to see an intermediate table, or even save it. You can use `@aside` and `from_query(_)`, illustrated below, to do just that. 
 # While we opted to print the results in this simple example below, we could have saved them by using `name = DB.@chain...`

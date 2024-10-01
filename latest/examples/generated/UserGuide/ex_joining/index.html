@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../athena/">
+        <link rel="prev" href="../databricks/">
       
       
-        <link rel="next" href="../databricks/">
+        <link rel="next" href="../functions_pass_to_DB/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Using Snowflake - TidierDB.jl</title>
+        <title>Joining Tables - TidierDB.jl</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#connecting" class="md-skip">
+        <a href="#setup" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Using Snowflake
+              Joining Tables
             
           </span>
         </div>
@@ -387,28 +387,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Using Snowflake
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../Snowflake/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -417,33 +399,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#connecting" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connecting
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -472,10 +427,28 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../ex_joining/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Joining Tables
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -484,6 +457,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wrangle-tables-and-self-join" class="md-nav__link">
+    <span class="md-ellipsis">
+      Wrangle tables and self join
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#different-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Different schemas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notice-this-is-not-begin-saved-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      notice, this is not begin saved, bc a view is created in the database at the end of the chain
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#access-the-view-like-as-if-it-was-any-other-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      access the view like as if it was any other table
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -613,9 +649,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#connecting" class="md-nav__link">
+  <a href="#setup" class="md-nav__link">
     <span class="md-ellipsis">
-      Connecting
+      Setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wrangle-tables-and-self-join" class="md-nav__link">
+    <span class="md-ellipsis">
+      Wrangle tables and self join
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#different-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Different schemas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notice-this-is-not-begin-saved-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      notice, this is not begin saved, bc a view is created in the database at the end of the chain
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#access-the-view-like-as-if-it-was-any-other-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      access the view like as if it was any other table
     </span>
   </a>
   
@@ -636,59 +708,101 @@
                   
 
 
-  <h1>Using Snowflake</h1>
+<p>This page will illustrate how to join different tables in TidierDB. The examples will use the <code>mtcars</code> dataset and a synthetic dataset called <code>mt2</code> hosted on a personal MotherDuck instance. Examples will cover how to join tables with different schemas in different databases, and how to write queries on tables and then join them together, and how to do this by levaraging views.</p>
+<p><a id='Setup'></a></p>
+<p><a id='Setup-1'></a></p>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">¤</a></h2>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span>
+<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;md:&quot;</span><span class="p">)</span>
 
-<p>Establishing a connection with the Snowflake SQL Rest API requires a OAuth token specific to the Role the user will use to query tables with.</p>
-<p><a id='Connecting'></a></p>
-<p><a id='Connecting-1'></a></p>
-<h2 id="connecting">Connecting<a class="headerlink" href="#connecting" title="Permanent link">¤</a></h2>
-<p>Connection is established with the <code>connect</code> function as shown below. Connection requires 5 items as strings</p>
-<ul>
-<li>Account Identifier</li>
-<li>OAuth token</li>
-<li>Database Name</li>
-<li>Schema Name</li>
-<li>Compute Warehouse name</li>
-</ul>
-<p>Two things to note:</p>
-<ul>
-<li>Your OAuth Token may frequently expire, which may require you to rerun your connection line.</li>
-<li>
-<p>Since each time <code>db_table</code> runs, it runs a query to pull the metadata, you may choose to use run <code>db_table</code> and save the results, and use these results with<code>from_query()</code></p>
-<ul>
-<li>This will reduce the number of queries to your database</li>
-<li>Allow you to build a a SQL query and <code>@show_query</code> even if the OAuth<em>token has expired. To <code>@collect</code> you will have to reconnect and rerun db</em>table if your OAuth token has expired</li>
-</ul>
-</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="n">set_sql_mode</span><span class="p">(</span><span class="n">snowflake</span><span class="p">())</span>
-<span class="n">ac_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;string_id&quot;</span>
-<span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;OAuth_token_string&quot;</span>
-<span class="n">con</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:snowflake</span><span class="p">,</span><span class="w"> </span><span class="n">ac_id</span><span class="p">,</span><span class="w"> </span><span class="n">token</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;DEMODB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PUBLIC&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;COMPUTE_WH&quot;</span><span class="p">)</span>
-<span class="c"># After connection is established, a you may begin querying.</span>
-<span class="n">stable_table_metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MTCARS&quot;</span><span class="p">)</span>
-<span class="nd">@chain</span><span class="w"> </span><span class="n">from_query</span><span class="p">(</span><span class="n">stable_table_metadata</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">   </span><span class="nd">@select</span><span class="p">(</span><span class="n">WT</span><span class="p">)</span>
-<span class="w">   </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">TEST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WT</span><span class="w"> </span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
-<span class="w">   </span><span class="c">#@aside @show_query _</span>
-<span class="w">   </span><span class="nd">@collect</span>
+<span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;my_db.mtcars&quot;</span><span class="p">)</span>
+<span class="n">mt2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ducks_db.mt2&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><a id='Wrangle-tables-and-self-join'></a></p>
+<p><a id='Wrangle-tables-and-self-join-1'></a></p>
+<h2 id="wrangle-tables-and-self-join">Wrangle tables and self join<a class="headerlink" href="#wrangle-tables-and-self-join" title="Permanent link">¤</a></h2>
+<div class="highlight"><pre><span></span><code><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@group_by</span><span class="w"> </span><span class="n">cyl</span>
+<span class="w">    </span><span class="nd">@summarize</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="n">across</span><span class="p">(</span><span class="n">mpg</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="p">,</span><span class="w"> </span><span class="n">minimum</span><span class="p">,</span><span class="w"> </span><span class="n">maximum</span><span class="p">))</span>
+<span class="w">        </span><span class="n">num_cars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">()</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">    </span><span class="nd">@mutate</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="n">efficiency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">case_when</span><span class="p">(</span>
+<span class="w">            </span><span class="n">mpg_mean</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;High&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">mpg_mean</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Moderate&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;Low&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="k">end</span>
+<span class="k">end</span><span class="p">;</span>
+
+<span class="n">query2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="nd">@filter</span><span class="p">(</span><span class="n">mpg</span><span class="o">&gt;</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpg</span><span class="w"> </span><span class="o">*</span><span class="mi">4</span><span class="p">);</span>
+
+<span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">query2</span><span class="p">),</span><span class="w"> </span><span class="n">cyl</span><span class="p">,</span><span class="w"> </span><span class="n">cyl</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">efficiency</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">avg_mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">))</span>
+<span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">avg_mean</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@aside</span><span class="w"> </span><span class="nd">@show_query</span><span class="w"> </span><span class="n">_</span>
+<span class="w">    </span><span class="nd">@collect</span>
 <span class="k">end</span>
+<span class="mi">2</span><span class="o">×</span><span class="mi">3</span><span class="w"> </span><span class="n">DataFrame</span>
+<span class="w"> </span><span class="n">Row</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">efficiency</span><span class="w">  </span><span class="n">avg_mean</span><span class="w">  </span><span class="n">mean</span>
+<span class="w">     </span><span class="n">│</span><span class="w"> </span><span class="kt">String</span><span class="w">      </span><span class="kt">Float64</span><span class="w">   </span><span class="kt">Float64</span>
+<span class="n">─────┼───────────────────────────────</span>
+<span class="w">   </span><span class="mi">1</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">High</span><span class="w">        </span><span class="mf">106.655</span><span class="w">   </span><span class="mf">26.6636</span>
+<span class="w">   </span><span class="mi">2</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">Moderate</span><span class="w">     </span><span class="mf">84.5333</span><span class="w">  </span><span class="mf">21.1333</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>32×2 DataFrame
- Row │ WT       TEST
-     │ Float64  Float64
-─────┼──────────────────
-   1 │   2.62     5.24
-   2 │   2.875    5.75
-   3 │   2.32     4.64
-   4 │   3.215    6.43
-  ⋮  │    ⋮        ⋮
-  29 │   3.17     6.34
-  30 │   2.77     5.54
-  31 │   3.57     7.14
-  32 │   2.78     5.56
-         24 rows omitted
+<p><a id='Different-schemas'></a></p>
+<p><a id='Different-schemas-1'></a></p>
+<h2 id="different-schemas">Different schemas<a class="headerlink" href="#different-schemas" title="Permanent link">¤</a></h2>
+<p>To connect to a table in a different schema, prefix it with a dot. For example, "schema<em>name.table</em>name". In this query, we are also filtering out cars that contain "M" in the name from the <code>mt2</code> table before joining.</p>
+<div class="highlight"><pre><span></span><code><span class="n">other_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ducks_db.mt2&quot;</span><span class="p">)</span><span class="w"> </span><span class="nd">@filter</span><span class="p">(</span><span class="o">!</span><span class="n">str_detect</span><span class="p">(</span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;M&quot;</span><span class="p">))</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">other_db</span><span class="p">),</span><span class="w"> </span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@collect</span>
+<span class="k">end</span>
+<span class="mi">5</span><span class="o">×</span><span class="mi">2</span><span class="w"> </span><span class="n">DataFrame</span>
+<span class="w"> </span><span class="n">Row</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">car</span><span class="w">                </span><span class="n">model</span>
+<span class="w">     </span><span class="n">│</span><span class="w"> </span><span class="kt">String</span><span class="w">             </span><span class="kt">String</span>
+<span class="n">─────┼──────────────────────────────────────</span>
+<span class="w">   </span><span class="mi">1</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">Datsun</span><span class="w"> </span><span class="mi">710</span><span class="w">         </span><span class="n">Datsun</span><span class="w"> </span><span class="mi">710</span>
+<span class="w">   </span><span class="mi">2</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">Hornet</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="n">Drive</span><span class="w">     </span><span class="n">Hornet</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="n">Drive</span>
+<span class="w">   </span><span class="mi">3</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">Hornet</span><span class="w"> </span><span class="n">Sportabout</span><span class="w">  </span><span class="n">Hornet</span><span class="w"> </span><span class="n">Sportabout</span>
+<span class="w">   </span><span class="mi">4</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">Valiant</span><span class="w">            </span><span class="n">Valiant</span>
+<span class="w">   </span><span class="mi">5</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">Duster</span><span class="w"> </span><span class="mi">360</span><span class="w">         </span><span class="n">Duster</span><span class="w"> </span><span class="mi">360</span>
 </code></pre></div>
+<p>To join directly to the table, you can use the <code>@left_join</code> macro with the table name as a string.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="s">&quot;ducks_db.mt2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="c">#     @collect</span>
+<span class="c"># end</span>
+<span class="c"># 5×2 DataFrame</span>
+<span class="c">#  Row │ car                model</span>
+<span class="c">#      │ String             String</span>
+<span class="c"># ─────┼──────────────────────────────────────</span>
+<span class="c">#    1 │ Mazda RX4          Mazda RX4</span>
+<span class="c">#    2 │ Mazda RX4 Wag      Mazda RX4 Wag</span>
+<span class="c">#    3 │ Datsun 710         Datsun 710</span>
+<span class="c">#    4 │ Hornet 4 Drive     Hornet 4 Drive</span>
+<span class="c">#    5 │ Hornet Sportabout  Hornet Sportabout</span>
+<span class="c"># ```</span>
+
+<span class="c">## Using a View</span>
+<span class="n">You</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">also</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="sb">`@create_view`</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">create</span><span class="w"> </span><span class="n">views</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">then</span><span class="w"> </span><span class="n">join</span><span class="w"> </span><span class="n">them</span><span class="o">.</span><span class="w"> </span><span class="n">This</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">alternate</span><span class="w"> </span><span class="n">reuse</span><span class="w"> </span><span class="n">complex</span><span class="w"> </span><span class="n">queries</span><span class="o">.</span>
+</code></pre></div>
+<p>julia</p>
+<p><a id='notice,-this-is-not-begin-saved,-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain'></a></p>
+<p><a id='notice,-this-is-not-begin-saved,-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain-1'></a></p>
+<h1 id="notice-this-is-not-begin-saved-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain">notice, this is not begin saved, bc a view is created in the database at the end of the chain<a class="headerlink" href="#notice-this-is-not-begin-saved-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain" title="Permanent link">¤</a></h1>
+<p>@chain t(mtcars) begin        @group<em>by cyl        @summarize begin             across(mpg, (mean, minimum, maximum))             num</em>cars = n()         end        @mutate begin            efficiency = case<em>when(            mpg</em>mean &gt;= 25, "High",            mpg<em>mean &gt;= 15, "Moderate",               "Low" )         end        #create a view in the database        @create</em>view(viewer) end;</p>
+<p><a id='access-the-view-like-as-if-it-was-any-other-table'></a></p>
+<p><a id='access-the-view-like-as-if-it-was-any-other-table-1'></a></p>
+<h1 id="access-the-view-like-as-if-it-was-any-other-table">access the view like as if it was any other table<a class="headerlink" href="#access-the-view-like-as-if-it-was-any-other-table" title="Permanent link">¤</a></h1>
+<p>@chain db<em>table(db, viewer) begin     @left</em>join(t(query2), cyl, cyl)     @group<em>by(efficiency)     @summarize(avg</em>mean = mean(mpg))     @mutate(mean = avg<em>mean / 4 )     @aside @show</em>query _     @collect end 2×3 DataFrame  Row │ efficiency  avg_mean  mean      │ String      Float64   Float64 ─────┼───────────────────────────────    1 │ High        106.655   26.6636    2 │ Moderate     84.5333  21.1333 ```</p>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 
@@ -726,7 +840,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../athena/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Using Athena">
+          <a href="../databricks/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Using Databricks">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -736,20 +850,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Using Athena
+                Using Databricks
               </div>
             </div>
           </a>
         
         
           
-          <a href="../databricks/" class="md-footer__link md-footer__link--next" aria-label="Next: Using Databricks">
+          <a href="../functions_pass_to_DB/" class="md-footer__link md-footer__link--next" aria-label="Next: Writing Functions/Macros with TidierDB Chains">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Using Databricks
+                Writing Functions/Macros with TidierDB Chains
               </div>
             </div>
             <div class="md-footer__button md-icon">

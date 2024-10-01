@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.38">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
     
     
       
@@ -440,7 +440,7 @@
         
   
   <span class="md-ellipsis">
-    Reusing Part of a Query
+    Reusing a Query (and Views)
   </span>
   
 
@@ -521,6 +521,26 @@
   
   <span class="md-ellipsis">
     Using Databricks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="examples/generated/UserGuide/ex_joining/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Joining Tables
   </span>
   
 
@@ -821,7 +841,7 @@
 </tr>
 <tr>
 <td style="text-align: right;"><strong>Joining</strong></td>
-<td style="text-align: right;"><code>@left_join</code>, <code>@right_join</code>, <code>@inner_join</code>, <code>@anti_join</code>, <code>@full_join</code>, <code>@semi_join</code> (slight syntax differences from TidierData.jl)</td>
+<td style="text-align: right;"><code>@left_join</code>, <code>@right_join</code>, <code>@inner_join</code>, <code>@anti_join</code>, <code>@full_join</code>, <code>@semi_join</code>, <code>@union</code></td>
 </tr>
 <tr>
 <td style="text-align: right;"><strong>Slice and Order</strong></td>
@@ -829,7 +849,7 @@
 </tr>
 <tr>
 <td style="text-align: right;"><strong>Utility</strong></td>
-<td style="text-align: right;"><code>@show_query</code>, <code>@collect</code>, <code>@head</code>, <code>@count</code>, <code>show_tables</code></td>
+<td style="text-align: right;"><code>@show_query</code>, <code>@collect</code>, <code>@head</code>, <code>@count</code>, <code>show_tables</code>, <code>@create_view</code>, <code>drop_view</code></td>
 </tr>
 <tr>
 <td style="text-align: right;"><strong>Helper Functions</strong></td>
@@ -845,11 +865,11 @@
 </tr>
 <tr>
 <td style="text-align: right;"><strong>Aggregate Functions</strong></td>
-<td style="text-align: right;"><code>mean</code>, <code>minimum</code>, <code>maximum</code>, <code>std</code>, <code>sum</code>, <code>cumsum</code>, <code>cor</code>, <code>cov</code>, <code>var</code>, all SQL aggregate</td>
+<td style="text-align: right;"><code>mean</code>, <code>minimum</code>, <code>maximum</code>, <code>std</code>, <code>sum</code>, <code>cumsum</code>, <code>cor</code>, <code>cov</code>, <code>var</code></td>
 </tr>
 </tbody>
 </table>
-<p><code>@summarize</code> supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work. <code>@mutate</code> supports nearly all functions built into SQL as well.                                                                                                          </p>
+<p><code>@summarize</code> supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.    <code>@mutate</code> supports all builtin SQL functions as well.                                                                                                 </p>
 <p>When using the DuckDB backend, if <code>db_table</code> recieves a file path ( <code>.parquet</code>, <code>.json</code>, <code>.csv</code>, <code>iceberg</code> or <code>delta</code>), it does not copy it into memory. This allows for queries on files too big for memory. <code>db_table</code> also supports S3 bucket locations via DuckDB.</p>
 <p><a id='What-is-the-recommended-way-to-use-TidierDB?'></a></p>
 <p><a id='What-is-the-recommended-way-to-use-TidierDB?-1'></a></p>
@@ -969,7 +989,7 @@ SELECT *
 <span class="k">end</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>3×5 DataFrame
- Row │ cyl     mean_am   mean_vs   sum_am   sum_vs  
+ Row │ cyl     am_mean   vs_mean   am_sum   vs_sum  
      │ Int64?  Float64?  Float64?  Int128?  Int128? 
 ─────┼──────────────────────────────────────────────
    1 │      4  0.727273  0.909091        8       10
@@ -1088,7 +1108,7 @@ SELECT *
     <script id="__config" type="application/json">{"base": ".", "features": ["content.code.copy", "content.code.annotate", "navigation.top", "navigation.footer", "search.highlight", "search.share", "search.suggest", "toc.follow", "header.autohide"], "search": "assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.d6f25eb3.min.js"></script>
+      <script src="assets/javascripts/bundle.525ec568.min.js"></script>
       
         <script src="javascripts/mathjax.js"></script>
       

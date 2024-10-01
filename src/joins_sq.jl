@@ -1,9 +1,13 @@
+## Join macros are long, but all basically identical logic 
+## just change the join keyword. 
 function gbq_join_parse(input)
     input = string(input)
     parts = split(input, ".")
     if current_sql_mode[] == gbq() && length(parts) >=2
         return join(parts[2:end], ".")
-    else
+    elseif occursin(".", input)
+        return split(input, '.')[end]
+    else 
         return input
     end
 end
@@ -18,6 +22,28 @@ function get_join_columns(db, join_table, lhs_col_str)
     else current_sql_mode[] == gbq()
         return string(gbq_join_parse(join_table)) * ".* FROM "
     end
+end
+
+function finalize_query_jq(sqlquery::SQLQuery, from_clause)
+
+    select_already_present = occursin(r"^SELECT\s+", uppercase(sqlquery.select))
+    select_part = if sqlquery.distinct && !select_already_present
+        "SELECT DISTINCT " * (isempty(sqlquery.select) ? "*" : sqlquery.select)
+    elseif !select_already_present
+        "SELECT " * (isempty(sqlquery.select) ? "*" : sqlquery.select)
+    else
+        sqlquery.select
+    end
+    query_parts = [select_part, "FROM ", from_clause]
+    # Initialize query_parts with the CTE part
+    # Append other clauses if present
+    if !isempty(sqlquery.where) push!(query_parts, " " * sqlquery.where) end
+    if !isempty(sqlquery.groupBy) push!(query_parts, "" * sqlquery.groupBy) end
+    if !isempty(sqlquery.having) push!(query_parts, " " * sqlquery.having) end
+    if !isempty(sqlquery.orderBy) push!(query_parts, " " * sqlquery.orderBy) end
+    if !isempty(sqlquery.limit) push!(query_parts, " LIMIT " * sqlquery.limit) end
+    complete_query = join(filter(!isempty, query_parts), " ")
+    return complete_query
 end
 
 
@@ -52,7 +78,7 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column)
                         
                         cte_name_jq = "jcte_" * string(jq.cte_count)
                         most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = "SELECT * FROM " * most_recent_source_jq
+select_sql_jq = "SELECT * FROM " * most_recent_source_jq
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
                         jq.from = cte_name_jq   
@@ -95,7 +121,7 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column)
                         jq.cte_count += 1
                         cte_name_jq = "jcte_" * string(jq.cte_count) #
                         most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = "SELECT * FROM " * most_recent_source_jq
+select_sql_jq = "SELECT * FROM " * most_recent_source_jq
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
                         jq.from = cte_name_jq
@@ -114,7 +140,6 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column)
                     end
                     sq.metadata = vcat(sq.metadata, new_metadata)
                 end
-
                 join_clause = " LEFT JOIN " * join_table_name * " ON " *
                               gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
                               gbq_join_parse(sq.from) * "." * $rhs_col_str
@@ -126,6 +151,7 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column)
         sq
     end
 end
+
 
 
 """
@@ -159,7 +185,7 @@ macro right_join(sqlquery, join_table, lhs_column, rhs_column)
                         
                         cte_name_jq = "jcte_" * string(jq.cte_count)
                         most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = "SELECT * FROM " * most_recent_source_jq
+                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
                         jq.from = cte_name_jq   
@@ -202,7 +228,7 @@ macro right_join(sqlquery, join_table, lhs_column, rhs_column)
                         jq.cte_count += 1
                         cte_name_jq = "jcte_" * string(jq.cte_count) #
                         most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = "SELECT * FROM " * most_recent_source_jq
+                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
                         jq.from = cte_name_jq
@@ -266,7 +292,7 @@ macro inner_join(sqlquery, join_table, lhs_column, rhs_column)
                         
                         cte_name_jq = "jcte_" * string(jq.cte_count)
                         most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = "SELECT * FROM " * most_recent_source_jq
+                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
                         jq.from = cte_name_jq   
@@ -309,7 +335,7 @@ macro inner_join(sqlquery, join_table, lhs_column, rhs_column)
                         jq.cte_count += 1
                         cte_name_jq = "jcte_" * string(jq.cte_count) #
                         most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = "SELECT * FROM " * most_recent_source_jq
+                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
                         jq.from = cte_name_jq
@@ -374,7 +400,7 @@ macro full_join(sqlquery, join_table, lhs_column, rhs_column)
                         
                         cte_name_jq = "jcte_" * string(jq.cte_count)
                         most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = "SELECT * FROM " * most_recent_source_jq
+                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
                         jq.from = cte_name_jq   
@@ -417,7 +443,7 @@ macro full_join(sqlquery, join_table, lhs_column, rhs_column)
                         jq.cte_count += 1
                         cte_name_jq = "jcte_" * string(jq.cte_count) #
                         most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = "SELECT * FROM " * most_recent_source_jq
+                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
                         jq.from = cte_name_jq
@@ -482,7 +508,7 @@ macro semi_join(sqlquery, join_table, lhs_column, rhs_column)
                         
                         cte_name_jq = "jcte_" * string(jq.cte_count)
                         most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = "SELECT * FROM " * most_recent_source_jq
+                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
                         jq.from = cte_name_jq   
@@ -525,7 +551,7 @@ macro semi_join(sqlquery, join_table, lhs_column, rhs_column)
                         jq.cte_count += 1
                         cte_name_jq = "jcte_" * string(jq.cte_count) #
                         most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = "SELECT * FROM " * most_recent_source_jq
+                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
                         jq.from = cte_name_jq
@@ -589,7 +615,7 @@ macro anti_join(sqlquery, join_table, lhs_column, rhs_column)
                         
                         cte_name_jq = "jcte_" * string(jq.cte_count)
                         most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = "SELECT * FROM " * most_recent_source_jq
+                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
                         jq.from = cte_name_jq   
@@ -632,7 +658,7 @@ macro anti_join(sqlquery, join_table, lhs_column, rhs_column)
                         jq.cte_count += 1
                         cte_name_jq = "jcte_" * string(jq.cte_count) #
                         most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = "SELECT * FROM " * most_recent_source_jq
+                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
                         jq.from = cte_name_jq
@@ -697,7 +723,7 @@ macro union(sqlquery, union_query)
                     uq.cte_count += 1
                     cte_name_uq = "jcte_" * string(uq.cte_count)
                     most_recent_source_uq = !isempty(uq.ctes) ? "jcte_" * string(uq.cte_count - 1) : uq.from
-                    select_sql_uq = "SELECT * FROM " * most_recent_source_uq
+                    select_sql_uq = finalize_query_jq(uq, most_recent_source_uq)
                     new_cte_uq = CTE(name=cte_name_uq, select=select_sql_uq)
                     push!(uq.ctes, new_cte_uq)
                     uq.from = cte_name_uq

@@ -1,14 +1,18 @@
-# While using TidierDB, you may need to generate part of a query and reuse it multiple times. `from_query()` enables a query portion to be reused multiple times as shown below.
+# While using TidierDB, you may need to generate part of a query and reuse it multiple times. There are two ways to do this 
+# 1. `from_query(query)` or `t(query)`
+# 2. `@create_view(name)`
 
+# ## Setup
 # ```julia
 # import TidierDB as DB
 # con = DB.connect(duckdb())
 # mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
+# mtcars = DB.db_table(con, mtcars_path)
 # ```
 
 # Start a query to analyze fuel efficiency by number of cylinders. However, to further build on this query later, end the chain without using `@show_query` or `@collect`
 # ```julia
-# query = DB.@chain DB.db_table(con, mtcars_path) begin
+# query = DB.@chain DB.t(mtcars) begin
 #     DB.@group_by cyl
 #     DB.@summarize begin
 #         across(mpg, (mean, minimum, maximum))
@@ -23,9 +27,10 @@
 # end;
 # ```
 
-# Now, `from_query` will allow you to reuse the query to calculate the average horsepower for each efficiency category
+# ## `from_query()` or `t(query)`
+# Now, `from_query`, or `t()` a convienece wrapper, will allow you to reuse the query to calculate the average horsepower for each efficiency category
 # ```julia
-# DB.@chain DB.from_query(query) begin
+# DB.@chain DB.t(mtcars)  begin
 #    DB.@left_join("mtcars2", cyl, cyl)
 #    DB.@group_by(efficiency)
 #    DB.@summarize(avg_hp = mean(hp))
@@ -43,7 +48,7 @@
 
 # Reuse the query again to find the car with the highest MPG for each cylinder category
 # ```julia
-# DB.@chain DB.from_query(query) begin
+# DB.@chain DB.t(mtcars)  begin
 #    DB.@left_join("mtcars2", cyl, cyl)
 #    DB.@group_by cyl
 #    DB.@slice_max(mpg)

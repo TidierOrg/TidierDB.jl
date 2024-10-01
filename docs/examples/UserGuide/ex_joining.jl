@@ -2,8 +2,8 @@
 # The examples will use the `mtcars` dataset and a synthetic dataset called `mt2` 
 # hosted on a personal MotherDuck instance. Examples will cover how to join 
 # tables with different schemas in different databases, and how to write queries on 
-# tables and then join them together.
- 
+# tables and then join them together, and how to do this by levaraging views. 
+
 # ## Setup
 # ```julia
 # using TidierDB
@@ -88,9 +88,10 @@
 # #    5 │ Hornet Sportabout  Hornet Sportabout
 # # ```
 
-# ## Leveraging Views
+# ## Using a View
 # You can also use `@create_view` to create views and then join them. This is an alternate reuse complex queries.
 # ```julia
+# # notice, this is not begin saved, bc a view is created in the database at the end of the chain
 # @chain t(mtcars) begin
 #            @group_by cyl
 #            @summarize begin
@@ -103,17 +104,17 @@
 #                    mean_mpg >= 15, "Moderate",
 #                    "Low" )
 #              end
-#        @create_view(plz)
+#        @create_view(viewer) # creating a view in the database
 #        end;
 #
 #
-# @chain db_table(db, :plz) begin
-#            @left_join(t(query2), cyl, cyl)
-#            @group_by(efficiency)
-#            @summarize(avg_mean = mean(mpg))
-#            @mutate(mean = avg_mean / 4 )
-#            @aside @show_query _
-#            @collect
+# @chain db_table(db, viewer) begin # access the view like any table
+#     @left_join(t(query2), cyl, cyl)
+#     @group_by(efficiency)
+#     @summarize(avg_mean = mean(mpg))
+#     @mutate(mean = avg_mean / 4 )
+#     @aside @show_query _
+#     @collect
 # end
 # 2×3 DataFrame
 #  Row │ efficiency  avg_mean  mean    

@@ -20,8 +20,8 @@
 #         end
 #     DB.@mutate begin
 #         efficiency = case_when(
-#             mean_mpg >= 25, "High",
-#             mean_mpg >= 15, "Moderate",
+#             mpg_mean >= 25, "High",
+#             mpg_mean >= 15, "Moderate",
 #             "Low" )
 #        end
 # end;
@@ -78,8 +78,8 @@
 #                end
 #            DB.@mutate begin
 #                efficiency = case_when(
-#                    mean_mpg >= 25, "High",
-#                    mean_mpg >= 15, "Moderate",
+#                    mpg_mean >= 25, "High",
+#                    mpg_mean >= 15, "Moderate",
 #                    "Low" )
 #              end
 #        DB.@create_view(viewer)

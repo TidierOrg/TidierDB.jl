@@ -223,7 +223,7 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×5 DataFrame
- Row │ groups  mean_value  mean_percent  sum_value  sum_percent 
+ Row │ groups  value_mean  percent_mean  value_sum  percent_sum 
      │ String  Float64     Float64       Int128     Float64     
 ─────┼──────────────────────────────────────────────────────────
    1 │ aa             3.0           0.6         15          3.0
@@ -270,7 +270,7 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×5 DataFrame
- Row │ groups  mean_value  mean_percent  sum_value  sum_percent 
+ Row │ groups  value_mean  percent_mean  value_sum  percent_sum 
      │ String  Float64     Float64       Int128     Float64     
 ─────┼──────────────────────────────────────────────────────────
    1 │ aa             3.0           0.6         15          3.0

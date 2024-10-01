@@ -188,7 +188,7 @@ end
 
 ```
 3×5 DataFrame
- Row │ cyl     mean_am   mean_vs   sum_am   sum_vs  
+ Row │ cyl     am_mean   vs_mean   am_sum   vs_sum  
      │ Int64?  Float64?  Float64?  Int128?  Int128? 
 ─────┼──────────────────────────────────────────────
    1 │      4  0.727273  0.909091        8       10

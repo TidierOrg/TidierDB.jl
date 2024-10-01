@@ -59,7 +59,7 @@ include("parsing_oracle.jl")
 include("parsing_databricks.jl")
 include("joins_sq.jl")
 include("slices_sq.jl")
-
+include("windows.jl")
 
 
 
@@ -189,8 +189,9 @@ function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_nam
     result = DuckDB.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
     table_name = if occursin(r"[:/]", table_name)
-         split(basename(table_name), '.')[1]
-        #"'$table_name'"
+        split(basename(table_name), '.')[1]
+        elseif occursin(".", table_name)
+        split(basename(table_name), '.')[end]
     else
         table_name
     end
@@ -420,13 +421,7 @@ function connect(::duckdb, db_type::Symbol; access_key::String="", secret_key::S
 end
 
 function connect(::duckdb, token::String)
-    if token == "md:" 
-        return DBInterface.connect(DuckDB.DB, "md:")
-    elseif endswith(token, ".duckdb")
-        return DuckDB.DB(token)
-    else
-        return DBInterface.connect(DuckDB.DB, "md:$token")
-    end 
+     return DBInterface.connect(DuckDB.DB, token)
 end
 
 end

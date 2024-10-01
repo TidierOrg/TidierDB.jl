@@ -81,6 +81,8 @@
 #     @head(5)
 #     @collect
 # end
+# ```
+# ```
 # 5×2 DataFrame
 #  Row │ car                model              
 #      │ String             String            
@@ -113,12 +115,11 @@
 # end;
 #
 # # access the view like as if it was any other table
-# @chain db_table(db, viewer) begin 
+# @chain db_table(db, "viewer") begin 
 #     @left_join(t(query2), cyl, cyl)
 #     @group_by(efficiency)
 #     @summarize(avg_mean = mean(mpg))
 #     @mutate(mean = avg_mean / 4 )
-#     @aside @show_query _
 #     @collect
 # end
 # ```

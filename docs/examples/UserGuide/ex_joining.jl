@@ -39,6 +39,8 @@
 #     @aside @show_query _
 #     @collect
 # end
+# ```
+# ```
 # 2×3 DataFrame
 #  Row │ efficiency  avg_mean  mean    
 #      │ String      Float64   Float64 
@@ -58,6 +60,8 @@
 #     @head(5)
 #     @collect
 # end
+# ```
+# ```
 # 5×2 DataFrame
 #  Row │ car                model              
 #      │ String             String            
@@ -75,18 +79,18 @@
 #     @left_join("ducks_db.mt2", car, model)
 #     @select(car, model)
 #     @head(5)
-# #     @collect
-# # end
-# # 5×2 DataFrame
-# #  Row │ car                model              
-# #      │ String             String            
-# # ─────┼──────────────────────────────────────
-# #    1 │ Mazda RX4          Mazda RX4
-# #    2 │ Mazda RX4 Wag      Mazda RX4 Wag
-# #    3 │ Datsun 710         Datsun 710
-# #    4 │ Hornet 4 Drive     Hornet 4 Drive
-# #    5 │ Hornet Sportabout  Hornet Sportabout
-# # ```
+#     @collect
+# end
+# 5×2 DataFrame
+#  Row │ car                model              
+#      │ String             String            
+# ─────┼──────────────────────────────────────
+#    1 │ Mazda RX4          Mazda RX4
+#    2 │ Mazda RX4 Wag      Mazda RX4 Wag
+#    3 │ Datsun 710         Datsun 710
+#    4 │ Hornet 4 Drive     Hornet 4 Drive
+#    5 │ Hornet Sportabout  Hornet Sportabout
+# ```
 
 # ## Using a View
 # You can also use `@create_view` to create views and then join them. This is an alternate reuse complex queries.
@@ -117,6 +121,8 @@
 #     @aside @show_query _
 #     @collect
 # end
+# ```
+# ```
 # 2×3 DataFrame
 #  Row │ efficiency  avg_mean  mean    
 #      │ String      Float64   Float64 

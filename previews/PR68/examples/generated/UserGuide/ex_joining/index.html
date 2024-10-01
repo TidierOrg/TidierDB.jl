@@ -498,6 +498,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#notice-this-is-not-begin-saved-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      notice, this is not begin saved, bc a view is created in the database at the end of the chain
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -657,6 +666,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#notice-this-is-not-begin-saved-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      notice, this is not begin saved, bc a view is created in the database at the end of the chain
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -672,9 +690,7 @@
                   
 
 
-  <h1>Joining Tables</h1>
-
-<p>This page will illustrate how to join different tables in TidierDB. The examples will use the <code>mtcars</code> dataset and a synthetic dataset called <code>mt2</code> hosted on a personal MotherDuck instance. Examples will cover how to join tables with different schemas in different databases, and how to write queries on tables and then join them together.</p>
+<p>This page will illustrate how to join different tables in TidierDB. The examples will use the <code>mtcars</code> dataset and a synthetic dataset called <code>mt2</code> hosted on a personal MotherDuck instance. Examples will cover how to join tables with different schemas in different databases, and how to write queries on tables and then join them together, and how to do this by levaraging views.</p>
 <p><a id='Setup'></a></p>
 <p><a id='Setup-1'></a></p>
 <h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">¤</a></h2>
@@ -757,11 +773,15 @@
 <span class="c">#    5 │ Hornet Sportabout  Hornet Sportabout</span>
 <span class="c"># ```</span>
 
-<span class="c">## Leveraging Views</span>
+<span class="c">## Using a View</span>
 <span class="n">You</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">also</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="sb">`@create_view`</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">create</span><span class="w"> </span><span class="n">views</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">then</span><span class="w"> </span><span class="n">join</span><span class="w"> </span><span class="n">them</span><span class="o">.</span><span class="w"> </span><span class="n">This</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">alternate</span><span class="w"> </span><span class="n">reuse</span><span class="w"> </span><span class="n">complex</span><span class="w"> </span><span class="n">queries</span><span class="o">.</span>
 </code></pre></div>
-<p>julia @chain t(mtcars) begin            @group<em>by cyl            @summarize begin                across(mpg, (mean, minimum, maximum))                num</em>cars = n()                end            @mutate begin                efficiency = case<em>when(                    mean</em>mpg &gt;= 25, "High",                    mean<em>mpg &gt;= 15, "Moderate",                    "Low" )              end        @create</em>view(plz)        end;</p>
-<p>@chain db<em>table(db, :plz) begin            @left</em>join(t(query2), cyl, cyl)            @group<em>by(efficiency)            @summarize(avg</em>mean = mean(mpg))            @mutate(mean = avg<em>mean / 4 )            @aside @show</em>query _            @collect end 2×3 DataFrame  Row │ efficiency  avg_mean  mean      │ String      Float64   Float64 ─────┼───────────────────────────────    1 │ High        106.655   26.6636    2 │ Moderate     84.5333  21.1333 ```</p>
+<p>julia</p>
+<p><a id='notice,-this-is-not-begin-saved,-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain'></a></p>
+<p><a id='notice,-this-is-not-begin-saved,-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain-1'></a></p>
+<h1 id="notice-this-is-not-begin-saved-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain">notice, this is not begin saved, bc a view is created in the database at the end of the chain<a class="headerlink" href="#notice-this-is-not-begin-saved-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain" title="Permanent link">¤</a></h1>
+<p>@chain t(mtcars) begin            @group<em>by cyl            @summarize begin                across(mpg, (mean, minimum, maximum))                num</em>cars = n()                end            @mutate begin                efficiency = case<em>when(                    mean</em>mpg &gt;= 25, "High",                    mean<em>mpg &gt;= 15, "Moderate",                    "Low" )              end        @create</em>view(viewer) # creating a view in the database        end;</p>
+<p>@chain db<em>table(db, viewer) begin # access the view like any table     @left</em>join(t(query2), cyl, cyl)     @group<em>by(efficiency)     @summarize(avg</em>mean = mean(mpg))     @mutate(mean = avg<em>mean / 4 )     @aside @show</em>query _     @collect end 2×3 DataFrame  Row │ efficiency  avg_mean  mean      │ String      Float64   Float64 ─────┼───────────────────────────────    1 │ High        106.655   26.6636    2 │ Moderate     84.5333  21.1333 ```</p>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 

@@ -223,7 +223,7 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×5 DataFrame
- Row │ groups  mean_value  mean_percent  sum_value  sum_percent 
+ Row │ groups  value_mean  percent_mean  value_sum  percent_sum 
      │ String  Float64     Float64       Int128     Float64     
 ─────┼──────────────────────────────────────────────────────────
    1 │ aa             3.0           0.6         15          3.0
@@ -270,7 +270,7 @@ julia> @chain db_table(db, :df_mem) begin
          @collect
        end
 2×5 DataFrame
- Row │ groups  mean_value  mean_percent  sum_value  sum_percent 
+ Row │ groups  value_mean  percent_mean  value_sum  percent_sum 
      │ String  Float64     Float64       Int128     Float64     
 ─────┼──────────────────────────────────────────────────────────
    1 │ aa             3.0           0.6         15          3.0
@@ -574,8 +574,8 @@ julia> copy_to(db, df, "df_mem");
 
 julia> copy_to(db, df2, "df_join");
 
-julia> @chain db_table(db, :df_mem) begin
-         @left_join(df_join, id2, id)
+julia> @chain db_table(db, "df_mem") begin
+         @left_join("df_join", id2, id)
          @collect
        end
 10×7 DataFrame
@@ -592,6 +592,30 @@ julia> @chain db_table(db, :df_mem) begin
    8 │ AF      aa          1      0.6  missing  missing   missing 
    9 │ AH      aa          3      0.8  missing  missing   missing 
   10 │ AJ      aa          5      1.0  missing  missing   missing 
+
+julia> query = @chain db_table(db, "df_join") begin
+                  @filter(score > 85) # only show scores above 85 in joining table
+                end;
+
+julia> @chain db_table(db, "df_mem") begin
+         @left_join(t(query), id2, id)
+         @collect
+       end
+10×7 DataFrame
+ Row │ id      groups  value  percent  id2      category  score   
+     │ String  String  Int64  Float64  String?  String?   Int64?  
+─────┼────────────────────────────────────────────────────────────
+   1 │ AA      bb          1      0.1  AA       X              88
+   2 │ AC      bb          3      0.3  AC       Y              92
+   3 │ AI      bb          4      0.9  AI       X              95
+   4 │ AB      aa          2      0.2  missing  missing   missing 
+   5 │ AD      aa          4      0.4  missing  missing   missing 
+   6 │ AE      bb          5      0.5  missing  missing   missing 
+   7 │ AF      aa          1      0.6  missing  missing   missing 
+   8 │ AG      bb          2      0.7  missing  missing   missing 
+   9 │ AH      aa          3      0.8  missing  missing   missing 
+  10 │ AJ      aa          5      1.0  missing  missing   missing 
+
 ```
 """
 
@@ -628,7 +652,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @right_join(df_join, id2, id)
+         @right_join("df_join", id2, id)
          @collect
        end
 7×7 DataFrame
@@ -642,6 +666,25 @@ julia> @chain db_table(db, :df_mem) begin
    5 │ AI       bb             4        0.9  AI      X            95
    6 │ missing  missing  missing  missing    AK      Y            68
    7 │ missing  missing  missing  missing    AM      X            74
+
+julia> query = @chain db_table(db, "df_join") begin
+                  @filter(score >= 74) # only show scores above 85 in joining table
+                end;
+
+julia> @chain db_table(db, :df_mem) begin
+         @right_join(t(query), id2, id)
+         @collect
+       end
+6×7 DataFrame
+ Row │ id       groups   value    percent    id2     category  score 
+     │ String?  String?  Int64?   Float64?   String  String    Int64 
+─────┼───────────────────────────────────────────────────────────────
+   1 │ AA       bb             1        0.1  AA      X            88
+   2 │ AC       bb             3        0.3  AC      Y            92
+   3 │ AE       bb             5        0.5  AE      X            77
+   4 │ AG       bb             2        0.7  AG      Y            83
+   5 │ AI       bb             4        0.9  AI      X            95
+   6 │ missing  missing  missing  missing    AM      X            74
 ```
 """
 
@@ -678,7 +721,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @inner_join(df_join, id2, id)
+         @inner_join("df_join", id2, id)
          @collect
        end
 5×7 DataFrame
@@ -725,10 +768,11 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @full_join(df_join, id2, id)
+         @full_join((@chain db_table(db, "df_join") @filter(score > 70)), id2, id)
+         #@aside @show_query _
          @collect
        end
-12×7 DataFrame
+11×7 DataFrame
  Row │ id       groups   value    percent    id2      category  score   
      │ String?  String?  Int64?   Float64?   String?  String?   Int64?  
 ─────┼──────────────────────────────────────────────────────────────────
@@ -742,8 +786,7 @@ julia> @chain db_table(db, :df_mem) begin
    8 │ AF       aa             1        0.6  missing  missing   missing 
    9 │ AH       aa             3        0.8  missing  missing   missing 
   10 │ AJ       aa             5        1.0  missing  missing   missing 
-  11 │ missing  missing  missing  missing    AK       Y              68
-  12 │ missing  missing  missing  missing    AM       X              74
+  11 │ missing  missing  missing  missing    AM       X              74
 ```
 """
 
@@ -780,7 +823,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @semi_join(df_join, id2, id)
+         @semi_join("df_join", id2, id)
          @collect
        end
 5×4 DataFrame
@@ -828,7 +871,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-        @anti_join(df_join, id2, id)
+        @anti_join("df_join", id2, id)
         @collect
        end
 5×4 DataFrame
@@ -1228,7 +1271,6 @@ julia> show_tables(db);
 ```
 """
 
-
 const docstring_from_query =
 """
     from_query(query)
@@ -1289,4 +1331,106 @@ SQLQuery("", "df_mem", "", "", "", "", "", "", false, false, 4×4 DataFrame
    3 │ value    BIGINT               1  df_mem
    4 │ percent  DOUBLE               1  df_mem, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
 ```
+"""
+
+const docstring_union = 
+"""
+    @union(sql_query1, sql_query2)
+
+Combine two SQL queries using the `UNION` operator.
+
+# Arguments
+- `sql_query1`: The first SQL query to combine.
+- `sql_query2`: The second SQL query to combine.
+
+# Returns
+- A new SQL query struct representing the combined queries.
+
+# Examples
+```julia
+julia> db = connect(duckdb());
+
+julia> df1 = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
+
+julia> df2 = DataFrame(id = [4, 5, 6], value = [40, 50, 60]);
+
+julia> copy_to(db, df1, "df1");
+
+julia> copy_to(db, df2, "df2");
+
+julia> df1_table = db_table(db, "df1");
+
+julia> df2_table = db_table(db, "df2");
+
+julia> @chain t(df1_table) @union(df2_table) @collect
+6×2 DataFrame
+ Row │ id     value 
+     │ Int64  Int64 
+─────┼──────────────
+   1 │     1     10
+   2 │     2     20
+   3 │     3     30
+   4 │     4     40
+   5 │     5     50
+   6 │     6     60
+
+julia> query = @chain t(df2_table) @filter(value == 50);
+
+julia> @chain t(df1_table) begin 
+        @union(t(query))
+        @collect
+       end
+4×2 DataFrame
+ Row │ id     value 
+     │ Int64  Int64 
+─────┼──────────────
+   1 │     1     10
+   2 │     2     20
+   3 │     3     30
+   4 │     5     50
+```
+"""
+
+const docstring_create_view =
+"""
+    @view(sql_query, name)
+
+Create a view from a SQL query.
+
+# Arguments
+- `sql_query`: The SQL query to create a view from.
+- `name`: The name of the view to create.
+
+# Examples
+```julia
+julia> db = connect(duckdb());
+
+julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
+
+julia> copy_to(db, df, "df1");
+
+julia> @chain db_table(db, "df1") @create_view(viewer);
+
+julia> db_table(db, "viewer")
+SQLQuery("", "viewer", "", "", "", "", "", "", false, false, 2×4 DataFrame
+ Row │ name    type    current_selxn  table_name 
+     │ String  String  Int64          String     
+─────┼───────────────────────────────────────────
+   1 │ id      BIGINT              1  viewer
+   2 │ value   BIGINT              1  viewer, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
+```
+"""
+
+const docstring_drop_view =
+"""
+    drop_view(db, name)
+
+Drop a view from a database.
+
+# Arguments
+- `db`: The database to drop the view from.
+- `name`: The name of the view to drop.
+
+# Examples
+`drop_view(db, "viewer")`
 """

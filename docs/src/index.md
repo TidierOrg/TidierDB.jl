@@ -33,16 +33,16 @@ TidierDB.jl currently supports:
 | **Category**                     | **Supported Macros and Functions**                                                                                                                                               |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Data Manipulation**     | `@arrange`, `@group_by`, `@filter`, `@select`, `@mutate` (supports `across`), `@summarize`/`@summarise` (supports `across`), `@distinct`                                 |
-| **Joining**                  | `@left_join`, `@right_join`, `@inner_join`, `@anti_join`, `@full_join`, `@semi_join` (slight syntax differences from TidierData.jl)                                          |
+| **Joining**                  | `@left_join`, `@right_join`, `@inner_join`, `@anti_join`, `@full_join`, `@semi_join`, `@union`                                          |
 | **Slice and Order**       | `@slice_min`, `@slice_max`, `@slice_sample`, `@order`, `@window_order`, `@window_frame`                                                                                                |
-| **Utility**               | `@show_query`, `@collect`, `@head`, `@count`, `show_tables`                                                                                                                                          |
+| **Utility**               | `@show_query`, `@collect`, `@head`, `@count`, `show_tables`, `@create_view`, `drop_view`                                                                                                                                          |
 | **Helper Functions**             | `across`, `desc`, `if_else`, `case_when`, `n`, `starts_with`, `ends_with`, `contains`, `as_float`, `as_integer`, `as_string`, `is_missing`, `missing_if`, `replace_missing` |
 | **TidierStrings.jl Functions** | `str_detect`, `str_replace`, `str_replace_all`, `str_remove_all`, `str_remove`                                                                                               |
 | **TidierDates.jl Functions**   | `year`, `month`, `day`, `hour`, `min`, `second`, `floor_date`, `difftime`                                                                                                   |
-| **Aggregate Functions**          | `mean`, `minimum`, `maximum`, `std`, `sum`, `cumsum`, `cor`, `cov`, `var`, all SQL aggregate
+| **Aggregate Functions**          | `mean`, `minimum`, `maximum`, `std`, `sum`, `cumsum`, `cor`, `cov`, `var`
 
-`@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.
-`@mutate` supports nearly all functions built into SQL as well.                                                                                                          
+`@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.   
+`@mutate` supports all builtin SQL functions as well.                                                                                                 
 
 
 When using the DuckDB backend, if `db_table` recieves a file path ( `.parquet`, `.json`, `.csv`, `iceberg` or `delta`), it does not copy it into memory. This allows for queries on files too big for memory. `db_table` also supports S3 bucket locations via DuckDB.
@@ -183,7 +183,7 @@ end
 
 ```
 3×5 DataFrame
- Row │ cyl     mean_am   mean_vs   sum_am   sum_vs  
+ Row │ cyl     am_mean   vs_mean   am_sum   vs_sum  
      │ Int64?  Float64?  Float64?  Int128?  Int128? 
 ─────┼──────────────────────────────────────────────
    1 │      4  0.727273  0.909091        8       10

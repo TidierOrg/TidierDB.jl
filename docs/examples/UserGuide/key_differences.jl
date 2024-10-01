@@ -49,8 +49,7 @@ end
 # There is one key difference for joining:
 
 # The column on both the new and old table must be specified. They do not need to be the same, and given SQL behavior where both columns are kept when joining two tables, it is preferable if they have different names. This avoids "ambiguous reference" errors that would otherwise come up and complicate the use of tidy selection for columns. 
-# Athena has an additional slight difference given the need for parameters, which is covered in the Athena documentation page.
-
+# If the table that is being newly joined exists on a database, it must be written as a string or Symbol. If it is an exisiting query, it must be wrapped with `t(query)`. Visit the docstrings for more examples. 
 df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
                 score = [88, 92, 77, 83, 95, 68, 74]);
@@ -58,7 +57,7 @@ df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 copy_to(db, df2, "df_join");
 
 @chain db_table(db, :df_mem) begin
-    @left_join(df_join, id2, id)
+    @left_join("df_join", id2, id)
     @collect
 end
 

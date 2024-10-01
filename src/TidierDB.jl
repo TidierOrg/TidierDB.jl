@@ -18,8 +18,8 @@ using GZip
  @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
  @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, 
  @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,  @head, 
- clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables,
- t
+ clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, 
+ t, @union, @create_view, drop_view
 
  abstract type SQLBackend end
 
@@ -98,9 +98,16 @@ function finalize_ctes(ctes::Vector{CTE})
     if isempty(ctes)
         return ""
     end
-
+  
     cte_strings = String[]
     for cte in ctes
+     
+        if startswith(cte.name, "jcte_") 
+            # Replace 'FROM cte_' with 'FROM jcte_'
+            cte.select = replace(cte.select, r"FROM cte_" => "FROM jcte_")
+            cte.from = replace(cte.from, r"^cte_" => "jcte_")
+        end
+    
         cte_str = string(
             cte.name, " AS (SELECT ", cte.select, 
             occursin(" FROM ", cte.select) ? "" : " FROM " * cte.from, 
@@ -161,6 +168,7 @@ function finalize_query(sqlquery::SQLQuery)
     if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end
+
 
     return complete_query
 end

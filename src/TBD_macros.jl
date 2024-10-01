@@ -154,7 +154,6 @@ macro arrange(sqlquery, columns...)
 end
 
 
-
 function process_mutate_expression(expr, sq, select_expressions, cte_name)
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
         col_name = string(expr.args[1])
@@ -162,7 +161,6 @@ function process_mutate_expression(expr, sq, select_expressions, cte_name)
             col_name = uppercase(col_name)
         end
         col_expr = expr_to_sql(expr.args[2], sq)  # Convert to SQL expression
-
         # Determine whether the column already exists or needs to be added
         if col_name in [col for col in sq.metadata[!, "name"]]
             # Replace the existing column expression with the mutation
@@ -691,4 +689,22 @@ $docstring_show_tables
 """
 function show_tables(con::Union{DuckDB.DB, DuckDB.Connection})
     return DataFrame(DBInterface.execute(con, "SHOW ALL TABLES"))
+end
+
+"""
+$docstring_create_view
+"""
+macro create_view(sqlquery, name)
+    #name = QuoteNode(name)
+    return quote
+       # prin
+        sq = $(esc(sqlquery))
+        final_query = finalize_query(sq)
+        final_query = "CREATE OR REPLACE VIEW " *  $(string(name))  * " AS " * final_query
+        result = DBInterface.execute(sq.db, final_query)
+    end
+end
+
+function drop_view(db, name)
+    DBInterface.execute(db, "DROP VIEW $name")
 end

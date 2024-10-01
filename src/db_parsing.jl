@@ -264,7 +264,7 @@ function parse_across(expr, metadata)
             func_filled = insert_col_into_func(func, col_symbol)
             # Specify "agg" to be skipped in the result name
             func_name_str = generate_func_name(func, ["agg"])
-            result_name = Symbol(func_name_str, "_", col_name)
+            result_name = Symbol(col_name, "_", func_name_str)
             new_expr = Expr(:(=), result_name, func_filled)
             push!(result_exprs, new_expr)
         end

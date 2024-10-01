@@ -1,14 +1,18 @@
-# While using TidierDB, you may need to generate part of a query and reuse it multiple times. `from_query()` or `t()` enable a query portion to be reused multiple times as shown below.
+# While using TidierDB, you may need to generate part of a query and reuse it multiple times. There are two ways to do this 
+# 1. `from_query(query)` or `t(query)`
+# 2. `@create_view(name)`
 
+# ## Setup
 # ```julia
 # import TidierDB as DB
 # con = DB.connect(duckdb())
 # mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
+# mtcars = DB.db_table(con, mtcars_path)
 # ```
 
 # Start a query to analyze fuel efficiency by number of cylinders. However, to further build on this query later, end the chain without using `@show_query` or `@collect`
 # ```julia
-# query = DB.@chain DB.db_table(con, mtcars_path) begin
+# query = DB.@chain DB.t(mtcars) begin
 #     DB.@group_by cyl
 #     DB.@summarize begin
 #         across(mpg, (mean, minimum, maximum))
@@ -16,17 +20,18 @@
 #         end
 #     DB.@mutate begin
 #         efficiency = case_when(
-#             mean_mpg >= 25, "High",
-#             mean_mpg >= 15, "Moderate",
+#             mpg_mean >= 25, "High",
+#             mpg_mean >= 15, "Moderate",
 #             "Low" )
 #        end
 # end;
 # ```
 
-# Now, `from_query` will allow you to reuse the query to calculate the average horsepower for each efficiency category
+# ## `from_query()` or `t(query)`
+# Now, `from_query`, or `t()` a convienece wrapper, will allow you to reuse the query to calculate the average horsepower for each efficiency category
 # ```julia
-# DB.@chain DB.from_query(query) begin
-#    DB.@left_join(mtcars2, cyl, cyl)
+# DB.@chain DB.t(mtcars)  begin
+#    DB.@left_join("mtcars2", cyl, cyl)
 #    DB.@group_by(efficiency)
 #    DB.@summarize(avg_hp = mean(hp))
 #    DB.@collect
@@ -43,8 +48,8 @@
 
 # Reuse the query again to find the car with the highest MPG for each cylinder category
 # ```julia
-# DB.@chain DB.from_query(query) begin
-#    DB.@left_join(mtcars2, cyl, cyl)
+# DB.@chain DB.t(mtcars)  begin
+#    DB.@left_join("mtcars2", cyl, cyl)
 #    DB.@group_by cyl
 #    DB.@slice_max(mpg)
 #    DB.@select model cyl mpg
@@ -59,6 +64,42 @@
 #    1 │ Pontiac Firebird       8      19.2
 #    2 │ Toyota Corolla         4      33.9
 #    3 │ Hornet 4 Drive         6      21.4
+# ```
+
+# ## @create_view
+# This can also be done with `@create_view`.
+# ```julia
+# query2 = @chain t(mtcars) @filter(mpg>20) @mutate(mpg = mpg *4); 
+# DB.@chain  DB.db_table(db, "mtcars") begin
+#            DB.@group_by cyl
+#            DB.@summarize begin
+#                across(mpg, (mean, minimum, maximum))
+#                num_cars = n()
+#                end
+#            DB.@mutate begin
+#                efficiency = case_when(
+#                    mpg_mean >= 25, "High",
+#                    mpg_mean >= 15, "Moderate",
+#                    "Low" )
+#              end
+#        DB.@create_view(viewer)
+#        end;
+#
+#
+# DB.@chain DB.db_table(db, "viewer") begin
+#            DB.@left_join(DB.t(query2), cyl, cyl)
+#            DB.@group_by(efficiency)
+#            DB.@summarize(avg_mean = mean(mpg))
+#            DB.@mutate(mean = avg_mean / 4 )
+#            @aside DB.@show_query _
+#            DB.@collect
+# end
+# 2×3 DataFrame
+#  Row │ efficiency  avg_mean  mean    
+#      │ String      Float64   Float64 
+# ─────┼───────────────────────────────
+#    1 │ High        106.655   26.6636
+#    2 │ Moderate     84.5333  21.1333
 # ```
 
 # ## Preview or save an intermediate table

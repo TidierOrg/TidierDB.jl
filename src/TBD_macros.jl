@@ -700,7 +700,7 @@ macro create_view(sqlquery, name)
        # prin
         sq = $(esc(sqlquery))
         final_query = finalize_query(sq)
-        final_query = "CREATE VIEW " *  $(string(name))  * " AS " * final_query
+        final_query = "CREATE OR REPLACE VIEW " *  $(string(name))  * " AS " * final_query
         result = DBInterface.execute(sq.db, final_query)
     end
 end

@@ -69,5 +69,5 @@
 # ```
 # ---
 # Tip: `t()` is an alias for `from_query`
-# This means after saving the results of `db_table` use `t(table)` refer to the table or prior query 
+# This means after saving the results of `db_table`, use `t(table)` to refer to the table or prior query 
 # --- 

@@ -1,16 +1,12 @@
 # TidierDB.jl updates
 ## v0.4.0 - 2024-10-
-- adds `@create_views`
+- adds `@create_view`
 - adds `drop_view`
 - adds support for joining a queried table with anothe queried table 
 - adds joining [docs](https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/ex_joining/) to outline using `t()` or `@create_view` for post wrangling joins 
 - bug fix to allow cross database/schema joins with duckdb
 
 ## v0.3.5 - 2024-09-28
-- improves DuckDB `connect()` interface and documentation 
-- enhances `@window_frame` to allow for just a `to` or `from` argument, as well as autodetection for `preceding`, `following` and `unbounded` for the frame boundaries. 
-
-## v0.3.5 - 2024-09-
 - improves DuckDB `connect()` interface and documentation 
 - enhances `@window_frame` to allow for just a `to` or `from` argument, as well as autodetection for `preceding`, `following` and `unbounded` for the frame boundaries. 
 

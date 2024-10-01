@@ -53,13 +53,13 @@
 # ```julia
 # other_db = @chain db_table(db, "ducks_db.mt2") @filter(!str_detect(car, "M"))
 # @chain t(mtcars) begin
-#     @left_join(t(other_db), car, _row)
-#     @select(car, _row)
+#     @left_join(t(other_db), car, model)
+#     @select(car, model)
 #     @head(5)
 #     @collect
 # end
 # 5×2 DataFrame
-#  Row │ car                _row              
+#  Row │ car                model              
 #      │ String             String            
 # ─────┼──────────────────────────────────────
 #    1 │ Datsun 710         Datsun 710
@@ -72,13 +72,13 @@
 # To join directly to the table, you can use the `@left_join` macro with the table name as a string.
 # ```julia
 # @chain t(mtcars) begin
-#     @left_join("ducks_db.mt2", car, _row)
-#     @select(car, _row)
+#     @left_join("ducks_db.mt2", car, model)
+#     @select(car, model)
 #     @head(5)
 # #     @collect
 # # end
 # # 5×2 DataFrame
-# #  Row │ car                _row              
+# #  Row │ car                model              
 # #      │ String             String            
 # # ─────┼──────────────────────────────────────
 # #    1 │ Mazda RX4          Mazda RX4
@@ -93,22 +93,23 @@
 # ```julia
 # # notice, this is not begin saved, bc a view is created in the database at the end of the chain
 # @chain t(mtcars) begin
-#            @group_by cyl
-#            @summarize begin
-#                across(mpg, (mean, minimum, maximum))
-#                num_cars = n()
-#                end
-#            @mutate begin
-#                efficiency = case_when(
-#                    mean_mpg >= 25, "High",
-#                    mean_mpg >= 15, "Moderate",
-#                    "Low" )
-#              end
-#        @create_view(viewer) # creating a view in the database
-#        end;
+#        @group_by cyl
+#        @summarize begin
+#             across(mpg, (mean, minimum, maximum))
+#             num_cars = n()
+#         end
+#        @mutate begin
+#            efficiency = case_when(
+#            mean_mpg >= 25, "High",
+#            mean_mpg >= 15, "Moderate",
+#               "Low" )
+#         end
+#        #create a view in the database
+#        @create_view(viewer)
+# end;
 #
-#
-# @chain db_table(db, viewer) begin # access the view like any table
+# # access the view like as if it was any other table
+# @chain db_table(db, viewer) begin 
 #     @left_join(t(query2), cyl, cyl)
 #     @group_by(efficiency)
 #     @summarize(avg_mean = mean(mpg))

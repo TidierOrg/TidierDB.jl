@@ -91,7 +91,7 @@
 #            DB.@group_by(efficiency)
 #            DB.@summarize(avg_mean = mean(mpg))
 #            DB.@mutate(mean = avg_mean / 4 )
-#            DB.@aside DB.@show_query _
+#            @aside DB.@show_query _
 #            DB.@collect
 # end
 # 2×3 DataFrame

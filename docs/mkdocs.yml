@@ -123,6 +123,7 @@ nav:
   - "Using Athena" : "examples/generated/UserGuide/athena.md"
   - "Using Snowflake" : "examples/generated/UserGuide/Snowflake.md"
   - "Using Databricks" : "examples/generated/UserGuide/databricks.md"
+  - "Joining Tables" : "examples/generated/UserGuide/ex_joining.md"
   - "Writing Functions/Macros with TidierDB Chains" : "examples/generated/UserGuide/functions_pass_to_DB.md"
   - "Working With Larger than RAM Datasets" : "examples/generated/UserGuide/outofmemex.md"
   - "TidierDB.jl vs Ibis" : "examples/generated/UserGuide/ibis_comp.md"

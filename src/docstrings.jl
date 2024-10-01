@@ -1222,11 +1222,7 @@ Shows tables available in database. currently supports DuckDB, databricks, Snowf
 ```jldoctest
 julia> db = connect(duckdb());
 
-julia> show_tables(db) # there are no tables in when first loading so df below is empty.
-0×1 DataFrame
- Row │ name   
-     │ String 
-─────┴────────
+julia> show_tables(db); # there are no tables in when first loading so df below is empty.
 ```
 """
 

@@ -24,7 +24,7 @@
     
     
       
-        <title>Reusing Part of a Query - TidierDB.jl</title>
+        <title>Reusing a Query (and Views) - TidierDB.jl</title>
       
     
     
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Reusing Part of a Query
+              Reusing a Query (and Views)
             
           </span>
         </div>
@@ -341,7 +341,7 @@
           
   
   <span class="md-ellipsis">
-    Reusing Part of a Query
+    Reusing a Query (and Views)
   </span>
   
 
@@ -352,7 +352,7 @@
         
   
   <span class="md-ellipsis">
-    Reusing Part of a Query
+    Reusing a Query (and Views)
   </span>
   
 
@@ -690,7 +690,7 @@
                   
 
 
-  <h1>Reusing Part of a Query</h1>
+  <h1>Reusing a Query (and Views)</h1>
 
 <p>While using TidierDB, you may need to generate part of a query and reuse it multiple times. There are two ways to do this</p>
 <ol>
@@ -781,7 +781,7 @@
 <span class="w">           </span><span class="n">DB</span><span class="o">.</span><span class="nd">@group_by</span><span class="p">(</span><span class="n">efficiency</span><span class="p">)</span>
 <span class="w">           </span><span class="n">DB</span><span class="o">.</span><span class="nd">@summarize</span><span class="p">(</span><span class="n">avg_mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">))</span>
 <span class="w">           </span><span class="n">DB</span><span class="o">.</span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">avg_mean</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">)</span>
-<span class="w">           </span><span class="n">DB</span><span class="o">.</span><span class="nd">@aside</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="nd">@show_query</span><span class="w"> </span><span class="n">_</span>
+<span class="w">           </span><span class="nd">@aside</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="nd">@show_query</span><span class="w"> </span><span class="n">_</span>
 <span class="w">           </span><span class="n">DB</span><span class="o">.</span><span class="nd">@collect</span>
 <span class="k">end</span>
 <span class="mi">2</span><span class="o">×</span><span class="mi">3</span><span class="w"> </span><span class="n">DataFrame</span>

@@ -334,7 +334,7 @@
         
   
   <span class="md-ellipsis">
-    Reusing Part of a Query
+    Reusing a Query (and Views)
   </span>
   
 
@@ -502,6 +502,15 @@
   <a href="#notice-this-is-not-begin-saved-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain" class="md-nav__link">
     <span class="md-ellipsis">
       notice, this is not begin saved, bc a view is created in the database at the end of the chain
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#access-the-view-like-as-if-it-was-any-other-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      access the view like as if it was any other table
     </span>
   </a>
   
@@ -675,6 +684,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#access-the-view-like-as-if-it-was-any-other-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      access the view like as if it was any other table
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -740,13 +758,13 @@
 <p>To connect to a table in a different schema, prefix it with a dot. For example, "schema<em>name.table</em>name". In this query, we are also filtering out cars that contain "M" in the name from the <code>mt2</code> table before joining.</p>
 <div class="highlight"><pre><span></span><code><span class="n">other_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ducks_db.mt2&quot;</span><span class="p">)</span><span class="w"> </span><span class="nd">@filter</span><span class="p">(</span><span class="o">!</span><span class="n">str_detect</span><span class="p">(</span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;M&quot;</span><span class="p">))</span>
 <span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">other_db</span><span class="p">),</span><span class="w"> </span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">_row</span><span class="p">)</span>
-<span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">_row</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">other_db</span><span class="p">),</span><span class="w"> </span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@collect</span>
 <span class="k">end</span>
 <span class="mi">5</span><span class="o">×</span><span class="mi">2</span><span class="w"> </span><span class="n">DataFrame</span>
-<span class="w"> </span><span class="n">Row</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">car</span><span class="w">                </span><span class="n">_row</span>
+<span class="w"> </span><span class="n">Row</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">car</span><span class="w">                </span><span class="n">model</span>
 <span class="w">     </span><span class="n">│</span><span class="w"> </span><span class="kt">String</span><span class="w">             </span><span class="kt">String</span>
 <span class="n">─────┼──────────────────────────────────────</span>
 <span class="w">   </span><span class="mi">1</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">Datsun</span><span class="w"> </span><span class="mi">710</span><span class="w">         </span><span class="n">Datsun</span><span class="w"> </span><span class="mi">710</span>
@@ -757,13 +775,13 @@
 </code></pre></div>
 <p>To join directly to the table, you can use the <code>@left_join</code> macro with the table name as a string.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="s">&quot;ducks_db.mt2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">_row</span><span class="p">)</span>
-<span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">_row</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="s">&quot;ducks_db.mt2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="c">#     @collect</span>
 <span class="c"># end</span>
 <span class="c"># 5×2 DataFrame</span>
-<span class="c">#  Row │ car                _row</span>
+<span class="c">#  Row │ car                model</span>
 <span class="c">#      │ String             String</span>
 <span class="c"># ─────┼──────────────────────────────────────</span>
 <span class="c">#    1 │ Mazda RX4          Mazda RX4</span>
@@ -780,8 +798,11 @@
 <p><a id='notice,-this-is-not-begin-saved,-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain'></a></p>
 <p><a id='notice,-this-is-not-begin-saved,-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain-1'></a></p>
 <h1 id="notice-this-is-not-begin-saved-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain">notice, this is not begin saved, bc a view is created in the database at the end of the chain<a class="headerlink" href="#notice-this-is-not-begin-saved-bc-a-view-is-created-in-the-database-at-the-end-of-the-chain" title="Permanent link">¤</a></h1>
-<p>@chain t(mtcars) begin            @group<em>by cyl            @summarize begin                across(mpg, (mean, minimum, maximum))                num</em>cars = n()                end            @mutate begin                efficiency = case<em>when(                    mean</em>mpg &gt;= 25, "High",                    mean<em>mpg &gt;= 15, "Moderate",                    "Low" )              end        @create</em>view(viewer) # creating a view in the database        end;</p>
-<p>@chain db<em>table(db, viewer) begin # access the view like any table     @left</em>join(t(query2), cyl, cyl)     @group<em>by(efficiency)     @summarize(avg</em>mean = mean(mpg))     @mutate(mean = avg<em>mean / 4 )     @aside @show</em>query _     @collect end 2×3 DataFrame  Row │ efficiency  avg_mean  mean      │ String      Float64   Float64 ─────┼───────────────────────────────    1 │ High        106.655   26.6636    2 │ Moderate     84.5333  21.1333 ```</p>
+<p>@chain t(mtcars) begin        @group<em>by cyl        @summarize begin             across(mpg, (mean, minimum, maximum))             num</em>cars = n()         end        @mutate begin            efficiency = case<em>when(            mean</em>mpg &gt;= 25, "High",            mean<em>mpg &gt;= 15, "Moderate",               "Low" )         end        #create a view in the database        @create</em>view(viewer) end;</p>
+<p><a id='access-the-view-like-as-if-it-was-any-other-table'></a></p>
+<p><a id='access-the-view-like-as-if-it-was-any-other-table-1'></a></p>
+<h1 id="access-the-view-like-as-if-it-was-any-other-table">access the view like as if it was any other table<a class="headerlink" href="#access-the-view-like-as-if-it-was-any-other-table" title="Permanent link">¤</a></h1>
+<p>@chain db<em>table(db, viewer) begin     @left</em>join(t(query2), cyl, cyl)     @group<em>by(efficiency)     @summarize(avg</em>mean = mean(mpg))     @mutate(mean = avg<em>mean / 4 )     @aside @show</em>query _     @collect end 2×3 DataFrame  Row │ efficiency  avg_mean  mean      │ String      Float64   Float64 ─────┼───────────────────────────────    1 │ High        106.655   26.6636    2 │ Moderate     84.5333  21.1333 ```</p>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 

@@ -127,7 +127,9 @@
         # using missing_if, replace_missing as well as joins
         TDF_10 = @chain test_df @mutate(groups = missing_if(groups,"aa"))
         TDB_10 = @chain DB.t(test_db) DB.@mutate(groups = missing_if(groups,"aa")) DB.@collect
+        # full join with mutate and filter in newly joined table
         TDF_11 = @chain test_df @full_join(@filter(df2, score > 85 && str_detect(id2, "C")), id = id2) @mutate(score = replace_missing(score, 0))
+        query = DB.@chain DB.t(join_db) DB.@filter(str_detect(id2, "C") && score > 85) 
         TDB_11 = @chain DB.t(test_db) DB.@full_join(DB.t(query), id2, id) DB.@select(!id2) DB.@mutate(score = replace_missing(score, 0)) DB.@collect
         TDF_12 = @chain test_df @mutate(value = value * 2, new_col = (value + percent)/2)
         TDB_12 = @chain DB.t(test_db) DB.@mutate(value = value * 2, new_col = (value + percent)/2) DB.@collect

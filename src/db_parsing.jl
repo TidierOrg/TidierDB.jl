@@ -121,15 +121,15 @@ end
 function parse_if_else(expr)
     transformed_expr = MacroTools.postwalk(expr) do x
         # Ensure we're dealing with an Expr object and it's a call to if_else
-        if isa(x, Expr) && x.head == :call && x.args[1] == :if_else
+        if isa(x, Expr) && x.head == :call && x.args[1] == :if_else && length(x.args) == 4
             # Extract condition, true_case, and false_case from the arguments
             condition = x.args[2]
             true_case = x.args[3]
             false_case = x.args[4]
 
-            # Check and format true_case and false_case appropriately
-            true_case_formatted = isa(true_case, String) ? "'$true_case'" : true_case
-            false_case_formatted = isa(false_case, String) ? "'$false_case'" : false_case
+            # Check and handle `missing` cases and formatting for string literals
+            true_case_formatted = (string(true_case) == "missing") ? "NULL" : (isa(true_case, String) ? "'$true_case'" : true_case)
+            false_case_formatted = (string(false_case) == "missing") ? "NULL" : (isa(false_case, String) ? "'$false_case'" : false_case)
 
             # Construct the SQL CASE statement as a string
             sql_case = "CASE WHEN $(condition) THEN $(true_case_formatted) ELSE $(false_case_formatted) END"
@@ -143,6 +143,7 @@ function parse_if_else(expr)
     end
     return transformed_expr
 end
+
 
 function parse_case_when(expr)
     MacroTools.postwalk(expr) do x
@@ -159,14 +160,30 @@ function parse_case_when(expr)
                     cond = x.args[i]
                     result = x.args[i + 1]
 
-                    # Check and format result appropriately
-                    result_formatted = isa(result, String) ? "'$result'" : result
+                    # Handle `missing` by converting it to `NULL`
+                    result_formatted = if result === :missing
+                        "NULL"
+                    elseif isa(result, String)
+                        "'$result'"
+                    else
+                        result
+                    end
+
+                    # Append the WHEN-THEN part to the SQL CASE expression
                     push!(sql_case_parts, "WHEN $(cond) THEN $(result_formatted)")
                 end
                 
                 # Handle the default case, the last argument
                 default_result = x.args[end]
-                default_result_formatted = isa(default_result, String) ? "'$default_result'" : default_result
+                default_result_formatted = if default_result === :missing
+                    "NULL"
+                elseif isa(default_result, String)
+                    "'$default_result'"
+                else
+                    default_result
+                end
+
+                # Append the ELSE part and the END
                 push!(sql_case_parts, "ELSE $(default_result_formatted) END")
                 
                 # Combine into a complete SQL CASE statement
@@ -180,6 +197,7 @@ function parse_case_when(expr)
         return x
     end
 end
+
 
 #hacky, but only way i could figure out how to get
 #the right syntax for starts_with, ends_with, contains

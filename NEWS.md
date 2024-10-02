@@ -1,5 +1,8 @@
 # TidierDB.jl updates
-## v0.4.0 - 2024-10-
+## v0.4.1 - 2024-10-02
+- Adds 50 tests comparing TidierDB to TidierData to assure accuracy across a complex chains of operations, including combinations of `@mutate`, `@summarize`, `@filter`, `@select`, `@group_by` and `@join` operations. 
+
+## v0.4.0 - 2024-10-01
 - adds `@create_view`
 - adds `drop_view`
 - adds support for joining a queried table with anothe queried table 

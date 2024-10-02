@@ -108,7 +108,7 @@
         #mutating after summarizing and with cumsum
         TDF_4 = @chain test_df @group_by(groups) @summarize(across(value,(mean, minimum))) @mutate(new = value_mean - value_minimum)
         TDB_4 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(across(value, (mean, minimum))) DB.@mutate(new = value_mean - value_minimum) DB.@collect
-        TDF_5 = @chain test_df @group_by(groups) @mutate(value = cumsum(value)) @ungroup
+        TDF_5 = @chain test_df @group_by(groups) @mutate(value = cumsum(value)) @ungroup() @arrange(desc(groups), value)
         TDB_5 = @chain DB.t(test_db) DB.@group_by(groups) DB.@mutate(value = cumsum(value)) DB.@arrange(desc(groups), value) DB.@collect
         TDF_6 = @chain test_df @mutate(id = lowercase(id), groups = uppercase(groups))
         TDB_6 = @chain DB.t(test_db)  DB.@mutate(id = lower(id), groups = upper(groups)) DB.@collect

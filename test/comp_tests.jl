@@ -96,8 +96,8 @@
         # mutate in a new category, group by summarize, and then join on two summary tables based on key, then mutate and filter on new column
         TDF_11 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @right_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category) @mutate(test = score_mean^percent_mean) @filter(test > 10)
         TDB_11 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@right_join(DB.t(x), category, category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(cte_7.category, percent_mean, score_mean, test) DB.@collect 
-        TDF_11 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @full_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category) @mutate(test = score_mean^percent_mean) @filter(test > 10)
-        TDB_11 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@full_join(DB.t(x), category, category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(cte_7.category, percent_mean, score_mean, test) DB.@collect 
+        TDF_12 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @full_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category) @mutate(test = score_mean^percent_mean) @filter(test > 10)
+        TDB_12 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@full_join(DB.t(x), category, category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(cte_7.category, percent_mean, score_mean, test) DB.@collect 
 
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
         @test all(isequal.(Array(TDF_2), Array(TDB_2)))
@@ -110,6 +110,8 @@
         @test all(isequal.(Array(TDF_9), Array(TDB_9)))
         @test all(isequal.(Array(TDF_10), Array(TDB_10)))
         @test all(isequal.(Array(TDF_11), Array(TDB_11)))
+        @test all(isequal.(Array(TDF_12), Array(TDB_12)))
+
     end
     @testset "Mutate" begin
         # simple arithmetic mutates

@@ -208,6 +208,7 @@
         TDB_2 = @chain DB.t(test_db) DB.@mutate(test = ymd("2023-06-15")) DB.@filter(test <  ymd("2023-04-14")) DB.@collect
         TDF_3 = @chain test_df @mutate(test = if_else(groups == "aa", ymd_hms("2023-06-15 00:00:00"), ymd_hms("2024-06-15 00:00:00"))) @filter(test ==  ymd("2023-06-15"))
         TDB_3 = @chain DB.t(test_db) DB.@mutate(test = if_else(groups == "aa", ymd("2023-06-15"),  ymd("2024-06-15"))) DB.@filter(test ==  ymd("2023-06-15")) DB.@collect
+        # if_else based on value of date difference
         TDF_4 = @chain test_df @mutate(test = if_else(groups == "aa", ymd("2023-06-15"),  ymd("2024-06-15")), test2= ymd("2020-06-15")) @mutate(tryt = if_else((test - test2) > Day(1095), "old", "young")) @select(tryt)
         TDB_4 = @chain DB.t(test_db) DB.@mutate(test = if_else(groups == "aa", ymd("2023-06-15"),  ymd("2024-06-15")), test2= ymd("2020-06-15")) DB.@mutate(tryt = if_else(Day((test - test2)) > 1095, "old", "young")) DB.@select(tryt) DB.@collect
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))

@@ -1,4 +1,8 @@
 # TidierDB.jl updates
+## v0.4.2 - 2024-10-06
+- add `dmy`, `mdy`, `ymd` support for most backends 
+- add Date parsing and filtering tests
+
 ## v0.4.1 - 2024-10-02
 - Adds 50 tests comparing TidierDB to TidierData to assure accuracy across a complex chains of operations, including combinations of `@mutate`, `@summarize`, `@filter`, `@select`, `@group_by` and `@join` operations. 
 

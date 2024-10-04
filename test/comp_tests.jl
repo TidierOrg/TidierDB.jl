@@ -11,10 +11,10 @@
         @test all(Array(TDF_3 .== TDB_3))
     end
     @testset "Group By Summarize" begin
-        TDF_1 = @chain test_df @group_by(groups) @summarize(value = sum(value))
-        TDB_1 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(value = sum(value)) DB.@collect
-        TDF_2 = @chain test_df @group_by(groups) @summarize(across(value,(mean, minimum, maximum)))
-        TDB_2 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(across(value, (mean, minimum, maximum))) DB.@collect
+        TDF_1 = @chain test_df @group_by(groups) @summarize(value = sum(value), n = n())
+        TDB_1 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(value = sum(value), n = n()) DB.@collect
+        TDF_2 = @chain test_df @group_by(groups) @summarize(across(starts_with("v"), (mean, minimum, maximum, std)))
+        TDB_2 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(across(starts_with("v"), (mean, minimum, maximum, std))) DB.@collect
         TDF_3 = @chain test_df @group_by(groups) @summarize(across(value,(mean, minimum, maximum))) @mutate(value_mean = value_mean + 4 * 4)
         TDB_3 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(across(value, (mean, minimum, maximum))) DB.@mutate(value_mean = value_mean + 4 * 4) DB.@collect
         @test all(Array(TDF_1 .== TDB_1))
@@ -87,6 +87,18 @@
         TDB_7 = @chain DB.t(test_db) DB.@anti_join(DB.t(query), id2, id)  DB.@collect
         TDF_8 = @right_join(test_df, @filter(df2, score > 85 && str_detect(id2, "C")), id = id2)
         TDB_8 = @chain DB.t(test_db) DB.@right_join(DB.t(query), id2, id) DB.@select(!id2)  DB.@collect
+        # mutate in a new category, group by summarize, and then join on two summary tables based on key
+        TDF_9 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @left_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category)
+        x = @chain DB.t(join_db) DB.@group_by(category) DB.@summarize(score_mean= mean(score))
+        TDB_9 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@left_join(DB.t(x), category, category) DB.@select(cte_4.category, percent_mean, score_mean) DB.@collect 
+        TDF_10 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @right_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category)
+        TDB_10 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@right_join(DB.t(x), category, category) DB.@select(cte_4.category, percent_mean, score_mean) DB.@collect 
+        # mutate in a new category, group by summarize, and then join on two summary tables based on key, then mutate and filter on new column
+        TDF_11 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @right_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category) @mutate(test = score_mean^percent_mean) @filter(test > 10)
+        TDB_11 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@right_join(DB.t(x), category, category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(cte_7.category, percent_mean, score_mean, test) DB.@collect 
+        TDF_11 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @full_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category) @mutate(test = score_mean^percent_mean) @filter(test > 10)
+        TDB_11 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@full_join(DB.t(x), category, category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(cte_7.category, percent_mean, score_mean, test) DB.@collect 
+
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
         @test all(isequal.(Array(TDF_2), Array(TDB_2)))
         @test all(isequal.(Array(TDF_3), Array(TDB_3)))
@@ -95,6 +107,9 @@
         @test all(isequal.(Array(TDF_6), Array(TDB_6)))
         @test all(isequal.(Array(TDF_7), Array(TDB_7)))
         @test all(isequal.(Array(TDF_8), Array(TDB_8)))
+        @test all(isequal.(Array(TDF_9), Array(TDB_9)))
+        @test all(isequal.(Array(TDF_10), Array(TDB_10)))
+        @test all(isequal.(Array(TDF_11), Array(TDB_11)))
     end
     @testset "Mutate" begin
         # simple arithmetic mutates
@@ -185,4 +200,20 @@
         @test all(isequal.(Array(TDF_1), Array(TBD_1)))
         @test all(isequal.(Array(TDF_2), Array(TBD_2)))
     end
+    @testset "Date Parsing" begin
+        TDF_1 = @chain test_df @mutate(test = ymd_hms("2023-06-15 00:00:00"))
+        TDB_1 = @chain DB.t(test_db) DB.@mutate(test = ymd("2023-06-15")) DB.@collect
+        # Filter by date
+        TDF_2 = @chain test_df @mutate(test = ymd_hms("2023-06-15 00:00:00")) @filter(test <  ymd("2023-04-14"))
+        TDB_2 = @chain DB.t(test_db) DB.@mutate(test = ymd("2023-06-15")) DB.@filter(test <  ymd("2023-04-14")) DB.@collect
+        TDF_3 = @chain test_df @mutate(test = if_else(groups == "aa", ymd_hms("2023-06-15 00:00:00"), ymd_hms("2024-06-15 00:00:00"))) @filter(test ==  ymd("2023-06-15"))
+        TDB_3 = @chain DB.t(test_db) DB.@mutate(test = if_else(groups == "aa", ymd("2023-06-15"),  ymd("2024-06-15"))) DB.@filter(test ==  ymd("2023-06-15")) DB.@collect
+        TDF_4 = @chain test_df @mutate(test = if_else(groups == "aa", ymd("2023-06-15"),  ymd("2024-06-15")), test2= ymd("2020-06-15")) @mutate(tryt = if_else((test - test2) > Day(1095), "old", "young")) @select(tryt)
+        TDB_4 = @chain DB.t(test_db) DB.@mutate(test = if_else(groups == "aa", ymd("2023-06-15"),  ymd("2024-06-15")), test2= ymd("2020-06-15")) DB.@mutate(tryt = if_else(Day((test - test2)) > 1095, "old", "young")) DB.@select(tryt) DB.@collect
+        @test all(isequal.(Array(TDF_1), Array(TDB_1)))
+        @test all(isequal.(Array(TDF_2), Array(TDB_2)))
+        @test all(isequal.(Array(TDF_3), Array(TDB_3)))
+        @test all(isequal.(Array(TDF_4), Array(TDB_4)))
+
+    end 
 end

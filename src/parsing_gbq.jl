@@ -155,6 +155,12 @@ function expr_to_sql_gbq(expr, sq; from_summarize::Bool)
             return "EXTRACT(MINUTE FROM " * string(a) * ")"
         elseif @capture(x, second(a_))
             return "EXTRACT(SECOND FROM " * string(a) * ")"
+        elseif @capture(x, ymd(time_))
+            return :(PARSE_DATE($time, "%Y-%m-%d"))
+        elseif @capture(x, mdy(time_))
+            return :(PARSE_DATE($time, "%m-%d-%Y"))
+        elseif @capture(x, dmy(time_))
+            return :(PARSE_DATE($time, "%d-%m-%Y"))
         elseif @capture(x, floordate(time_column_, unit_))
             return :(DATE_TRUNC($unit, $time_column))
         elseif @capture(x, difftime(endtime_, starttime_, unit_))

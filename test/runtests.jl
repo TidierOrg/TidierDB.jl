@@ -14,6 +14,7 @@ using TidierData
 using TidierStrings
 import TidierDB as DB
 using Test
+using TidierDates
 
 test_df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
                         groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 

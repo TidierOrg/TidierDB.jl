@@ -211,10 +211,20 @@
         # if_else based on value of date difference
         TDF_4 = @chain test_df @mutate(test = if_else(groups == "aa", ymd("2023-06-15"),  ymd("2024-06-15")), test2= ymd("2020-06-15")) @mutate(tryt = if_else((test - test2) > Day(1095), "old", "young")) @select(tryt)
         TDB_4 = @chain DB.t(test_db) DB.@mutate(test = if_else(groups == "aa", ymd("2023-06-15"),  ymd("2024-06-15")), test2= ymd("2020-06-15")) DB.@mutate(tryt = if_else(Day((test - test2)) > 1095, "old", "young")) DB.@select(tryt) DB.@collect
+        # filter by time with interval change
+        TDF_5 = @chain test_df @mutate(test = if_else(groups == "aa", ymd_hms("2023-06-15 00:00:00"), ymd_hms("2024-06-15 00:00:00"))) @filter(test >  ymd("2023-06-15") - Year(1))
+        TDB_5 = @chain DB.t(test_db) DB.@mutate(test = if_else(groups == "aa", ymd("2023-06-15"),  ymd("2024-06-15"))) DB.@filter(test >  ymd("2023-06-15") - interval1year) DB.@collect
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
         @test all(isequal.(Array(TDF_2), Array(TDB_2)))
         @test all(isequal.(Array(TDF_3), Array(TDB_3)))
         @test all(isequal.(Array(TDF_4), Array(TDB_4)))
-
+        @test all(isequal.(Array(TDF_5), Array(TDB_5)))
     end 
+    @testset "Distinct" begin
+        query = DB.@chain DB.t(test_db) DB.@mutate(value = value *2) DB.@filter(value > 5)
+        # using mutate to make the some rows distinct instead of creating a new df
+        TDF_1 = @chain test_df @bind_rows((@chain test_df @mutate(value = value *2) @filter(value > 5))) @mutate(value = if_else(value > 5, value/2, value)) @distinct()
+        TDB_1 = @chain DB.t(test_db) DB.@union(DB.t(query)) DB.@mutate(value = if_else(value > 5, value/2, value)) DB.@distinct() DB.@collect 
+        @test all(isequal.(Array(TDF_1), Array(TDB_1)))
+    end
 end

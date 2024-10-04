@@ -786,7 +786,7 @@ macro union(sqlquery, union_query)
 
                 # Merge CTEs and metadata
                 sq.ctes = vcat(sq.ctes, uq.ctes)
-                sq.metadata = vcat(sq.metadata, uq.metadata)
+              #  sq.metadata = vcat(sq.metadata, uq.metadata)
             else
                 # Treat uq as a table name
                 union_sql = "SELECT * FROM " * sq.from * " UNION SELECT * FROM " * string(uq)
@@ -796,7 +796,7 @@ macro union(sqlquery, union_query)
                 else
                     new_metadata = get_table_metadata_athena(sq.db, string(uq), sq.athena_params)
                 end
-                sq.metadata = vcat(sq.metadata, new_metadata)
+              #  sq.metadata = vcat(sq.metadata, new_metadata)
             end
 
             # Create a new CTE for the union

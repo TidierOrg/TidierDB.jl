@@ -57,7 +57,7 @@ function add_interp_parameter!(name::Symbol, value::Any)
     add_interp_parameter2!(name, value)
 end
 
-@reexport TidierDB
+
 """
 $docstring_interpolate
 """

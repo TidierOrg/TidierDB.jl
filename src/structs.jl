@@ -57,6 +57,7 @@ function add_interp_parameter!(name::Symbol, value::Any)
     add_interp_parameter2!(name, value)
 end
 
+@reexport TidierDB
 """
 $docstring_interpolate
 """
@@ -68,7 +69,11 @@ macro interpolate( args...)
         end
         name, value = arg.args
         quoted_name = QuoteNode(name)
-        push!(exprs, :(esc(add_interp_parameter!(Symbol($quoted_name), $((value))))))
+       # try
+            push!(exprs, :(esc(add_interp_parameter!(Symbol($quoted_name), $((value))))))
+       # catch e
+         #   push!(exprs, :(esc(DB.add_interp_parameter!(Symbol($quoted_name), $((value))))))
+     #   end
     end
     return esc(Expr(:block, exprs...))
 end

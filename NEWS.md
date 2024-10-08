@@ -1,7 +1,9 @@
 # TidierDB.jl updates
-## v0.4.2 - 2024-10-04
-- add `dmy`, `mdy`, `ymd` support for most backends 
+## v0.4.2 - 2024-10-08
+- add `dmy`, `mdy`, `ymd` support DuckDB, Postgres, GBQ, Clickhouse, MySQL, MsSQL, Athena
 - add date related tests
+- improve Google Big Query type mapping when collecting df
+- change `gbq()`'s `connect()` to accept `location` as second argument
 
 ## v0.4.1 - 2024-10-02
 - Adds 50 tests comparing TidierDB to TidierData to assure accuracy across a complex chains of operations, including combinations of `@mutate`, `@summarize`, `@filter`, `@select`, `@group_by` and `@join` operations. 

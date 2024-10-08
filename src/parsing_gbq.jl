@@ -1,32 +1,3 @@
-
-
-function apply_type_conversion_gbq(df, col_index, col_type)
-    if col_type == "FLOAT"
-        df[!, col_index] = [ismissing(x) ? missing : parse(Float64, x) for x in df[!, col_index]]
-    elseif col_type == "INTEGER"
-        df[!, col_index] = [ismissing(x) ? missing : parse(Int, x) for x in df[!, col_index]]
-    elseif col_type == "STRING"
-        # Assuming varchar needs to stay as String, no conversion needed
-    end
-end
-
-function parse_gbq_df(df, column_types)
-    for (i, col_type) in enumerate(column_types)
-        # Check if column index is within bounds of DataFrame columns
-        if i <= size(df, 2)
-            try
-                apply_type_conversion_gbq(df, i, col_type)
-            catch e
-               # @warn "Failed to convert column $(i) to $(col_type): $e"
-            end
-        else
-           # @warn "Column index $(i) is out of bounds for the current DataFrame."
-        end
-    end;
-    return df
-end
-
-
 function expr_to_sql_gbq(expr, sq; from_summarize::Bool)
    # expr = parse_char_matching(expr)
     expr = exc_capture_bug(expr, names_to_modify)
@@ -156,11 +127,11 @@ function expr_to_sql_gbq(expr, sq; from_summarize::Bool)
         elseif @capture(x, second(a_))
             return "EXTRACT(SECOND FROM " * string(a) * ")"
         elseif @capture(x, ymd(time_))
-            return :(PARSE_DATE($time, "%Y-%m-%d"))
+            return :(PARSE_DATE("%Y-%m-%d", $time))
         elseif @capture(x, mdy(time_))
-            return :(PARSE_DATE($time, "%m-%d-%Y"))
+            return :(PARSE_DATE("%m-%d-%Y", $time))
         elseif @capture(x, dmy(time_))
-            return :(PARSE_DATE($time, "%d-%m-%Y"))
+            return :(PARSE_DATE("%d-%m-%Y", $time))
         elseif @capture(x, floordate(time_column_, unit_))
             return :(DATE_TRUNC($unit, $time_column))
         elseif @capture(x, difftime(endtime_, starttime_, unit_))
@@ -194,25 +165,5 @@ function expr_to_sql_gbq(expr, sq; from_summarize::Bool)
             end
         end
         return x
-    end
-end
-
-
-
-
-function process_column(input::String)
-    if current_sql_mode == :gbq
-        return join_gbq_parse(input, full=false)
-    else
-        return input
-    end
-end
-
-function join_gbq_parse(input_str::String; full::Bool = true)
-    parts = split(input_str, ".")
-    if full
-        return input_str
-    else
-        return parts[end]
     end
 end

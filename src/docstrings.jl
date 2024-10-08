@@ -1068,7 +1068,7 @@ This function establishes a database connection based on the specified backend a
 # Connect to SQLite
 # conn = connect(sqlite())
 # Connect to Google Big Query
-# conn = connect(gbq(), "json_user_key_path", "project_id")
+# conn = connect(gbq(), "json_user_key_path", "location")
 # Connect to Snowflake
 # conn = connect(snowflake(), "ac_id", "token", "Database_name", "Schema_name", "warehouse_name")
 # Connect to Microsoft SQL Server

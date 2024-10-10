@@ -424,6 +424,8 @@ macro summarize(sqlquery, expressions...)
             # Check if there's already a SELECT clause and append, otherwise create new
             if startswith(existing_select, "SELECT")
                 sq.select = existing_select * ", " * summary_clause
+            elseif  isempty(summary_clause)
+                sq.select = "SUMMARIZE "
             else
                 sq.select = "SELECT " * summary_clause
             end

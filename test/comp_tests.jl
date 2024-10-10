@@ -150,9 +150,16 @@
         TDB_11 = @chain DB.t(test_db) DB.@full_join(DB.t(query), id2, id) DB.@select(!id2) DB.@mutate(score = replace_missing(score, 0)) DB.@collect
         TDF_12 = @chain test_df @mutate(value = value * 2, new_col = (value + percent)/2)
         TDB_12 = @chain DB.t(test_db) DB.@mutate(value = value * 2, new_col = (value + percent)/2) DB.@collect
+        # test a joining multiple TidierDB queries in one chain 
+        TDF_13 = @chain test_df @left_join(@filter(df2, score > 85 && str_detect(id2, "C")), id = id2) @mutate(score = replace_missing(score, 0)) @left_join((@chain df3 @filter(value2 != 20)), id = id3)
+        TDB_13 = @chain DB.t(test_db) DB.@left_join(DB.t(query), id2, id) DB.@mutate(score = replace_missing(score, 0)) DB.@left_join((@chain DB.t(join_db2) DB.@filter(value2 != 20)), id3, id) DB.@select(!id2, !id3) DB.@collect
         # testing as_string, as_float, as_integer
-        TDF_13 = @chain test_df @mutate(value = as_string(value)) @mutate(value2 = as_float(value), value3 = as_integer(value)) @filter(value2 > 4 && value3 < 10)
-        TDB_13 = @chain DB.t(test_db) DB.@mutate(value = as_string(value)) DB.@mutate(value2 = as_float(value), value3 = as_integer(value)) DB.@filter(value2 > 4 && value3 < 10) DB.@collect
+        TDF_14 = @chain test_df @mutate(value = as_string(value)) @mutate(value2 = as_float(value), value3 = as_integer(value)) @filter(value2 > 4 && value3 < 10)
+        TDB_14 = @chain DB.t(test_db) DB.@mutate(value = as_string(value)) DB.@mutate(value2 = as_float(value), value3 = as_integer(value)) DB.@filter(value2 > 4 && value3 < 10) DB.@collect
+        # test a joining multiple TidierDB queries in one chain 
+        TDF_15 = @chain test_df @full_join(@filter(df2, score > 85 && str_detect(id2, "C")), id = id2) @mutate(score = replace_missing(score, 0)) @right_join((@chain df3 @filter(value2 != 20)), id = id3) @relocate(id, after = score)
+        TDB_15 = @chain DB.t(test_db) DB.@full_join(DB.t(query), id2, id) DB.@mutate(score = replace_missing(score, 0)) DB.@right_join((@chain DB.t(join_db2) DB.@filter(value2 != 20)), id3, id) DB.@select(!id2, !id) DB.@collect
+
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
         @test all(isequal.(Array(TDF_2), Array(TDB_2)))
         @test all(isequal.(Array(TDF_3), Array(TDB_3)))
@@ -166,6 +173,8 @@
         @test all(isequal.(Array(TDF_11), Array(TDB_11)))
         @test all(isequal.(Array(TDF_12), Array(TDB_12)))
         @test all(isequal.(Array(TDF_13), Array(TDB_13)))
+        @test all(isequal.(Array(TDF_14), Array(TDB_14)))
+        @test all(isequal.(Array(TDF_15), Array(TDB_15)))
 
     end
     @testset "Mutate with Conditionals, Strings and then Filter" begin

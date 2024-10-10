@@ -96,14 +96,16 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column)
 
                 if isa(jq, SQLQuery)
                     jq.cte_count += 1                    # Handle when join_table is an SQLQuery
+                    sq.join_count += 1
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     if needs_new_cte_jq
+                        joinc = repeat("j", sq.join_count)
                         for cte in jq.ctes
-                            cte.name = "j" * cte.name
+                            cte.name = joinc * cte.name
                         end
                         
-                        cte_name_jq = "jcte_" * string(jq.cte_count)
-                        most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
+                        cte_name_jq = joinc* "cte_" * string(jq.cte_count)
+                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                         select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
@@ -142,14 +144,15 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column)
                 if isa(jq, SQLQuery)
                     # Handle when join_table is an SQLQuery
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                        
+                    sq.join_count += 1
                     if needs_new_cte_jq
+                        joinc = repeat("j", sq.join_count)
                         for cte in jq.ctes
-                            cte.name = "j" * cte.name
+                            cte.name = joinc * cte.name
                         end
                         jq.cte_count += 1
-                        cte_name_jq = "jcte_" * string(jq.cte_count) #
-                        most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
+                        cte_name_jq = joinc * "cte_" * string(jq.cte_count) #
+                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                         select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
@@ -209,14 +212,16 @@ macro right_join(sqlquery, join_table, lhs_column, rhs_column)
 
                 if isa(jq, SQLQuery)
                     jq.cte_count += 1                    # Handle when join_table is an SQLQuery
+                    sq.join_count += 1
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     if needs_new_cte_jq
+                        joinc = repeat("j", sq.join_count)
                         for cte in jq.ctes
-                            cte.name = "j" * cte.name
+                            cte.name = joinc * cte.name
                         end
                         
-                        cte_name_jq = "jcte_" * string(jq.cte_count)
-                        most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
+                        cte_name_jq = joinc* "cte_" * string(jq.cte_count)
+                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                         select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
@@ -254,14 +259,15 @@ macro right_join(sqlquery, join_table, lhs_column, rhs_column)
                 if isa(jq, SQLQuery)
                     # Handle when join_table is an SQLQuery
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                        
+                    sq.join_count += 1
                     if needs_new_cte_jq
+                        joinc = repeat("j", sq.join_count)
                         for cte in jq.ctes
-                            cte.name = "j" * cte.name
+                            cte.name = joinc * cte.name
                         end
                         jq.cte_count += 1
-                        cte_name_jq = "jcte_" * string(jq.cte_count) #
-                        most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
+                        cte_name_jq = joinc * "cte_" * string(jq.cte_count) #
+                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                         select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
@@ -320,14 +326,16 @@ macro inner_join(sqlquery, join_table, lhs_column, rhs_column)
 
                 if isa(jq, SQLQuery)
                     jq.cte_count += 1                    # Handle when join_table is an SQLQuery
+                    sq.join_count += 1
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     if needs_new_cte_jq
+                        joinc = repeat("j", sq.join_count)
                         for cte in jq.ctes
-                            cte.name = "j" * cte.name
+                            cte.name = joinc * cte.name
                         end
                         
-                        cte_name_jq = "jcte_" * string(jq.cte_count)
-                        most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
+                        cte_name_jq = joinc* "cte_" * string(jq.cte_count)
+                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                         select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
@@ -365,14 +373,15 @@ macro inner_join(sqlquery, join_table, lhs_column, rhs_column)
                 if isa(jq, SQLQuery)
                     # Handle when join_table is an SQLQuery
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                        
+                    sq.join_count += 1
                     if needs_new_cte_jq
+                        joinc = repeat("j", sq.join_count)
                         for cte in jq.ctes
-                            cte.name = "j" * cte.name
+                            cte.name = joinc * cte.name
                         end
                         jq.cte_count += 1
-                        cte_name_jq = "jcte_" * string(jq.cte_count) #
-                        most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
+                        cte_name_jq = joinc * "cte_" * string(jq.cte_count) #
+                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                         select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
@@ -431,13 +440,16 @@ macro full_join(sqlquery, join_table, lhs_column, rhs_column)
 
                 if isa(jq, SQLQuery)
                     jq.cte_count += 1                    # Handle when join_table is an SQLQuery
+                    sq.join_count += 1
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     if needs_new_cte_jq
+                        joinc = repeat("j", sq.join_count)
                         for cte in jq.ctes
-                            cte.name = "j" * cte.name
-                        end                        
-                        cte_name_jq = "jcte_" * string(jq.cte_count)
-                        most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
+                            cte.name = joinc * cte.name
+                        end
+                        
+                        cte_name_jq = joinc* "cte_" * string(jq.cte_count)
+                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                         select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
@@ -476,14 +488,15 @@ macro full_join(sqlquery, join_table, lhs_column, rhs_column)
                 if isa(jq, SQLQuery)
                     # Handle when join_table is an SQLQuery
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                        
+                    sq.join_count += 1
                     if needs_new_cte_jq
+                        joinc = repeat("j", sq.join_count)
                         for cte in jq.ctes
-                            cte.name = "j" * cte.name
+                            cte.name = joinc * cte.name
                         end
                         jq.cte_count += 1
-                        cte_name_jq = "jcte_" * string(jq.cte_count) #
-                        most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
+                        cte_name_jq = joinc * "cte_" * string(jq.cte_count) #
+                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                         select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
@@ -544,14 +557,16 @@ macro semi_join(sqlquery, join_table, lhs_column, rhs_column)
 
                 if isa(jq, SQLQuery)
                     jq.cte_count += 1                    # Handle when join_table is an SQLQuery
+                    sq.join_count += 1
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     if needs_new_cte_jq
+                        joinc = repeat("j", sq.join_count)
                         for cte in jq.ctes
-                            cte.name = "j" * cte.name
+                            cte.name = joinc * cte.name
                         end
                         
-                        cte_name_jq = "jcte_" * string(jq.cte_count)
-                        most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
+                        cte_name_jq = joinc* "cte_" * string(jq.cte_count)
+                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                         select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
@@ -589,14 +604,15 @@ macro semi_join(sqlquery, join_table, lhs_column, rhs_column)
                 if isa(jq, SQLQuery)
                     # Handle when join_table is an SQLQuery
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                        
+                    sq.join_count += 1
                     if needs_new_cte_jq
+                        joinc = repeat("j", sq.join_count)
                         for cte in jq.ctes
-                            cte.name = "j" * cte.name
+                            cte.name = joinc * cte.name
                         end
                         jq.cte_count += 1
-                        cte_name_jq = "jcte_" * string(jq.cte_count) #
-                        most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
+                        cte_name_jq = joinc * "cte_" * string(jq.cte_count) #
+                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                         select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
@@ -655,14 +671,16 @@ macro anti_join(sqlquery, join_table, lhs_column, rhs_column)
 
                 if isa(jq, SQLQuery)
                     jq.cte_count += 1                    # Handle when join_table is an SQLQuery
+                    sq.join_count += 1
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     if needs_new_cte_jq
+                        joinc = repeat("j", sq.join_count)
                         for cte in jq.ctes
-                            cte.name = "j" * cte.name
+                            cte.name = joinc * cte.name
                         end
                         
-                        cte_name_jq = "jcte_" * string(jq.cte_count)
-                        most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
+                        cte_name_jq = joinc* "cte_" * string(jq.cte_count)
+                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                         select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
@@ -700,14 +718,15 @@ macro anti_join(sqlquery, join_table, lhs_column, rhs_column)
                 if isa(jq, SQLQuery)
                     # Handle when join_table is an SQLQuery
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                        
+                    sq.join_count += 1
                     if needs_new_cte_jq
+                        joinc = repeat("j", sq.join_count)
                         for cte in jq.ctes
-                            cte.name = "j" * cte.name
+                            cte.name = joinc * cte.name
                         end
                         jq.cte_count += 1
-                        cte_name_jq = "jcte_" * string(jq.cte_count) #
-                        most_recent_source_jq = !isempty(jq.ctes) ? "jcte_" * string(jq.cte_count - 1) : jq.from
+                        cte_name_jq = joinc * "cte_" * string(jq.cte_count) #
+                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                         select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                         new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                         push!(jq.ctes, new_cte_jq)
@@ -769,12 +788,14 @@ macro union(sqlquery, union_query)
                 # Determine if uq needs a new CTE
                 needs_new_cte_uq = !isempty(uq.select) || !isempty(uq.where) || uq.is_aggregated || !isempty(uq.ctes)
                 if needs_new_cte_uq
+                    sq.join_count +=1
+                    joinc = repeat("j", sq.join_count)
                     for cte in uq.ctes
-                        cte.name = "j" * cte.name
+                        cte.name = joinc * cte.name
                     end
                     uq.cte_count += 1
-                    cte_name_uq = "jcte_" * string(uq.cte_count)
-                    most_recent_source_uq = !isempty(uq.ctes) ? "jcte_" * string(uq.cte_count - 1) : uq.from
+                    cte_name_uq = joinc * "cte_" * string(uq.cte_count)
+                    most_recent_source_uq = !isempty(uq.ctes) ? joinc * "cte_" * string(uq.cte_count - 1) : uq.from
                     select_sql_uq = finalize_query_jq(uq, most_recent_source_uq)
                     new_cte_uq = CTE(name=cte_name_uq, select=select_sql_uq)
                     push!(uq.ctes, new_cte_uq)

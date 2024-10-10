@@ -1255,13 +1255,12 @@ julia> @chain db_table(db, :df_mem) begin
 
 const docstring_show_tables =
 """
-    show_tables(con; GBQ_project_id, GBQ_datasetname)
+    show_tables(con; GBQ_datasetname)
 
 Shows tables available in database. currently supports DuckDB, databricks, Snowflake, GBQ, SQLite, LibPQ
 
 # Arguments
 - `con` : connection to backend
-- `GBQ_project_id` : string of project id
 - `GBQ_datasetname` : string of dataset name
 # Examples
 ```jldoctest

@@ -5,71 +5,14 @@ using DataFrames
 using GoogleCloud, HTTP, JSON3, Dates
 __init__() = println("Extension was loaded!")
 
+include("GBQ_to_DF.jl")
+
 mutable struct GBQ 
     projectname::String
     session::GoogleSession
     bigquery_resource
     bigquery_method
     location::String
-end
-
-
-function apply_type_conversion_gbq(df, col_index, col_type)
-
-end
-
-function parse_gbq_df(df, column_types)
-    for (i, col_type) in enumerate(column_types)
-        # Check if column index is within bounds of DataFrame columns
-        if i <= size(df, 2)
-            try
-                apply_type_conversion_gbq(df, i, col_type)
-            catch e
-               # @warn "Failed to convert column $(i) to $(col_type): $e"
-            end
-        else
-           # @warn "Column index $(i) is out of bounds for the current DataFrame."
-        end
-    end;
-    return df
-end
-
-type_map = Dict(
-    "STRING"  => String,
-    "FLOAT"   => Float64,
-    "INTEGER" => Int64,
-    "DATE"    => Date,
-    "DATETIME" => DateTime,
-    "ARRAY" => Array,
-    "STRUCT" => Struct    
-)
-
-function convert_df_types!(df::DataFrame, new_names::Vector{String}, new_types::Vector{String})
-    for (name, type_str) in zip(new_names, new_types)
-        if haskey(type_map, type_str)
-            # Get the corresponding Julia type
-            target_type = type_map[type_str]
-            
-            # Check if the DataFrame has the column
-            if hasproperty(df, name)
-                # Convert the column to the target type
-                if target_type == Float64
-                    df[!, name] = [x === nothing || ismissing(x) ? missing : parse(Float64, x) for x in df[!, name]]
-                elseif target_type == Int64
-                    df[!, name] = [x === nothing || ismissing(x) ? missing : parse(Int64, x) for x in df[!, name]]
-                elseif target_type == Date
-                    df[!, name] = [x === nothing || ismissing(x) ? missing : Date(x) for x in df[!, name]]
-                else
-                    df[!, name] = convert.(target_type, df[!, name])
-                end
-            else
-                println("Warning: Column $name not found in DataFrame.")
-            end
-        else
-            println("Warning: Type $type_str is not recognized.")
-        end
-    end
-    return df
 end
 
 function TidierDB.connect(::gbq, json_key_path::String, location::String) 
@@ -123,15 +66,12 @@ function collect_gbq(conn, query)
     # Convert rows to DataFrame
     # First, extract column names from the schema
     column_names = [field["name"] for field in response_data["schema"]["fields"]]
-   # println(column_names)
     column_types = [field["type"] for field in response_data["schema"]["fields"]]
-   # println(column_types)
-    # Then, convert each row's data (currently nested inside dicts with key "v") into arrays of dicts
+
     if !isempty(rows)
         # Return an empty DataFrame with the correct columns but 0 rows
         data = [get(row["f"][i], "v", missing) for row in rows, i in 1:length(column_names)]
         df = DataFrame(data, Symbol.(column_names))
-     #   df = TidierDB.parse_gbq_df(df, column_types)
         convert_df_types!(df, column_names, column_types)
 
         return df
@@ -147,6 +87,7 @@ function collect_gbq(conn, query)
 end
 
 function TidierDB.get_table_metadata(conn::GoogleSession{JSONCredentials}, table_name::String)
+    set_sql_mode(gbq());
     query = " SELECT * FROM
     $table_name LIMIT 0
    ;"
@@ -179,7 +120,8 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:gbq})
     return collect_gbq(sqlquery.db, final_query)
 end
 
-function TidierDB.show_tables(con::GoogleSession{JSONCredentials}, project_id, datasetname)
+function TidierDB.show_tables(con::GoogleSession{JSONCredentials}, datasetname)
+    project_id = gbq_instance.projectname
     query = """
     SELECT table_name
     FROM `$project_id.$datasetname.INFORMATION_SCHEMA.TABLES`

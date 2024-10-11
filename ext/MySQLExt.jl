@@ -72,18 +72,18 @@ end
 
 
 """
-    copy_to2(df, table_name, con; replace = false)
+    copy_to(conn::MySQL.Connection, df::DataFrames.AbstractDataFrame, table_name; replace = false)
 
-Escreve no mariadb!!!
+Write a local dataframe to a MariaDB/MySQL database.
 
 # Arguments
-- df
-- table_name
-- con
-- `replace`: should it replace on duplicate keys?
+- `conn`: the connection to the MariaDB/MySQL database
+- `df`: a DataFrame;
+- `table_name`: a string with the table name on the database;
+- `replace`: should it replace the rows on duplicate keys? Default is `false`.
 """
-function TidierDB.copy_to(df::DataFrames.AbstractDataFrame, table_name, con::MySQL.Connection; replace = false)
-    db_names = names(con, table_name)
+function TidierDB.copy_to(conn::MySQL.Connection, df::DataFrames.AbstractDataFrame, table_name; replace = false)
+    db_names = names(conn, table_name)
     df_names = names(df)
     common_names = intersect(db_names, df_names)
 
@@ -109,7 +109,7 @@ LINES TERMINATED BY '|#|'
 $(collapse_sql(common_names));
 """
 
-    output = DBInterface.execute(con, query)    
+    output = DBInterface.execute(conn, query)    
 
     Base.Filesystem.rm(temp_file)
 
@@ -117,12 +117,12 @@ $(collapse_sql(common_names));
 end
 
 # get the columns of a table in a database
-function Main.names(con::MySQL.Connection, table_name)
+function Main.names(conn::MySQL.Connection, table_name)
     query_columns = """SHOW COLUMNS FROM `$(table_name)`"""
 
     colunas_db =
         @chain begin
-        DBInterface.execute(con, query_columns)
+        DBInterface.execute(conn, query_columns)
         DataFrame
         _.Field
         end

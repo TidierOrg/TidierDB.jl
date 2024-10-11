@@ -1,7 +1,7 @@
 name = "TidierDB"
 uuid = "86993f9b-bbba-4084-97c5-ee15961ad48b"
 authors = ["Daniel Rizk <rizk.daniel.12@gmail.com> and contributors"]
-version = "0.4.1"
+version = "0.4.2"
 
 [deps]
 Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45"
@@ -22,6 +22,7 @@ AWS = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"
 MySQL = "39abe10b-433b-5dbd-92d4-e302a9df00cd"
 ClickHouse = "82f2e89e-b495-11e9-1d9d-fb40d7cf2130"
 ODBC = "be6f12e9-ca4f-5eb2-a339-a4f995cc0291"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
 
 [extensions]

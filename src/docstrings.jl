@@ -1068,7 +1068,7 @@ This function establishes a database connection based on the specified backend a
 # Connect to SQLite
 # conn = connect(sqlite())
 # Connect to Google Big Query
-# conn = connect(gbq(), "json_user_key_path", "project_id")
+# conn = connect(gbq(), "json_user_key_path", "location")
 # Connect to Snowflake
 # conn = connect(snowflake(), "ac_id", "token", "Database_name", "Schema_name", "warehouse_name")
 # Connect to Microsoft SQL Server
@@ -1255,13 +1255,12 @@ julia> @chain db_table(db, :df_mem) begin
 
 const docstring_show_tables =
 """
-    show_tables(con; GBQ_project_id, GBQ_datasetname)
+    show_tables(con; GBQ_datasetname)
 
 Shows tables available in database. currently supports DuckDB, databricks, Snowflake, GBQ, SQLite, LibPQ
 
 # Arguments
 - `con` : connection to backend
-- `GBQ_project_id` : string of project id
 - `GBQ_datasetname` : string of dataset name
 # Examples
 ```jldoctest

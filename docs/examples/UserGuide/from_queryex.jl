@@ -12,7 +12,7 @@
 
 # Start a query to analyze fuel efficiency by number of cylinders. However, to further build on this query later, end the chain without using `@show_query` or `@collect`
 # ```julia
-# query = DB.@chain DB.t(mtcars) begin
+# query = DB.@chain DB.t(query) begin
 #     DB.@group_by cyl
 #     DB.@summarize begin
 #         across(mpg, (mean, minimum, maximum))
@@ -30,7 +30,7 @@
 # ## `from_query()` or `t(query)`
 # Now, `from_query`, or `t()` a convienece wrapper, will allow you to reuse the query to calculate the average horsepower for each efficiency category
 # ```julia
-# DB.@chain DB.t(mtcars)  begin
+# DB.@chain DB.t(query) begin
 #    DB.@left_join("mtcars2", cyl, cyl)
 #    DB.@group_by(efficiency)
 #    DB.@summarize(avg_hp = mean(hp))

@@ -126,6 +126,13 @@ function expr_to_sql_mssql(expr, sq; from_summarize::Bool)
             return "DATEPART(MINUTE FROM " * string(a) * ")"
         elseif @capture(x, second(a_))
             return "DATEPART(SECOND FROM " * string(a) * ")"
+      # https://www.mssqltips.com/sqlservertip/1145/date-and-time-conversions-using-sql-server/
+        elseif @capture(x, ymd(time_column_))
+            return :(convert(varchar, time_column, 23))
+        elseif @capture(x, dmy(time_column_))
+            return :(convert(varchar, time_column, 105))
+        elseif @capture(x, mdy(time_column_))
+            return :(convert(varchar, time_column, 10))
         elseif @capture(x, floordate(time_column_, unit_))
             return floordate_to_mssql(unit, time_column)
         elseif @capture(x, difftime(endtime_, starttime_, unit_))

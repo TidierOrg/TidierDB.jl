@@ -2,22 +2,26 @@ module GBQExt
 
 using TidierDB
 using DataFrames
-using GoogleCloud, HTTP, JSON3
+using GoogleCloud, HTTP, JSON3, Dates
 __init__() = println("Extension was loaded!")
+
+include("GBQ_to_DF.jl")
 
 mutable struct GBQ 
     projectname::String
     session::GoogleSession
     bigquery_resource
     bigquery_method
+    location::String
 end
 
-function TidierDB.connect(::gbq, json_key_path::String, project_id::String) 
+function TidierDB.connect(::gbq, json_key_path::String, location::String) 
     # Expand the user's path to the JSON key
     creds_path = expanduser(json_key_path)
     set_sql_mode(gbq())
     # Create credentials and session for Google Cloud
     creds = JSONCredentials(creds_path)
+    project_id = JSONCredentials(creds_path).project_id
     session = GoogleSession(creds, ["https://www.googleapis.com/auth/bigquery"])
 
     # Define the API method for BigQuery
@@ -36,7 +40,7 @@ function TidierDB.connect(::gbq, json_key_path::String, project_id::String)
     )
 
     # Store all data in a global GBQ instance
-    global gbq_instance = GBQ(project_id, session, bigquery_resource, bigquery_method)
+    global gbq_instance = GBQ(project_id, session, bigquery_resource, bigquery_method, location)
 
     # Return only the session
     return session
@@ -47,7 +51,7 @@ function collect_gbq(conn, query)
     query_data = Dict(
     "query" => query,
     "useLegacySql" => false,
-    "location" => "US")
+    "location" => gbq_instance.location)
     
     response = GoogleCloud.api.execute(
         conn, 
@@ -63,30 +67,34 @@ function collect_gbq(conn, query)
     # First, extract column names from the schema
     column_names = [field["name"] for field in response_data["schema"]["fields"]]
     column_types = [field["type"] for field in response_data["schema"]["fields"]]
-    # Then, convert each row's data (currently nested inside dicts with key "v") into arrays of dicts
+
     if !isempty(rows)
         # Return an empty DataFrame with the correct columns but 0 rows
         data = [get(row["f"][i], "v", missing) for row in rows, i in 1:length(column_names)]
         df = DataFrame(data, Symbol.(column_names))
-        df = TidierDB.parse_gbq_df(df, column_types)
+        convert_df_types!(df, column_names, column_types)
+
         return df
     else
         # Convert each row's data (nested inside dicts with key "v") into arrays of dicts
-        df =DataFrame([Vector{Union{Missing, Any}}(undef, 0) for _ in column_names], Symbol.(column_names))
-        df = TidierDB.parse_gbq_df(df, column_types)
+        df = DataFrame([Vector{Union{Missing, Any}}(undef, 0) for _ in column_names], Symbol.(column_names))
+      #  df = TidierDB.parse_gbq_df(df, column_types)
+         convert_df_types!(df, column_names, column_types)
         return df
     end
 
     return df
 end
+
 function TidierDB.get_table_metadata(conn::GoogleSession{JSONCredentials}, table_name::String)
+    set_sql_mode(gbq());
     query = " SELECT * FROM
     $table_name LIMIT 0
    ;"
     query_data = Dict(
     "query" => query,
     "useLegacySql" => false,
-    "location" => "US")
+    "location" => gbq_instance.location)
     # Define the API resource
 
     response = GoogleCloud.api.execute(
@@ -112,7 +120,8 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:gbq})
     return collect_gbq(sqlquery.db, final_query)
 end
 
-function TidierDB.show_tables(con::GoogleSession{JSONCredentials}, project_id, datasetname)
+function TidierDB.show_tables(con::GoogleSession{JSONCredentials}, datasetname)
+    project_id = gbq_instance.projectname
     query = """
     SELECT table_name
     FROM `$project_id.$datasetname.INFORMATION_SCHEMA.TABLES`

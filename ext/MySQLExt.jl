@@ -2,7 +2,8 @@ module MySQLExt
 
 using TidierDB
 using DataFrames
-using MySQL
+using MySQL, CSV
+
 __init__() = println("Extension was loaded!")
 
 function TidierDB.connect(::mysql; kwargs...)
@@ -52,7 +53,77 @@ end
 function TidierDB.final_compute(sqlquery::SQLQuery, ::Type{<:mysql}, sql_cr_or_relace::String=nothing)
     final_query = finalize_query(sqlquery)
     final_query = sql_cr_or_relace * final_query
-    return LibPQ.execute(sq.db, final_query)
+    return DBInterface.execute(sq.db, final_query)
+end
+
+function collapse(x, sep = ",", left = "", right = "")
+    left * reduce((a, b) -> a * sep * b, x) * right
+end
+
+collapse_sql(x) = collapse(string.(x), "`,`", "(`", "`)")
+
+function write_special_csv(df; delim = "|!|", newline = "|#|", header = false, filename = "temp.csv")
+    CSV.write(filename, df, delim = delim, newline = newline, header = header, missingstring="\\N")
+end
+
+
+"""
+    copy_to(conn::MySQL.Connection, df::DataFrames.AbstractDataFrame, table_name; replace = false)
+
+Write a local dataframe to a MariaDB/MySQL database.
+
+# Arguments
+- `conn`: the connection to the MariaDB/MySQL database
+- `df`: a DataFrame;
+- `table_name`: a string with the table name on the database;
+- `replace`: should it replace the rows on duplicate keys? Default is `false`.
+"""
+function TidierDB.copy_to(conn::MySQL.Connection, df::DataFrames.AbstractDataFrame, table_name; replace = false)
+    db_names = names(conn, table_name)
+    df_names = names(df)
+    common_names = intersect(db_names, df_names)
+
+    if length(common_names) == 0 
+        @warn "No columns in common! Returning nothing"
+        return nothing
+    end
+
+    temp_file = tempname()
+
+    df2 = DataFrames.select(df, common_names)
+
+    write_special_csv(df2, filename = temp_file)
+
+    comando = replace ? "REPLACE" : "IGNORE"
+
+
+    query = """
+LOAD DATA LOCAL INFILE '$(temp_file)' $comando INTO TABLE `$table_name`
+CHARACTER SET 'utf8'
+COLUMNS TERMINATED BY '|!|'
+LINES TERMINATED BY '|#|'
+$(collapse_sql(common_names));
+"""
+
+    output = DBInterface.execute(conn, query)    
+
+    Base.Filesystem.rm(temp_file)
+
+    output
+end
+
+# get the columns of a table in a database
+function Main.names(conn::MySQL.Connection, table_name)
+    query_columns = """SHOW COLUMNS FROM `$(table_name)`"""
+
+    colunas_db =
+        @chain begin
+        DBInterface.execute(conn, query_columns)
+        DataFrame
+        _.Field
+        end
+
+    colunas_db
 end
 
 end

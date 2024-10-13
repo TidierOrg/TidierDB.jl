@@ -3,11 +3,10 @@ $docstring_select
 """
 macro select(sqlquery, exprs...)
     exprs = parse_blocks(exprs...)
-    exprs_str = parse_interpolation2.(exprs)
-
+   # exprs_str = parse_interpolation2.(exprs)
     return quote
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
-        let columns = parse_tidy_db($exprs_str, $(esc(sqlquery)).metadata)
+        let columns = parse_tidy_db(exprs_str, $(esc(sqlquery)).metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
             $(esc(sqlquery)).select = columns_str
             $(esc(sqlquery)).metadata.current_selxn .= 0
@@ -156,19 +155,37 @@ end
 
 function process_mutate_expression(expr, sq, select_expressions, cte_name)
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
+        # Extract column name and convert to string
         col_name = string(expr.args[1])
         if current_sql_mode[] == snowflake()
             col_name = uppercase(col_name)
         end
-        col_expr = expr_to_sql(expr.args[2], sq)  # Convert to SQL expression
-        # Determine whether the column already exists or needs to be added
-        if col_name in [col for col in sq.metadata[!, "name"]]
-            # Replace the existing column expression with the mutation
+        
+        # Convert the expression to a SQL expression
+        col_expr = expr_to_sql(expr.args[2], sq)
+        col_expr = string(col_expr)
+        
+        # Check if the column already exists in the metadata
+        if col_name in sq.metadata[!, "name"]
+            # Find the index of the existing column in select_expressions
             select_expr_index = findfirst(==(col_name), select_expressions)
-            select_expressions[select_expr_index] = string(col_expr, " AS ", col_name)
+            if !isnothing(select_expr_index)
+                # Replace the existing column expression with the new mutation
+                select_expressions[select_expr_index] = col_expr * " AS " * col_name
+            else
+                # If not found in select_expressions, append the new expression
+                push!(select_expressions, col_expr * " AS " * col_name)
+            end
+            # Update the existing metadata entry instead of adding a new one
+            metadata_index = findfirst(==(col_name), sq.metadata[!, "name"])
+            if !isnothing(metadata_index)
+                sq.metadata[metadata_index, "type"] = "UNKNOWN"
+                sq.metadata[metadata_index, "current_selxn"] = 1
+                sq.metadata[metadata_index, "table_name"] = cte_name
+            end
         else
             # Append the mutation as a new column expression
-            push!(select_expressions, string(col_expr, " AS ", col_name))
+            push!(select_expressions, col_expr * " AS " * col_name)
             # Update metadata to include this new column
             push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => cte_name))
         end
@@ -176,7 +193,6 @@ function process_mutate_expression(expr, sq, select_expressions, cte_name)
         throw("Unsupported expression format in @mutate: $(expr)")
     end
 end
-
 
 """
 $docstring_mutate
@@ -693,20 +709,68 @@ function show_tables(con::Union{DuckDB.DB, DuckDB.Connection})
     return DataFrame(DBInterface.execute(con, "SHOW ALL TABLES"))
 end
 
+
+# for views and replacing
+function final_compute(sqlquery::SQLQuery, ::Type{<:duckdb}, sql_cr_or_relace)
+    final_query = finalize_query(sqlquery)
+    final_query = sql_cr_or_relace * final_query
+    return LibPQ.execute(sq.db, final_query)
+end
+
 """
 $docstring_create_view
 """
-macro create_view(sqlquery, name)
-    #name = QuoteNode(name)
+macro create_view(sqlquery, name, replace)
+    if replace == true 
+        sql_cr_or_replace = "CREATE OR REPLACE VIEW $name AS "
+    elseif replace == false
+        sql_cr_or_replace = "CREATE VIEW  $name AS "
+    end
     return quote
-       # prin
         sq = $(esc(sqlquery))
-        final_query = finalize_query(sq)
-        final_query = "CREATE OR REPLACE VIEW " *  $(string(name))  * " AS " * final_query
-        result = DBInterface.execute(sq.db, final_query)
+        if current_sql_mode[] == duckdb()
+            final_compute($(esc(sqlquery)), duckdb, $sql_cr_or_replace)
+
+
+        elseif current_sql_mode[] == postgres()
+          #  final_compute($(esc(sqlquery)), postgres, $sql_cr_or_replace)
+        elseif current_sql_mode[] == gbq()
+          #  final_compute($(esc(sqlquery)), gbq, $sql_cr_or_replace)
+        elseif current_sql_mode[] == mysql()
+          #  final_compute($(esc(sqlquery)), mysql, $sql_cr_or_replace)
+        else
+            backend = current_sql_mode[]
+            print("$backend not yet supported")
+        end
     end
 end
 
 function drop_view(db, name)
     DBInterface.execute(db, "DROP VIEW $name")
 end
+
+
+macro compute(sqlquery, name, replace)
+    
+    if replace == true 
+        sql_cr_or_replace = "CREATE OR REPLACE Table $name AS "
+    elseif replace == false
+         sql_cr_or_replace = "CREATE Table $name AS "
+    end
+    return quote
+       # prin
+        backend = current_sql_mode[]
+        sq = $(esc(sqlquery))
+        if backend == duckdb()
+            final_query = finalize_query(sq)
+            final_query = $sql_cr_or_replace  * final_query
+            DBInterface.execute(sq.db, final_query)
+        elseif  backend == postgres()
+            final_compute($(esc(sqlquery)), postgres, $sql_cr_or_replace)
+        elseif backend == gbq()
+            final_compute(sq, gbq, $sql_cr_or_replace)
+        end
+    end
+end
+
+

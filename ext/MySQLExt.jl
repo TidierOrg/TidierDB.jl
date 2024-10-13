@@ -2,8 +2,7 @@ module MySQLExt
 
 using TidierDB
 using DataFrames
-using MySQL
-import CSV
+using MySQL, CSV
 
 __init__() = println("Extension was loaded!")
 

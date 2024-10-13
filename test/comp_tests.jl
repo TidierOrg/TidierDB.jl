@@ -50,6 +50,9 @@
         TDF_13 = @chain test_df @filter(str_detect(id, r"C$"))
         TDB_13 = @chain DB.t(test_db) DB.@filter(str_detect(id, r"C$")) DB.@collect
 
+        TDF_14 = @chain test_df @filter(str_detect(id, r"^a"))
+        TDB_14 = @chain DB.t(test_db) DB.@filter(str_detect(id, r"^a")) DB.@collect
+
         @test all(Array(TDF_1 .== TDB_1))
         @test all(Array(TDF_2 .== TDB_2))
         @test all(Array(TDF_3 .== TDB_3))
@@ -64,6 +67,8 @@
         @test all(Array(TDF_11 .== TDB_11))
         @test all(Array(TDF_12 .== TDB_12))
         @test all(Array(TDF_13 .== TDB_13))
+        @test all(Array(TDF_14 .== TDB_14))
+
     end
     @testset "Arrange (Order)" begin
         TDF_1 = @chain test_df @arrange(value, desc(percent))

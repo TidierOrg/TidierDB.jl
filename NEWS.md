@@ -1,6 +1,8 @@
 # TidierDB.jl updates
 ## v0.4.2 - 2024-10-
-- add support for performing greater than 2 joins using TidierDB queries in a single chain and additional tests
+- adds `@compute` to write a table to the db and the end of a query.
+- expands `@view` to more backends
+- adds support for performing greater than 2 joins using TidierDB queries in a single chain and additional tests
 - add `dmy`, `mdy`, `ymd` support DuckDB, Postgres, GBQ, Clickhouse, MySQL, MsSQL, Athena, MsSQL
 - add date related tests
 - adds `copy_to` for MsSQL to write dataframe to database

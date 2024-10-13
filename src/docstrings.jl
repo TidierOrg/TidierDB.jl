@@ -1347,7 +1347,7 @@ const docstring_create_view =
 """
     @view(sql_query, name, replace = true)
 
-Create a view from a SQL query.
+Create a view from a SQL query. Currently supports DuckDB, MySQL, GBQ, Postgres
 
 # Arguments
 - `sql_query`: The SQL query to create a view from.
@@ -1365,12 +1365,12 @@ julia> copy_to(db, df, "df1");
 julia> @chain db_table(db, "df1") @create_view(viewer);
 
 julia> db_table(db, "viewer")
-SQLQuery("", "viewer", "", "", "", "", "", "", false, false, 2×4 DataFrame
+TidierDB.SQLQuery("", "viewer", "", "", "", "", "", "", false, false, 2×4 DataFrame
  Row │ name    type    current_selxn  table_name 
      │ String  String  Int64          String     
 ─────┼───────────────────────────────────────────
    1 │ id      BIGINT              1  viewer
-   2 │ value   BIGINT              1  viewer, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
+   2 │ value   BIGINT              1  viewer, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "", 0)
 ```
 """
 
@@ -1378,7 +1378,8 @@ const docstring_compute =
 """
     @compute(sql_query, name, replace = false)
 
-Creates a remote table on database memory from a SQL query.
+Creates a remote table on database memory from a SQL query. Currently supports DuckDB, MySQL, GBQ, Postgres
+
 
 # Arguments
 - `sql_query`: The SQL query to create a table from.
@@ -1393,15 +1394,15 @@ julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
 julia> copy_to(db, df, "df1");
 
-julia> @chain db_table(db, "df1") @create_view(viewer);
+julia> @chain db_table(db, "df1") @compute(table2, true);
 
-julia> db_table(db, "viewer")
-SQLQuery("", "viewer", "", "", "", "", "", "", false, false, 2×4 DataFrame
+julia> db_table(db, "table2")
+SQLQuery("", "table", "", "", "", "", "", "", false, false, 2×4 DataFrame
  Row │ name    type    current_selxn  table_name 
      │ String  String  Int64          String     
 ─────┼───────────────────────────────────────────
-   1 │ id      BIGINT              1  viewer
-   2 │ value   BIGINT              1  viewer, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
+   1 │ id      BIGINT              1  table2
+   2 │ value   BIGINT              1  table2, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
 ```
 """
 

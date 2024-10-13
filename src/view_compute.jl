@@ -4,13 +4,13 @@
 function final_compute(sqlquery::SQLQuery, ::Type{<:duckdb}, sql_cr_or_relace)
     final_query = finalize_query(sqlquery)
     final_query = sql_cr_or_relace * final_query
-    return LibPQ.execute(sq.db, final_query)
+    return DBInterface.execute(sqlquery.db, final_query)
 end
 
 """
 $docstring_create_view
 """
-macro create_view(sqlquery, name, replace)
+macro create_view(sqlquery, name, replace = true)
     if replace == true 
         sql_cr_or_replace = "CREATE OR REPLACE VIEW $name AS "
     elseif replace == false
@@ -23,11 +23,11 @@ macro create_view(sqlquery, name, replace)
 
 
         elseif current_sql_mode[] == postgres()
-          #  final_compute($(esc(sqlquery)), postgres, $sql_cr_or_replace)
+            final_compute($(esc(sqlquery)), postgres, $sql_cr_or_replace)
         elseif current_sql_mode[] == gbq()
-          #  final_compute($(esc(sqlquery)), gbq, $sql_cr_or_replace)
+            final_compute($(esc(sqlquery)), gbq, $sql_cr_or_replace)
         elseif current_sql_mode[] == mysql()
-          #  final_compute($(esc(sqlquery)), mysql, $sql_cr_or_replace)
+           final_compute($(esc(sqlquery)), mysql, $sql_cr_or_replace)
         else
             backend = current_sql_mode[]
             print("$backend not yet supported")

@@ -24,7 +24,7 @@
     
     
       
-        <title>Writing Functions TidierDB Chains - TidierDB.jl</title>
+        <title>Writing Functions with TidierDB Chains - TidierDB.jl</title>
       
     
     
@@ -79,6 +79,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#interpolation" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -110,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Writing Functions TidierDB Chains
+              Writing Functions with TidierDB Chains
             
           </span>
         </div>
@@ -452,15 +457,61 @@
       
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Writing Functions with TidierDB Chains
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
-    Writing Functions TidierDB Chains
+    Writing Functions with TidierDB Chains
   </span>
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#interpolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interpolation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function-set-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function set up
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -564,6 +615,32 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#interpolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interpolation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function-set-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function set up
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -577,9 +654,82 @@
                   
 
 
-  <h1>Writing Functions TidierDB Chains</h1>
+  <h1>Writing Functions with TidierDB Chains</h1>
 
-<p>under construction</p>
+<p>On this page, we'll briefly explore how to use TidierDB macros and <code>$</code> witth <code>@eval</code> to bulid a function</p>
+<p>For a more indepth explanation, please check out the TidierData page on interpolation</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span>
+<span class="k">using</span><span class="w"> </span><span class="n">DataFrames</span>
+<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">());</span>
+<span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">string</span><span class="p">(</span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">÷</span><span class="w"> </span><span class="mi">26</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">26</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">:</span><span class="mi">9</span><span class="p">],</span>
+<span class="w">                        </span><span class="n">groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;aa&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;bb&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="mi">10</span><span class="p">],</span>
+<span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span>
+<span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
+<span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dfm&quot;</span><span class="p">);</span>
+<span class="n">df_mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dfm&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p><a id='Interpolation'></a></p>
+<p><a id='Interpolation-1'></a></p>
+<h2 id="interpolation">Interpolation<a class="headerlink" href="#interpolation" title="Permanent link">¤</a></h2>
+<p>Variables are interpoated using <code>@eval</code> and <code>$</code>. Place <code>@eval</code> before you begin the chain or call a TidierDb macro Why Use @eval? In Julia, macros like @filter are expanded at parse time, before runtime variables like vals are available. By using @eval, we force the expression to be evaluated at runtime, allowing us to interpolate the variable into the macro.</p>
+<div class="highlight"><pre><span></span><code><span class="n">num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+<span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:id</span><span class="p">;</span>
+<span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="nd">@filter</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">$</span><span class="n">num</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@select</span><span class="p">(</span><span class="o">$</span><span class="n">column</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@collect</span>
+<span class="w">    </span><span class="k">end</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>2×1 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">AC</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">AH</td></tr></tbody></table></div>
+
+<p><a id='Function-set-up'></a></p>
+<p><a id='Function-set-up-1'></a></p>
+<h2 id="function-set-up">Function set up<a class="headerlink" href="#function-set-up" title="Permanent link">¤</a></h2>
+<p>Begin by defining your function as your normally would, but before <code>@chain</code> you need to use <code>@eval</code>. For the variables to be interpolated in need to be started with <code>$</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="n">test</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span><span class="w"> </span><span class="n">cols</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="nd">@filter</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">$</span><span class="n">vals</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@select</span><span class="p">(</span><span class="o">$</span><span class="n">cols</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@collect</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="k">end</span><span class="p">;</span>
+
+<span class="n">vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w">  </span><span class="mi">2</span><span class="p">,</span><span class="w">  </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">];</span>
+<span class="n">test</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="ss">:groups</span><span class="p">,</span><span class="w"> </span><span class="ss">:value</span><span class="p">,</span><span class="w"> </span><span class="ss">:percent</span><span class="p">])</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>6×3 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.1</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.2</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.7</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.3</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.8</td></tr></tbody></table></div>
+
+<p>Now with a new variable</p>
+<div class="highlight"><pre><span></span><code><span class="n">other_vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="n">cols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="ss">:value</span><span class="p">,</span><span class="w"> </span><span class="ss">:percent</span><span class="p">];</span>
+<span class="n">test</span><span class="p">(</span><span class="n">other_vals</span><span class="p">,</span><span class="w"> </span><span class="n">cols</span><span class="p">)</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>2×2 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.1</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.6</td></tr></tbody></table></div>
+
+<p>Defineing a new function</p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="n">gs</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span><span class="w"> </span><span class="n">aggs</span><span class="p">,</span><span class="w"> </span><span class="n">new_name</span><span class="p">,</span><span class="w"> </span><span class="n">threshold</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="nd">@group_by</span><span class="p">(</span><span class="o">$</span><span class="n">groups</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@summarize</span><span class="p">(</span><span class="o">$</span><span class="n">new_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="o">$</span><span class="n">aggs</span><span class="p">))</span>
+<span class="w">        </span><span class="nd">@filter</span><span class="p">(</span><span class="o">$</span><span class="n">new_name</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">$</span><span class="n">threshold</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@collect</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="k">end</span><span class="p">;</span>
+
+<span class="n">gs</span><span class="p">(</span><span class="ss">:groups</span><span class="p">,</span><span class="w"> </span><span class="ss">:percent</span><span class="p">,</span><span class="w"> </span><span class="ss">:mean_percent</span><span class="p">,</span><span class="w"> </span><span class="mf">.5</span><span class="p">)</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>1×2 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">mean_percent</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">0.6</td></tr></tbody></table></div>
+
+<p>Change the column and threshold</p>
+<div class="highlight"><pre><span></span><code><span class="n">gs</span><span class="p">(</span><span class="ss">:groups</span><span class="p">,</span><span class="w"> </span><span class="ss">:value</span><span class="p">,</span><span class="w"> </span><span class="ss">:mean_value</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>2×2 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">mean_value</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3.0</td></tr></tbody></table></div>
+
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 

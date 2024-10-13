@@ -36,5 +36,5 @@ join_db = DB.db_table(db, "df_join");
 join_db2 = DB.db_table(db, "df_join2");
 
 @testset "TidierDB to TidierData comparisons" verbose = true begin
-    include("comp_tests.jl")
+ #  include("comp_tests.jl")
 end

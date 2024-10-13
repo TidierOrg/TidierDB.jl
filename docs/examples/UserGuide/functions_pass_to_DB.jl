@@ -16,7 +16,8 @@ df_mem = db_table(db, "dfm");
 # Variables are interpoated using `@eval` and `$`. Place `@eval` before you begin the chain or call a TidierDb macro
 # Why Use @eval? In Julia, macros like @filter are expanded at parse time, before runtime variables like vals are available. By using @eval, we force the expression to be evaluated at runtime, allowing us to interpolate the variable into the macro.
 
-num = [3]; column = :id
+num = [3]; 
+column = :id;
 @eval @chain t(df_mem) begin
         @filter(value in $num) 
         @select($column)

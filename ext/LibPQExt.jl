@@ -41,4 +41,10 @@ function TidierDB.show_tables(con::LibPQ.Connection)
     return DataFrame(LibPQ.execute(con, "SHOW TABLES"))
 end
 
+function TidierDB.final_compute(sqlquery::SQLQuery, ::Type{<:postgres}, sql_cr_or_relace::String=nothing)
+    final_query = finalize_query(sqlquery)
+    final_query = sql_cr_or_relace * final_query
+    return LibPQ.execute(sq.db, final_query)
+end
+
 end

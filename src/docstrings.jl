@@ -1088,53 +1088,6 @@ DuckDB.Connection(":memory:")
 ```
 """
 
-const docstring_interpolate =
-"""
-    @interpolate(args...)
-
-Interpolate parameters into expressions for database queries.
-
-# Arguments
-
-- `args...`: A variable number of tuples. Each tuple should contain:
-  - `name`: The name of the parameter to interpolate.
-  - `value`: (Any): The value/vector to interpolate for the corresponding parameter name.
-
-# Example
-```julia
-julia> db = connect(duckdb());
-
-julia> copy_to(db, df, "df_mem");
-
-julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
-                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
-                        value = repeat(1:5, 2), 
-                        percent = 0.1:0.1:1.0);
-
-julia> col_names = [:id, :value, :percent];
-
-julia> cond1 = .2;
-
-julia> cond2 = 5;
-
-julia> @interpolate((condition1, cond1), (columns, col_names), (condition2, cond2));
-
-julia> @chain db_table(db, "df_mem") begin 
-          @select(!!columns)
-          @filter begin 
-              percent < !!condition1
-              value < !!condition2
-          end
-          @collect
-          end
-1×3 DataFrame
- Row │ id      value  percent 
-     │ String  Int64  Float64 
-─────┼────────────────────────
-   1 │ AA          1      0.1
-```
-"""
-
 const docstring_db_table =
 """
     db_table(database, table_name, athena_params, delta = false, iceberg = false)
@@ -1392,13 +1345,14 @@ julia> @chain t(df1_table) begin
 
 const docstring_create_view =
 """
-    @view(sql_query, name)
+    @view(sql_query, name, replace = true)
 
 Create a view from a SQL query.
 
 # Arguments
 - `sql_query`: The SQL query to create a view from.
 - `name`: The name of the view to create.
+- `replace`: defaults to true if view should be replaced
 
 # Examples
 ```julia
@@ -1419,6 +1373,38 @@ SQLQuery("", "viewer", "", "", "", "", "", "", false, false, 2×4 DataFrame
    2 │ value   BIGINT              1  viewer, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
 ```
 """
+
+const docstring_compute =
+"""
+    @compute(sql_query, name, replace = false)
+
+Creates a remote table on database memory from a SQL query.
+
+# Arguments
+- `sql_query`: The SQL query to create a table from.
+- `name`: The name of the table to create.
+- `replace`: defaults to false if table should be replaced if it already exists.
+
+# Examples
+```julia
+julia> db = connect(duckdb());
+
+julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
+
+julia> copy_to(db, df, "df1");
+
+julia> @chain db_table(db, "df1") @create_view(viewer);
+
+julia> db_table(db, "viewer")
+SQLQuery("", "viewer", "", "", "", "", "", "", false, false, 2×4 DataFrame
+ Row │ name    type    current_selxn  table_name 
+     │ String  String  Int64          String     
+─────┼───────────────────────────────────────────
+   1 │ id      BIGINT              1  viewer
+   2 │ value   BIGINT              1  viewer, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
+```
+"""
+
 
 const docstring_drop_view =
 """

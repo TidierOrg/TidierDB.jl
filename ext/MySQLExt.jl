@@ -51,8 +51,6 @@ function TidierDB.show_tables(conn::MySQL.Connection)
     return DataFrame(DBInterface.execute(conn, "SHOW TABLES"))
 end
 
-end
-
 
 ### save to database
 import CSV
@@ -128,4 +126,6 @@ function Main.names(conn::MySQL.Connection, table_name)
         end
 
     colunas_db
+end
+
 end

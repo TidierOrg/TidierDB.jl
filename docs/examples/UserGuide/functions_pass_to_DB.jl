@@ -2,7 +2,7 @@
 
 # For a more indepth explanation, please check out the TidierData page on interpolation
 
-using TidirDB
+using TidierDB
 using DataFrames
 db = connect(duckdb());
 df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 

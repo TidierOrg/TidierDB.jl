@@ -1,11 +1,12 @@
 # TidierDB.jl updates
-## v0.4.2 - 2024-10-08
+## v0.4.2 - 2024-10-
 - add support for performing greater than 2 joins using TidierDB queries in a single chain and additional tests
 - add `dmy`, `mdy`, `ymd` support DuckDB, Postgres, GBQ, Clickhouse, MySQL, MsSQL, Athena, MsSQL
 - add date related tests
-- improve Google Big Query type mapping when collecting df
-- change `gbq()`'s `connect()` to accept `location` as second argument
 - adds `copy_to` for MsSQL to write dataframe to database
+- improve Google Big Query type mapping when collecting to df
+- change `gbq()`'s `connect()` to accept `location` as second argument
+- `str_detect` now supports regex for all backends except MsSQL + some tests 
 
 ## v0.4.1 - 2024-10-02
 - Adds 50 tests comparing TidierDB to TidierData to assure accuracy across a complex chains of operations, including combinations of `@mutate`, `@summarize`, `@filter`, `@select`, `@group_by` and `@join` operations. 

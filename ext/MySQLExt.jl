@@ -2,8 +2,7 @@ module MySQLExt
 
 using TidierDB
 using DataFrames
-using MySQL
-
+using MySQL, CSV
 
 __init__() = println("Extension was loaded!")
 
@@ -52,10 +51,7 @@ function TidierDB.show_tables(conn::MySQL.Connection)
 end
 
 
-### save to database
-import CSV
-import DBInterface
-using Chain
+
 
 
 function collapse(x, sep = ",", left = "", right = "")

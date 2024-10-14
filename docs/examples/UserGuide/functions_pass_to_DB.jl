@@ -80,7 +80,7 @@ end
 
 # Filtering before the window functions
 @chain t(df_mem) begin
-    @filter(value>=2)
+    @filter(value >=2 )
     moving_aggs(-1, 1, :groups, :percent, :value)
     @aside @show_query _
     @collect

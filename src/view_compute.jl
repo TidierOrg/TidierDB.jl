@@ -59,10 +59,12 @@ macro compute(sqlquery, name, replace = false)
             final_compute($(esc(sqlquery)), postgres, $sql_cr_or_replace)
         elseif backend == gbq()
             final_compute(sq, gbq, $sql_cr_or_replace)
+        elseif current_sql_mode[] == mysql()
+            final_compute($(esc(sqlquery)), mysql, $sql_cr_or_replace)
+         else
+             backend = current_sql_mode[]
+             print("$backend not yet supported")
         end
+        
     end
 end
-
-
-export @compute
-

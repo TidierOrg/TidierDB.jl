@@ -44,23 +44,6 @@ copy_to(db, df, "df_mem"); # copying over the data frame to an in-memory databas
     @collect
 end
 
-# ## Joining
-
-# There is one key difference for joining:
-
-# The column on both the new and old table must be specified. They do not need to be the same, and given SQL behavior where both columns are kept when joining two tables, it is preferable if they have different names. This avoids "ambiguous reference" errors that would otherwise come up and complicate the use of tidy selection for columns. 
-# If the table that is being newly joined exists on a database, it must be written as a string or Symbol. If it is an exisiting query, it must be wrapped with `t(query)`. Visit the docstrings for more examples. 
-df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
-                category = ["X", "Y", "X", "Y", "X", "Y", "X"],
-                score = [88, 92, 77, 83, 95, 68, 74]);
-
-copy_to(db, df2, "df_join");
-
-@chain db_table(db, :df_mem) begin
-    @left_join("df_join", id2, id)
-    @collect
-end
-
 # ## Differences in `case_when()`
 
 # In TidierDB, after the clause is completed, the result for the new column should is separated by a comma `,`
@@ -72,3 +55,6 @@ end
                                 true, "middle"))
     @collect
  end
+
+ # ## Joining Tables
+ # When joining a table, the column from both tables will be present, in contrast to TidierData which will keep one column

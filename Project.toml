@@ -1,7 +1,7 @@
 name = "TidierDB"
 uuid = "86993f9b-bbba-4084-97c5-ee15961ad48b"
 authors = ["Daniel Rizk <rizk.daniel.12@gmail.com> and contributors"]
-version = "0.4.2"
+version = "0.5.0"
 
 [deps]
 Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45"
@@ -37,10 +37,11 @@ SQLiteExt = "SQLite"
 [compat]
 AWS = "1.9"
 Arrow = "2.7"
-CSV = "0.10.1"
+CSV = "0.10"
 Chain = "0.6"
 ClickHouse = "0.2"
 DataFrames = "1.5"
+Dates = "1.9"
 Documenter = "0.27, 1"
 DuckDB = "1.0"
 GZip = "0.6"

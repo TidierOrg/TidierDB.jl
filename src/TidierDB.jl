@@ -19,7 +19,7 @@ using GZip
  @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, 
  @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,  @head, 
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, 
- t, @union, @create_view, drop_view, @compute
+ t, @union, @create_view, drop_view, @compute, warnings
 
  abstract type SQLBackend end
 
@@ -35,11 +35,11 @@ using GZip
  struct oracle <: SQLBackend end
  struct databricks <: SQLBackend end
  
+ const  _warning_ = Ref(false)
+
  current_sql_mode = Ref{SQLBackend}(duckdb())
  
- function set_sql_mode(mode::SQLBackend)
-     current_sql_mode[] = mode
- end
+ function set_sql_mode(mode::SQLBackend) current_sql_mode[] = mode end
  
 
 include("docstrings.jl")
@@ -92,6 +92,10 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
     end
 end
 
+"""
+$docstring_warnings
+"""
+ function warnings(flag::Bool) _warning_[] = flag end
 
 
 function finalize_ctes(ctes::Vector{CTE})
@@ -102,10 +106,16 @@ function finalize_ctes(ctes::Vector{CTE})
     cte_strings = String[]
     for cte in ctes
      
-        if startswith(cte.name, "jcte_") 
-            # Replace 'FROM cte_' with 'FROM jcte_'
+        if startswith(cte.name, "jcte_")
             cte.select = replace(cte.select, r"FROM cte_" => "FROM jcte_")
             cte.from = replace(cte.from, r"^cte_" => "jcte_")
+        elseif startswith(cte.name, r"j\d+cte")
+            match_result = match(r"(j\d+cte_)", cte.name)
+            if match_result !== nothing
+                replacement = match_result.match
+                cte.select = replace(cte.select, r"FROM cte_" => "FROM $replacement")
+                cte.from = replace(cte.from, r"^cte_" => replacement)
+            end
         end
     
         cte_str = string(
@@ -174,12 +184,6 @@ function finalize_query(sqlquery::SQLQuery)
 
     return complete_query
 end
-
-
-
-
-
-
 
 # DuckDB
 function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_name::String)

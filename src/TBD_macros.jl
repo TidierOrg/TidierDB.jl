@@ -285,9 +285,11 @@ macro mutate(sqlquery, mutations...)
             sq.from = string(cte_name)
             
             sq.select = "*"  # This selects everything from the CTE without duplicating transformations
-           #if !isempty(sq.groupBy) || !isempty(sq.window_order) || !isempty(sq.windowFrame)||
-          ##     println("@mutate removed grouping after applying mutations.")
-          #  end
+            if _warning_[]
+                if sq.groupBy != "" || sq.window_order !=""  || sq.windowFrame !=""
+                @warn "After applying all mutations, @mutate removed grouping and window clauses."
+                end
+            end
             sq.groupBy =""
             sq.windowFrame = ""
             sq.window_order = ""

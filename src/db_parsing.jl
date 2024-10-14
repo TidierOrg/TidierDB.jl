@@ -458,3 +458,16 @@ function construct_window_clause(sq::SQLQuery ; from_cumsum::Bool = false)
 
     return window_clause
 end
+
+function parse_join_expression(expr)
+    if expr.head == :(=)
+        rhs_column = expr.args[1]
+        lhs_column = expr.args[2]
+        # Convert column references to strings
+        lhs_col_str = string(lhs_column)
+        rhs_col_str = string(rhs_column)
+        return lhs_col_str, rhs_col_str
+    else
+        error("Expression must be of the form lhs = rhs")
+    end
+end

@@ -544,7 +544,7 @@ julia> @chain db_table(db, :df_mem) begin
 
 const docstring_left_join =
 """
-    @left_join(sql_query, join_table, new_table_col, orignal_table_col)
+    @left_join(sql_query, join_table, orignal_table_col = new_table_col)
 
 Perform a left join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
@@ -554,9 +554,8 @@ preferrable for the names to be different
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
 - `join_table`: The secondary SQL table to join with the primary query table.
-- `new_table_col`: Column from the new table that matches for join. 
-- `orignal_table_col`: Column from the original table that matches for join. 
-
+- `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
+- `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -575,7 +574,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, "df_mem") begin
-         @left_join("df_join", id2, id)
+         @left_join("df_join", "id" = "id2" )
          @collect
        end
 10×7 DataFrame
@@ -598,7 +597,7 @@ julia> query = @chain db_table(db, "df_join") begin
                 end;
 
 julia> @chain db_table(db, "df_mem") begin
-         @left_join(t(query), id2, id)
+         @left_join(t(query), id = id2)
          @collect
        end
 10×7 DataFrame
@@ -621,7 +620,7 @@ julia> @chain db_table(db, "df_mem") begin
 
 const docstring_right_join =
 """
-    @right_join(sql_query, join_table, new_table_col, orignal_table_col)
+    @right_join(sql_query, join_table, orignal_table_col = new_table_col)
 
 Perform a right join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
@@ -631,8 +630,8 @@ preferrable for the names to be different
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
 - `join_table`: The secondary SQL table to join with the primary query table.
-- `new_table_col`: Column from the new table that matches for join. 
-- `orignal_table_col`: Column from the original table that matches for join. 
+- `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
+- `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 
 # Examples
 ```jldoctest
@@ -652,7 +651,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @right_join("df_join", id2, id)
+         @right_join("df_join", id = id2)
          @collect
        end
 7×7 DataFrame
@@ -672,7 +671,7 @@ julia> query = @chain db_table(db, "df_join") begin
                 end;
 
 julia> @chain db_table(db, :df_mem) begin
-         @right_join(t(query), id2, id)
+         @right_join(t(query), id = id2)
          @collect
        end
 6×7 DataFrame
@@ -690,7 +689,7 @@ julia> @chain db_table(db, :df_mem) begin
 
 const docstring_inner_join =
 """
-    @inner_join(sql_query, join_table, new_table_col, orignal_table_col)
+    @inner_join(sql_query, join_table, orignal_table_col = new_table_col)
 
 Perform an inner join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
@@ -700,9 +699,8 @@ preferrable for the names to be different
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
 - `join_table`: The secondary SQL table to join with the primary query table.
-- `new_table_col`: Column from the new table that matches for join. 
-- `orignal_table_col`: Column from the original table that matches for join. 
-
+- `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
+- `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -721,7 +719,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @inner_join("df_join", id2, id)
+         @inner_join("df_join", "id" = id2)
          @collect
        end
 5×7 DataFrame
@@ -737,7 +735,7 @@ julia> @chain db_table(db, :df_mem) begin
 """
 const docstring_full_join =
 """
-    @inner_join(sql_query, join_table, new_table_col, orignal_table_col)
+    @inner_join(sql_query, join_table, orignal_table_col = new_table_col)
 
 Perform an full join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
@@ -747,9 +745,8 @@ preferrable for the names to be different
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
 - `join_table`: The secondary SQL table to join with the primary query table.
-- `new_table_col`: Column from the new table that matches for join. 
-- `orignal_table_col`: Column from the original table that matches for join. 
-
+- `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
+- `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -768,7 +765,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @full_join((@chain db_table(db, "df_join") @filter(score > 70)), id2, id)
+         @full_join((@chain db_table(db, "df_join") @filter(score > 70)), id = id2)
          #@aside @show_query _
          @collect
        end
@@ -792,7 +789,7 @@ julia> @chain db_table(db, :df_mem) begin
 
 const docstring_semi_join =
 """
-    @semi_join(sql_query, join_table, new_table_col, orignal_table_col)
+    @semi_join(sql_query, join_table, orignal_table_col = new_table_col)
 
 Perform an semi join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
@@ -802,9 +799,8 @@ preferrable for the names to be different
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
 - `join_table`: The secondary SQL table to join with the primary query table.
-- `new_table_col`: Column from the new table that matches for join. 
-- `orignal_table_col`: Column from the original table that matches for join. 
-
+- `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
+- `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -823,7 +819,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @semi_join("df_join", id2, id)
+         @semi_join("df_join", id = id2)
          @collect
        end
 5×4 DataFrame
@@ -840,7 +836,7 @@ julia> @chain db_table(db, :df_mem) begin
 
 const docstring_anti_join =
 """
-    @anti_join(sql_query, join_table, new_table_col, orignal_table_col)
+    @anti_join(sql_query, join_table, orignal_table_col = new_table_col)
 
 Perform an anti join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
@@ -850,9 +846,8 @@ preferrable for the names to be different
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
 - `join_table`: The secondary SQL table to join with the primary query table.
-- `new_table_col`: Column from the new table that matches for join. 
-- `orignal_table_col`: Column from the original table that matches for join. 
-
+- `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
+- `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -871,7 +866,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-        @anti_join("df_join", id2, id)
+        @anti_join("df_join", id = id2)
         @collect
        end
 5×4 DataFrame
@@ -1023,9 +1018,10 @@ julia> @chain t(df_mem) begin
 
 julia> @chain t(df_mem) begin
         @group_by groups
-        @window_frame(to = -3)
+       # @window_frame(to = -3)
         @mutate(avg = mean(percent))
         #@show_query
+        @collect
        end;
 
 julia> @chain t(df_mem) begin
@@ -1419,4 +1415,23 @@ Drop a view from a database.
 
 # Examples
 `drop_view(db, "viewer")`
+"""
+
+const docstring_warnings =
+"""
+    warnings(show::Bool)
+
+Sets the global warning flag to the specified boolean value.
+
+# Arguments
+- `flag::Bool`: A boolean value to set the warning flag. If `true`, warnings will be enabled; if `false`, warnings will be disabled.
+
+# Default Behavior
+By default, the warning flag is set to `false`, meaning that warnings are disabled unless explicitly enabled by setting this function with `true`.
+
+# Example
+```
+julia> warnings(true);
+```
+
 """

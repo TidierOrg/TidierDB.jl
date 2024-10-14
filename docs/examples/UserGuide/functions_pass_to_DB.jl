@@ -2,8 +2,8 @@
 
 # For a more indepth explanation, please check out the TidierData page on interpolation
 
-using TidierDB
-using DataFrames
+using TidierDB, DataFrames;
+
 db = connect(duckdb());
 df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
                         groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
@@ -58,3 +58,30 @@ gs(:groups, :percent, :mean_percent, .5)
 # Change the column and threshold
 gs(:groups, :value, :mean_value, 2)
 
+
+# ## Write pipeline function to use inside of chains
+# Lets say there is a particular sequence of macros that you want repeatedly use. Wrap this series into a function that accepts a `t(query` as its first argument and returns a `SQLquery` and you can easily resuse it.
+function moving_aggs(table, start, stop, group, order, col)
+    qry = @eval @chain $table begin 
+        @group_by $group
+        @window_frame $start $stop
+        @window_order $order
+        @mutate(across($col, (minimum, maximum, mean)))
+    end
+    return qry
+end;
+
+@chain t(df_mem) begin
+    moving_aggs(-2, 1, :groups, :percent, :value)
+    @filter value_mean > 2.75 
+    @aside @show_query _
+    @collect
+end
+
+# Filtering before the window functions
+@chain t(df_mem) begin
+    @filter(value>=2)
+    moving_aggs(-1, 1, :groups, :percent, :value)
+    @aside @show_query _
+    @collect
+end

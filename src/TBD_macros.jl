@@ -107,6 +107,7 @@ macro filter(sqlquery, conditions...)
                 sq.cte_count += 1
             end
         end
+
         else
             error("Expected sqlquery to be an instance of SQLQuery")
         end
@@ -284,10 +285,12 @@ macro mutate(sqlquery, mutations...)
             sq.from = string(cte_name)
             
             sq.select = "*"  # This selects everything from the CTE without duplicating transformations
-         #   if !isempty(sq.groupBy)
-          #      println("@mutate removed grouping after applying mutations.")
+           #if !isempty(sq.groupBy) || !isempty(sq.window_order) || !isempty(sq.windowFrame)||
+          ##     println("@mutate removed grouping after applying mutations.")
           #  end
             sq.groupBy =""
+            sq.windowFrame = ""
+            sq.window_order = ""
         else
             error("Expected sqlquery to be an instance of SQLQuery")
         end

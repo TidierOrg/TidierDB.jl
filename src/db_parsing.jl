@@ -103,9 +103,63 @@ function parse_tidy_db(exprs, metadata::DataFrame)
             else
                 push!(included_columns, col_name)
             end
+        elseif isa(actual_expr, Expr) && actual_expr.head == :vect
+            for item in actual_expr.args
+                
+                col_name = string(item)[2:end]
+                if current_sql_mode[] == snowflake()
+                    col_name = uppercase(col_name)
+                end
+                if is_excluded
+                    push!(excluded_columns, col_name)
+                else
+                    push!(included_columns, col_name)
+                end
+            end
+            if isa(actual_expr, Tuple) && length(actual_expr) == 1 && isa(actual_expr[1], Vector{Symbol})
+            for item in actual_expr[1]
+                col_name = string(item)
+                if current_sql_mode[] == snowflake()
+                    col_name = uppercase(col_name)
+                end
+                if is_excluded
+                    push!(excluded_columns, col_name)
+                else
+                    push!(included_columns, col_name)
+                end
+            end
+
+        end
+    elseif isa(actual_expr, AbstractVector)
+        for item in actual_expr
+            col_name = string(item)
+            if current_sql_mode[] == snowflake()
+                col_name = uppercase(col_name)
+            end
+            if is_excluded
+                push!(excluded_columns, col_name)
+            else
+                push!(included_columns, col_name)
+            end
+        end
+        elseif isa(actual_expr, Tuple) && all(isa.(actual_expr, Vector{Symbol}))
+            for vec in actual_expr
+                for item in vec
+                    col_name = string(item)[2:end]
+                    if current_sql_mode[] == snowflake()
+                        col_name = uppercase(col_name)
+                    end
+                    if is_excluded
+                        push!(excluded_columns, col_name)
+                    else
+                        push!(included_columns, col_name)
+                    end
+                end
+            end
         else
             error("Unsupported expression type: $expr")
         end
+        
     end
 
     # Loop through excluded columns and update current_selxn to 0 in the metadata DataFrame

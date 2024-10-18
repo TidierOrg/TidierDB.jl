@@ -29,12 +29,18 @@ function parse_tidy_db(exprs, metadata::DataFrame)
     exprs_iterable = isa(exprs, Tuple) ? collect(exprs) : exprs
 
     for expr in exprs_iterable
-        if occursin(".", string(expr))
-            push!(included_columns, string(expr))
-            continue
-        end
+        # First, check for exclusion
         is_excluded = isa(expr, Expr) && expr.head == :call && expr.args[1] == :(!)
         actual_expr = is_excluded ? expr.args[2] : expr
+
+        if occursin(".", string(actual_expr))
+            if is_excluded
+                push!(excluded_columns, string(actual_expr))
+            else
+                push!(included_columns, string(actual_expr))
+            end
+            continue
+        end
 
         if isa(actual_expr, Expr) && actual_expr.head == :call
             if actual_expr.args[1] == :(:)
@@ -59,6 +65,7 @@ function parse_tidy_db(exprs, metadata::DataFrame)
                     append!(included_columns, range_columns)
                 end
             elseif actual_expr.args[1] == :starts_with || actual_expr.args[1] == :ends_with || actual_expr.args[1] == :contains
+                # Handle starts_with, ends_with, and contains
                 substring = actual_expr.args[2]
                 if current_sql_mode[] == snowflake()
                     substring = uppercase(substring)
@@ -76,62 +83,14 @@ function parse_tidy_db(exprs, metadata::DataFrame)
             else
                 error("Unsupported function call: $(actual_expr.args[1])")
             end
-        elseif isa(actual_expr, Expr) && actual_expr.head == :vect
-            for item in actual_expr.args
-                
-                col_name = string(item)[2:end]
-                if current_sql_mode[] == snowflake()
-                    col_name = uppercase(col_name)
-                end
-                if is_excluded
-                    push!(excluded_columns, col_name)
-                else
-                    push!(included_columns, col_name)
-                end
-            end
-            if isa(actual_expr, Tuple) && length(actual_expr) == 1 && isa(actual_expr[1], Vector{Symbol})
-            for item in actual_expr[1]
-                col_name = string(item)
-                if current_sql_mode[] == snowflake()
-                    col_name = uppercase(col_name)
-                end
-                if is_excluded
-                    push!(excluded_columns, col_name)
-                else
-                    push!(included_columns, col_name)
-                end
-            end
-
-        end
-    elseif isa(actual_expr, AbstractVector)
-        for item in actual_expr
-            col_name = string(item)
-            if current_sql_mode[] == snowflake()
-                col_name = uppercase(col_name)
-            end
-            if is_excluded
-                push!(excluded_columns, col_name)
-            else
-                push!(included_columns, col_name)
-            end
-        end
-        elseif isa(actual_expr, Tuple) && all(isa.(actual_expr, Vector{Symbol}))
-            for vec in actual_expr
-                for item in vec
-                    col_name = string(item)[2:end]
-                    if current_sql_mode[] == snowflake()
-                        col_name = uppercase(col_name)
-                    end
-                    if is_excluded
-                        push!(excluded_columns, col_name)
-                    else
-                        push!(included_columns, col_name)
-                    end
-                end
-            end
         elseif isa(actual_expr, Symbol) || isa(actual_expr, String)
+            # Handle single column name
             if occursin(".", string(actual_expr))
-                push!(included_columns, string(actual_expr))
+                if is_excluded
+                    push!(excluded_columns, string(actual_expr))
+                else
+                    push!(included_columns, string(actual_expr))
+                end
                 continue
             end
 
@@ -151,9 +110,18 @@ function parse_tidy_db(exprs, metadata::DataFrame)
 
     # Loop through excluded columns and update current_selxn to 0 in the metadata DataFrame
     for col_name in excluded_columns
-        col_idx = findfirst(isequal(col_name), metadata.name)
-        if !isnothing(col_idx)
-            metadata.current_selxn[col_idx] = 0
+        if occursin(".", col_name)
+            # Split into table and column
+            table_col_split = split(col_name, ".")
+            table_name, col_name = table_col_split[1], table_col_split[2]
+            # Find indices where both table_name and column name match
+            col_indices = findall((metadata.table_name .== table_name) .& (metadata.name .== col_name))
+        else
+            # Exclude all columns with the matching name regardless of table
+            col_indices = findall(metadata.name .== col_name)
+        end
+        if !isempty(col_indices)
+            metadata.current_selxn[col_indices] .= 0
         end
     end
 
@@ -164,10 +132,9 @@ function parse_tidy_db(exprs, metadata::DataFrame)
     else
         included_columns = setdiff(included_columns, excluded_columns)
     end
-    
+
     return included_columns
 end
-
 
 function parse_if_else(expr)
     transformed_expr = MacroTools.postwalk(expr) do x

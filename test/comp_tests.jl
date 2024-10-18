@@ -6,9 +6,13 @@
         TDB_2 = @chain DB.t(test_db) DB.@select(id:value) DB.@collect
         TDF_3 = @chain test_df @select(!(groups:value))
         TDB_3 = @chain DB.t(test_db) DB.@select(!(groups:value)) DB.@collect
+        TDF_4 = @chain test_df @select(!value)
+        TDB_4 = @chain DB.t(test_db) DB.@select(!test_df.value) DB.@collect
+
         @test all(Array(TDF_1 .== TDB_1))
         @test all(Array(TDF_2 .== TDB_2))
         @test all(Array(TDF_3 .== TDB_3))
+        @test all(Array(TDF_4 .== TDB_4))
     end
     @testset "Group By Summarize" begin
         TDF_1 = @chain test_df @group_by(groups) @summarize(value = sum(value), n = n())
@@ -98,14 +102,14 @@
         # mutate in a new category, group by summarize, and then join on two summary tables based on key
         TDF_9 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @left_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category)
         x = @chain DB.t(join_db) DB.@group_by(category) DB.@summarize(score_mean= mean(score))
-        TDB_9 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@left_join(DB.t(x), category = category) DB.@select(cte_4.category, percent_mean, score_mean) DB.@collect 
+        TDB_9 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@left_join(DB.t(x), category = category) DB.@select(!df_join.category) DB.@collect 
         TDF_10 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @right_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category)
-        TDB_10 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@right_join(DB.t(x), category = category) DB.@select(cte_4.category, percent_mean, score_mean) DB.@collect 
+        TDB_10 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@right_join(DB.t(x), category = category) DB.@select(!df_join.category) DB.@collect 
         # mutate in a new category, group by summarize, and then join on two summary tables based on key, then mutate and filter on new column
         TDF_11 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @right_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category) @mutate(test = score_mean^percent_mean) @filter(test > 10)
-        TDB_11 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@right_join(DB.t(x), category = category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(cte_7.category, percent_mean, score_mean, test) DB.@collect 
+        TDB_11 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@right_join(DB.t(x), category = category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(!df_join.category) DB.@collect 
         TDF_12 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @full_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category) @mutate(test = score_mean^percent_mean) @filter(test > 10)
-        TDB_12 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@full_join(DB.t(x), category = category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(cte_7.category, percent_mean, score_mean, test) DB.@collect 
+        TDB_12 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@full_join(DB.t(x), category = category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(!df_join.category) DB.@collect 
         # test a joining multiple TidierDB queries in one chain 
         query = DB.@chain DB.t(join_db) DB.@filter(str_detect(id2, "C") && score > 85) 
         TDF_13 = @chain test_df @left_join(@filter(df2, score > 85 && str_detect(id2, "C")), id = id2) @mutate(score = replace_missing(score, 0)) @left_join((@chain df3 @filter(value2 != 20)), id = id3)

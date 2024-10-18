@@ -1,7 +1,7 @@
 # TidierDB.jl updates
 ## v0.5.0 - 2024-10-15
 Breaking Changes: 
-- All join syntax now matches TidierData's (table1, table2, t1_col = t2_col)
+- All join syntax now matches TidierData's `(table1, table2, t1_col = t2_col)`
 Additions:
 - `@compute`for DuckDB, MySQL, PostGres, GBQ to write a table to the db and the end of a query.
 - expands `@create_view` to MySQL, PostGres, GBQ 
@@ -13,7 +13,10 @@ Improvements:
 - improve Google Big Query type mapping when collecting to dataframe
 - change `gbq()`'s `connect()` to accept `location` as second argument
 - `str_detect` now supports regex for all backends except MsSQL + some tests
+- `@select(!table.name)` now works to deselect a column
+
 Docs:
+- Add duckplyr/duckdb reproducible example to docs
 - Improve interpolation docs
 
 ## v0.4.1 - 2024-10-02

@@ -5,7 +5,7 @@ macro select(sqlquery, exprs...)
     exprs = parse_blocks(exprs...)
    # exprs_str = parse_interpolation2.(exprs)
     return quote
-        #exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
+        exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
         let columns = parse_tidy_db(exprs_str, $(esc(sqlquery)).metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
             $(esc(sqlquery)).select = columns_str

@@ -20,15 +20,15 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.40">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
-        <title>Writing Functions/Macros with TidierDB Chains - TidierDB.jl</title>
+        <title>Writing Functions with TidierDB Chains - TidierDB.jl</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#setting-up-the-macro" class="md-skip">
+        <a href="#interpolation" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Writing Functions/Macros with TidierDB Chains
+              Writing Functions with TidierDB Chains
             
           </span>
         </div>
@@ -461,7 +461,7 @@
           
   
   <span class="md-ellipsis">
-    Writing Functions/Macros with TidierDB Chains
+    Writing Functions with TidierDB Chains
   </span>
   
 
@@ -472,7 +472,7 @@
         
   
   <span class="md-ellipsis">
-    Writing Functions/Macros with TidierDB Chains
+    Writing Functions with TidierDB Chains
   </span>
   
 
@@ -492,9 +492,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#setting-up-the-macro" class="md-nav__link">
+  <a href="#interpolation" class="md-nav__link">
     <span class="md-ellipsis">
-      Setting up the macro
+      Interpolation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function-set-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function set up
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#write-pipeline-function-to-use-inside-of-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      Write pipeline function to use inside of chains
     </span>
   </a>
   
@@ -540,6 +558,26 @@
   
   <span class="md-ellipsis">
     TidierDB.jl vs Ibis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../duckplyr_reprex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reproduce a duckplyr example
   </span>
   
 
@@ -613,9 +651,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#setting-up-the-macro" class="md-nav__link">
+  <a href="#interpolation" class="md-nav__link">
     <span class="md-ellipsis">
-      Setting up the macro
+      Interpolation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function-set-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function set up
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#write-pipeline-function-to-use-inside-of-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      Write pipeline function to use inside of chains
     </span>
   </a>
   
@@ -636,78 +692,117 @@
                   
 
 
-  <h1>Writing Functions/Macros with TidierDB Chains</h1>
+  <h1>Writing Functions with TidierDB Chains</h1>
 
-<p>How can functions pass arguments to a TidierDB chain?</p>
-<p>In short, you have to use a macro instead in conjuction with <code>@interpolate</code></p>
-<p><a id='Setting-up-the-macro'></a></p>
-<p><a id='Setting-up-the-macro-1'></a></p>
-<h2 id="setting-up-the-macro">Setting up the macro<a class="headerlink" href="#setting-up-the-macro" title="Permanent link">¤</a></h2>
-<p>To write a macro that will take arguments and pass them to a TidierDB chain, there are 3 steps:</p>
-<ol>
-<li>Write macro with the desired argument(s), and, after the quote, add the chain. Arguments to be changed/interpolated must be prefixed with <code>!!</code></li>
-<li>Use <code>@interpolate</code> to make these arguemnts accessible to the chain. <code>@interpolate</code> takes touples as argument (one for the <code>!!</code>name, and one for the actual content you want the chain to use)</li>
-<li>Run <code>@interpolate</code> and then the chain macro sequentially</li>
-</ol>
-<div class="highlight"><pre><span></span><code>using TidierDB
-db = connect(duckdb())
-path = &quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;
-copy_to(db, path, &quot;mtcars&quot;);
+<p>On this page, we'll briefly explore how to use TidierDB macros and <code>$</code> witth <code>@eval</code> to bulid a function</p>
+<p>For a more indepth explanation, please check out the TidierData page on interpolation</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span><span class="p">,</span><span class="w"> </span><span class="n">DataFrames</span><span class="p">;</span>
 
-# STEP 1
-macro f1(conditions, columns) # The arguemnt names will be names of the `!!` values
-    return quote
-    # add chain here
-      @chain db_table(db, :mtcars) begin
-           @filter(!!conditions &gt; 3)
-           @select(!!columns)
-           @aside @show_query _
-           @collect
-         end # ends the chain
-    end # ends the quote.
-end # ends the macro
+<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">());</span>
+<span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">string</span><span class="p">(</span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">÷</span><span class="w"> </span><span class="mi">26</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">26</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">:</span><span class="mi">9</span><span class="p">],</span>
+<span class="w">                        </span><span class="n">groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;aa&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;bb&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="mi">10</span><span class="p">],</span>
+<span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span>
+<span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
+<span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dfm&quot;</span><span class="p">);</span>
+<span class="n">df_mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dfm&quot;</span><span class="p">);</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c"># STEP 2</span>
-<span class="n">variable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:gear</span><span class="p">;</span>
-<span class="n">cols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="ss">:model</span><span class="p">,</span><span class="w"> </span><span class="ss">:mpg</span><span class="p">,</span><span class="w"> </span><span class="ss">:gear</span><span class="p">,</span><span class="w"> </span><span class="ss">:wt</span><span class="p">];</span>
-<span class="nd">@interpolate</span><span class="p">((</span><span class="n">conditions</span><span class="p">,</span><span class="w"> </span><span class="n">variable</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">columns</span><span class="p">,</span><span class="w"> </span><span class="n">cols</span><span class="p">));</span>
-<span class="nd">@f1</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span><span class="w"> </span><span class="n">cols</span><span class="p">)</span>
+<p><a id='Interpolation'></a></p>
+<p><a id='Interpolation-1'></a></p>
+<h2 id="interpolation">Interpolation<a class="headerlink" href="#interpolation" title="Permanent link">¤</a></h2>
+<p>Variables are interpoated using <code>@eval</code> and <code>$</code>. Place <code>@eval</code> before you begin the chain or call a TidierDb macro Why Use @eval? In Julia, macros like @filter are expanded at parse time, before runtime variables like vals are available. By using @eval, we force the expression to be evaluated at runtime, allowing us to interpolate the variable into the macro.</p>
+<div class="highlight"><pre><span></span><code><span class="n">num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+<span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:id</span><span class="p">;</span>
+<span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="nd">@filter</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">$</span><span class="n">num</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@select</span><span class="p">(</span><span class="o">$</span><span class="n">column</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@collect</span>
+<span class="w">    </span><span class="k">end</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>17×4 DataFrame
- Row │ model           mpg       gear    wt
-     │ String?         Float64?  Int32?  Float64?
-─────┼────────────────────────────────────────────
-   1 │ Mazda RX4           21.0       4     2.62
-   2 │ Mazda RX4 Wag       21.0       4     2.875
-   3 │ Datsun 710          22.8       4     2.32
-  ⋮  │       ⋮            ⋮        ⋮        ⋮
-  15 │ Ferrari Dino        19.7       5     2.77
-  16 │ Maserati Bora       15.0       5     3.57
-  17 │ Volvo 142E          21.4       4     2.78
-                                   11 rows omitted
+<div><div style = "float: left;"><span>2×1 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">AC</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">AH</td></tr></tbody></table></div>
+
+<p><a id='Function-set-up'></a></p>
+<p><a id='Function-set-up-1'></a></p>
+<h2 id="function-set-up">Function set up<a class="headerlink" href="#function-set-up" title="Permanent link">¤</a></h2>
+<p>Begin by defining your function as your normally would, but before <code>@chain</code> you need to use <code>@eval</code>. For the variables to be interpolated in need to be started with <code>$</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="n">test</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span><span class="w"> </span><span class="n">cols</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="nd">@filter</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">$</span><span class="n">vals</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@select</span><span class="p">(</span><span class="o">$</span><span class="n">cols</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@collect</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="k">end</span><span class="p">;</span>
+
+<span class="n">vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w">  </span><span class="mi">2</span><span class="p">,</span><span class="w">  </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">];</span>
+<span class="n">test</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="ss">:groups</span><span class="p">,</span><span class="w"> </span><span class="ss">:value</span><span class="p">,</span><span class="w"> </span><span class="ss">:percent</span><span class="p">])</span>
 </code></pre></div>
-<p>Lets say you wanted to filter on new variable with a different name and select new columns,</p>
-<div class="highlight"><pre><span></span><code><span class="n">new_condition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:wt</span><span class="p">;</span>
-<span class="n">new_cols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="ss">:model</span><span class="p">,</span><span class="w"> </span><span class="ss">:drat</span><span class="p">]</span>
-<span class="nd">@interpolate</span><span class="p">((</span><span class="n">conditions</span><span class="p">,</span><span class="w"> </span><span class="n">new_condition</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">columns</span><span class="p">,</span><span class="w"> </span><span class="n">new_cols</span><span class="p">));</span>
-<span class="nd">@f1</span><span class="p">(</span><span class="n">new_condition</span><span class="p">,</span><span class="w"> </span><span class="n">new_cols</span><span class="p">)</span>
+<div><div style = "float: left;"><span>6×3 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.1</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.2</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.7</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.3</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.8</td></tr></tbody></table></div>
+
+<p>Now with a new variable</p>
+<div class="highlight"><pre><span></span><code><span class="n">other_vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="n">cols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="ss">:value</span><span class="p">,</span><span class="w"> </span><span class="ss">:percent</span><span class="p">];</span>
+<span class="n">test</span><span class="p">(</span><span class="n">other_vals</span><span class="p">,</span><span class="w"> </span><span class="n">cols</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>20×2 DataFrame
- Row │ model              drat
-     │ String?            Float64?
-─────┼─────────────────────────────
-   1 │ Hornet 4 Drive         3.08
-   2 │ Hornet Sportabout      3.15
-   3 │ Valiant                2.76
-  ⋮  │         ⋮             ⋮
-  18 │ Pontiac Firebird       3.08
-  19 │ Ford Pantera L         4.22
-  20 │ Maserati Bora          3.54
-                    14 rows omitted
+<div><div style = "float: left;"><span>2×2 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.1</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.6</td></tr></tbody></table></div>
+
+<p>Defineing a new function</p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="n">gs</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span><span class="w"> </span><span class="n">aggs</span><span class="p">,</span><span class="w"> </span><span class="n">new_name</span><span class="p">,</span><span class="w"> </span><span class="n">threshold</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="nd">@group_by</span><span class="p">(</span><span class="o">$</span><span class="n">groups</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@summarize</span><span class="p">(</span><span class="o">$</span><span class="n">new_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="o">$</span><span class="n">aggs</span><span class="p">))</span>
+<span class="w">        </span><span class="nd">@filter</span><span class="p">(</span><span class="o">$</span><span class="n">new_name</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">$</span><span class="n">threshold</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@collect</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="k">end</span><span class="p">;</span>
+
+<span class="n">gs</span><span class="p">(</span><span class="ss">:groups</span><span class="p">,</span><span class="w"> </span><span class="ss">:percent</span><span class="p">,</span><span class="w"> </span><span class="ss">:mean_percent</span><span class="p">,</span><span class="w"> </span><span class="mf">.5</span><span class="p">)</span>
 </code></pre></div>
-<p>You can also interpolate vectors of strings into a <code>@filter(col in (values))</code> as well by using the following syntax <code>@filter(col in [!!values])</code></p>
-<p>In short, the first argument in <code>@interpolate</code> must be the name of the macro argument it refers to, and the second argument is what you would like to replace it.</p>
-<p>We recognize this adds friction and that it is not ideal, but given the TidierDB macro expressions/string interplay, this is currently the most graceful and functional option available and hopefully a temporary solution to better interpolation that mirrors TidierData.jl.</p>
+<div><div style = "float: left;"><span>1×2 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">mean_percent</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">0.6</td></tr></tbody></table></div>
+
+<p>Change the column and threshold</p>
+<div class="highlight"><pre><span></span><code><span class="n">gs</span><span class="p">(</span><span class="ss">:groups</span><span class="p">,</span><span class="w"> </span><span class="ss">:value</span><span class="p">,</span><span class="w"> </span><span class="ss">:mean_value</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>2×2 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">mean_value</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3.0</td></tr></tbody></table></div>
+
+<p><a id='Write-pipeline-function-to-use-inside-of-chains'></a></p>
+<p><a id='Write-pipeline-function-to-use-inside-of-chains-1'></a></p>
+<h2 id="write-pipeline-function-to-use-inside-of-chains">Write pipeline function to use inside of chains<a class="headerlink" href="#write-pipeline-function-to-use-inside-of-chains" title="Permanent link">¤</a></h2>
+<p>Lets say there is a particular sequence of macros that you want repeatedly use. Wrap this series into a function that accepts a <code>t(query</code> as its first argument and returns a <code>SQLquery</code> and you can easily resuse it.</p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="n">moving_aggs</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">stop</span><span class="p">,</span><span class="w"> </span><span class="n">group</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">)</span>
+<span class="w">    </span><span class="n">qry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="o">$</span><span class="n">table</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="nd">@group_by</span><span class="w"> </span><span class="o">$</span><span class="n">group</span>
+<span class="w">        </span><span class="nd">@window_frame</span><span class="w"> </span><span class="o">$</span><span class="n">start</span><span class="w"> </span><span class="o">$</span><span class="n">stop</span>
+<span class="w">        </span><span class="nd">@window_order</span><span class="w"> </span><span class="o">$</span><span class="n">order</span>
+<span class="w">        </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">across</span><span class="p">(</span><span class="o">$</span><span class="n">col</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">minimum</span><span class="p">,</span><span class="w"> </span><span class="n">maximum</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="p">)))</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">qry</span>
+<span class="k">end</span><span class="p">;</span>
+
+<span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">moving_aggs</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">:groups</span><span class="p">,</span><span class="w"> </span><span class="ss">:percent</span><span class="p">,</span><span class="w"> </span><span class="ss">:value</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@filter</span><span class="w"> </span><span class="n">value_mean</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">2.75</span>
+<span class="w">    </span><span class="nd">@aside</span><span class="w"> </span><span class="nd">@show_query</span><span class="w"> </span><span class="n">_</span>
+<span class="w">    </span><span class="nd">@collect</span>
+<span class="k">end</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>6×7 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th><th style = "text-align: left;">value_minimum</th><th style = "text-align: left;">value_maximum</th><th style = "text-align: left;">value_mean</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">AB</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.2</td><td style = "text-align: right;">2</td><td style = "text-align: right;">4</td><td style = "text-align: right;">3.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">AH</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.8</td><td style = "text-align: right;">1</td><td style = "text-align: right;">5</td><td style = "text-align: right;">3.25</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">AJ</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">5</td><td style = "text-align: right;">1.0</td><td style = "text-align: right;">1</td><td style = "text-align: right;">5</td><td style = "text-align: right;">3.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">AC</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.3</td><td style = "text-align: right;">1</td><td style = "text-align: right;">5</td><td style = "text-align: right;">3.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">AG</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.7</td><td style = "text-align: right;">2</td><td style = "text-align: right;">5</td><td style = "text-align: right;">3.5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">AI</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.9</td><td style = "text-align: right;">2</td><td style = "text-align: right;">5</td><td style = "text-align: right;">3.66667</td></tr></tbody></table></div>
+
+<p>Filtering before the window functions</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@filter</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">&gt;=</span><span class="mi">2</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="n">moving_aggs</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">:groups</span><span class="p">,</span><span class="w"> </span><span class="ss">:percent</span><span class="p">,</span><span class="w"> </span><span class="ss">:value</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@aside</span><span class="w"> </span><span class="nd">@show_query</span><span class="w"> </span><span class="n">_</span>
+<span class="w">    </span><span class="nd">@collect</span>
+<span class="k">end</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>8×7 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th><th style = "text-align: left;">value_minimum</th><th style = "text-align: left;">value_maximum</th><th style = "text-align: left;">value_mean</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">AB</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.2</td><td style = "text-align: right;">2</td><td style = "text-align: right;">4</td><td style = "text-align: right;">3.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">AD</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.4</td><td style = "text-align: right;">2</td><td style = "text-align: right;">4</td><td style = "text-align: right;">3.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">AH</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.8</td><td style = "text-align: right;">3</td><td style = "text-align: right;">5</td><td style = "text-align: right;">4.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">AJ</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">5</td><td style = "text-align: right;">1.0</td><td style = "text-align: right;">3</td><td style = "text-align: right;">5</td><td style = "text-align: right;">4.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">AC</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.3</td><td style = "text-align: right;">3</td><td style = "text-align: right;">5</td><td style = "text-align: right;">4.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">AE</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">5</td><td style = "text-align: right;">0.5</td><td style = "text-align: right;">2</td><td style = "text-align: right;">5</td><td style = "text-align: right;">3.33333</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">7</td><td style = "text-align: left;">AG</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.7</td><td style = "text-align: right;">2</td><td style = "text-align: right;">5</td><td style = "text-align: right;">3.66667</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">8</td><td style = "text-align: left;">AI</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.9</td><td style = "text-align: right;">2</td><td style = "text-align: right;">4</td><td style = "text-align: right;">3.0</td></tr></tbody></table></div>
+
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 
@@ -831,7 +926,7 @@ end # ends the macro
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.copy", "content.code.annotate", "navigation.top", "navigation.footer", "search.highlight", "search.share", "search.suggest", "toc.follow", "header.autohide"], "search": "../../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

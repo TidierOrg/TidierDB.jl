@@ -1,6 +1,6 @@
 # In this example, we will reproduce a DuckDB and duckplyr blog post example to demonstrate TidierDB's v0.5.0 capability. 
 
-# The (example by Hannes)[https://duckdb.org/2024/10/09/analyzing-open-government-data-with-duckplyr.html] that is being reproduced is exploring Open Data from the New Zealand government that is ~ 1GB.
+# The [example by Hannes](https://duckdb.org/2024/10/09/analyzing-open-government-data-with-duckplyr.html) that is being reproduced is exploring Open Data from the New Zealand government that is ~ 1GB.
 
 # ## Set up
 # First we will set up the local duckdb database and pull in the metadata for the files. Notice we are not reading this data into memory, only the paths and and column, and table names.

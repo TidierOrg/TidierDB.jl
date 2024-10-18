@@ -120,6 +120,24 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:gbq})
     return collect_gbq(sqlquery.db, final_query)
 end
 
+function TidierDB.final_compute(sqlquery::SQLQuery, ::Type{<:gbq}, sql_cr_or_relace)
+    final_query = TidierDB.finalize_query(sqlquery)
+    
+    final_query = sql_cr_or_relace * final_query
+    query_data = Dict(
+        "query" => final_query,
+        "useLegacySql" => false,
+        "location" => gbq_instance.location)
+        
+    GoogleCloud.api.execute(
+        sqlquery.db, 
+        gbq_instance.bigquery_resource,  # Use the resource from GBQ
+        gbq_instance.bigquery_method, 
+        data=query_data
+    ) 
+    
+end
+
 function TidierDB.show_tables(con::GoogleSession{JSONCredentials}, datasetname)
     project_id = gbq_instance.projectname
     query = """

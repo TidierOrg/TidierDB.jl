@@ -153,7 +153,12 @@ function expr_to_sql_oracle(expr, sq; from_summarize::Bool)
             return string("NOT (", inner_expr, ")")
         elseif x.args[1] == :str_detect && length(x.args) == 3
             column, pattern = x.args[2], x.args[3]
-            return string(column, " LIKE \'%", pattern, "%'")
+            if pattern isa String
+                return string(column, " LIKE \'%", pattern, "%'")
+            elseif pattern isa Expr
+                pattern_str = string(pattern)[2:end]
+                return string("REGEXP_LIKE", column, ", '", pattern_str, "')")
+            end
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :n && length(x.args) == 1
             return "COUNT(*)"
             end

@@ -44,23 +44,6 @@ copy_to(db, df, "df_mem"); # copying over the data frame to an in-memory databas
     @collect
 end
 
-# ## Joining
-
-# There is one key difference for joining:
-
-# The column on both the new and old table must be specified. They do not need to be the same, and given SQL behavior where both columns are kept when joining two tables, it is preferable if they have different names. This avoids "ambiguous reference" errors that would otherwise come up and complicate the use of tidy selection for columns. 
-# If the table that is being newly joined exists on a database, it must be written as a string or Symbol. If it is an exisiting query, it must be wrapped with `t(query)`. Visit the docstrings for more examples. 
-df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
-                category = ["X", "Y", "X", "Y", "X", "Y", "X"],
-                score = [88, 92, 77, 83, 95, 68, 74]);
-
-copy_to(db, df2, "df_join");
-
-@chain db_table(db, :df_mem) begin
-    @left_join("df_join", id2, id)
-    @collect
-end
-
 # ## Differences in `case_when()`
 
 # In TidierDB, after the clause is completed, the result for the new column should is separated by a comma `,`
@@ -73,35 +56,5 @@ end
     @collect
  end
 
-# ## Interpolation
-
-# To use !! Interpolation, instead of being able to define the alternate names/value in the global context, the user has to use `@interpolate`. This will hopefully be fixed in future versions. Otherwise, the behavior is generally the same, although this creates friction around calling functions.
-
-# Also, when using interpolation with exponenents, the interpolated value must go inside of parenthesis. 
-# ```julia
-# @interpolate((test, :percent)); # this still supports strings, vectors of names, and values
-
-# @chain db_table(db, :df_mem) begin
-#     @mutate(new_col = case_when((!!test)^2 > .5, "Pass",
-#                                 (!!test)^2 < .5, "Try Again",
-#                                 "middle"))
-#     @collect
-# end
-# ```
-# ```
-# 10×5 DataFrame
-#  Row │ id       groups   value   percent   new_col   
-#      │ String?  String?  Int64?  Float64?  String?   
-# ─────┼───────────────────────────────────────────────
-#    1 │ AA       bb            1       0.1  Try Again
-#    2 │ AB       aa            2       0.2  Try Again
-#    3 │ AC       bb            3       0.3  Try Again
-#   ⋮  │    ⋮        ⋮       ⋮        ⋮          ⋮
-#    8 │ AH       aa            3       0.8  Pass
-#    9 │ AI       bb            4       0.9  Pass
-#   10 │ AJ       aa            5       1.0  Pass
-#                                        4 rows omitted
-# ```
-# ## Slicing ties
-
-# `slice_min()` and `@slice_max()` will always return ties due to SQL behavior.
+ # ## Joining Tables
+ # When joining a table, the column from both tables will be present, in contrast to TidierData which will keep one column

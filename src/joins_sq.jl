@@ -76,12 +76,8 @@ end
 """
 $docstring_left_join
 """
-macro left_join(sqlquery, join_table, lhs_column, rhs_column)
-    # Convert column references to strings
-    lhs_col_str = string(lhs_column)
-    rhs_col_str = string(rhs_column)
-    # Removed the QuoteNode wrapping to allow evaluation of join_table
-    # join_table = QuoteNode(join_table)
+macro left_join(sqlquery, join_table, expr)
+      lhs_col_str, rhs_col_str = parse_join_expression(expr)
 
     return quote
         sq = $(esc(sqlquery))
@@ -99,7 +95,7 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column)
                     sq.join_count += 1
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     if needs_new_cte_jq
-                        joinc = repeat("j", sq.join_count)
+                        joinc = "j" * string(sq.join_count)
                         for cte in jq.ctes
                             cte.name = joinc * cte.name
                         end
@@ -146,7 +142,7 @@ macro left_join(sqlquery, join_table, lhs_column, rhs_column)
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     sq.join_count += 1
                     if needs_new_cte_jq
-                        joinc = repeat("j", sq.join_count)
+                        joinc = "j" * string(sq.join_count)
                         for cte in jq.ctes
                             cte.name = joinc * cte.name
                         end
@@ -192,12 +188,8 @@ end
 """
 $docstring_right_join
 """
-macro right_join(sqlquery, join_table, lhs_column, rhs_column)
-    # Convert column references to strings
-    lhs_col_str = string(lhs_column)
-    rhs_col_str = string(rhs_column)
-    # Removed the QuoteNode wrapping to allow evaluation of join_table
-    # join_table = QuoteNode(join_table)
+macro right_join(sqlquery, join_table, expr)
+    lhs_col_str, rhs_col_str = parse_join_expression(expr)
 
     return quote
         sq = $(esc(sqlquery))
@@ -215,7 +207,7 @@ macro right_join(sqlquery, join_table, lhs_column, rhs_column)
                     sq.join_count += 1
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     if needs_new_cte_jq
-                        joinc = repeat("j", sq.join_count)
+                        joinc = "j" * string(sq.join_count)
                         for cte in jq.ctes
                             cte.name = joinc * cte.name
                         end
@@ -261,7 +253,7 @@ macro right_join(sqlquery, join_table, lhs_column, rhs_column)
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     sq.join_count += 1
                     if needs_new_cte_jq
-                        joinc = repeat("j", sq.join_count)
+                        joinc = "j" * string(sq.join_count)
                         for cte in jq.ctes
                             cte.name = joinc * cte.name
                         end
@@ -306,12 +298,9 @@ end
 """
 $docstring_inner_join
 """
-macro inner_join(sqlquery, join_table, lhs_column, rhs_column)
-    # Convert column references to strings
-    lhs_col_str = string(lhs_column)
-    rhs_col_str = string(rhs_column)
-    # Removed the QuoteNode wrapping to allow evaluation of join_table
-    # join_table = QuoteNode(join_table)
+macro inner_join(sqlquery, join_table, expr)
+    lhs_col_str, rhs_col_str = parse_join_expression(expr)
+
 
     return quote
         sq = $(esc(sqlquery))
@@ -329,7 +318,7 @@ macro inner_join(sqlquery, join_table, lhs_column, rhs_column)
                     sq.join_count += 1
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     if needs_new_cte_jq
-                        joinc = repeat("j", sq.join_count)
+                        joinc = "j" * string(sq.join_count)
                         for cte in jq.ctes
                             cte.name = joinc * cte.name
                         end
@@ -375,7 +364,7 @@ macro inner_join(sqlquery, join_table, lhs_column, rhs_column)
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     sq.join_count += 1
                     if needs_new_cte_jq
-                        joinc = repeat("j", sq.join_count)
+                        joinc = "j" * string(sq.join_count)
                         for cte in jq.ctes
                             cte.name = joinc * cte.name
                         end
@@ -420,12 +409,9 @@ end
 """
 $docstring_full_join
 """
-macro full_join(sqlquery, join_table, lhs_column, rhs_column)
-    # Convert column references to strings
-    lhs_col_str = string(lhs_column)
-    rhs_col_str = string(rhs_column)
-    # Removed the QuoteNode wrapping to allow evaluation of join_table
-    # join_table = QuoteNode(join_table)
+macro full_join(sqlquery, join_table, expr)
+    lhs_col_str, rhs_col_str = parse_join_expression(expr)
+
 
     return quote
         sq = $(esc(sqlquery))
@@ -443,7 +429,7 @@ macro full_join(sqlquery, join_table, lhs_column, rhs_column)
                     sq.join_count += 1
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     if needs_new_cte_jq
-                        joinc = repeat("j", sq.join_count)
+                        joinc = "j" * string(sq.join_count)
                         for cte in jq.ctes
                             cte.name = joinc * cte.name
                         end
@@ -490,7 +476,7 @@ macro full_join(sqlquery, join_table, lhs_column, rhs_column)
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     sq.join_count += 1
                     if needs_new_cte_jq
-                        joinc = repeat("j", sq.join_count)
+                        joinc = "j" * string(sq.join_count)
                         for cte in jq.ctes
                             cte.name = joinc * cte.name
                         end
@@ -537,12 +523,8 @@ end
 """
 $docstring_semi_join
 """
-macro semi_join(sqlquery, join_table, lhs_column, rhs_column)
-    # Convert column references to strings
-    lhs_col_str = string(lhs_column)
-    rhs_col_str = string(rhs_column)
-    # Removed the QuoteNode wrapping to allow evaluation of join_table
-    # join_table = QuoteNode(join_table)
+macro semi_join(sqlquery, join_table, expr)
+    lhs_col_str, rhs_col_str = parse_join_expression(expr)
 
     return quote
         sq = $(esc(sqlquery))
@@ -560,7 +542,8 @@ macro semi_join(sqlquery, join_table, lhs_column, rhs_column)
                     sq.join_count += 1
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     if needs_new_cte_jq
-                        joinc = repeat("j", sq.join_count)
+                        joinc = "j" * string(sq.join_count)
+                       # joinc = "j" * string(sq.join_count)
                         for cte in jq.ctes
                             cte.name = joinc * cte.name
                         end
@@ -606,7 +589,7 @@ macro semi_join(sqlquery, join_table, lhs_column, rhs_column)
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     sq.join_count += 1
                     if needs_new_cte_jq
-                        joinc = repeat("j", sq.join_count)
+                        joinc = "j" * string(sq.join_count)
                         for cte in jq.ctes
                             cte.name = joinc * cte.name
                         end
@@ -651,12 +634,8 @@ end
 """
 $docstring_anti_join
 """
-macro anti_join(sqlquery, join_table, lhs_column, rhs_column)
-    # Convert column references to strings
-    lhs_col_str = string(lhs_column)
-    rhs_col_str = string(rhs_column)
-    # Removed the QuoteNode wrapping to allow evaluation of join_table
-    # join_table = QuoteNode(join_table)
+macro anti_join(sqlquery, join_table, expr)
+    lhs_col_str, rhs_col_str = parse_join_expression(expr)
 
     return quote
         sq = $(esc(sqlquery))
@@ -674,7 +653,7 @@ macro anti_join(sqlquery, join_table, lhs_column, rhs_column)
                     sq.join_count += 1
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     if needs_new_cte_jq
-                        joinc = repeat("j", sq.join_count)
+                        joinc = "j" * string(sq.join_count)
                         for cte in jq.ctes
                             cte.name = joinc * cte.name
                         end
@@ -720,7 +699,7 @@ macro anti_join(sqlquery, join_table, lhs_column, rhs_column)
                     needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
                     sq.join_count += 1
                     if needs_new_cte_jq
-                        joinc = repeat("j", sq.join_count)
+                        joinc = "j" * string(sq.join_count)
                         for cte in jq.ctes
                             cte.name = joinc * cte.name
                         end
@@ -789,7 +768,7 @@ macro union(sqlquery, union_query)
                 needs_new_cte_uq = !isempty(uq.select) || !isempty(uq.where) || uq.is_aggregated || !isempty(uq.ctes)
                 if needs_new_cte_uq
                     sq.join_count +=1
-                    joinc = repeat("j", sq.join_count)
+                    joinc = "j" * string(sq.join_count)
                     for cte in uq.ctes
                         cte.name = joinc * cte.name
                     end

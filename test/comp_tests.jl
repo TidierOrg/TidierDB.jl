@@ -6,9 +6,13 @@
         TDB_2 = @chain DB.t(test_db) DB.@select(id:value) DB.@collect
         TDF_3 = @chain test_df @select(!(groups:value))
         TDB_3 = @chain DB.t(test_db) DB.@select(!(groups:value)) DB.@collect
+        TDF_4 = @chain test_df @select(!value)
+        TDB_4 = @chain DB.t(test_db) DB.@select(!test_df.value) DB.@collect
+
         @test all(Array(TDF_1 .== TDB_1))
         @test all(Array(TDF_2 .== TDB_2))
         @test all(Array(TDF_3 .== TDB_3))
+        @test all(Array(TDF_4 .== TDB_4))
     end
     @testset "Group By Summarize" begin
         TDF_1 = @chain test_df @group_by(groups) @summarize(value = sum(value), n = n())
@@ -46,6 +50,12 @@
         TDB_11 = @chain DB.t(test_db) DB.@filter(value >= 3 ) DB.@collect
         TDF_12 = @chain test_df @filter(id in ["AA", "AI", "AC"]|| value > 3) @arrange(percent)
         TDB_12 = @chain DB.t(test_db) DB.@filter(id in ["AA", "AI", "AC"] || value > 3) DB.@arrange(percent) DB.@collect
+        #str_detect Regex
+        TDF_13 = @chain test_df @filter(str_detect(id, r"C$"))
+        TDB_13 = @chain DB.t(test_db) DB.@filter(str_detect(id, r"C$")) DB.@collect
+
+        TDF_14 = @chain test_df @filter(str_detect(id, r"^a"))
+        TDB_14 = @chain DB.t(test_db) DB.@filter(str_detect(id, r"^a")) DB.@collect
 
         @test all(Array(TDF_1 .== TDB_1))
         @test all(Array(TDF_2 .== TDB_2))
@@ -60,6 +70,8 @@
         @test all(Array(TDF_10 .== TDB_10))
         @test all(Array(TDF_11 .== TDB_11))
         @test all(Array(TDF_12 .== TDB_12))
+        @test all(Array(TDF_13 .== TDB_13))
+        @test all(Array(TDF_14 .== TDB_14))
     end
     @testset "Arrange (Order)" begin
         TDF_1 = @chain test_df @arrange(value, desc(percent))
@@ -68,36 +80,44 @@
     end
     @testset "Joins, Unions, Post Wrangle Joins" begin
         TDF_1 = @left_join(test_df, df2, id = id2)
-        TDB_1 = @chain DB.t(test_db) DB.@left_join("df_join", id2, id) DB.@select(!id2) DB.@collect
+        TDB_1 = @chain DB.t(test_db) DB.@left_join("df_join", id = id2) DB.@select(!id2) DB.@collect
         query = DB.@chain DB.t(join_db) DB.@filter(score > 85)
         TDF_2 = @left_join(test_df, @filter(df2, score > 85), id = id2)
-        TDB_2 = @chain DB.t(test_db) DB.@left_join(DB.t(query), id2, id) DB.@select(!id2) DB.@collect
+        TDB_2 = @chain DB.t(test_db) DB.@left_join(DB.t(query), id = id2) DB.@select(!id2) DB.@collect
         query = DB.@chain DB.t(join_db) DB.@filter(str_detect(id2, "C") && score > 85) 
         TDF_3 = @left_join(test_df, @filter(df2, score > 85 && str_detect(id2, "C")), id = id2)
-        TDB_3 = @chain DB.t(test_db) DB.@left_join(DB.t(query), id2, id) DB.@select(!id2) DB.@collect
+        TDB_3 = @chain DB.t(test_db) DB.@left_join(DB.t(query), id = id2) DB.@select(!id2) DB.@collect
         query = DB.@chain DB.t(test_db) DB.@mutate(value = value *2) DB.@filter(value > 5)
         TDF_4 = @bind_rows(test_df, (@chain test_df @mutate(value = value *2) @filter(value > 5)))
         TDB_4 = @chain DB.t(test_db) DB.@union(DB.t(query)) DB.@collect
         query = DB.@chain DB.t(join_db) DB.@filter(str_detect(id2, "C") && score > 85) 
         TDF_5 = TidierData.@inner_join(test_df, @filter(df2, score > 85 && str_detect(id2, "C")), id = id2)
-        TDB_5 = @chain DB.t(test_db) DB.@inner_join(DB.t(query), id2, id) DB.@select(!id2) DB.@collect
+        TDB_5 = @chain DB.t(test_db) DB.@inner_join(DB.t(query), id = id2) DB.@select(!id2) DB.@collect
         TDF_6 = @semi_join(test_df, @filter(df2, score > 85 && str_detect(id2, "C")), id = id2)
-        TDB_6 = @chain DB.t(test_db) DB.@semi_join(DB.t(query), id2, id)  DB.@collect
+        TDB_6 = @chain DB.t(test_db) DB.@semi_join(DB.t(query), id = id2)  DB.@collect
         TDF_7 = @anti_join(test_df, @filter(df2, score > 85 && str_detect(id2, "C")), id = id2)
-        TDB_7 = @chain DB.t(test_db) DB.@anti_join(DB.t(query), id2, id)  DB.@collect
+        TDB_7 = @chain DB.t(test_db) DB.@anti_join(DB.t(query), id = id2)  DB.@collect
         TDF_8 = @right_join(test_df, @filter(df2, score > 85 && str_detect(id2, "C")), id = id2)
-        TDB_8 = @chain DB.t(test_db) DB.@right_join(DB.t(query), id2, id) DB.@select(!id2)  DB.@collect
+        TDB_8 = @chain DB.t(test_db) DB.@right_join(DB.t(query), id = id2) DB.@select(!id2)  DB.@collect
         # mutate in a new category, group by summarize, and then join on two summary tables based on key
         TDF_9 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @left_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category)
         x = @chain DB.t(join_db) DB.@group_by(category) DB.@summarize(score_mean= mean(score))
-        TDB_9 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@left_join(DB.t(x), category, category) DB.@select(cte_4.category, percent_mean, score_mean) DB.@collect 
+        TDB_9 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@left_join(DB.t(x), category = category) DB.@select(!df_join.category) DB.@collect 
         TDF_10 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @right_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category)
-        TDB_10 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@right_join(DB.t(x), category, category) DB.@select(cte_4.category, percent_mean, score_mean) DB.@collect 
+        TDB_10 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@right_join(DB.t(x), category = category) DB.@select(!df_join.category) DB.@collect 
         # mutate in a new category, group by summarize, and then join on two summary tables based on key, then mutate and filter on new column
         TDF_11 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @right_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category) @mutate(test = score_mean^percent_mean) @filter(test > 10)
-        TDB_11 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@right_join(DB.t(x), category, category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(cte_7.category, percent_mean, score_mean, test) DB.@collect 
+        TDB_11 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@right_join(DB.t(x), category = category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(!df_join.category) DB.@collect 
         TDF_12 = @chain test_df @mutate(category = if_else(value/2 >1, "X", "Y")) @group_by(category) @summarize(percent_mean= mean(percent)) @full_join((@chain df2 @group_by(category) @summarize(score_mean= mean(score))), category = category) @mutate(test = score_mean^percent_mean) @filter(test > 10)
-        TDB_12 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@full_join(DB.t(x), category, category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(cte_7.category, percent_mean, score_mean, test) DB.@collect 
+        TDB_12 = @chain DB.t(test_db) DB.@mutate(category = if_else(value/2 >1, "X", "Y")) DB.@group_by(category) DB.@summarize(percent_mean= mean(percent)) DB.@full_join(DB.t(x), category = category) DB.@mutate(test = score_mean^percent_mean) DB.@filter(test > 10) DB.@select(!df_join.category) DB.@collect 
+        # test a joining multiple TidierDB queries in one chain 
+        query = DB.@chain DB.t(join_db) DB.@filter(str_detect(id2, "C") && score > 85) 
+        TDF_13 = @chain test_df @left_join(@filter(df2, score > 85 && str_detect(id2, "C")), id = id2) @mutate(score = replace_missing(score, 0)) @left_join((@chain df3 @filter(value2 != 20)), id = id3)
+        TDB_13 = @chain DB.t(test_db) DB.@left_join(DB.t(query), id = id2) DB.@mutate(score = replace_missing(score, 0)) DB.@left_join((@chain DB.t(join_db2) DB.@filter(value2 != 20)), id = id3) DB.@select(!id2, !id3) DB.@collect
+        # test a joining multiple TidierDB queries in one chain 
+        TDF_14 = @chain test_df @full_join(@filter(df2, score > 85 && str_detect(id2, "C")), id = id2) @mutate(score = replace_missing(score, 0)) @right_join((@chain df3 @filter(value2 != 20)), id = id3) @relocate(id, after = score)
+        TDB_14 = @chain DB.t(test_db) DB.@full_join(DB.t(query), id = id2) DB.@mutate(score = replace_missing(score, 0)) DB.@right_join((@chain DB.t(join_db2) DB.@filter(value2 != 20)), id = id3) DB.@select(!id2, !id) DB.@collect
+
 
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
         @test all(isequal.(Array(TDF_2), Array(TDB_2)))
@@ -111,7 +131,8 @@
         @test all(isequal.(Array(TDF_10), Array(TDB_10)))
         @test all(isequal.(Array(TDF_11), Array(TDB_11)))
         @test all(isequal.(Array(TDF_12), Array(TDB_12)))
-
+        @test all(isequal.(Array(TDF_13), Array(TDB_13)))
+        @test all(isequal.(Array(TDF_14), Array(TDB_14)))
     end
     @testset "Mutate" begin
         # simple arithmetic mutates
@@ -147,18 +168,12 @@
         # full join with mutate and filter in newly joined table
         TDF_11 = @chain test_df @full_join(@filter(df2, score > 85 && str_detect(id2, "C")), id = id2) @mutate(score = replace_missing(score, 0))
         query = DB.@chain DB.t(join_db) DB.@filter(str_detect(id2, "C") && score > 85) 
-        TDB_11 = @chain DB.t(test_db) DB.@full_join(DB.t(query), id2, id) DB.@select(!id2) DB.@mutate(score = replace_missing(score, 0)) DB.@collect
+        TDB_11 = @chain DB.t(test_db) DB.@full_join(DB.t(query), id = id2) DB.@select(!id2) DB.@mutate(score = replace_missing(score, 0)) DB.@collect
         TDF_12 = @chain test_df @mutate(value = value * 2, new_col = (value + percent)/2)
         TDB_12 = @chain DB.t(test_db) DB.@mutate(value = value * 2, new_col = (value + percent)/2) DB.@collect
-        # test a joining multiple TidierDB queries in one chain 
-        TDF_13 = @chain test_df @left_join(@filter(df2, score > 85 && str_detect(id2, "C")), id = id2) @mutate(score = replace_missing(score, 0)) @left_join((@chain df3 @filter(value2 != 20)), id = id3)
-        TDB_13 = @chain DB.t(test_db) DB.@left_join(DB.t(query), id2, id) DB.@mutate(score = replace_missing(score, 0)) DB.@left_join((@chain DB.t(join_db2) DB.@filter(value2 != 20)), id3, id) DB.@select(!id2, !id3) DB.@collect
         # testing as_string, as_float, as_integer
-        TDF_14 = @chain test_df @mutate(value = as_string(value)) @mutate(value2 = as_float(value), value3 = as_integer(value)) @filter(value2 > 4 && value3 < 10)
-        TDB_14 = @chain DB.t(test_db) DB.@mutate(value = as_string(value)) DB.@mutate(value2 = as_float(value), value3 = as_integer(value)) DB.@filter(value2 > 4 && value3 < 10) DB.@collect
-        # test a joining multiple TidierDB queries in one chain 
-        TDF_15 = @chain test_df @full_join(@filter(df2, score > 85 && str_detect(id2, "C")), id = id2) @mutate(score = replace_missing(score, 0)) @right_join((@chain df3 @filter(value2 != 20)), id = id3) @relocate(id, after = score)
-        TDB_15 = @chain DB.t(test_db) DB.@full_join(DB.t(query), id2, id) DB.@mutate(score = replace_missing(score, 0)) DB.@right_join((@chain DB.t(join_db2) DB.@filter(value2 != 20)), id3, id) DB.@select(!id2, !id) DB.@collect
+        TDF_13 = @chain test_df @mutate(value = as_string(value)) @mutate(value2 = as_float(value), value3 = as_integer(value)) @filter(value2 > 4 && value3 < 10)
+        TDB_13 = @chain DB.t(test_db) DB.@mutate(value = as_string(value)) DB.@mutate(value2 = as_float(value), value3 = as_integer(value)) DB.@filter(value2 > 4 && value3 < 10) DB.@collect
 
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
         @test all(isequal.(Array(TDF_2), Array(TDB_2)))
@@ -173,8 +188,6 @@
         @test all(isequal.(Array(TDF_11), Array(TDB_11)))
         @test all(isequal.(Array(TDF_12), Array(TDB_12)))
         @test all(isequal.(Array(TDF_13), Array(TDB_13)))
-        @test all(isequal.(Array(TDF_14), Array(TDB_14)))
-        @test all(isequal.(Array(TDF_15), Array(TDB_15)))
 
     end
     @testset "Mutate with Conditionals, Strings and then Filter" begin

@@ -1,12 +1,23 @@
 # TidierDB.jl updates
-## v0.4.2 - 2024-10-
-- add support for performing greater than 2 joins using TidierDB queries in a single chain and additional tests
-- add `dmy`, `mdy`, `ymd` support DuckDB, Postgres, GBQ, Clickhouse, MySQL, MsSQL, Athena, MsSQL
-- add date related tests
-- adds `copy_to` for MsSQL to write dataframe to database
-- improve Google Big Query type mapping when collecting to df
+## v0.5.0 - 2024-10-15
+Breaking Changes: 
+- All join syntax now matches TidierData's `(table1, table2, t1_col = t2_col)`
+Additions:
+- `@compute`for DuckDB, MySQL, PostGres, GBQ to write a table to the db and the end of a query.
+- expands `@create_view` to MySQL, PostGres, GBQ 
+- Support for performing multiple joins of TidierDB queries in a single chain with further tests
+-  `dmy`, `mdy`, `ymd` support DuckDB, Postgres, GBQ, Clickhouse, MySQL, MsSQL, Athena, MsSQL
+- Date related tests
+- `copy_to` for MysQL to write a dataframe to MySQL database
+Improvements:
+- improve Google Big Query type mapping when collecting to dataframe
 - change `gbq()`'s `connect()` to accept `location` as second argument
-- `str_detect` now supports regex for all backends except MsSQL + some tests 
+- `str_detect` now supports regex for all backends except MsSQL + some tests
+- `@select(!table.name)` now works to deselect a column
+
+Docs:
+- Add duckplyr/duckdb reproducible example to docs
+- Improve interpolation docs
 
 ## v0.4.1 - 2024-10-02
 - Adds 50 tests comparing TidierDB to TidierData to assure accuracy across a complex chains of operations, including combinations of `@mutate`, `@summarize`, `@filter`, `@select`, `@group_by` and `@join` operations. 

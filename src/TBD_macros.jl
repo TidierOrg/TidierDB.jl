@@ -3,11 +3,10 @@ $docstring_select
 """
 macro select(sqlquery, exprs...)
     exprs = parse_blocks(exprs...)
-    exprs_str = parse_interpolation2.(exprs)
-
+   # exprs_str = parse_interpolation2.(exprs)
     return quote
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
-        let columns = parse_tidy_db($exprs_str, $(esc(sqlquery)).metadata)
+        let columns = parse_tidy_db(exprs_str, $(esc(sqlquery)).metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
             $(esc(sqlquery)).select = columns_str
             $(esc(sqlquery)).metadata.current_selxn .= 0
@@ -108,6 +107,7 @@ macro filter(sqlquery, conditions...)
                 sq.cte_count += 1
             end
         end
+
         else
             error("Expected sqlquery to be an instance of SQLQuery")
         end
@@ -156,19 +156,37 @@ end
 
 function process_mutate_expression(expr, sq, select_expressions, cte_name)
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
+        # Extract column name and convert to string
         col_name = string(expr.args[1])
         if current_sql_mode[] == snowflake()
             col_name = uppercase(col_name)
         end
-        col_expr = expr_to_sql(expr.args[2], sq)  # Convert to SQL expression
-        # Determine whether the column already exists or needs to be added
-        if col_name in [col for col in sq.metadata[!, "name"]]
-            # Replace the existing column expression with the mutation
+        
+        # Convert the expression to a SQL expression
+        col_expr = expr_to_sql(expr.args[2], sq)
+        col_expr = string(col_expr)
+        
+        # Check if the column already exists in the metadata
+        if col_name in sq.metadata[!, "name"]
+            # Find the index of the existing column in select_expressions
             select_expr_index = findfirst(==(col_name), select_expressions)
-            select_expressions[select_expr_index] = string(col_expr, " AS ", col_name)
+            if !isnothing(select_expr_index)
+                # Replace the existing column expression with the new mutation
+                select_expressions[select_expr_index] = col_expr * " AS " * col_name
+            else
+                # If not found in select_expressions, append the new expression
+                push!(select_expressions, col_expr * " AS " * col_name)
+            end
+            # Update the existing metadata entry instead of adding a new one
+            metadata_index = findfirst(==(col_name), sq.metadata[!, "name"])
+            if !isnothing(metadata_index)
+                sq.metadata[metadata_index, "type"] = "UNKNOWN"
+                sq.metadata[metadata_index, "current_selxn"] = 1
+                sq.metadata[metadata_index, "table_name"] = cte_name
+            end
         else
             # Append the mutation as a new column expression
-            push!(select_expressions, string(col_expr, " AS ", col_name))
+            push!(select_expressions, col_expr * " AS " * col_name)
             # Update metadata to include this new column
             push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => cte_name))
         end
@@ -176,7 +194,6 @@ function process_mutate_expression(expr, sq, select_expressions, cte_name)
         throw("Unsupported expression format in @mutate: $(expr)")
     end
 end
-
 
 """
 $docstring_mutate
@@ -268,10 +285,14 @@ macro mutate(sqlquery, mutations...)
             sq.from = string(cte_name)
             
             sq.select = "*"  # This selects everything from the CTE without duplicating transformations
-         #   if !isempty(sq.groupBy)
-          #      println("@mutate removed grouping after applying mutations.")
-          #  end
+            if _warning_[]
+                if sq.groupBy != "" || sq.window_order !=""  || sq.windowFrame !=""
+                @warn "After applying all mutations, @mutate removed grouping and window clauses."
+                end
+            end
             sq.groupBy =""
+            sq.windowFrame = ""
+            sq.window_order = ""
         else
             error("Expected sqlquery to be an instance of SQLQuery")
         end
@@ -693,20 +714,3 @@ function show_tables(con::Union{DuckDB.DB, DuckDB.Connection})
     return DataFrame(DBInterface.execute(con, "SHOW ALL TABLES"))
 end
 
-"""
-$docstring_create_view
-"""
-macro create_view(sqlquery, name)
-    #name = QuoteNode(name)
-    return quote
-       # prin
-        sq = $(esc(sqlquery))
-        final_query = finalize_query(sq)
-        final_query = "CREATE OR REPLACE VIEW " *  $(string(name))  * " AS " * final_query
-        result = DBInterface.execute(sq.db, final_query)
-    end
-end
-
-function drop_view(db, name)
-    DBInterface.execute(db, "DROP VIEW $name")
-end

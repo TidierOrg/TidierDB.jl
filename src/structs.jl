@@ -58,10 +58,6 @@ function add_interp_parameter!(name::Symbol, value::Any)
     add_interp_parameter2!(name, value)
 end
 
-
-"""
-$docstring_interpolate
-"""
 macro interpolate( args...)
     exprs = Expr[]
     for arg in args

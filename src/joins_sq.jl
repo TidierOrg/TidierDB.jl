@@ -6,7 +6,11 @@ function gbq_join_parse(input)
     if current_sql_mode[] == gbq() && length(parts) >=2
         return parts[end]
     elseif occursin(".", input)
-        return split(input, '.')[end]
+            if  occursin(r"[:/]", input)
+                return split(basename(input), '.')[1]
+            else
+                return split(input, '.')[end]
+            end
     else 
         return input
     end
@@ -78,7 +82,7 @@ $docstring_left_join
 """
 macro left_join(sqlquery, join_table, expr)
       lhs_col_str, rhs_col_str = parse_join_expression(expr)
-
+    
     return quote
         sq = $(esc(sqlquery))
         jq = $(esc(join_table))  # Evaluate join_table
@@ -160,6 +164,7 @@ macro left_join(sqlquery, join_table, expr)
                     join_table_name = jq.from
                 else
                     # When join_table is a table name
+
                     join_table_name = string(jq)
                     if current_sql_mode[] != :athena
                         new_metadata = get_table_metadata(sq.db, join_table_name)

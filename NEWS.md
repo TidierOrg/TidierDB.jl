@@ -3,7 +3,7 @@
 Breaking Changes: 
 - All join syntax now matches TidierData's `(table1, table2, t1_col = t2_col)`
 Additions:
-- `@compute`for DuckDB, MySQL, PostGres, GBQ to write a table to the db and the end of a query.
+- `@compute`for DuckDB, MySQL, PostGres, GBQ to write a table to the db at the end of a query.
 - expands `@create_view` to MySQL, PostGres, GBQ 
 - Support for performing multiple joins of TidierDB queries in a single chain with further tests
 -  `dmy`, `mdy`, `ymd` support DuckDB, Postgres, GBQ, Clickhouse, MySQL, MsSQL, Athena, MsSQL

@@ -260,7 +260,7 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
     elseif delta
         "delta_scan('$table_name')"
     elseif occursin(r"[:/]", table_name) && !(iceberg || delta) && !startswith(table_name, "read") 
-        "'$table_name'"
+        "'$table_name' AS $(split(basename(table_name), '.')[1]) "
      elseif startswith(table_name, "read") 
          "$table_name"  
     else

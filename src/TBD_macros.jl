@@ -3,7 +3,7 @@ $docstring_select
 """
 macro select(sqlquery, exprs...)
     exprs = parse_blocks(exprs...)
-   # exprs_str = parse_interpolation2.(exprs)
+
     return quote
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
         let columns = parse_tidy_db(exprs_str, $(esc(sqlquery)).metadata)
@@ -39,7 +39,7 @@ $docstring_filter
 """
 macro filter(sqlquery, conditions...)
     conditions = parse_blocks(conditions...)
-    conditions = parse_interpolation2.(conditions)
+
     return quote
         sq = $(esc(sqlquery))
         if isa(sq, SQLQuery)
@@ -121,7 +121,6 @@ desc(col::Symbol) = (col, :desc)
 $docstring_arrange
 """
 macro arrange(sqlquery, columns...)
-    columns = parse_interpolation2.(columns)
 
     # Initialize a string to hold column order specifications
     order_specs = String[]
@@ -200,7 +199,7 @@ $docstring_mutate
 """
 macro mutate(sqlquery, mutations...)
     mutations = parse_blocks(mutations...)
-    mutations = parse_interpolation2.(mutations)
+
     return quote
         sq = $(esc(sqlquery))
         if isa(sq, SQLQuery)
@@ -309,7 +308,6 @@ $docstring_group_by
 """
 macro group_by(sqlquery, columns...)
     columns = parse_blocks(columns...)
-    columns = parse_interpolation2.(columns)
 
     return quote
         columns_str = map(col -> isa(col, Symbol) ? string(col) : col, $columns)
@@ -347,7 +345,6 @@ end
 $docstring_distinct
 """
 macro distinct(sqlquery, distinct_columns...)
-    distinct_columns = parse_interpolation2.(distinct_columns)
     return quote
         sq = $(esc(sqlquery))
         if isa(sq, SQLQuery)
@@ -408,7 +405,6 @@ $docstring_summarize
 """
 macro summarize(sqlquery, expressions...)
     expressions = parse_blocks(expressions...)
-    expressions = parse_interpolation2.(expressions)
 
     return quote
         sq = $(esc(sqlquery))
@@ -471,7 +467,7 @@ $docstring_count
 """
 macro count(sqlquery, group_by_columns...)
     # Convert the group_by_columns to a string representation
-    group_by_columns = parse_interpolation2.(group_by_columns)
+
     group_by_cols_str = [string(col) for col in group_by_columns]
     group_clause = join(group_by_cols_str, ", ")
 
@@ -511,7 +507,7 @@ $docstring_rename
 """
 macro rename(sqlquery, renamings...)
     renamings = parse_blocks(renamings...)
-    renamings = parse_interpolation2.(renamings)
+
     return quote
         # Prepare the renaming rules from the macro arguments
         renamings_dict = Dict{String, String}()
@@ -713,4 +709,3 @@ $docstring_show_tables
 function show_tables(con::Union{DuckDB.DB, DuckDB.Connection})
     return DataFrame(DBInterface.execute(con, "SHOW ALL TABLES"))
 end
-

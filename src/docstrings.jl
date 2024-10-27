@@ -736,7 +736,7 @@ julia> @chain db_table(db, :df_mem) begin
 const docstring_full_join =
 """
     @inner_join(sql_query, join_table, orignal_table_col = new_table_col)
-
+    
 Perform an full join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
 SQL does not drop the joining column, for the metadata storage, it is 
@@ -754,7 +754,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
+julia> df2 = DataFrame(id = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
                 category = ["X", "Y", "X", "Y", "X", "Y", "X"],
                 score = [88, 92, 77, 83, 95, 68, 74]);
 
@@ -765,12 +765,12 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @full_join((@chain db_table(db, "df_join") @filter(score > 70)), id = id2)
+         @full_join((@chain db_table(db, "df_join") @filter(score > 70)), id)
          #@aside @show_query _
          @collect
        end
 11×7 DataFrame
- Row │ id       groups   value    percent    id2      category  score   
+ Row │ id       groups   value    percent    id_1     category  score   
      │ String?  String?  Int64?   Float64?   String?  String?   Int64?  
 ─────┼──────────────────────────────────────────────────────────────────
    1 │ AA       bb             1        0.1  AA       X              88
@@ -1292,7 +1292,7 @@ Combine two SQL queries using the `UNION` operator.
 - `sql_query2`: The second SQL query to combine.
 
 # Returns
-- A new SQL query struct representing the combined queries.
+- A lazy query of all distinct rows in the second query bound to the first
 
 # Examples
 ```julia
@@ -1336,6 +1336,55 @@ julia> @chain t(df1_table) begin
    2 │     2     20
    3 │     3     30
    4 │     5     50
+
+julia> @chain t(df1_table) begin 
+        @union(t(df1_table))
+        @collect
+       end
+3×2 DataFrame
+ Row │ id     value 
+     │ Int64  Int64 
+─────┼──────────────
+   1 │     1     10
+   2 │     2     20
+   3 │     3     30
+```
+"""
+
+const docstring_union_all = 
+"""
+    @union(sql_query1, sql_query2)
+
+Combine two SQL queries using the `UNION ALL ` operator.
+
+# Arguments
+- `sql_query1`: The first SQL query to combine.
+- `sql_query2`: The second SQL query to combine.
+
+# Returns
+- A lazy query of all rows in the second query bound to the first
+
+# Examples
+```julia
+julia> db = connect(duckdb());
+
+julia> df1 = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
+
+julia> copy_to(db, df1, "df1");
+
+julia> df1_table = db_table(db, "df1");
+
+julia> @chain t(df1_table) @union_all(df1_table) @collect
+6×2 DataFrame
+ Row │ id     value 
+     │ Int64  Int64 
+─────┼──────────────
+   1 │     1     10
+   2 │     2     20
+   3 │     3     30
+   4 │     1     10
+   5 │     2     20
+   6 │     3     30
 ```
 """
 

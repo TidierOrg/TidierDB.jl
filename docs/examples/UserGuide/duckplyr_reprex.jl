@@ -29,7 +29,7 @@
 # ```julia
 # @chain DB.t(data) begin
 #   DB.@filter(str_detect(count, r"^\d+$")) 
-#   DB.@mutate(count_ = "TRY_CAST(count AS INT)") 
+#   DB.@mutate(count_ = as_integer(count)) 
 #   DB.@filter(count_ > 0) 
 #   DB.@inner_join(
 #     (@chain DB.t(age) begin 

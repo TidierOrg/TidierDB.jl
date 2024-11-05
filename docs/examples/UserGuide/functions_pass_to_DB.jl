@@ -19,7 +19,7 @@ df_mem = db_table(db, "dfm");
 num = [3]; 
 column = :id;
 @eval @chain t(df_mem) begin
-        @filter(value in $num) 
+        @filter(value < $num) 
         @select($column)
         @collect
     end
@@ -28,7 +28,7 @@ column = :id;
 # Begin by defining your function as your normally would, but before `@chain` you need to use `@eval`. For the variables to be interpolated in need to be started with `$`
 function test(vals, cols)
     @eval @chain t(df_mem) begin
-        @filter(value in $vals) 
+        @filter(value < $vals) 
         @select($cols)
         @collect
     end

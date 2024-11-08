@@ -90,6 +90,7 @@ end
 # To use a prior, uncollected TidierDB query in other TidierDB macros, interpolate the needed query without showing or collecting it 
 ok = @chain t(df_mem) @summarize(mean = mean(value));
 # The mean value represented in SQL from the above is 3
+
 # With `@filter`
 @eval @chain t(df_mem) begin 
     @filter( value > $ok) 

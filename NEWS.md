@@ -1,5 +1,6 @@
 # TidierDB.jl updates
-## v0.5.1 - 2024-10-29
+## v0.5.1 - 2024-11-08
+- support for [reusing TidierDB queries](https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/functions_pass_to_DB/#interpolating-queries) inside other macros, including `@mutate`, `@filter`, `@summarize`
 - adds `@union_all` to bind all rows not just distinct rows as with `@union`
 - joining syntax now supports `(table1, table2, col_name)` when joining columns have shared name
 - `if_else` now has optional final argument for handling missing values to match TidierData

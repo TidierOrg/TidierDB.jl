@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
     
     
       
@@ -724,7 +724,7 @@
 <p>While this long chain could be broken up into multiple smaller chains, lets reproduce the duckplyr code from example and demonstrate how TidierDB also supports multiple joins after filtering, mutating, etc the joining tables. 6 different tables are being joined together through sequential inner joins.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">  </span><span class="n">DB</span><span class="o">.</span><span class="nd">@filter</span><span class="p">(</span><span class="n">str_detect</span><span class="p">(</span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="sa">r</span><span class="sr">&quot;^</span><span class="err">\</span><span class="sr">d+$&quot;</span><span class="p">))</span>
-<span class="w">  </span><span class="n">DB</span><span class="o">.</span><span class="nd">@mutate</span><span class="p">(</span><span class="n">count_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;TRY_CAST(count AS INT)&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">DB</span><span class="o">.</span><span class="nd">@mutate</span><span class="p">(</span><span class="n">count_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">as_integer</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
 <span class="w">  </span><span class="n">DB</span><span class="o">.</span><span class="nd">@filter</span><span class="p">(</span><span class="n">count_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
 <span class="w">  </span><span class="n">DB</span><span class="o">.</span><span class="nd">@inner_join</span><span class="p">(</span>
 <span class="w">    </span><span class="p">(</span><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">age</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>

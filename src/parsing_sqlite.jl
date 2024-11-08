@@ -74,7 +74,7 @@ function expr_to_sql_lite(expr, sq; from_summarize::Bool)
         elseif @capture(x, ismissing(a_))
                 return  "($(string(a)) IS NULL)"
         elseif isa(x, Expr) && x.head == :call
-            if x.args[1] == :if_else && length(x.args) == 4
+            if x.args[1] == :if_else
                 return parse_if_else(x)
             elseif x.args[1] == :as_float && length(x.args) == 2
                 column = x.args[2]

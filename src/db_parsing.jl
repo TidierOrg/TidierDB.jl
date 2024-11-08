@@ -190,31 +190,73 @@ function parse_tidy_db(exprs, metadata::DataFrame)
     return included_columns
 end
 
+using MacroTools
+
 function parse_if_else(expr)
     transformed_expr = MacroTools.postwalk(expr) do x
-        # Ensure we're dealing with an Expr object and it's a call to if_else
-        if isa(x, Expr) && x.head == :call && x.args[1] == :if_else && length(x.args) == 4
-            # Extract condition, true_case, and false_case from the arguments
-            condition = x.args[2]
-            true_case = x.args[3]
-            false_case = x.args[4]
+        # Check if the expression is a call to if_else
+        if isa(x, Expr) && x.head == :call && x.args[1] == :if_else
+            args_length = length(x.args)
 
-            # Check and handle `missing` cases and formatting for string literals
-            true_case_formatted = (string(true_case) == "missing") ? "NULL" : (isa(true_case, String) ? "'$true_case'" : true_case)
-            false_case_formatted = (string(false_case) == "missing") ? "NULL" : (isa(false_case, String) ? "'$false_case'" : false_case)
+            # Handle 4-argument if_else
+            if args_length == 4
+                condition = x.args[2]
+                true_case = x.args[3]
+                false_case = x.args[4]
 
-            # Construct the SQL CASE statement as a string
-            sql_case = "CASE WHEN $(condition) THEN $(true_case_formatted) ELSE $(false_case_formatted) END"
-            
-            # Return just the string
-            return sql_case
+                # Format true_case
+                true_case_formatted = string(true_case) == "missing" ? "NULL" :
+                                      isa(true_case, String) ? "'$true_case'" : true_case
+
+                # Format false_case
+                false_case_formatted = string(false_case) == "missing" ? "NULL" :
+                                       isa(false_case, String) ? "'$false_case'" : false_case
+
+                # Construct SQL CASE WHEN statement
+                sql_case = "CASE WHEN $(condition) THEN $(true_case_formatted) ELSE $(false_case_formatted) END"
+
+                return sql_case
+
+            # Handle 5-argument if_else
+            elseif args_length == 5
+                condition = x.args[2]
+                true_case = x.args[3]
+                false_case = x.args[4]
+                missing_case = x.args[5]
+
+                # Format true_case
+                true_case_formatted = string(true_case) == "missing" ? "NULL" :
+                                      isa(true_case, String) ? "'$true_case'" : true_case
+
+                # Format false_case
+                false_case_formatted = string(false_case) == "missing" ? "NULL" :
+                                       isa(false_case, String) ? "'$false_case'" : false_case
+
+                # Format missing_case
+                missing_case_formatted = string(missing_case) == "missing" ? "NULL" :
+                                         isa(missing_case, String) ? "'$missing_case'" : missing_case
+
+                # Construct SQL CASE WHEN statement
+                sql_case = "CASE WHEN $(condition) THEN $(true_case_formatted) ELSE $(false_case_formatted) END"
+
+                # Wrap the CASE statement to handle the missing_case
+                # This ensures that if the result of CASE is NULL, it remains NULL
+                sql_case_with_missing = "CASE WHEN ($sql_case) IS NULL THEN $(missing_case_formatted) ELSE ($sql_case) END"
+
+                return sql_case_with_missing
+
+            else
+                # Unsupported number of arguments; return as is
+                return x
+            end
         else
-            # Return the unmodified object if it's not an Expr or not an if_else call
+            # Not an if_else call; return as is
             return x
         end
     end
     return transformed_expr
 end
+
 
 
 function parse_case_when(expr)
@@ -439,15 +481,6 @@ function parse_interpolation2(expr)
         end
     end
 end
-#my_var = "gear"
-#my_var = :gear
-#my_val = 3.7
-#my_var = [:gear, :cyl]
-#expr = :((!!my_var) * (!!my_val))
-#parse_interpolation2(expr)
-
-#expr = :((!!my_val) * (!!my_var))
-#parse_interpolation2(expr)
 
 
 function parse_blocks(exprs...)
@@ -481,14 +514,32 @@ function construct_window_clause(sq::SQLQuery ; from_cumsum::Bool = false)
 end
 
 function parse_join_expression(expr)
-    if expr.head == :(=)
+    if isa(expr, Expr) && expr.head == :(=)
+        # Handle equality condition (e.g., ticker = ticker)
         rhs_column = expr.args[1]
         lhs_column = expr.args[2]
-        # Convert column references to strings
         lhs_col_str = string(lhs_column)
         rhs_col_str = string(rhs_column)
         return lhs_col_str, rhs_col_str
+    
+    elseif isa(expr, Symbol)
+        # Handle single column reference (e.g., ticker)
+        col_str = string(expr)
+        return col_str, col_str
+    
     else
-        error("Expression must be of the form lhs = rhs")
+        error("Unsupported join expression: $expr")
+    end
+end
+
+function parse_closest_expression(expr)
+    as_of = ""
+    if expr.head == :call && string(expr.args[1]) == "closest"
+        inner_expr = expr.args[2]
+        as_of = " ASOF "
+        and = " AND"
+        return string(" ", inner_expr), as_of, and
+    else
+        error("Expression must be of the form closest(expr)")
     end
 end

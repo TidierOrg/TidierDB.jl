@@ -80,9 +80,19 @@ end
 """
 $docstring_left_join
 """
-macro left_join(sqlquery, join_table, expr)
-      lhs_col_str, rhs_col_str = parse_join_expression(expr)
-    
+macro left_join(sqlquery, join_table, expr... )
+    lhs_col_str, rhs_col_str = parse_join_expression(expr[1])
+    closest_expr = ""
+    as_of = ""
+    and  = ""
+    for e in expr[2:end]
+        if e.head == :call && e.args[1] == :closest
+            println("Detected closest condition")
+            closest_expr, as_of, and= parse_closest_expression(e)
+        else
+            error("Unsupported argument: $(e)")
+        end
+    end
     return quote
         sq = $(esc(sqlquery))
         jq = $(esc(join_table))  # Evaluate join_table
@@ -131,9 +141,9 @@ macro left_join(sqlquery, join_table, expr)
                 
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
-                           " LEFT JOIN " * join_table_name * " ON " *
+                          $as_of * " LEFT JOIN " * join_table_name * " ON " *
                            gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                           gbq_join_parse(most_recent_source) * "." * $rhs_col_str
+                           gbq_join_parse(most_recent_source) * "." * $rhs_col_str * $and * $closest_expr
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -176,9 +186,9 @@ macro left_join(sqlquery, join_table, expr)
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
                end
-                join_clause = " LEFT JOIN " * join_table_name * " ON " *
+                join_clause = $as_of * " LEFT JOIN " * join_table_name * " ON " *
                               gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                              gbq_join_parse(sq.from) * "." * $rhs_col_str
+                              gbq_join_parse(sq.from) * "." * $rhs_col_str * $and * $closest_expr
                 sq.from *= join_clause
             end
         else
@@ -795,6 +805,78 @@ macro union(sqlquery, union_query)
             else
                 # Treat uq as a table name
                 union_sql = "SELECT * FROM " * sq.from * " UNION SELECT * FROM " * string(uq)
+                # Update metadata
+                if current_sql_mode[] != :athena
+                    new_metadata = get_table_metadata(sq.db, string(uq))
+                else
+                    new_metadata = get_table_metadata_athena(sq.db, string(uq), sq.athena_params)
+                end
+              #  sq.metadata = vcat(sq.metadata, new_metadata)
+            end
+
+            # Create a new CTE for the union
+            sq.cte_count += 1
+            union_cte_name = "cte_" * string(sq.cte_count)
+            union_cte = CTE(name=union_cte_name, select=union_sql)
+            push!(sq.ctes, union_cte)
+            sq.from = union_cte_name
+        else
+            error("Expected sqlquery to be an instance of SQLQuery")
+        end
+        sq
+    end
+end
+
+
+"""
+$docstring_union_all
+"""
+macro union_all(sqlquery, union_query)
+    return quote
+        sq = $(esc(sqlquery))
+        uq = $(esc(union_query))
+
+        if isa(sq, SQLQuery)
+            # Determine if sq needs a new CTE
+            needs_new_cte_sq = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
+            if needs_new_cte_sq
+                sq.cte_count += 1
+                cte_name_sq = "cte_" * string(sq.cte_count)
+                most_recent_source_sq = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
+                select_sql_sq = "SELECT * FROM " * most_recent_source_sq
+                new_cte_sq = CTE(name=cte_name_sq, select=select_sql_sq)
+                push!(sq.ctes, new_cte_sq)
+                sq.from = cte_name_sq
+            end
+
+            # Prepare the union query
+            if isa(uq, SQLQuery)
+                # Determine if uq needs a new CTE
+                needs_new_cte_uq = !isempty(uq.select) || !isempty(uq.where) || uq.is_aggregated || !isempty(uq.ctes)
+                if needs_new_cte_uq
+                    sq.join_count +=1
+                    joinc = "j" * string(sq.join_count)
+                    for cte in uq.ctes
+                        cte.name = joinc * cte.name
+                    end
+                    uq.cte_count += 1
+                    cte_name_uq = joinc * "cte_" * string(uq.cte_count)
+                    most_recent_source_uq = !isempty(uq.ctes) ? joinc * "cte_" * string(uq.cte_count - 1) : uq.from
+                    select_sql_uq = finalize_query_jq(uq, most_recent_source_uq)
+                    new_cte_uq = CTE(name=cte_name_uq, select=select_sql_uq)
+                    push!(uq.ctes, new_cte_uq)
+                    uq.from = cte_name_uq
+                end
+
+                # Combine the queries using UNION
+                union_sql = "SELECT * FROM " * sq.from * " UNION ALL SELECT * FROM " * uq.from
+
+                # Merge CTEs and metadata
+                sq.ctes = vcat(sq.ctes, uq.ctes)
+              #  sq.metadata = vcat(sq.metadata, uq.metadata)
+            else
+                # Treat uq as a table name
+                union_sql = "SELECT * FROM " * sq.from * " UNION ALL SELECT * FROM " * string(uq)
                 # Update metadata
                 if current_sql_mode[] != :athena
                     new_metadata = get_table_metadata(sq.db, string(uq))

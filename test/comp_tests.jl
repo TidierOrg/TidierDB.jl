@@ -193,28 +193,36 @@
     @testset "Mutate with Conditionals, Strings and then Filter" begin
         # mutating with if_else then filtering on missing values 
         TDF_1 = @chain test_df @mutate(new = if_else(percent > .8, missing, percent)) @arrange(percent) @filter(ismissing(new))
-        TBD_1 = @chain DB.t(test_db) DB.@mutate(new = if_else(percent > .8, missing, percent)) DB.@arrange(percent) DB.@filter(ismissing(new)) DB.@collect
+        TDB_1 = @chain DB.t(test_db) DB.@mutate(new = if_else(percent > .8, missing, percent)) DB.@arrange(percent) DB.@filter(ismissing(new)) DB.@collect
         # mutating with case_when then filtering on missing values 
         TDF_2 = @chain test_df @mutate(new = case_when(percent > .8 => "high", percent > .5 => "medium",true => missing)) @arrange(percent) @filter(ismissing(new))
-        TBD_2 = @chain DB.t(test_db) DB.@mutate(new = case_when(percent > .8, "high", percent > .5, "medium",true, missing)) DB.@arrange(percent) DB.@filter(ismissing(new)) DB.@collect
+        TDB_2 = @chain DB.t(test_db) DB.@mutate(new = case_when(percent > .8, "high", percent > .5, "medium",true, missing)) DB.@arrange(percent) DB.@filter(ismissing(new)) DB.@collect
         TDF_3 = @chain test_df @mutate(new = case_when(percent > .8 => "high", percent > .5 => "medium",true => missing)) @arrange(percent) @filter(!ismissing(new))
-        TBD_3 = @chain DB.t(test_db) DB.@mutate(new = case_when(percent > .8, "high", percent > .5, "medium",true, missing)) DB.@arrange(percent) DB.@filter(!ismissing(new)) DB.@collect
+        TDB_3 = @chain DB.t(test_db) DB.@mutate(new = case_when(percent > .8, "high", percent > .5, "medium",true, missing)) DB.@arrange(percent) DB.@filter(!ismissing(new)) DB.@collect
         TDF_4 = @chain test_df @mutate(new = case_when(percent > .8 => "high", percent > .5 => "medium",true => missing)) @arrange(percent) @filter(ismissing(new) && groups == "aa")
-        TBD_4 = @chain DB.t(test_db) DB.@mutate(new = case_when(percent > .8, "high", percent > .5, "medium",true, missing)) DB.@arrange(percent) DB.@filter(ismissing(new) && groups == "aa") DB.@collect
+        TDB_4 = @chain DB.t(test_db) DB.@mutate(new = case_when(percent > .8, "high", percent > .5, "medium",true, missing)) DB.@arrange(percent) DB.@filter(ismissing(new) && groups == "aa") DB.@collect
         TDF_5 = @chain test_df @mutate(new = case_when(percent > .8 => "high", percent > .5 => "medium",true => missing)) @arrange(percent) @filter(!ismissing(new) && groups == "aa")
-        TBD_5 = @chain DB.t(test_db) DB.@mutate(new = case_when(percent > .8, "high", percent > .5, "medium",true, missing)) DB.@arrange(percent) DB.@filter(!ismissing(new) && groups == "aa") DB.@collect
+        TDB_5 = @chain DB.t(test_db) DB.@mutate(new = case_when(percent > .8, "high", percent > .5, "medium",true, missing)) DB.@arrange(percent) DB.@filter(!ismissing(new) && groups == "aa") DB.@collect
         # using case when with str_detect
         TDF_6 = @chain test_df @mutate(new = case_when(str_detect(id, "F") => "has F", str_detect(id, "C") => "has C", true => missing)) @arrange(percent) @filter(!ismissing(new))
-        TBD_6 = @chain DB.t(test_db) DB.@mutate(new = case_when(str_detect(id, "F"), "has F", str_detect(id, "C"), "has C", true, missing)) DB.@arrange(percent) DB.@filter(!ismissing(new)) DB.@collect
+        TDB_6 = @chain DB.t(test_db) DB.@mutate(new = case_when(str_detect(id, "F"), "has F", str_detect(id, "C"), "has C", true, missing)) DB.@arrange(percent) DB.@filter(!ismissing(new)) DB.@collect
         TDF_7 = @chain test_df @mutate(new = if_else(percent > .8, 1.0, percent)) @arrange(percent) @filter(new == 1)
-        TBD_7 = @chain DB.t(test_db) DB.@mutate(new = if_else(percent > .8, 1, percent)) DB.@arrange(percent) DB.@filter(new == 1 ) DB.@collect
-        @test all(isequal.(Array(TDF_1), Array(TBD_1)))
-        @test all(isequal.(Array(TDF_2), Array(TBD_2)))
-        @test all(isequal.(Array(TDF_3), Array(TBD_3)))
-        @test all(isequal.(Array(TDF_4), Array(TBD_4)))
-        @test all(isequal.(Array(TDF_5), Array(TBD_5)))
-        @test all(isequal.(Array(TDF_6), Array(TBD_6)))
-        @test all(isequal.(Array(TDF_7), Array(TBD_7)))
+        TDB_7 = @chain DB.t(test_db) DB.@mutate(new = if_else(percent > .8, 1, percent)) DB.@arrange(percent) DB.@filter(new == 1 ) DB.@collect
+        #if else with missing values to replace
+        TDF_8 = @chain test_df @mutate(test = missing_if(value,2)) @mutate(test2 = if_else(test >3, 55, test, 43))
+        TDB_8 = @chain DB.t(test_db) DB.@mutate(test = missing_if(value,2)) DB.@mutate(test2 = if_else(test >3, 55, test, 43)) DB.@collect
+        TDF_9 = @chain test_df @mutate(test = missing_if(value,2)) @mutate(test2 = if_else(test >3, 55, test))
+        TDB_9 = @chain DB.t(test_db) DB.@mutate(test = missing_if(value,2)) DB.@mutate(test2 = if_else(test >3, 55, test)) DB.@collect
+       
+        @test all(isequal.(Array(TDF_1), Array(TDB_1)))
+        @test all(isequal.(Array(TDF_2), Array(TDB_2)))
+        @test all(isequal.(Array(TDF_3), Array(TDB_3)))
+        @test all(isequal.(Array(TDF_4), Array(TDB_4)))
+        @test all(isequal.(Array(TDF_5), Array(TDB_5)))
+        @test all(isequal.(Array(TDF_6), Array(TDB_6)))
+        @test all(isequal.(Array(TDF_7), Array(TDB_7)))
+        @test all(isequal.(Array(TDF_8), Array(TDB_8)))
+        @test all(isequal.(Array(TDF_9), Array(TDB_9)))
     end
     @testset "Count" begin
         TDF_1 = @chain test_df @count(groups)

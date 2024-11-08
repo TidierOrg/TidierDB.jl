@@ -1,4 +1,7 @@
 function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
+    if isa(expr, SQLQuery)
+        return "(" * finalize_query(expr) * ")"
+    end
     expr = exc_capture_bug(expr, names_to_modify)
     MacroTools.postwalk(expr) do x
         # Handle basic arithmetic and functions
@@ -140,17 +143,17 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
         elseif @capture(x, missingif(column_, value_to_replace_))
                 return :(NULLIF($column, $value_to_replace))   
         elseif isa(x, Expr) && x.head == :call
-            if x.args[1] == :if_else && length(x.args) == 4
+            if x.args[1] == :if_else
                 return parse_if_else(x)
             elseif x.args[1] == :as_float && length(x.args) == 2
                 column = x.args[2]
-                return Expr(:call, Symbol("CAST"), column, Symbol("AS DECIMAL"))
+                return Expr(:call, Symbol("TRY_CAST"), column, Symbol("AS DECIMAL"))
             elseif x.args[1] == :as_integer && length(x.args) == 2
                 column = x.args[2]
-                return Expr(:call, Symbol("CAST"), column, Symbol("AS INT"))
+                return Expr(:call, Symbol("TRY_CAST"), column, Symbol("AS INT"))
             elseif x.args[1] == :as_string && length(x.args) == 2
                 column = x.args[2]
-                return Expr(:call, Symbol("CAST"), column, Symbol("AS STRING"))
+                return Expr(:call, Symbol("TRY_CAST"), column, Symbol("AS STRING"))
             elseif x.args[1] == :case_when
                 return parse_case_when(x)
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :!  && x.args[1] != :!= && length(x.args) == 2
@@ -167,6 +170,8 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :n && length(x.args) == 1
             return "COUNT(*)"
             end
+       elseif isa(x, SQLQuery)
+            return "(__(" * finalize_query(x) * ")__("
         end
         return x
     end

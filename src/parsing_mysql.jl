@@ -140,7 +140,7 @@ function expr_to_sql_mysql(expr, sq; from_summarize::Bool)
         elseif @capture(x, missingif(column_, value_to_replace_))
                 return :(NULLIF($column, $value_to_replace))   
         elseif isa(x, Expr) && x.head == :call
-            if x.args[1] == :if_else && length(x.args) == 4
+            if x.args[1] == :if_else
                 return parse_if_else(x)
             elseif x.args[1] == :as_float && length(x.args) == 2
                 column = x.args[2]
@@ -167,6 +167,8 @@ function expr_to_sql_mysql(expr, sq; from_summarize::Bool)
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :n && length(x.args) == 1
             return "COUNT(*)"
             end
+        elseif isa(x, SQLQuery)
+            return "(__(" * finalize_query(x) * ")__("
         end
         return x
     end

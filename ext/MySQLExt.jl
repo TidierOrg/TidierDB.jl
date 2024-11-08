@@ -51,7 +51,7 @@ function TidierDB.show_tables(conn::MySQL.Connection)
 end
 
 function TidierDB.final_compute(sqlquery::SQLQuery, ::Type{<:mysql}, sql_cr_or_relace::String=nothing)
-    final_query = finalize_query(sqlquery)
+    final_query = TidierDB.finalize_query(sqlquery)
     final_query = sql_cr_or_relace * final_query
     return DBInterface.execute(sq.db, final_query)
 end

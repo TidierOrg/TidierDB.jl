@@ -1,4 +1,7 @@
 function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
+    if isa(expr, SQLQuery)
+        return "(" * finalize_query(expr) * ")"
+    end
     expr = exc_capture_bug(expr, names_to_modify)
     MacroTools.postwalk(expr) do x
         # Handle basic arithmetic and functions
@@ -167,6 +170,8 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :n && length(x.args) == 1
             return "COUNT(*)"
             end
+       elseif isa(x, SQLQuery)
+            return "(__(" * finalize_query(x) * ")__("
         end
         return x
     end

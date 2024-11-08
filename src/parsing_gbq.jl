@@ -168,6 +168,8 @@ function expr_to_sql_gbq(expr, sq; from_summarize::Bool)
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :n && length(x.args) == 1
             return "COUNT(*)"
             end
+        elseif isa(x, SQLQuery)
+            return "(__(" * finalize_query(x) * ")__("
         end
         return x
     end

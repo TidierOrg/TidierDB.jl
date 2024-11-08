@@ -827,7 +827,8 @@
 <p>To use a prior, uncollected TidierDB query in other TidierDB macros, interpolate the needed query without showing or collecting it</p>
 <div class="highlight"><pre><span></span><code><span class="n">ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">df_mem</span><span class="p">)</span><span class="w"> </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
 </code></pre></div>
-<p>The mean value represented in SQL from the above is 3 With <code>@filter</code></p>
+<p>The mean value represented in SQL from the above is 3</p>
+<p>With <code>@filter</code></p>
 <div class="highlight"><pre><span></span><code><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">df_mem</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@filter</span><span class="p">(</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">$</span><span class="n">ok</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@collect</span>

@@ -46,6 +46,7 @@ include("docstrings.jl")
 include("structs.jl")
 include("db_parsing.jl")
 include("TBD_macros.jl")
+include("mutate_and_summ.jl")
 include("parsing_sqlite.jl")
 include("parsing_duckdb.jl")
 include("parsing_postgres.jl")
@@ -359,6 +360,8 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
             DuckDB.execute(conn, "INSTALL json;")
             DuckDB.execute(conn, "LOAD json;")
             DuckDB.execute(conn, sql_command)
+        elseif startswith(df_or_path, "read")
+             DuckDB.execute(conn, "CREATE TABLE $name AS SELECT * FROM $df_or_path;")
         else
             error("Unsupported file type for: $df_or_path")
         end

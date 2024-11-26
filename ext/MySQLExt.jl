@@ -53,7 +53,7 @@ end
 function TidierDB.final_compute(sqlquery::SQLQuery, ::Type{<:mysql}, sql_cr_or_relace::String=nothing)
     final_query = TidierDB.finalize_query(sqlquery)
     final_query = sql_cr_or_relace * final_query
-    return DBInterface.execute(sq.db, final_query)
+    return DBInterface.execute(sqlquery.db, final_query)
 end
 
 function collapse(x, sep = ",", left = "", right = "")

@@ -26,7 +26,7 @@ function parse_tidy_db(exprs, metadata::DataFrame)
     excluded_columns = String[]
 
     # Convert tuple to vector if necessary
-    exprs_iterable = isa(exprs, Tuple) ? collect(exprs) : exprs
+exprs_iterable = isa(exprs, Tuple) || isa(exprs, AbstractVector) ? exprs : [exprs]
 
     for expr in exprs_iterable
         # First, check for exclusion
@@ -189,8 +189,6 @@ function parse_tidy_db(exprs, metadata::DataFrame)
 
     return included_columns
 end
-
-using MacroTools
 
 function parse_if_else(expr)
     transformed_expr = MacroTools.postwalk(expr) do x

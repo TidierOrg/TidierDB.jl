@@ -166,7 +166,12 @@ function expr_to_sql_gbq(expr, sq; from_summarize::Bool)
                 return string("REGEXP_CONTAINS(", column, ", '", pattern_str, "')")
             end
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :n && length(x.args) == 1
-            return "COUNT(*)"
+            if from_summarize
+                return "COUNT(*)"
+            else
+                window_clause = construct_window_clause(sq)
+                return "COUNT(*) $(window_clause)"
+            end
             end
         elseif isa(x, SQLQuery)
             return "(__(" * finalize_query(x) * ")__("

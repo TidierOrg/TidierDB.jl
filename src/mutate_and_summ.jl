@@ -206,9 +206,6 @@ end
 """
 $docstring_summarize
 """
-"""
-$docstring_summarize
-"""
 macro summarize(sqlquery, expressions...)
     # Extract the `by` argument
     grouping_var, expressions = parse_by(expressions)

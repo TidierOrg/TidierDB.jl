@@ -162,7 +162,12 @@ function expr_to_sql_mssql(expr, sq; from_summarize::Bool)
             column, pattern = x.args[2], x.args[3]
             return string(column, " LIKE \'%", pattern, "%'")
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :n && length(x.args) == 1
-            return "COUNT(*)"
+            if from_summarize
+                return "COUNT(*)"
+            else
+                window_clause = construct_window_clause(sq)
+                return "COUNT(*) $(window_clause)"
+            end
             end
         end
         return x

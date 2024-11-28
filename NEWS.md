@@ -1,4 +1,8 @@
 # TidierDB.jl updates
+## v.05.2 - 2014 2024-12-01
+- adds support `_by` support to `@mutate` and `@summarize` for grouping within the macro call.
+- adds support for `n()` in `@mutate`
+
 ## v0.5.1 - 2024-11-08
 - support for [reusing TidierDB queries](https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/functions_pass_to_DB/#interpolating-queries) inside other macros, including `@mutate`, `@filter`, `@summarize`
 - adds `@union_all` to bind all rows not just distinct rows as with `@union`

@@ -174,7 +174,7 @@ function finalize_query(sqlquery::SQLQuery)
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", 
      r"var\"(.*?)\"" => s"\1", r"\"\\\$" => "\"\$",  "WHERE \"" => "WHERE ", "WHERE \"NOT" => "WHERE NOT", "%')\"" =>"%\")", "NULL)\"" => "NULL)",
     "NULL))\"" => "NULL))", r"(?i)INTERVAL(\d+)([a-zA-Z]+)" => s"INTERVAL \1 \2", "SELECT SUMMARIZE " =>  "SUMMARIZE ", "\"(__(" => "(", ")__(\"" => ")"
-     )
+     , "***\"" => " ", "***" => " ")
      complete_query = replace(complete_query, ", AS " => " AS ", "OR  \"" => "OR ")
     if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
@@ -189,6 +189,7 @@ end
 # DuckDB
 function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_name::String)
     set_sql_mode(duckdb());
+    
     query = 
         """
         DESCRIBE SELECT * FROM $(table_name) LIMIT 0
@@ -202,6 +203,7 @@ function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_nam
     else
         table_name
     end
+
     result[!, :table_name] .= table_name
     # Adjust the select statement to include the new table_name column
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
@@ -231,6 +233,9 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             DuckDB.execute(db, "LOAD delta;")
             table_name2 = "delta_scan('$table_name')"
            # println(table_name2)
+            metadata = get_table_metadata(db, table_name2)
+        elseif endswith(table_name, ".geoparquet") 
+            table_name2 = "read_parquet('$table_name')"
             metadata = get_table_metadata(db, table_name2)
         elseif startswith(table_name, "read") 
             table_name2 = "$table_name"
@@ -267,7 +272,7 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
     else
         table_name
     end
-    
+
     return SQLQuery(from=formatted_table_name, metadata=metadata, db=db, athena_params=athena_params, ch_settings=clickhouse_settings)
 end
 
@@ -281,13 +286,13 @@ function db_table(db, table::Vector{String}, athena_params::Any=nothing)
     # Check the current SQL mode
     if current_sql_mode[] == duckdb()
         file_type = lowercase(splitext(first(table))[2])
-
+        
         # Format paths: wrap each in single quotes and join with commas
         formatted_paths = join(map(path -> "'$path'", table), ", ")
 
         formatted_table_name = if file_type == ".csv"
             "read_csv([$formatted_paths])"
-        elseif file_type == ".parquet"
+        elseif file_type == ".parquet" || file_type == ".geoparquet" 
             "read_parquet([$formatted_paths])"
         else
             error("Unsupported file type: $file_type")

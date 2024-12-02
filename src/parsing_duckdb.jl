@@ -4,6 +4,7 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
     end
     expr = exc_capture_bug(expr, names_to_modify)
     MacroTools.postwalk(expr) do x
+        
         # Handle basic arithmetic and functions
         if @capture(x, a_ + b_)
             return :($a + $b)
@@ -116,6 +117,11 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
         elseif @capture(x, ismissing(a_))
             return  "($(string(a)) IS NULL)"
         # Date extraction functions
+        elseif @capture(x, column_[key_])
+            # Convert variables to strings if necessary
+            column_str = string(column)
+            key_str = string(key)
+            return """ CASE WHEN $column_str IS NULL THEN NULL ELSE COALESCE(  LIST_EXTRACT( CASE  WHEN '$key_str' IS NULL THEN NULL ELSE ELEMENT_AT($column_str, '$key_str') END, 1 ), NULL) END ***"""
         elseif @capture(x, year(a_))
             return "EXTRACT(YEAR FROM " * string(a) * ")"
         elseif @capture(x, month(a_))
@@ -167,6 +173,7 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
                 pattern_str = string(pattern)[2:end]
                 return string("regexp_matches(", column, ", '", pattern_str, "')")
             end
+
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :n && length(x.args) == 1
             if from_summarize
                 return "COUNT(*)"

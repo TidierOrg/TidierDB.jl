@@ -96,7 +96,7 @@ end
 """
 $docstring_warnings
 """
- function warnings(flag::Bool) _warning_[] = flag end
+function warnings(flag::Bool) _warning_[] = flag end
 
 
 function finalize_ctes(ctes::Vector{CTE})
@@ -189,11 +189,17 @@ end
 # DuckDB
 function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_name::String)
     set_sql_mode(duckdb());
-    
+    if endswith(table_name, ".geoparquet'")
     query = 
+        """
+        DESCRIBE SELECT * FROM read_parquet($(table_name)) LIMIT 0
+        """
+    else
+        query = 
         """
         DESCRIBE SELECT * FROM $(table_name) LIMIT 0
         """
+    end
     result = DuckDB.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
     table_name = if occursin(r"[:/]", table_name)
@@ -202,6 +208,9 @@ function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_nam
         split(basename(table_name), '.')[end]
     else
         table_name
+    end
+    if occursin("-" , table_name)
+        table_name = replace(table_name, "-" => "_")
     end
 
     result[!, :table_name] .= table_name
@@ -234,9 +243,6 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             table_name2 = "delta_scan('$table_name')"
            # println(table_name2)
             metadata = get_table_metadata(db, table_name2)
-        elseif endswith(table_name, ".geoparquet") 
-            table_name2 = "read_parquet('$table_name')"
-            metadata = get_table_metadata(db, table_name2)
         elseif startswith(table_name, "read") 
             table_name2 = "$table_name"
            metadata = get_table_metadata(db, table_name2)
@@ -266,7 +272,20 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
     elseif delta
         "delta_scan('$table_name')"
     elseif occursin(r"[:/]", table_name) && !(iceberg || delta) && !startswith(table_name, "read") 
+        name = if occursin(".geoparquet", table_name)
+             "read_parquet('$table_name') AS $(split(basename(table_name), '.')[1]) "
+        else
         "'$table_name' AS $(split(basename(table_name), '.')[1]) "
+        end
+        formatted_table_name = begin
+            parts = split(name, " AS ")
+            if length(parts) == 2
+                parts[2] = replace(parts[2], "-" => "_")
+                join(parts, " AS ")
+            else
+                name
+            end
+        end
      elseif startswith(table_name, "read") 
          "$table_name"  
     else

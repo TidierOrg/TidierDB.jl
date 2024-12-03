@@ -1,6 +1,7 @@
 # TidierDB.jl updates
 ## v.05.2 - 2014 2024-12-03
-- adds support `_by` support to `@mutate` and `@summarize` for grouping within the macro call.
+- adds `_by` support to `@mutate` and `@summarize` for grouping within the macro call.
+- adds `_frame` and `_order` support to `@mutate` to allow windowing directly within the macro call 
 - adds support for `n()` in `@mutate`
 - add support for unnesting content to mutate/filter etc via `column[key]`syntax
 - `db_table(db, name)` now supports `.geoparquet` paths for DuckDB

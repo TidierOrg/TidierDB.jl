@@ -2,7 +2,6 @@
 $docstring_window_order
 """
 macro window_order(sqlquery, order_by_expr...)
-    order_by_expr = parse_interpolation2.(order_by_expr)
 
     return quote
         sq = $(esc(sqlquery))
@@ -10,10 +9,13 @@ macro window_order(sqlquery, order_by_expr...)
             # Convert order_by_expr to SQL order by string
             order_specs = String[]
             for expr in $(esc(order_by_expr))
-                if isa(expr, Expr) && expr.head == :call && expr.args[1] == :desc
+                if isa(expr, Expr) && expr.head == :call && expr.args[1] == :desc #|| _frame
                     # Column specified with `desc()`, indicating descending order
                     push!(order_specs, string(expr.args[2]) * " DESC")
-                elseif isa(expr, Symbol)
+                elseif isa(expr, String) && startswith(expr, "DESC")
+                    # String column starting with `DESC`, indicating descending order
+                    push!(order_specs, string(replace(expr, "DESC" => "")) * " DESC")
+                elseif isa(expr, String) || isa(expr, Symbol)
                     # Plain column symbol, indicating ascending order
                     push!(order_specs, string(expr) * " ASC")
                 else
@@ -42,9 +44,6 @@ macro window_order(sqlquery, order_by_expr...)
                 # Reset the from to reference the new CTE
                 sq.from = cte_name
             end
-            
-            # Note: Actual window functions would be applied in subsequent @mutate calls or similar,
-            # potentially using the orderBy set here for their OVER() clauses.
         else
             error("Expected sqlquery to be an instance of SQLQuery")
         end
@@ -56,7 +55,7 @@ end
 $docstring_window_frame
 """
 macro window_frame(sqlquery, args...)
-    sqlquery_expr = esc(sqlquery)
+ #   sqlquery_expr = esc(sqlquery)
     # Initialize expressions for from and to values
     frame_from_expr = nothing
     frame_to_expr = nothing
@@ -74,6 +73,12 @@ macro window_frame(sqlquery, args...)
             else
                 error("Unknown keyword argument: $(arg_name)")
             end
+        elseif isa(arg, Expr) && arg.head == :tuple
+            if length(arg.args) != 2
+                error("`_frame` must be a tuple with exactly two elements: (_frame = (from, to))")
+            end
+            frame_from_expr = arg.args[1]
+            frame_to_expr = arg.args[2]
         else
             # Positional argument
             if frame_from_expr === nothing
@@ -88,7 +93,9 @@ macro window_frame(sqlquery, args...)
 
     # Now generate the code that computes the frame clauses at runtime
     return quote
-        sq = $sqlquery_expr
+        #sq = $sqlquery_expr
+        sq = $(esc(sqlquery))
+
         if isa(sq, SQLQuery)
             # Evaluate frame_from_value and frame_to_value
             frame_from_value = $(frame_from_expr !== nothing ? esc(frame_from_expr) : :(nothing))

@@ -157,13 +157,14 @@ julia> @chain db_table(db, :df_mem) begin
 
 const docstring_mutate =
 """
-    @mutate(sql_query, exprs...)
+    @mutate(sql_query, exprs...; _by)
 
 Mutate SQL table rows by adding new columns or modifying existing ones.
 
 # Arguments
 - `sql_query`: The SQL query to operate on.
 - `exprs`: Expressions for mutating the table. New columns can be added or existing columns modified using column_name = expression syntax, where expression can involve existing columns.
+- `_by`: optional argument that supports single column names, or vectors of columns to allow for grouping for the transformation in the macro call
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -193,18 +194,38 @@ julia> @chain db_table(db, :df_mem) begin
    8 │ AH      aa         12      0.8     0.64
    9 │ AI      bb         16      0.9     0.81
   10 │ AJ      aa         20      1.0     1.0
+
+julia> @chain db_table(db, :df_mem) begin
+         @mutate(max = maximum(percent), sum = sum(percent), _by = groups)
+         @collect
+       end
+10×6 DataFrame
+ Row │ id      groups  value  percent  max      sum     
+     │ String  String  Int64  Float64  Float64  Float64 
+─────┼──────────────────────────────────────────────────
+   1 │ AB      aa          2      0.2      1.0      3.0
+   2 │ AD      aa          4      0.4      1.0      3.0
+   3 │ AF      aa          1      0.6      1.0      3.0
+   4 │ AH      aa          3      0.8      1.0      3.0
+   5 │ AJ      aa          5      1.0      1.0      3.0
+   6 │ AA      bb          1      0.1      0.9      2.5
+   7 │ AC      bb          3      0.3      0.9      2.5
+   8 │ AE      bb          5      0.5      0.9      2.5
+   9 │ AG      bb          2      0.7      0.9      2.5
+  10 │ AI      bb          4      0.9      0.9      2.5
 ```
 """
 
 const docstring_summarize =
 """
-       @summarize(sql_query, exprs...)
+       @summarize(sql_query, exprs...; _by)
 
 Aggregate and summarize specified columns of a SQL table.
 
 # Arguments
 - `sql_query`: The SQL query to operate on.
 - `exprs`: Expressions defining the aggregation and summarization operations. These can specify simple aggregations like mean, sum, and count, or more complex expressions involving existing column values.
+- `_by`: optional argument that supports single column names, or vectors of columns to allow for grouping for the aggregatation in the macro call
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -235,6 +256,18 @@ julia> @chain db_table(db, :df_mem) begin
          @arrange(groups)
          @collect
        end
+2×3 DataFrame
+ Row │ groups  test     n     
+     │ String  Float64  Int64 
+─────┼────────────────────────
+   1 │ aa          3.0      5
+   2 │ bb          2.5      5
+
+julia> @chain db_table(db, :df_mem) begin
+                @summarise(test = sum(percent), n = n(), _by = groups)
+                @arrange(groups)
+                @collect
+              end
 2×3 DataFrame
  Row │ groups  test     n     
      │ String  Float64  Int64 

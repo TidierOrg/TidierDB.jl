@@ -1,4 +1,3 @@
-@testset "Compare TidierData and TidierDB" verbose = true begin
     @testset "Select and Tidy Selection" begin
         TDF_1 = @chain test_df @select(contains("e"))
         TDB_1 = @chain DB.t(test_db) DB.@select(contains("e")) DB.@collect
@@ -259,4 +258,12 @@
         TDB_1 = @chain DB.t(test_db) DB.@union(DB.t(query)) DB.@mutate(value = if_else(value > 5, value/2, value)) DB.@distinct() DB.@collect 
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
     end
-end
+    @testset "_by" begin
+        TDB_1 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(value = sum(value), n = n()) DB.@collect
+        TBD_by = @chain DB.t(test_db) DB.@summarize(value = sum(value), n = n(), _by = groups) DB.@collect
+        TDB_2 = @chain DB.t(test_db) DB.@group_by(groups) DB.@mutate(value = sum(value), n = n()) DB.@collect
+        TBD_by2 = @chain DB.t(test_db) DB.@mutate(value = sum(value), n = n(), _by = groups) DB.@collect
+        @test all(isequal.(Array(TBD_by), Array(TDB_1)))
+        @test all(isequal.(Array(TBD_by2), Array(TDB_2)))
+    end
+

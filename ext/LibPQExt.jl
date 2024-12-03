@@ -44,7 +44,7 @@ end
 function TidierDB.final_compute(sqlquery::SQLQuery, ::Type{<:postgres}, sql_cr_or_relace::String=nothing)
     final_query = TidierDB.finalize_query(sqlquery)
     final_query = sql_cr_or_relace * final_query
-    return LibPQ.execute(sq.db, final_query)
+    return LibPQ.execute(sqlquery.db, final_query)
 end
 
 end

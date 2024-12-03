@@ -46,6 +46,7 @@ include("docstrings.jl")
 include("structs.jl")
 include("db_parsing.jl")
 include("TBD_macros.jl")
+include("mutate_and_summ.jl")
 include("parsing_sqlite.jl")
 include("parsing_duckdb.jl")
 include("parsing_postgres.jl")
@@ -95,7 +96,7 @@ end
 """
 $docstring_warnings
 """
- function warnings(flag::Bool) _warning_[] = flag end
+function warnings(flag::Bool) _warning_[] = flag end
 
 
 function finalize_ctes(ctes::Vector{CTE})
@@ -173,7 +174,7 @@ function finalize_query(sqlquery::SQLQuery)
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", 
      r"var\"(.*?)\"" => s"\1", r"\"\\\$" => "\"\$",  "WHERE \"" => "WHERE ", "WHERE \"NOT" => "WHERE NOT", "%')\"" =>"%\")", "NULL)\"" => "NULL)",
     "NULL))\"" => "NULL))", r"(?i)INTERVAL(\d+)([a-zA-Z]+)" => s"INTERVAL \1 \2", "SELECT SUMMARIZE " =>  "SUMMARIZE ", "\"(__(" => "(", ")__(\"" => ")"
-     )
+     , "***\"" => " ", "***" => " ")
      complete_query = replace(complete_query, ", AS " => " AS ", "OR  \"" => "OR ")
     if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
@@ -188,19 +189,30 @@ end
 # DuckDB
 function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_name::String)
     set_sql_mode(duckdb());
+    if endswith(table_name, ".geoparquet'")
     query = 
+        """
+        DESCRIBE SELECT * FROM read_parquet($(table_name)) LIMIT 0
+        """
+    else
+        query = 
         """
         DESCRIBE SELECT * FROM $(table_name) LIMIT 0
         """
+    end
     result = DuckDB.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
-    table_name = if occursin(r"[:/]", table_name)
+    table_name = if occursin(r"[:/\\]", table_name)
         split(basename(table_name), '.')[1]
         elseif occursin(".", table_name)
         split(basename(table_name), '.')[end]
     else
         table_name
     end
+    if occursin("-" , table_name)
+        table_name = replace(table_name, "-" => "_")
+    end
+
     result[!, :table_name] .= table_name
     # Adjust the select statement to include the new table_name column
     return select(result, 1 => :name, 2 => :type, :current_selxn, :table_name)
@@ -234,7 +246,7 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
         elseif startswith(table_name, "read") 
             table_name2 = "$table_name"
            metadata = get_table_metadata(db, table_name2)
-        elseif occursin(r"[:/]", table_name) 
+        elseif occursin(r"[:/\\]", table_name) 
             table_name2 = "'$table_name'"
             metadata = get_table_metadata(db, table_name2)
         else
@@ -259,14 +271,27 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
         "iceberg_scan('$table_name', allow_moved_paths = true)"
     elseif delta
         "delta_scan('$table_name')"
-    elseif occursin(r"[:/]", table_name) && !(iceberg || delta) && !startswith(table_name, "read") 
+    elseif occursin(r"[:/\\]", table_name) && !(iceberg || delta) && !startswith(table_name, "read") 
+        name = if occursin(".geoparquet", table_name)
+             "read_parquet('$table_name') AS $(split(basename(table_name), '.')[1]) "
+        else
         "'$table_name' AS $(split(basename(table_name), '.')[1]) "
+        end
+        formatted_table_name = begin
+            parts = split(name, " AS ")
+            if length(parts) == 2
+                parts[2] = replace(parts[2], "-" => "_")
+                join(parts, " AS ")
+            else
+                name
+            end
+        end
      elseif startswith(table_name, "read") 
          "$table_name"  
     else
         table_name
     end
-    
+
     return SQLQuery(from=formatted_table_name, metadata=metadata, db=db, athena_params=athena_params, ch_settings=clickhouse_settings)
 end
 
@@ -280,13 +305,13 @@ function db_table(db, table::Vector{String}, athena_params::Any=nothing)
     # Check the current SQL mode
     if current_sql_mode[] == duckdb()
         file_type = lowercase(splitext(first(table))[2])
-
+        
         # Format paths: wrap each in single quotes and join with commas
         formatted_paths = join(map(path -> "'$path'", table), ", ")
 
         formatted_table_name = if file_type == ".csv"
             "read_csv([$formatted_paths])"
-        elseif file_type == ".parquet"
+        elseif file_type == ".parquet" || file_type == ".geoparquet" 
             "read_parquet([$formatted_paths])"
         else
             error("Unsupported file type: $file_type")
@@ -359,6 +384,8 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
             DuckDB.execute(conn, "INSTALL json;")
             DuckDB.execute(conn, "LOAD json;")
             DuckDB.execute(conn, sql_command)
+        elseif startswith(df_or_path, "read")
+             DuckDB.execute(conn, "CREATE TABLE $name AS SELECT * FROM $df_or_path;")
         else
             error("Unsupported file type for: $df_or_path")
         end

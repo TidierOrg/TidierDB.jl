@@ -202,7 +202,7 @@ function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_nam
     end
     result = DuckDB.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
-    table_name = if occursin(r"[:/]", table_name)
+    table_name = if occursin(r"[:/\\]", table_name)
         split(basename(table_name), '.')[1]
         elseif occursin(".", table_name)
         split(basename(table_name), '.')[end]
@@ -246,7 +246,7 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
         elseif startswith(table_name, "read") 
             table_name2 = "$table_name"
            metadata = get_table_metadata(db, table_name2)
-        elseif occursin(r"[:/]", table_name) 
+        elseif occursin(r"[:/\\]", table_name) 
             table_name2 = "'$table_name'"
             metadata = get_table_metadata(db, table_name2)
         else
@@ -271,7 +271,7 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
         "iceberg_scan('$table_name', allow_moved_paths = true)"
     elseif delta
         "delta_scan('$table_name')"
-    elseif occursin(r"[:/]", table_name) && !(iceberg || delta) && !startswith(table_name, "read") 
+    elseif occursin(r"[:/\\]", table_name) && !(iceberg || delta) && !startswith(table_name, "read") 
         name = if occursin(".geoparquet", table_name)
              "read_parquet('$table_name') AS $(split(basename(table_name), '.')[1]) "
         else

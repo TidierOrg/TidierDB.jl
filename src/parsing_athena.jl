@@ -113,6 +113,11 @@ function expr_to_sql_trino(expr, sq; from_summarize::Bool)
             return :(REGEXP_REPLACE($str, $pattern, ""))
         elseif @capture(x, ismissing(a_))
             return  "($(string(a)) IS NULL)"
+        elseif @capture(x, column_[key_])
+            # Convert variables to strings if necessary
+            column_str = string(column)
+            key_str = string(key)
+            return """ CASE WHEN $column_str IS NULL THEN NULL ELSE COALESCE(  LIST_EXTRACT( CASE  WHEN '$key_str' IS NULL THEN NULL ELSE ELEMENT_AT($column_str, '$key_str') END, 1 ), NULL) END ***"""
         # Date extraction functions
         elseif @capture(x, year(a_))
             return "EXTRACT(YEAR FROM " * string(a) * ")"

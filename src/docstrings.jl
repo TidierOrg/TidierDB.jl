@@ -157,7 +157,7 @@ julia> @chain db_table(db, :df_mem) begin
 
 const docstring_mutate =
 """
-    @mutate(sql_query, exprs...; _by)
+    @mutate(sql_query, exprs...; _by, _frame, _order)
 
 Mutate SQL table rows by adding new columns or modifying existing ones.
 
@@ -165,6 +165,9 @@ Mutate SQL table rows by adding new columns or modifying existing ones.
 - `sql_query`: The SQL query to operate on.
 - `exprs`: Expressions for mutating the table. New columns can be added or existing columns modified using column_name = expression syntax, where expression can involve existing columns.
 - `_by`: optional argument that supports single column names, or vectors of columns to allow for grouping for the transformation in the macro call
+- `_frame`: optional argument that allows window frames to be determined within `@mutate`. supports single digits or tuples of numbers. supports `desc()` prefix
+- `_order`: optional argument that allows window orders to be determined within `@mutate`. supports single columns or vectors of names  
+
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -213,6 +216,32 @@ julia> @chain db_table(db, :df_mem) begin
    8 │ AE      bb          5      0.5      0.9      2.5
    9 │ AG      bb          2      0.7      0.9      2.5
   10 │ AI      bb          4      0.9      0.9      2.5
+
+julia> @chain db_table(db, :df_mem) begin
+          @mutate(value1 = sum(value), 
+                      _order = percent, 
+                      _frame = (-1, 1), 
+                      _by = groups) 
+          @mutate(value2 = sum(value), 
+                      _order = desc(percent),
+                      _frame = 2)  
+          @arrange(groups)
+          @collect
+       end
+10×6 DataFrame
+ Row │ id      groups  value  percent  value1  value2  
+     │ String  String  Int64  Float64  Int128  Int128? 
+─────┼─────────────────────────────────────────────────
+   1 │ AJ      aa          5      1.0       8       21
+   2 │ AH      aa          3      0.8       9       16
+   3 │ AF      aa          1      0.6       8       10
+   4 │ AD      aa          4      0.4       7        3
+   5 │ AB      aa          2      0.2       6  missing 
+   6 │ AI      bb          4      0.9       6       18
+   7 │ AG      bb          2      0.7      11       15
+   8 │ AE      bb          5      0.5      10        6
+   9 │ AC      bb          3      0.3       9        1
+  10 │ AA      bb          1      0.1       4  missing 
 ```
 """
 

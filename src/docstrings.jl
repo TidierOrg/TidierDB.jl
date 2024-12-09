@@ -1116,7 +1116,7 @@ This function establishes a database connection based on the specified backend a
 - A database connection object based on the selected backend.
 
 # Examples
-```julia
+```jldoctest
 # Connect to MySQL
 # conn = connect(mysql(); host="localhost", user="root", password="password", db="mydb")
 # Connect to PostgreSQL using LibPQ
@@ -1291,7 +1291,7 @@ This is an alias for `t()`. Refer to SQL query without changing the underlying s
 - `query`: The SQL query to reference
 
 # Examples
-```julia
+```jldoctest
 
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
                         groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
@@ -1357,7 +1357,7 @@ Combine two SQL queries using the `UNION` operator.
 - A lazy query of all distinct rows in the second query bound to the first
 
 # Examples
-```julia
+```jldoctest
 julia> db = connect(duckdb());
 
 julia> df1 = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
@@ -1427,7 +1427,7 @@ Combine two SQL queries using the `UNION ALL ` operator.
 - A lazy query of all rows in the second query bound to the first
 
 # Examples
-```julia
+```jldoctest
 julia> db = connect(duckdb());
 
 julia> df1 = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
@@ -1462,7 +1462,7 @@ Create a view from a SQL query. Currently supports DuckDB, MySQL, GBQ, Postgres
 - `replace`: defaults to true if view should be replaced
 
 # Examples
-```julia
+```jldoctest
 julia> db = connect(duckdb());
 
 julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
@@ -1494,7 +1494,7 @@ Creates a remote table on database memory from a SQL query. Currently supports D
 - `replace`: defaults to false if table should be replaced if it already exists.
 
 # Examples
-```julia
+```jldoctest
 julia> db = connect(duckdb());
 
 julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
@@ -1558,7 +1558,7 @@ Rearranges the columns in the queried table. This function allows for moving spe
 - `before`: (Optional) Column or columns before which the specified columns will be moved. If not provided or `nothing`, this argument is ignored.
 - `after`: (Optional) Column or columns after which the specified columns will be moved. If not provided or `nothing`, this argument is ignored. 
 
-```
+```julia
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
                         groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
                         value = repeat(1:5, 2), 

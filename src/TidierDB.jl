@@ -19,7 +19,7 @@ using GZip
  @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, 
  @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,  @head, 
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, 
- t, @union, @create_view, drop_view, @compute, warnings
+ t, @union, @create_view, drop_view, @compute, warnings, @relocate
 
  abstract type SQLBackend end
 
@@ -62,6 +62,7 @@ include("joins_sq.jl")
 include("slices_sq.jl")
 include("windows.jl")
 include("view_compute.jl")
+include("relocate.jl")
 
 
 # Unified expr_to_sql function to use right mode

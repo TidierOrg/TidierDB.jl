@@ -1,7 +1,7 @@
 name = "TidierDB"
 uuid = "86993f9b-bbba-4084-97c5-ee15961ad48b"
 authors = ["Daniel Rizk <rizk.daniel.12@gmail.com> and contributors"]
-version = "0.5.2"
+version = "0.5.3"
 
 [deps]
 Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45"

@@ -1,4 +1,4 @@
-    @testset "Select and Tidy Selection" begin
+    @testset "Select, Relocate Tidy Selection" begin
         TDF_1 = @chain test_df @select(contains("e"))
         TDB_1 = @chain DB.t(test_db) DB.@select(contains("e")) DB.@collect
         TDF_2 = @chain test_df @select(id:value)
@@ -7,11 +7,21 @@
         TDB_3 = @chain DB.t(test_db) DB.@select(!(groups:value)) DB.@collect
         TDF_4 = @chain test_df @select(!value)
         TDB_4 = @chain DB.t(test_db) DB.@select(!test_df.value) DB.@collect
+        
+        TDF_5 = @chain test_df @relocate([groups, value], ends_with("d"), after = percent)
+        TDB_5 = @chain DB.t(test_db) DB.@relocate([groups, value], ends_with("d"), after = percent) DB.@collect
+
+
+        TDF_6 = @chain test_df @select(!value) @relocate(groups, ends_with("d"), after = percent)
+        TDB_6 = @chain DB.t(test_db) DB.@select(!value) DB.@relocate(groups, ends_with("d"), after = percent) DB.@collect
 
         @test all(Array(TDF_1 .== TDB_1))
         @test all(Array(TDF_2 .== TDB_2))
         @test all(Array(TDF_3 .== TDB_3))
         @test all(Array(TDF_4 .== TDB_4))
+        @test all(Array(TDF_5 .== TDB_5))
+        @test all(Array(TDF_6 .== TDB_6))
+
     end
     @testset "Group By Summarize" begin
         TDF_1 = @chain test_df @group_by(groups) @summarize(value = sum(value), n = n())

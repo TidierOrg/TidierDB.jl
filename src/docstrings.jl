@@ -1552,7 +1552,8 @@ Rearranges the columns in the queried table. This function allows for moving spe
 - `before`: (Optional) Column or columns before which the specified columns will be moved. If not provided or `nothing`, this argument is ignored.
 - `after`: (Optional) Column or columns after which the specified columns will be moved. If not provided or `nothing`, this argument is ignored. 
 
-```julia
+# Examples
+```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
                         groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
                         value = repeat(1:5, 2), 

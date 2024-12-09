@@ -1,5 +1,4 @@
 # TidierDB.jl updates
-
 ## v.05.3 - 2024-12-10
 - adds `@relocate`
 

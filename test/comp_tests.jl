@@ -273,7 +273,26 @@
         TBD_by = @chain DB.t(test_db) DB.@summarize(value = sum(value), n = n(), _by = groups) DB.@collect
         TDB_2 = @chain DB.t(test_db) DB.@group_by(groups) DB.@mutate(value = sum(value), n = n()) DB.@collect
         TBD_by2 = @chain DB.t(test_db) DB.@mutate(value = sum(value), n = n(), _by = groups) DB.@collect
+        TDB_3 = @chain DB.t(test_db) DB.@group_by(groups, percent) DB.@mutate(value = sum(value), n = n()) DB.@collect
+        TBD_by3 = @chain DB.t(test_db) DB.@mutate(value = sum(value), n = n(), _by = [groups, percent]) DB.@collect
+
         @test all(isequal.(Array(TBD_by), Array(TDB_1)))
         @test all(isequal.(Array(TBD_by2), Array(TDB_2)))
+        @test all(isequal.(Array(TBD_by3), Array(TDB_3)))
+
     end
+
+    @testset "Window Macros vs _order, _frame" begin 
+        TDB_1 = @chain DB.t(test_db) DB.@window_order(percent) DB.@window_frame(-1, 1) DB.@group_by(groups) DB.@mutate(value = sum(value)) DB.@arrange(groups) DB.@collect
+        TDB_1_ = @chain DB.t(test_db) DB.@mutate(value = sum(value), _order = percent, _frame = (-1, 1), _by = groups)  DB.@arrange(groups) DB.@collect
+        TDB_2 = @chain DB.t(test_db) DB.@window_order(percent) DB.@window_frame(-1, 1) DB.@group_by(groups) DB.@mutate(value = sum(value)) DB.@window_order(desc(percent)) DB.@window_frame(2) DB.@mutate(value2 = sum(value))  DB.@arrange(groups) DB.@collect
+        TDB_2_ = @chain DB.t(test_db) DB.@mutate(value = sum(value), _order = percent, _frame = (-1, 1), _by = groups) DB.@mutate(value2 = sum(value), _order = desc(percent), _frame = (2))  DB.@arrange(groups) DB.@collect
+        TDB_3 = @chain DB.t(test_db) DB.@window_order(percent) DB.@window_frame(-1, 1) DB.@group_by(groups) DB.@mutate(value = sum(value)) DB.@window_order(desc(percent)) DB.@window_frame(0, 2) DB.@mutate(value2 = sum(value))  DB.@arrange(groups) DB.@collect
+        TDB_3_ = @chain DB.t(test_db) DB.@mutate(value = sum(value), _order = percent, _frame = (-1, 1), _by = groups) DB.@mutate(value2 = sum(value), _order = desc(percent), _frame = (0, 2))  DB.@arrange(groups) DB.@collect
+
+        @test all(isequal.(Array(TDB_1), Array(TDB_1_)))
+        @test all(isequal.(Array(TDB_2), Array(TDB_2_)))
+        @test all(isequal.(Array(TDB_3), Array(TDB_3_)))
+    end
+
 

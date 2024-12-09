@@ -565,6 +565,7 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
                         col_strs = uppercase.(col_strs)
                         local_cols = uppercase.(local_cols)
                     end
+                    col_strs = replace.(col_strs, ":"=> "")
                     missing_cols = setdiff(col_strs, intersect(col_strs, local_cols))
                     if !isempty(missing_cols)
                         error("The following columns were not found: $(missing_cols)")
@@ -616,6 +617,7 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
                         elem_str = uppercase(elem_str)
                         local_cols = uppercase.(local_cols)
                     end
+                    elem_str = replace(elem_str, ":" => "")
                     if elem_str in local_cols
                         push!(final_columns, elem_str)
                     else

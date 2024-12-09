@@ -1583,7 +1583,7 @@ julia> @chain db_table(db, :df_mem) begin
   10 │     1.0  aa          5  AJ
 
 julia> @chain db_table(db, :df_mem) begin 
-        @relocate([:percent, :groups], before = id) 
+        @relocate([percent, groups], before = id) 
         @collect
        end
 10×4 DataFrame

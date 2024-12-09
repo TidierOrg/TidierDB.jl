@@ -478,3 +478,4 @@ $docstring_show_tables
 function show_tables(con::Union{DuckDB.DB, DuckDB.Connection})
     return DataFrame(DBInterface.execute(con, "SHOW ALL TABLES"))
 end
+

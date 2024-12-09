@@ -445,42 +445,6 @@ function generate_func_name(func_expr, skip_funcs=String[])
     end
 end
 
-
-function parse_interpolation2(expr)
-    MacroTools.postwalk(expr) do x
-        if @capture(x, !!variable_Symbol)
-            #variable_value = eval(variable)  # Evaluate to get the symbol or direct value
-            #to avoid use of eval, this is a temp fix to enable Interpolation
-            variable_value = haskey(GLOBAL_CONTEXT.variables, variable) ? GLOBAL_CONTEXT.variables[variable] : missing
-            if isa(variable_value, AbstractVector) #&& all(isa(v, Symbol) for v in variable_value)
-                if all(isa(v, String) for v in variable_value)
-                    # Quote each string and join with commas for SQL IN clause
-                    quoted_strings = map(v -> "'" * v * "'", variable_value)
-                    return join(quoted_strings, ", ")
-                
-                else
-                    column_names = map(v -> string(v), variable_value)  # This line is the critical change
-                    column_names = map(v -> isa(v, Symbol) ? string(v) : v, variable_value)
-                    return join(column_names, ", ")
-                end
-            elseif isa(variable_value, Symbol)
-                return variable_value  
-            elseif isa(variable_value, Number)
-                return variable_value
-            elseif isa(variable_value, AbstractVector)
-
-                column_names = map(v -> isa(v, Symbol) ? string(v) : v, variable_value)
-                return join(column_names, ", ")
-            else
-                return Symbol(variable_value)  # Convert other cases directly to Symbol
-            end
-        else
-            return x
-        end
-    end
-end
-
-
 function parse_blocks(exprs...)
     if length(exprs) == 1 && hasproperty(exprs[1], :head) && exprs[1].head == :block
       return (MacroTools.rmlines(exprs[1]).args...,)
@@ -539,5 +503,193 @@ function parse_closest_expression(expr)
         return string(" ", inner_expr), as_of, and
     else
         error("Expression must be of the form closest(expr)")
+    end
+end
+
+function filter_columns_by_expr(actual_expr, metadata::DataFrame)
+    # Filter metadata by current_selxn != 0
+    selected_df = metadata[metadata.current_selxn .!= 0, :]
+    all_columns = selected_df.name
+
+    function maybe_uppercase(s)
+        if current_sql_mode[] == snowflake()
+            return uppercase(s)
+        else
+            return s
+        end
+    end
+
+    # If actual_expr is a symbol that looks like ends_with("d"), etc., try parsing it as an expression
+    if isa(actual_expr, Symbol)
+        sym_str = string(actual_expr)
+        parsed = Meta.parse(sym_str)
+        if isa(parsed, Expr) && parsed.head == :call
+            actual_expr = parsed
+        end
+    end
+#    println(typeof(actual_expr))
+#    println(typeof(actual_expr[1]))
+
+    # If actual_expr is a vector, process each element individually
+    if isa(actual_expr, AbstractVector)
+        final_columns = String[]
+        for elem in actual_expr
+            if isa(elem, AbstractVector)
+                # elem is directly a vector of symbols like [:groups, :value]
+                col_strs = string.(elem)
+                local_cols = all_columns
+                if current_sql_mode[] == snowflake()
+                    col_strs = uppercase.(col_strs)
+                    local_cols = uppercase.(local_cols)
+                end
+                # Check if all requested columns exist
+                missing_cols = setdiff(col_strs, intersect(col_strs, local_cols))
+                if !isempty(missing_cols)
+                    error("The following columns were not found: $(missing_cols)")
+                end
+                append!(final_columns, col_strs)
+            elseif isa(elem, Symbol)
+                # elem is a single symbol, try parsing
+                
+                elem_str = string(elem)
+               # elem_str = replace(elem_str, ":" => "")
+                
+                parsed = Meta.parse(elem_str)
+            
+                if isa(parsed, Expr) && parsed.head == :vect
+                    # It's a vector expression like [groups, value]
+                    col_syms = parsed.args
+                    col_strs = string.(col_syms)
+                    local_cols = all_columns
+                    if current_sql_mode[] == snowflake()
+                        col_strs = uppercase.(col_strs)
+                        local_cols = uppercase.(local_cols)
+                    end
+                    missing_cols = setdiff(col_strs, intersect(col_strs, local_cols))
+                    if !isempty(missing_cols)
+                        error("The following columns were not found: $(missing_cols)")
+                    end
+                    append!(final_columns, col_strs)
+                elseif isa(parsed, Expr) && parsed.head == :call
+                    func = parsed.args[1]
+                    if func == :(:)
+                        # Handle range expression like id:groups
+                        start_col = string(parsed.args[2])
+                        end_col = string(parsed.args[3])
+                
+                        if current_sql_mode[] == snowflake()
+                            start_col = uppercase(start_col)
+                            end_col = uppercase(end_col)
+                            all_columns = uppercase.(all_columns)
+                        end
+                
+                        start_idx = findfirst(==(start_col), all_columns)
+                        end_idx = findfirst(==(end_col), all_columns)
+                        if isnothing(start_idx) || isnothing(end_idx) || start_idx > end_idx
+                            error("Column range not found or invalid: $start_col to $end_col")
+                        end
+                
+                        range_columns = all_columns[start_idx:end_idx]
+                        append!(final_columns, range_columns)
+                    elseif isa(parsed, Expr) && parsed.head == :call
+                        # It's a function call expression like ends_with("d")
+                        func = parsed.args[1]
+                        if func == :starts_with || func == :ends_with || func == :contains
+                            substring = string(parsed.args[2])
+                            substring = maybe_uppercase(substring)
+                            local_cols = current_sql_mode[] == snowflake() ? uppercase.(all_columns) : all_columns
+                            match_columns = filter(col ->
+                                (func == :starts_with && startswith(col, substring)) ||
+                                (func == :ends_with && endswith(col, substring)) ||
+                                (func == :contains && occursin(substring, col)),
+                                local_cols)
+                            append!(final_columns, match_columns)
+                        else
+                            error("Unsupported function call: $(func)")
+                        end
+                    end
+                
+                else
+                    # Treat as a direct column reference
+                    local_cols = all_columns
+                    if current_sql_mode[] == snowflake()
+                        elem_str = uppercase(elem_str)
+                        local_cols = uppercase.(local_cols)
+                    end
+                    if elem_str in local_cols
+                        push!(final_columns, elem_str)
+                    else
+                        error("The following columns were not found: [$elem_str]")
+                    end
+                end
+            else
+                # elem is not a Symbol or vector, treat it as a direct column name
+                elem_str = string(elem)
+                local_cols = all_columns
+                if current_sql_mode[] == snowflake()
+                    elem_str = uppercase(elem_str)
+                    local_cols = uppercase.(local_cols)
+                end
+                if elem_str in local_cols
+                    push!(final_columns, elem_str)
+                else
+                    error("The following columns were not found: [$elem_str]")
+                end
+            end
+        end
+        return final_columns
+    
+    
+    
+    elseif isa(parsed, Expr) && parsed.head == :call
+        func = parsed.args[1]
+        if func == :(:)
+            # Handle range expression like id:groups
+            start_col = string(parsed.args[2])
+            end_col = string(parsed.args[3])
+    
+            if current_sql_mode[] == snowflake()
+                start_col = uppercase(start_col)
+                end_col = uppercase(end_col)
+                all_columns = uppercase.(all_columns)
+            end
+    
+            start_idx = findfirst(==(start_col), all_columns)
+            end_idx = findfirst(==(end_col), all_columns)
+            if isnothing(start_idx) || isnothing(end_idx) || start_idx > end_idx
+                error("Column range not found or invalid: $start_col to $end_col")
+            end
+    
+            range_columns = all_columns[start_idx:end_idx]
+            append!(final_columns, range_columns)
+    
+        elseif func == :starts_with || func == :ends_with || func == :contains
+            # Handle starts_with, ends_with, and contains as before
+            substring = string(parsed.args[2])
+            substring = maybe_uppercase(substring)
+            local_cols = current_sql_mode[] == snowflake() ? uppercase.(all_columns) : all_columns
+            match_columns = filter(col ->
+                (func == :starts_with && startswith(col, substring)) ||
+                (func == :ends_with && endswith(col, substring)) ||
+                (func == :contains && occursin(substring, col)),
+                local_cols)
+            append!(final_columns, match_columns)
+        else
+            error("Unsupported function call: $(func)")
+        end
+    
+
+    else
+        # Fallback for a single symbol or other type
+        if isa(actual_expr, Symbol)
+            col_str = string(actual_expr)
+            if current_sql_mode[] == snowflake()
+                col_str = uppercase(col_str)
+                all_columns = uppercase.(all_columns)
+            end
+            return col_str in all_columns ? [col_str] : String[]
+        else
+            return String[]
+        end
     end
 end

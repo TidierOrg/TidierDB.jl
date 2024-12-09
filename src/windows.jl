@@ -2,7 +2,6 @@
 $docstring_window_order
 """
 macro window_order(sqlquery, order_by_expr...)
-    order_by_expr = parse_interpolation2.(order_by_expr)
 
     return quote
         sq = $(esc(sqlquery))

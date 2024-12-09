@@ -1142,7 +1142,7 @@ This function establishes a database connection based on the specified backend a
 # connect(duckdb(), "path/to/database.duckdb")
 # Open an in-memory database
 julia> db = connect(duckdb())
-DuckDB.Connection(":memory:")
+DuckDB.DB(":memory:")
 ```
 """
 
@@ -1471,13 +1471,7 @@ julia> copy_to(db, df, "df1");
 
 julia> @chain db_table(db, "df1") @create_view(viewer);
 
-julia> db_table(db, "viewer")
-TidierDB.SQLQuery("", "viewer", "", "", "", "", "", "", false, false, 2×4 DataFrame
- Row │ name    type    current_selxn  table_name 
-     │ String  String  Int64          String     
-─────┼───────────────────────────────────────────
-   1 │ id      BIGINT              1  viewer
-   2 │ value   BIGINT              1  viewer, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "", 0)
+julia> db_table(db, "viewer");
 ```
 """
 

@@ -1550,7 +1550,7 @@ const docstring_relocate =
 """
     @relocate(sql_query, columns, before = nothing, after = nothing)
 
-Rearranges the columns of a data frame. This function allows for moving specified columns to a new position within the data frame, either before or after a given target column. The `columns`, `before`, and `after` arguments all accept tidy selection functions. Only one of `before` or `after` should be specified. If neither are specified, the selected columns will be moved to the beginning of the data frame.
+Rearranges the columns in the queried table. This function allows for moving specified columns to a new position within the table, either before or after a given target column. The `columns`, `before`, and `after` arguments all accept tidy selection functions. Only one of `before` or `after` should be specified. If neither are specified, the selected columns will be moved to the beginning of the table.
 
 # Arguments
 - `sql_query`: The SQL query to create a table from.

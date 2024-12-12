@@ -1167,7 +1167,7 @@ name it will not copy it to memory, but rather ready directly from the file. `db
 - `db_table(db, "Path/to/testing_files/*.parquet")`
 - `delta`: must be true to read delta files
 - `iceberg`: must be true to read iceberg finalize_ctes
-
+- `alias`: optional argument when using a `*` wildcard in a file path, that allows user to determine an alias for the data being read in. If empty, it will refer to table as `data`
 # Example
 ```julia
 

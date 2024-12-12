@@ -188,7 +188,7 @@ function finalize_query(sqlquery::SQLQuery)
 end
 
 # DuckDB
-function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_name::String)
+function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_name::String; alias::String="")
     set_sql_mode(duckdb());
     if endswith(table_name, ".geoparquet'")
     query = 
@@ -203,12 +203,18 @@ function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_nam
     end
     result = DuckDB.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
-    table_name = if occursin(r"[:/\\]", table_name)
-        split(basename(table_name), '.')[1]
-        elseif occursin(".", table_name)
-        split(basename(table_name), '.')[end]
+    if occursin("*" , table_name) 
+        if alias != ""
+            table_name = alias
+        else 
+            table_name = "data"
+        end
+    elseif occursin(r"[:/\\]", table_name)
+        table_name = split(basename(table_name), '.')[1]
+    elseif occursin(".", table_name)
+        table_name = split(basename(table_name), '.')[end]
     else
-        table_name
+        table_name = table_name
     end
     if occursin("-" , table_name)
         table_name = replace(table_name, "-" => "_")
@@ -227,7 +233,7 @@ end
 """
 $docstring_db_table
 """
-function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, delta::Bool=false)
+function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, delta::Bool=false, alias::String="")
     table_name = string(table)
     
     if current_sql_mode[] == sqlite()
@@ -249,7 +255,7 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
            metadata = get_table_metadata(db, table_name2)
         elseif occursin(r"[:/\\]", table_name) 
             table_name2 = "'$table_name'"
-            metadata = get_table_metadata(db, table_name2)
+            metadata = get_table_metadata(db, table_name2; alias = alias)
         else
             metadata = get_table_metadata(db, table_name)
         end
@@ -273,10 +279,15 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
     elseif delta
         "delta_scan('$table_name')"
     elseif occursin(r"[:/\\]", table_name) && !(iceberg || delta) && !startswith(table_name, "read") 
+        if occursin(r"\*", table_name)
+             alias = alias == "" ? "data" : alias
+        else 
+            alias = (split(basename(table_name), '.')[1])
+        end 
         name = if occursin(".geoparquet", table_name)
-             "read_parquet('$table_name') AS $(split(basename(table_name), '.')[1]) "
+             "read_parquet('$table_name') AS $alias "
         else
-        "'$table_name' AS $(split(basename(table_name), '.')[1]) "
+             "'$table_name' AS $alias "
         end
         formatted_table_name = begin
             parts = split(name, " AS ")

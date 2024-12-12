@@ -1,6 +1,7 @@
 # TidierDB.jl updates
-## v.05.3 - 2024-12-10
+## v.05.3 - 2024-12-13
 - adds `@relocate`
+- bug fix when reading file paths with `*` wildcard with DuckDB
 
 ## v.05.2 - 2024-12-03
 - adds support `_by` support to `@mutate` and `@summarize` for grouping within the macro call.

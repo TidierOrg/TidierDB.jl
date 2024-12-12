@@ -255,12 +255,16 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
            metadata = get_table_metadata(db, table_name2)
         elseif occursin(r"[:/\\]", table_name) 
             table_name2 = "'$table_name'"
-            metadata = get_table_metadata(db, table_name2; alias = alias)
+            if current_sql_mode[] == duckdb()
+                metadata = get_table_metadata(db, table_name2; alias = alias)
+            else
+                metadata = get_table_metadata(db, table_name2)
+            end
         else
             metadata = get_table_metadata(db, table_name)
         end
     elseif current_sql_mode[] == athena()
-        metadata = get_table_metadata(db, table_name, athena_params)
+        metadata = get_table_metadata(db, table_name; athena_params)
     elseif current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         metadata = get_table_metadata(db, table_name)
     else

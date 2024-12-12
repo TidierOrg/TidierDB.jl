@@ -91,7 +91,7 @@
 # conn = conn = DB.connect(DB.clickhouse(); host="localhost", port=19000, database="default", user="default", password="")
 # path = "https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet"
 # DB.@chain DB.db_table(conn, path) begin
-#    DB.@count(cyl)
+#    DB.@count(artists)
 #    @aside println(DB.@chain DB.from_query(_) DB.@head(5) DB.@collect)
 #    DB.@arrange(desc(count))
 #    DB.@collect

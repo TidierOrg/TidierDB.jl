@@ -49,7 +49,7 @@
 # - `db_table` has two required arguments: `connection` and `table`
 # - `table` can be a table name on a database or a path/url to file to read.  When passing `db_table` a path or url, the table is not copied into memory.
 #   - Of note, `db_table` only support direct file paths to a table. It does not support database file paths such as `dbname.duckdb` or `dbname.sqlite`. Such files must be used with `connect` first.
-# - With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use `*` read in all files matching the pattern. 
+# - With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use `*` read in all files matching the pattern, with an optional `alias` argument for what the data should be referred to.
 # - For example, the below would read all files that end in `.csv` in the given folder.
 # ```
 # db_table(db, "folder/path/*.csv")

@@ -778,7 +778,7 @@
 <p><code>table</code> can be a table name on a database or a path/url to file to read.  When passing <code>db_table</code> a path or url, the table is not copied into memory.</p>
 <ul>
 <li>Of note, <code>db_table</code> only support direct file paths to a table. It does not support database file paths such as <code>dbname.duckdb</code> or <code>dbname.sqlite</code>. Such files must be used with <code>connect</code> first.</li>
-<li>With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use <code>*</code> read in all files matching the pattern.</li>
+<li>With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use <code>*</code> read in all files matching the pattern, with an optional <code>alias</code> argument for what the data should be referred to.</li>
 <li>For example, the below would read all files that end in <code>.csv</code> in the given folder.</li>
 </ul>
 </li>

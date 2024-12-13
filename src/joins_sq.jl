@@ -87,7 +87,6 @@ macro left_join(sqlquery, join_table, expr... )
     and  = ""
     for e in expr[2:end]
         if e.head == :call && e.args[1] == :closest
-            println("Detected closest condition")
             closest_expr, as_of, and= parse_closest_expression(e)
         else
             error("Unsupported argument: $(e)")

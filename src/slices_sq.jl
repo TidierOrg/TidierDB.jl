@@ -42,7 +42,7 @@ macro slice_min(sqlquery, column, n=1)
                 for cte in reverse(sq.ctes)
                     if !isempty(cte.groupBy)
                         most_recent_groupBy = cte.groupBy
-                        println(most_recent_groupBy)
+                       # println(most_recent_groupBy)
                         partition_by_clause =  "PARTITION BY " * most_recent_groupBy
 
                         break
@@ -128,7 +128,7 @@ macro slice_max(sqlquery, column, n=1)
                 for cte in reverse(sq.ctes)
                     if !isempty(cte.groupBy)
                         most_recent_groupBy = cte.groupBy
-                        println(most_recent_groupBy)
+                       # println(most_recent_groupBy)
                         partition_by_clause =  "PARTITION BY " * most_recent_groupBy
 
                         break

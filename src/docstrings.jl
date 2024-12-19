@@ -636,7 +636,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, "df_mem") begin
-         @left_join("df_join", "id" = "id2" )
+         @left_join("df_join", join_by(id == id2) )
          @collect
        end
 10×7 DataFrame
@@ -659,7 +659,7 @@ julia> query = @chain db_table(db, "df_join") begin
                 end;
 
 julia> @chain db_table(db, "df_mem") begin
-         @left_join(t(query), id = id2)
+         @left_join(t(query), join_by(id == id2))
          @collect
        end
 10×7 DataFrame
@@ -713,7 +713,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @right_join("df_join", id = id2)
+         @right_join("df_join", join_by(id == id2))
          @collect
        end
 7×7 DataFrame
@@ -733,7 +733,7 @@ julia> query = @chain db_table(db, "df_join") begin
                 end;
 
 julia> @chain db_table(db, :df_mem) begin
-         @right_join(t(query), id = id2)
+         @right_join(t(query), join_by(id == id2))
          @collect
        end
 6×7 DataFrame
@@ -781,7 +781,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @inner_join("df_join", "id" = id2)
+         @inner_join("df_join", join_by(id == id2))
          @collect
        end
 5×7 DataFrame
@@ -827,7 +827,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @full_join((@chain db_table(db, "df_join") @filter(score > 70)), id)
+         @full_join((@chain db_table(db, "df_join") @filter(score > 70)), join_by(id == id))
          #@aside @show_query _
          @collect
        end
@@ -881,7 +881,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @semi_join("df_join", id = id2)
+         @semi_join("df_join", join_by(id == id2))
          @collect
        end
 5×4 DataFrame
@@ -928,7 +928,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-        @anti_join("df_join", id = id2)
+        @anti_join("df_join", join_by(id == id2))
         @collect
        end
 5×4 DataFrame

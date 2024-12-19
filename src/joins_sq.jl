@@ -77,21 +77,33 @@ function create_and_add_cte(sq, cte_name)
     return most_recent_source, cte_name
 end
 
+function sql_join_on(sq, join_table_name, lhs_cols, rhs_cols::Vector{String}; closest_expr=String[])
+    table_from = isa(sq, SQLQuery) ? sq.from : sq
+    conditions = String[]
+    for (lhs_col_str, rhs_col_str) in zip(lhs_cols, rhs_cols)
+        condition = gbq_join_parse(table_from) * "." * lhs_col_str * " = " *
+                    gbq_join_parse(join_table_name) * "." * rhs_col_str
+        push!(conditions, condition)
+    end
+    on = ""
+    on = join(conditions, " AND ")
+    #println(on)
+    if on == "" && closest_expr != []
+        on *= join(closest_expr, " AND ")
+    elseif closest_expr != []
+        on *=  " AND " * join(closest_expr, " AND ")
+    end
+    return on
+end
+
+
 """
 $docstring_left_join
 """
 macro left_join(sqlquery, join_table, expr... )
-    lhs_col_str, rhs_col_str = parse_join_expression(expr[1])
-    closest_expr = ""
-    as_of = ""
-    and  = ""
-    for e in expr[2:end]
-        if e.head == :call && e.args[1] == :closest
-            closest_expr, as_of, and= parse_closest_expression(e)
-        else
-            error("Unsupported argument: $(e)")
-        end
-    end
+
+    lhs_col_str, rhs_col_str, closest_expr, as_of = parse_join_expression(expr[1])
+
     return quote
         sq = $(esc(sqlquery))
         jq = $(esc(join_table))  # Evaluate join_table
@@ -140,9 +152,8 @@ macro left_join(sqlquery, join_table, expr... )
                 
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
-                          $as_of * " LEFT JOIN " * join_table_name * " ON " *
-                           gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                           gbq_join_parse(most_recent_source) * "." * $rhs_col_str * $and * $closest_expr
+                          $as_of * " LEFT JOIN " * join_table_name * " ON " * 
+                        sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str; closest_expr = $closest_expr)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -184,11 +195,12 @@ macro left_join(sqlquery, join_table, expr... )
                 end
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-               end
-                join_clause = $as_of * " LEFT JOIN " * join_table_name * " ON " *
-                              gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                              gbq_join_parse(sq.from) * "." * $rhs_col_str * $and * $closest_expr
+                end
+                join_clause = $as_of * " LEFT JOIN " * join_table_name * " ON " * 
+                    sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str; closest_expr = $closest_expr)
+               
                 sq.from *= join_clause
+
             end
         else
             error("Expected sqlquery to be an instance of SQLQuery")
@@ -202,8 +214,8 @@ end
 """
 $docstring_right_join
 """
-macro right_join(sqlquery, join_table, expr)
-    lhs_col_str, rhs_col_str = parse_join_expression(expr)
+macro right_join(sqlquery, join_table, expr...)
+    lhs_col_str, rhs_col_str, closest_expr, as_of = parse_join_expression(expr[1])
 
     return quote
         sq = $(esc(sqlquery))
@@ -253,8 +265,7 @@ macro right_join(sqlquery, join_table, expr)
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
                            " RIGHT JOIN " * join_table_name * " ON " *
-                           gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                           gbq_join_parse(most_recent_source) * "." * $rhs_col_str
+                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -296,9 +307,7 @@ macro right_join(sqlquery, join_table, expr)
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
                end
-                join_clause = " RIGHT JOIN " * join_table_name * " ON " *
-                              gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                              gbq_join_parse(sq.from) * "." * $rhs_col_str
+                join_clause = " RIGHT JOIN " * join_table_name * " ON " * sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str)
                 sq.from *= join_clause
             end
         else
@@ -312,9 +321,8 @@ end
 """
 $docstring_inner_join
 """
-macro inner_join(sqlquery, join_table, expr)
-    lhs_col_str, rhs_col_str = parse_join_expression(expr)
-
+macro inner_join(sqlquery, join_table, expr...)
+    lhs_col_str, rhs_col_str, closest_expr, as_of = parse_join_expression(expr[1])
 
     return quote
         sq = $(esc(sqlquery))
@@ -360,12 +368,11 @@ macro inner_join(sqlquery, join_table, expr)
                 end
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-               end
+                end
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
                            " INNER JOIN " * join_table_name * " ON " *
-                           gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                           gbq_join_parse(most_recent_source) * "." * $rhs_col_str
+                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -407,9 +414,7 @@ macro inner_join(sqlquery, join_table, expr)
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
                end
-                join_clause = " INNER JOIN " * join_table_name * " ON " *
-                              gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                              gbq_join_parse(sq.from) * "." * $rhs_col_str
+                join_clause = " INNER JOIN " * join_table_name * " ON " * sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str)
                 sq.from *= join_clause
             end
         else
@@ -423,8 +428,8 @@ end
 """
 $docstring_full_join
 """
-macro full_join(sqlquery, join_table, expr)
-    lhs_col_str, rhs_col_str = parse_join_expression(expr)
+macro full_join(sqlquery, join_table, expr...)
+    lhs_col_str, rhs_col_str, closest_expr, as_of = parse_join_expression(expr[1])
 
 
     return quote
@@ -476,8 +481,7 @@ macro full_join(sqlquery, join_table, expr)
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
                            " FULL JOIN " * join_table_name * " ON " *
-                           gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                           gbq_join_parse(most_recent_source) * "." * $rhs_col_str
+                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -519,9 +523,7 @@ macro full_join(sqlquery, join_table, expr)
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
                end
-                join_clause = " FULL JOIN " * join_table_name * " ON " *
-                              gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                              gbq_join_parse(sq.from) * "." * $rhs_col_str
+                join_clause = " FULL JOIN " * join_table_name * " ON " * sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str)
                 sq.from *= join_clause
             end
             
@@ -537,8 +539,8 @@ end
 """
 $docstring_semi_join
 """
-macro semi_join(sqlquery, join_table, expr)
-    lhs_col_str, rhs_col_str = parse_join_expression(expr)
+macro semi_join(sqlquery, join_table, expr...)
+    lhs_col_str, rhs_col_str, closest_expr, as_of = parse_join_expression(expr[1])
 
     return quote
         sq = $(esc(sqlquery))
@@ -589,8 +591,7 @@ macro semi_join(sqlquery, join_table, expr)
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
                            " SEMI JOIN " * join_table_name * " ON " *
-                           gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                           gbq_join_parse(most_recent_source) * "." * $rhs_col_str
+                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -632,9 +633,7 @@ macro semi_join(sqlquery, join_table, expr)
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
                end
-                join_clause = " SEMI JOIN " * join_table_name * " ON " *
-                              gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                              gbq_join_parse(sq.from) * "." * $rhs_col_str
+                join_clause = " SEMI JOIN " * join_table_name * " ON " * sql_join_on(sq, join_table_name, $lhs_col_str, $rhs_col_str)
                 sq.from *= join_clause
             end
         else
@@ -648,8 +647,8 @@ end
 """
 $docstring_anti_join
 """
-macro anti_join(sqlquery, join_table, expr)
-    lhs_col_str, rhs_col_str = parse_join_expression(expr)
+macro anti_join(sqlquery, join_table, expr...)
+    lhs_col_str, rhs_col_str, closest_expr, as_of = parse_join_expression(expr[1])
 
     return quote
         sq = $(esc(sqlquery))
@@ -699,8 +698,7 @@ macro anti_join(sqlquery, join_table, expr)
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
                            " ANTI JOIN " * join_table_name * " ON " *
-                           gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                           gbq_join_parse(most_recent_source) * "." * $rhs_col_str
+                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -742,9 +740,7 @@ macro anti_join(sqlquery, join_table, expr)
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
                 end
-                join_clause = " ANTI JOIN " * join_table_name * " ON " *
-                              gbq_join_parse(join_table_name) * "." * $lhs_col_str * " = " *
-                              gbq_join_parse(sq.from) * "." * $rhs_col_str
+                join_clause = " ANTI JOIN " * join_table_name * " ON " * sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str)
                 sq.from *= join_clause
             end
         else

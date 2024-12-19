@@ -483,6 +483,30 @@ function parse_join_expression(expr)
         lhs_col_str = string(lhs_column)
         rhs_col_str = string(rhs_column)
         return lhs_col_str, rhs_col_str
+    elseif expr.head == :call && expr.args[1] == :join_by
+        lhs_cols = String[]
+        rhs_cols = String[]
+        closests = String[]
+        as_of = ""
+        for arg in expr.args[2:end]
+#            println(arg)
+            if arg isa Expr && arg.head == :call && arg.args[1] == Symbol("closest")
+               # println("here")
+               # println(arg.args)
+                closest = arg.args[2]
+               push!(closests, string(closest))
+               as_of = "\n \t ASOF "
+            elseif arg isa Expr && arg.head == :call && arg.args[1] == Symbol("==")
+                lhs_column = arg.args[2]
+                rhs_column = arg.args[3]
+                lhs_col_str = string(lhs_column)
+                rhs_col_str = string(rhs_column)
+                push!(lhs_cols, lhs_col_str)
+                push!(rhs_cols, rhs_col_str)
+            end
+        end
+     
+        return lhs_cols, rhs_cols , closests, as_of
     
     elseif isa(expr, Symbol)
         # Handle single column reference (e.g., ticker)
@@ -494,17 +518,6 @@ function parse_join_expression(expr)
     end
 end
 
-function parse_closest_expression(expr)
-    as_of = ""
-    if expr.head == :call && string(expr.args[1]) == "closest"
-        inner_expr = expr.args[2]
-        as_of = " ASOF "
-        and = " AND"
-        return string(" ", inner_expr), as_of, and
-    else
-        error("Expression must be of the form closest(expr)")
-    end
-end
 
 function filter_columns_by_expr(actual_expr, metadata::DataFrame)
     # Filter metadata by current_selxn != 0

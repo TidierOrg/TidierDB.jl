@@ -1,7 +1,9 @@
 # TidierDB.jl updates
-## v.05.3 - 2024-12-13
+## v.06.0 - 2024-12-13
 - adds `@relocate`
 - bug fix when reading file paths with `*` wildcard with DuckDB
+- Joins now utlize `join_by(col1 == col2)`
+- Fix edge case when creating an `array` column in `@mutate` 
 
 ## v.05.2 - 2024-12-03
 - adds support `_by` support to `@mutate` and `@summarize` for grouping within the macro call.

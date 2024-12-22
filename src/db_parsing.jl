@@ -477,12 +477,19 @@ end
 
 function parse_join_expression(expr)
     if isa(expr, Expr) && expr.head == :(=)
-        # Handle equality condition (e.g., ticker = ticker)
-        rhs_column = expr.args[1]
-        lhs_column = expr.args[2]
+        lhs_cols = String[]
+        rhs_cols = String[]
+        closests = String[]
+        as_of = ""
+        
+        lhs_column = expr.args[1]
+        rhs_column = expr.args[2]
         lhs_col_str = string(lhs_column)
         rhs_col_str = string(rhs_column)
-        return lhs_col_str, rhs_col_str
+        push!(lhs_cols, lhs_col_str)
+        push!(rhs_cols, rhs_col_str)
+        return lhs_cols, rhs_cols , closests, as_of
+
     elseif expr.head == :call && expr.args[1] == :join_by
         lhs_cols = String[]
         rhs_cols = String[]

@@ -117,8 +117,11 @@ function expr_to_sql_trino(expr, sq; from_summarize::Bool)
             # Convert variables to strings if necessary
             column_str = string(column)
             key_str = string(key)
-            return """ CASE WHEN $column_str IS NULL THEN NULL ELSE COALESCE(  LIST_EXTRACT( CASE  WHEN '$key_str' IS NULL THEN NULL ELSE ELEMENT_AT($column_str, '$key_str') END, 1 ), NULL) END ***"""
-        # Date extraction functions
+            if uppercase(column_str) == "ARRAY"
+                return x
+            else
+                return """ CASE WHEN $column_str IS NULL THEN NULL ELSE COALESCE(  LIST_EXTRACT( CASE  WHEN '$key_str' IS NULL THEN NULL ELSE ELEMENT_AT($column_str, '$key_str') END, 1 ), NULL) END ***"""
+            end        # Date extraction functions
         elseif @capture(x, year(a_))
             return "EXTRACT(YEAR FROM " * string(a) * ")"
         elseif @capture(x, month(a_))

@@ -476,35 +476,69 @@ function construct_window_clause(sq::SQLQuery ; from_cumsum::Bool = false)
 end
 
 function parse_join_expression(expr)
+    # We’ll store everything we find in these:
+    lhs_cols  = String[]
+    rhs_cols  = String[]
+    closests  = String[]
+    operators = String[]
+    as_of     = ""
+
+    # If it's a single equality like `id = id2`
     if isa(expr, Expr) && expr.head == :(=)
-        # Handle equality condition (e.g., ticker = ticker)
-        rhs_column = expr.args[1]
-        lhs_column = expr.args[2]
-        lhs_col_str = string(lhs_column)
-        rhs_col_str = string(rhs_column)
-        return lhs_col_str, rhs_col_str
-    
-    elseif isa(expr, Symbol)
-        # Handle single column reference (e.g., ticker)
-        col_str = string(expr)
-        return col_str, col_str
-    
-    else
-        error("Unsupported join expression: $expr")
+        push!(lhs_cols, string(expr.args[1]))
+        push!(rhs_cols, string(expr.args[2]))
+        return lhs_cols, rhs_cols, operators, closests, as_of
     end
+
+    # If it's a call like `join_by(...)`
+    if isa(expr, Expr) && expr.head == :call && expr.args[1] == :join_by
+        for arg in expr.args[2:end]
+
+            # 1) Check for `closest(...)`
+            if arg isa Expr && arg.head == :call && arg.args[1] == Symbol("closest")
+                as_of = " ASOF "
+
+                # The inside of closest(...) is arg.args[2], e.g. :(id >= id2)
+                inside_expr = arg.args[2]
+                if inside_expr isa Expr && inside_expr.head == :call && (
+                    inside_expr.args[1] in (Symbol("=="), Symbol(">="), Symbol("<="), 
+                                            Symbol("!="), Symbol(">"), Symbol("<"))
+                )
+                    # parse the operator the exact same way
+                    push!(operators, string(inside_expr.args[1]))
+                    push!(lhs_cols,  string(inside_expr.args[2]))
+                    push!(rhs_cols,  string(inside_expr.args[3]))
+                else
+                    # in case it's just a single column or something else
+                    # (or error out if you only expect operators)
+                    error("closest(...) must wrap an operator expression like id >= id2")
+                end
+
+            # 2) Check for a normal operator-based expression (id >= id2, etc.)
+            elseif arg isa Expr && arg.head == :call && arg.args[1] in (
+                Symbol("=="), Symbol(">="), Symbol("<="), Symbol("!="), Symbol(">"), Symbol("<")
+            )
+                push!(operators, string(arg.args[1]))
+                push!(lhs_cols,  string(arg.args[2]))
+                push!(rhs_cols,  string(arg.args[3]))
+
+            # 3) If you want to handle something else here, do so...
+            else
+                # possibly ignore or handle corner cases
+            end
+        end
+
+        return lhs_cols, rhs_cols, operators, closests, as_of
+    end
+
+    # If it's a bare symbol, etc.
+    if isa(expr, Symbol)
+        return [string(expr)], [string(expr)], operators, closests, as_of
+    end
+
+    error("Unsupported join expression: $expr")
 end
 
-function parse_closest_expression(expr)
-    as_of = ""
-    if expr.head == :call && string(expr.args[1]) == "closest"
-        inner_expr = expr.args[2]
-        as_of = " ASOF "
-        and = " AND"
-        return string(" ", inner_expr), as_of, and
-    else
-        error("Expression must be of the form closest(expr)")
-    end
-end
 
 function filter_columns_by_expr(actual_expr, metadata::DataFrame)
     # Filter metadata by current_selxn != 0

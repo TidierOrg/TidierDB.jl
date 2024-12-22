@@ -77,11 +77,11 @@ function create_and_add_cte(sq, cte_name)
     return most_recent_source, cte_name
 end
 
-function sql_join_on(sq, join_table_name, lhs_cols, rhs_cols::Vector{String}; closest_expr=String[])
+function sql_join_on(sq, join_table_name, lhs_cols::Vector{String}, rhs_cols::Vector{String}, operators::Vector{String}; closest_expr=String[])
     table_from = isa(sq, SQLQuery) ? sq.from : sq
     conditions = String[]
-    for (lhs_col_str, rhs_col_str) in zip(lhs_cols, rhs_cols)
-        condition = gbq_join_parse(table_from) * "." * lhs_col_str * " = " *
+    for (lhs_col_str, rhs_col_str, symb_str) in zip(lhs_cols, rhs_cols, operators)
+        condition = gbq_join_parse(table_from) * "." * lhs_col_str * " " * symb_str * " " *
                     gbq_join_parse(join_table_name) * "." * rhs_col_str
         push!(conditions, condition)
     end
@@ -102,7 +102,7 @@ $docstring_left_join
 """
 macro left_join(sqlquery, join_table, expr... )
 
-    lhs_col_str, rhs_col_str, closest_expr, as_of = parse_join_expression(expr[1])
+    lhs_col_str, rhs_col_str, operators, closest_expr, as_of = parse_join_expression(expr[1])
 
     return quote
         sq = $(esc(sqlquery))
@@ -153,7 +153,7 @@ macro left_join(sqlquery, join_table, expr... )
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
                           $as_of * " LEFT JOIN " * join_table_name * " ON " * 
-                        sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str; closest_expr = $closest_expr)
+                        sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str, $operators; closest_expr = $closest_expr)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -197,7 +197,7 @@ macro left_join(sqlquery, join_table, expr... )
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
                 end
                 join_clause = $as_of * " LEFT JOIN " * join_table_name * " ON " * 
-                    sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str; closest_expr = $closest_expr)
+                    sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str, $operators; closest_expr = $closest_expr)
                
                 sq.from *= join_clause
 
@@ -215,7 +215,7 @@ end
 $docstring_right_join
 """
 macro right_join(sqlquery, join_table, expr...)
-    lhs_col_str, rhs_col_str, closest_expr, as_of = parse_join_expression(expr[1])
+    lhs_col_str, rhs_col_str, operators, closest_expr, as_of = parse_join_expression(expr[1])
 
     return quote
         sq = $(esc(sqlquery))
@@ -265,7 +265,7 @@ macro right_join(sqlquery, join_table, expr...)
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
                            " RIGHT JOIN " * join_table_name * " ON " *
-                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str)
+                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -307,7 +307,8 @@ macro right_join(sqlquery, join_table, expr...)
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
                end
-                join_clause = " RIGHT JOIN " * join_table_name * " ON " * sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str)
+                join_clause = " RIGHT JOIN " * join_table_name * " ON " * 
+                        sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
                 sq.from *= join_clause
             end
         else
@@ -322,7 +323,7 @@ end
 $docstring_inner_join
 """
 macro inner_join(sqlquery, join_table, expr...)
-    lhs_col_str, rhs_col_str, closest_expr, as_of = parse_join_expression(expr[1])
+    lhs_col_str, rhs_col_str, operators, closest_expr, as_of = parse_join_expression(expr[1])
 
     return quote
         sq = $(esc(sqlquery))
@@ -372,7 +373,7 @@ macro inner_join(sqlquery, join_table, expr...)
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
                            " INNER JOIN " * join_table_name * " ON " *
-                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str)
+                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -414,7 +415,8 @@ macro inner_join(sqlquery, join_table, expr...)
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
                end
-                join_clause = " INNER JOIN " * join_table_name * " ON " * sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str)
+                join_clause = " INNER JOIN " * join_table_name * " ON " * 
+                    sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
                 sq.from *= join_clause
             end
         else
@@ -429,7 +431,7 @@ end
 $docstring_full_join
 """
 macro full_join(sqlquery, join_table, expr...)
-    lhs_col_str, rhs_col_str, closest_expr, as_of = parse_join_expression(expr[1])
+    lhs_col_str, rhs_col_str, operators, closest_expr, as_of = parse_join_expression(expr[1])
 
 
     return quote
@@ -481,7 +483,7 @@ macro full_join(sqlquery, join_table, expr...)
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
                            " FULL JOIN " * join_table_name * " ON " *
-                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str)
+                                 sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -523,7 +525,8 @@ macro full_join(sqlquery, join_table, expr...)
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
                end
-                join_clause = " FULL JOIN " * join_table_name * " ON " * sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str)
+                join_clause = " FULL JOIN " * join_table_name * " ON " * 
+                    sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
                 sq.from *= join_clause
             end
             
@@ -540,7 +543,7 @@ end
 $docstring_semi_join
 """
 macro semi_join(sqlquery, join_table, expr...)
-    lhs_col_str, rhs_col_str, closest_expr, as_of = parse_join_expression(expr[1])
+    lhs_col_str, rhs_col_str, operators, closest_expr, as_of = parse_join_expression(expr[1])
 
     return quote
         sq = $(esc(sqlquery))
@@ -591,7 +594,7 @@ macro semi_join(sqlquery, join_table, expr...)
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
                            " SEMI JOIN " * join_table_name * " ON " *
-                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str)
+                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -633,7 +636,7 @@ macro semi_join(sqlquery, join_table, expr...)
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
                end
-                join_clause = " SEMI JOIN " * join_table_name * " ON " * sql_join_on(sq, join_table_name, $lhs_col_str, $rhs_col_str)
+                join_clause = " SEMI JOIN " * join_table_name * " ON " * sql_join_on(sq, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
                 sq.from *= join_clause
             end
         else
@@ -648,7 +651,7 @@ end
 $docstring_anti_join
 """
 macro anti_join(sqlquery, join_table, expr...)
-    lhs_col_str, rhs_col_str, closest_expr, as_of = parse_join_expression(expr[1])
+    lhs_col_str, rhs_col_str, operators, closest_expr, as_of = parse_join_expression(expr[1])
 
     return quote
         sq = $(esc(sqlquery))
@@ -698,7 +701,7 @@ macro anti_join(sqlquery, join_table, expr...)
                 join_sql = " " * most_recent_source * ".*, " *
                            get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
                            " ANTI JOIN " * join_table_name * " ON " *
-                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str)
+                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
 
                 # Create and add the new CTE
                 new_cte = CTE(name=cte_name, select=join_sql)
@@ -740,7 +743,7 @@ macro anti_join(sqlquery, join_table, expr...)
                 if sq.groupBy != ""
                     most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
                 end
-                join_clause = " ANTI JOIN " * join_table_name * " ON " * sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str)
+                join_clause = " ANTI JOIN " * join_table_name * " ON " * sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
                 sq.from *= join_clause
             end
         else

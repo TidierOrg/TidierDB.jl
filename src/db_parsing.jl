@@ -480,6 +480,7 @@ function parse_join_expression(expr)
         lhs_cols = String[]
         rhs_cols = String[]
         closests = String[]
+        operators = String[]
         as_of = ""
         
         lhs_column = expr.args[1]
@@ -488,12 +489,13 @@ function parse_join_expression(expr)
         rhs_col_str = string(rhs_column)
         push!(lhs_cols, lhs_col_str)
         push!(rhs_cols, rhs_col_str)
-        return lhs_cols, rhs_cols , closests, as_of
+        return lhs_cols, rhs_cols, operators, closests, as_of
 
     elseif expr.head == :call && expr.args[1] == :join_by
         lhs_cols = String[]
         rhs_cols = String[]
         closests = String[]
+        operators = String[]
         as_of = ""
         for arg in expr.args[2:end]
 #            println(arg)
@@ -502,18 +504,20 @@ function parse_join_expression(expr)
                # println(arg.args)
                 closest = arg.args[2]
                push!(closests, string(closest))
-               as_of = "\n \t ASOF "
-            elseif arg isa Expr && arg.head == :call && arg.args[1] == Symbol("==")
+               as_of = " ASOF "
+            elseif arg isa Expr && arg.head == :call && arg.args[1] in (Symbol("=="), Symbol(">="), Symbol("<="), Symbol("!="), Symbol(">"), Symbol("<"))
+                symb = arg.args[1]
                 lhs_column = arg.args[2]
                 rhs_column = arg.args[3]
                 lhs_col_str = string(lhs_column)
                 rhs_col_str = string(rhs_column)
+                symb_str = string(symb)
+                push!(operators, symb_str)
                 push!(lhs_cols, lhs_col_str)
                 push!(rhs_cols, rhs_col_str)
             end
         end
-     
-        return lhs_cols, rhs_cols , closests, as_of
+        return lhs_cols, rhs_cols, operators, closests, as_of
     
     elseif isa(expr, Symbol)
         # Handle single column reference (e.g., ticker)

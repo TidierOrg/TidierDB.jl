@@ -35,23 +35,23 @@
 #     (@chain DB.t(age) begin
 #     DB.@filter(str_detect(Description, r"^\d+ years$"))
 #     DB.@mutate(age_ = as_integer(str_remove(Code, "years"))) end),
-#     join_by(Age == Code)
+#     Age == Code
 #   )
-#   DB.@inner_join((@chain DB.t(year) DB.@mutate(year_ = Description)), join_by(year == Code))
+#   DB.@inner_join((@chain DB.t(year) DB.@mutate(year_ = Description)), year == Code)
 #   DB.@inner_join((@chain DB.t(area) begin
 #     DB.@mutate(area_ = Description)
 #     DB.@filter(!str_detect(area_, r"^Total"))
 #   end)
-#     , join_by(Area == Code))
+#     , Area == Code)
 #     DB.@inner_join((@chain DB.t(ethnic) begin
 #       DB.@mutate(ethnic_ = Description)
-#       DB.@filter(!str_detect( ethnic_, r"^Total",)) end), join_by(Ethnic == Code))
+#       DB.@filter(!str_detect( ethnic_, r"^Total",)) end), Ethnic == Code)
 #   DB.@inner_join((@chain DB.t(sex) begin
 #     DB.@mutate(sex_ = Description)
 #     DB.@filter(!str_detect( sex_, r"^Total"))
 #   end)
-#    , join_by(Sex == Code))
-#   DB.@inner_join((@chain DB.t(year) DB.@mutate(year_ = Description)), join_by(Year == Code))
+#    , Sex == Code)
+#   DB.@inner_join((@chain DB.t(year) DB.@mutate(year_ = Description)), Year == Code)
 #   @aside DB.@show_query _
 #   DB.@create_view(joined_up)
 # end

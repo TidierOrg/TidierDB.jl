@@ -479,61 +479,44 @@ function parse_join_expression(expr)
     # We’ll store everything we find in these:
     lhs_cols  = String[]
     rhs_cols  = String[]
-    closests  = String[]
     operators = String[]
+    closests  = String[]
     as_of     = ""
 
-    # If it's a single equality like `id = id2`
-    if isa(expr, Expr) && expr.head == :(=)
-        push!(lhs_cols, string(expr.args[1]))
-        push!(rhs_cols, string(expr.args[2]))
-        return lhs_cols, rhs_cols, operators, closests, as_of
-    end
+    # Check for `closest(...)`
+    if isa(expr, Expr) && expr.head == :call && expr.args[1] == :closest
+        as_of = " ASOF "
 
-    # If it's a call like `join_by(...)`
-    if isa(expr, Expr) && expr.head == :call && expr.args[1] == :join_by
-        for arg in expr.args[2:end]
-
-            # 1) Check for `closest(...)`
-            if arg isa Expr && arg.head == :call && arg.args[1] == Symbol("closest")
-                as_of = " ASOF "
-
-                # The inside of closest(...) is arg.args[2], e.g. :(id >= id2)
-                inside_expr = arg.args[2]
-                if inside_expr isa Expr && inside_expr.head == :call && (
-                    inside_expr.args[1] in (Symbol("=="), Symbol(">="), Symbol("<="), 
-                                            Symbol("!="), Symbol(">"), Symbol("<"))
-                )
-                    # parse the operator the exact same way
-                    push!(operators, string(inside_expr.args[1]))
-                    push!(lhs_cols,  string(inside_expr.args[2]))
-                    push!(rhs_cols,  string(inside_expr.args[3]))
-                else
-                    # in case it's just a single column or something else
-                    # (or error out if you only expect operators)
-                    error("closest(...) must wrap an operator expression like id >= id2")
-                end
-
-            # 2) Check for a normal operator-based expression (id >= id2, etc.)
-            elseif arg isa Expr && arg.head == :call && arg.args[1] in (
-                Symbol("=="), Symbol(">="), Symbol("<="), Symbol("!="), Symbol(">"), Symbol("<")
-            )
-                push!(operators, string(arg.args[1]))
-                push!(lhs_cols,  string(arg.args[2]))
-                push!(rhs_cols,  string(arg.args[3]))
-
-            # 3) If you want to handle something else here, do so...
-            else
-                # possibly ignore or handle corner cases
-            end
+        # The inside of closest(...) is expr.args[2], e.g. :(sale_date <= promo_date)
+        inside_expr = expr.args[2]
+        if isa(inside_expr, Expr) && inside_expr.head == :call && (
+            inside_expr.args[1] in (Symbol("=="), Symbol(">="), Symbol("<="), 
+                                    Symbol("!="), Symbol(">"), Symbol("<"))
+        )
+            push!(operators, string(inside_expr.args[1]))
+            push!(lhs_cols, string(inside_expr.args[2]))
+            push!(rhs_cols, string(inside_expr.args[3]))
+            push!(closests, string(expr))  # Optional: Record closest() for debugging
+        else
+            error("closest(...) must wrap an operator expression like sale_date <= promo_date")
         end
 
         return lhs_cols, rhs_cols, operators, closests, as_of
     end
 
-    # If it's a bare symbol, etc.
+    # Handle single operator-based expressions (e.g., sale_date <= promo_date)
+    if isa(expr, Expr) && expr.head == :call && expr.args[1] in (
+        Symbol("=="), Symbol(">="), Symbol("<="), Symbol("!="), Symbol(">"), Symbol("<")
+    )
+        push!(operators, string(expr.args[1]))
+        push!(lhs_cols, string(expr.args[2]))
+        push!(rhs_cols, string(expr.args[3]))
+        return lhs_cols, rhs_cols, operators, closests, as_of
+    end
+
+    # Handle single bare column (e.g., id)
     if isa(expr, Symbol)
-        return [string(expr)], [string(expr)], operators, closests, as_of
+        return [string(expr)], [string(expr)], ["=="], closests, as_of
     end
 
     error("Unsupported join expression: $expr")

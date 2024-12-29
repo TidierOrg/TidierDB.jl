@@ -116,32 +116,46 @@ macro filter(sqlquery, conditions...)
 end
 
 
-desc(col::Symbol) = (col, :desc)
+
+function _colref_to_string(col)
+    # If it's already a bare Symbol, just convert to string
+    if isa(col, Symbol)
+        return string(col)
+    # If it's an expression using the dot operator, e.g. `sales.id`
+    elseif isa(col, Expr) && col.head === :.
+        # col.args[1] = the "parent" (could be another dotted expr)
+        # col.args[2] = the field name (usually a Symbol)
+        parent_str = _colref_to_string(col.args[1])
+        field_str  = string(col.args[2].value)
+        return parent_str * "." * field_str
+    else
+        throw("Unsupported column reference: $col")
+    end
+end
+
 """
 $docstring_arrange
 """
 macro arrange(sqlquery, columns...)
-
-    # Initialize a string to hold column order specifications
+    # Build up the ORDER BY specs
     order_specs = String[]
-
-    # Process each column argument
+    
     for col in columns
         if isa(col, Expr) && col.head == :call && col.args[1] == :desc
-            # Column specified with `desc()`, indicating descending order
-            push!(order_specs, string(col.args[2]) * " DESC")
-        elseif isa(col, Symbol)
-            # Plain column symbol, indicating ascending order
-            push!(order_specs, string(col) * " ASC")
+            # Example: `desc(sales.id)` or `desc(:col)`
+            # Descending
+            colstr = _colref_to_string(col.args[2])
+            push!(order_specs, colstr * " DESC")
         else
-            throw("Unsupported column specification in @arrange: $col")
+            # Ascending
+            colstr = _colref_to_string(col)
+            push!(order_specs, colstr * " ASC")
         end
     end
 
-    # Construct the ORDER BY clause
+    # Construct ORDER BY clause
     order_clause = join(order_specs, ", ")
 
-    # Modify the SQLQuery object's orderBy field
     return quote
         if $(esc(sqlquery)) isa SQLQuery
             $(esc(sqlquery)).orderBy = " ORDER BY " * $order_clause
@@ -151,6 +165,7 @@ macro arrange(sqlquery, columns...)
         $(esc(sqlquery))
     end
 end
+
 
 """
 $docstring_group_by

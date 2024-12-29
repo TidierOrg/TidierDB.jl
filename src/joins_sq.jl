@@ -21,7 +21,7 @@ function get_join_columns(db, join_table, lhs_col_str)
         cols = get_table_metadata(db, string(join_table))
         matching_indices = findall(cols.name .== lhs_col_str)
         cols.current_selxn[matching_indices] .= 0
-        cols_names = cols.name[cols.current_selxn .== 1] |> Vector
+        cols_names = cols.name[cols.current_selxn .>= 1] |> Vector
         return join([string(join_table, ".", col) for col in cols_names], ", ") * " FROM "
     else current_sql_mode[] == gbq()
         return string(gbq_join_parse(join_table)) * ".* FROM "
@@ -85,13 +85,11 @@ function sql_join_on(sq, join_table_name, lhs_cols::Vector{String}, rhs_cols::Ve
                     gbq_join_parse(join_table_name) * "." * rhs_col_str
         push!(conditions, condition)
     end
-    on = ""
     on = join(conditions, " AND ")
-    #println(on)
     if on == "" && closest_expr != []
         on *= join(closest_expr, " AND ")
     elseif closest_expr != []
-        on *=  " AND " * join(closest_expr, " AND ")
+       # on *=  " AND " * join(closest_expr, " AND ")
     end
     return on
 end
@@ -101,9 +99,19 @@ end
 $docstring_left_join
 """
 macro left_join(sqlquery, join_table, expr... )
+    lhs_col_str = String[]
+    rhs_col_str = String[]
+    operators   = String[]
+    closest_expr = String[]
+    as_of = ""
 
-    lhs_col_str, rhs_col_str, operators, closest_expr, as_of = parse_join_expression(expr[1])
+    parsed = parse_join_expression.(expr)
 
+    lhs_col_str  = vcat([p[1] for p in parsed]...)
+    rhs_col_str  = vcat([p[2] for p in parsed]...)
+    operators    = vcat([p[3] for p in parsed]...)
+    closest_expr = vcat([p[4] for p in parsed]...)
+    as_of        = join([p[5] for p in parsed], "") 
     return quote
         sq = $(esc(sqlquery))
         jq = $(esc(join_table))  # Evaluate join_table
@@ -215,7 +223,19 @@ end
 $docstring_right_join
 """
 macro right_join(sqlquery, join_table, expr...)
-    lhs_col_str, rhs_col_str, operators, closest_expr, as_of = parse_join_expression(expr[1])
+    lhs_col_str = String[]
+    rhs_col_str = String[]
+    operators   = String[]
+    closest_expr = String[]
+    as_of = ""
+
+    parsed = parse_join_expression.(expr)
+
+    lhs_col_str  = vcat([p[1] for p in parsed]...)
+    rhs_col_str  = vcat([p[2] for p in parsed]...)
+    operators    = vcat([p[3] for p in parsed]...)
+    closest_expr = vcat([p[4] for p in parsed]...)
+    as_of        = join([p[5] for p in parsed], "") 
 
     return quote
         sq = $(esc(sqlquery))
@@ -323,7 +343,19 @@ end
 $docstring_inner_join
 """
 macro inner_join(sqlquery, join_table, expr...)
-    lhs_col_str, rhs_col_str, operators, closest_expr, as_of = parse_join_expression(expr[1])
+    lhs_col_str = String[]
+    rhs_col_str = String[]
+    operators   = String[]
+    closest_expr = String[]
+    as_of = ""
+
+    parsed = parse_join_expression.(expr)
+
+    lhs_col_str  = vcat([p[1] for p in parsed]...)
+    rhs_col_str  = vcat([p[2] for p in parsed]...)
+    operators    = vcat([p[3] for p in parsed]...)
+    closest_expr = vcat([p[4] for p in parsed]...)
+    as_of        = join([p[5] for p in parsed], "") 
 
     return quote
         sq = $(esc(sqlquery))
@@ -431,8 +463,19 @@ end
 $docstring_full_join
 """
 macro full_join(sqlquery, join_table, expr...)
-    lhs_col_str, rhs_col_str, operators, closest_expr, as_of = parse_join_expression(expr[1])
+    lhs_col_str = String[]
+    rhs_col_str = String[]
+    operators   = String[]
+    closest_expr = String[]
+    as_of = ""
 
+    parsed = parse_join_expression.(expr)
+
+    lhs_col_str  = vcat([p[1] for p in parsed]...)
+    rhs_col_str  = vcat([p[2] for p in parsed]...)
+    operators    = vcat([p[3] for p in parsed]...)
+    closest_expr = vcat([p[4] for p in parsed]...)
+    as_of        = join([p[5] for p in parsed], "") 
 
     return quote
         sq = $(esc(sqlquery))
@@ -543,8 +586,19 @@ end
 $docstring_semi_join
 """
 macro semi_join(sqlquery, join_table, expr...)
-    lhs_col_str, rhs_col_str, operators, closest_expr, as_of = parse_join_expression(expr[1])
+    lhs_col_str = String[]
+    rhs_col_str = String[]
+    operators   = String[]
+    closest_expr = String[]
+    as_of = ""
 
+    parsed = parse_join_expression.(expr)
+
+    lhs_col_str  = vcat([p[1] for p in parsed]...)
+    rhs_col_str  = vcat([p[2] for p in parsed]...)
+    operators    = vcat([p[3] for p in parsed]...)
+    closest_expr = vcat([p[4] for p in parsed]...)
+    as_of        = join([p[5] for p in parsed], "") 
     return quote
         sq = $(esc(sqlquery))
         jq = $(esc(join_table))  # Evaluate join_table
@@ -651,8 +705,19 @@ end
 $docstring_anti_join
 """
 macro anti_join(sqlquery, join_table, expr...)
-    lhs_col_str, rhs_col_str, operators, closest_expr, as_of = parse_join_expression(expr[1])
+    lhs_col_str = String[]
+    rhs_col_str = String[]
+    operators   = String[]
+    closest_expr = String[]
+    as_of = ""
 
+    parsed = parse_join_expression.(expr)
+
+    lhs_col_str  = vcat([p[1] for p in parsed]...)
+    rhs_col_str  = vcat([p[2] for p in parsed]...)
+    operators    = vcat([p[3] for p in parsed]...)
+    closest_expr = vcat([p[4] for p in parsed]...)
+    as_of        = join([p[5] for p in parsed], "") 
     return quote
         sq = $(esc(sqlquery))
         jq = $(esc(join_table))  # Evaluate join_table

@@ -32,7 +32,7 @@
 # query2 = @chain t(mtcars) @filter(mpg>20) @mutate(mpg = mpg *4); 
 
 # @chain t(query) begin
-#     @left_join(t(query2), join_by(cyl == cyl))
+#     @left_join(t(query2), cyl == cyl)
 #     @group_by(efficiency)
 #     @summarize(avg_mean = mean(mpg))
 #     @mutate(mean = avg_mean / 4 )
@@ -55,7 +55,7 @@
 # ```julia
 # other_db = @chain db_table(db, "ducks_db.mt2") @filter(!str_detect(car, "M"))
 # @chain t(mtcars) begin
-#     @left_join(t(other_db), join_by(model == car))
+#     @left_join(t(other_db), model == car)
 #     @select(car, model)
 #     @head(5)
 #     @collect
@@ -76,7 +76,7 @@
 # To join directly to the table, you can use the `@left_join` macro with the table name as a string.
 # ```julia
 # @chain t(mtcars) begin
-#     @left_join("ducks_db.mt2", join_by(model == car))
+#     @left_join("ducks_db.mt2", model == car)
 #     @select(car, model)
 #     @head(5)
 #     @collect
@@ -116,7 +116,7 @@
 #
 # # access the view like as if it was any other table
 # @chain db_table(db, "viewer") begin 
-#     @left_join(t(query2), join_by(cyl == cyl))
+#     @left_join(t(query2), cyl == cyl)
 #     @group_by(efficiency)
 #     @summarize(avg_mean = mean(mpg))
 #     @mutate(mean = avg_mean / 4 )

@@ -8,7 +8,7 @@
 # db = DuckDB.DB()
 # con = DuckDB.connect(db) # this will be important for UDFs
 # mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
-# mtcars = db_tbable(con, mtcars_path);
+# mtcars = db_tbable(db, mtcars_path);
 # ```
 # ## aggregate function in `@summarize`
 # Lets use the DuckDB `kurtosis` aggregate function 
@@ -93,7 +93,7 @@
 # When a table is not being read directly from a file, `rowid` is avaialable for use. In general, TidierDB should support all pseudocolumns.
 # ```
 # copy_to(db, mtcars_path, "mtcars"); # copying table in for demostration purposes 
-# @chain db_table(con, :mtcars) begin
+# @chain db_table(db, :mtcars) begin
 #       @filter(rowid == 4)
 #       @select(model:hp)
 #       @collect

@@ -283,7 +283,7 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
     elseif delta
         "delta_scan('$table_name')"
     elseif occursin(r"[:/\\]", table_name) && !(iceberg || delta) && !startswith(table_name, "read") 
-        if occursin(r"\*", table_name)
+        if occursin(r"\*", table_name) || alias != ""
              alias = alias == "" ? "data" : alias
         else 
             alias = (split(basename(table_name), '.')[1])

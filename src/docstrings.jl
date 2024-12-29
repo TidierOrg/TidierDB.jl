@@ -606,7 +606,7 @@ julia> @chain db_table(db, :df_mem) begin
 
 const docstring_left_join =
 """
-    @left_join(sql_query, join_table, orignal_table_col = new_table_col)
+    @left_join(sql_query, join_table, orignal_table_col == new_table_col)
 
 Perform a left join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
@@ -636,7 +636,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, "df_mem") begin
-         @left_join("df_join", join_by(id == id2) )
+         @left_join("df_join", id == id2 )
          @collect
        end
 10×7 DataFrame
@@ -659,7 +659,7 @@ julia> query = @chain db_table(db, "df_join") begin
                 end;
 
 julia> @chain db_table(db, "df_mem") begin
-         @left_join(t(query), join_by(id == id2))
+         @left_join(t(query), id == id2)
          @collect
        end
 10×7 DataFrame
@@ -682,7 +682,7 @@ julia> @chain db_table(db, "df_mem") begin
 
 const docstring_right_join =
 """
-    @right_join(sql_query, join_table, orignal_table_col = new_table_col)
+    @right_join(sql_query, join_table, orignal_table_col == new_table_col)
 
 Perform a right join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
@@ -713,7 +713,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @right_join("df_join", join_by(id == id2))
+         @right_join("df_join", id == id2)
          @collect
        end
 7×7 DataFrame
@@ -733,7 +733,7 @@ julia> query = @chain db_table(db, "df_join") begin
                 end;
 
 julia> @chain db_table(db, :df_mem) begin
-         @right_join(t(query), join_by(id == id2))
+         @right_join(t(query), id == id2)
          @collect
        end
 6×7 DataFrame
@@ -751,7 +751,7 @@ julia> @chain db_table(db, :df_mem) begin
 
 const docstring_inner_join =
 """
-    @inner_join(sql_query, join_table, orignal_table_col = new_table_col)
+    @inner_join(sql_query, join_table, orignal_table_col == new_table_col)
 
 Perform an inner join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
@@ -781,7 +781,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @inner_join("df_join", join_by(id == id2))
+         @inner_join("df_join", id == id2)
          @collect
        end
 5×7 DataFrame
@@ -797,7 +797,7 @@ julia> @chain db_table(db, :df_mem) begin
 """
 const docstring_full_join =
 """
-    @inner_join(sql_query, join_table, orignal_table_col = new_table_col)
+    @inner_join(sql_query, join_table, orignal_table_col == new_table_col)
     
 Perform an full join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
@@ -827,7 +827,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @full_join((@chain db_table(db, "df_join") @filter(score > 70)), join_by(id == id))
+         @full_join((@chain db_table(db, "df_join") @filter(score > 70)), id == id)
          #@aside @show_query _
          @collect
        end
@@ -851,7 +851,7 @@ julia> @chain db_table(db, :df_mem) begin
 
 const docstring_semi_join =
 """
-    @semi_join(sql_query, join_table, orignal_table_col = new_table_col)
+    @semi_join(sql_query, join_table, orignal_table_col == new_table_col)
 
 Perform an semi join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
@@ -881,7 +881,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-         @semi_join("df_join", join_by(id == id2))
+         @semi_join("df_join", id == id2)
          @collect
        end
 5×4 DataFrame
@@ -898,7 +898,7 @@ julia> @chain db_table(db, :df_mem) begin
 
 const docstring_anti_join =
 """
-    @anti_join(sql_query, join_table, orignal_table_col = new_table_col)
+    @anti_join(sql_query, join_table, orignal_table_col == new_table_col)
 
 Perform an anti join between two SQL queries based on a specified condition. 
 This syntax here is slightly different than TidierData.jl, however, because 
@@ -928,7 +928,7 @@ julia> copy_to(db, df, "df_mem");
 julia> copy_to(db, df2, "df_join");
 
 julia> @chain db_table(db, :df_mem) begin
-        @anti_join("df_join", join_by(id == id2))
+        @anti_join("df_join", id == id2)
         @collect
        end
 5×4 DataFrame

@@ -77,6 +77,57 @@ function create_and_add_cte(sq, cte_name)
     return most_recent_source, cte_name
 end
 
+function process_and_generate_columns(sq, vq, lhs, rhs, most_recent_source, join_table_name)
+    # Initialize strings for the final result
+    coalesce_exprs = String[]
+    column_exprs = String[]
+    
+    # Process `sq`
+    function filter_dataframe_by_columns(df, column_set, remove=true)
+        # Identify rows to keep or remove based on column_set
+        if remove
+            filtered_df = filter(row -> !(row.name in column_set), df)
+        else
+            filtered_df = filter(row -> row.name in column_set, df)
+        end
+        return filtered_df
+    end
+    
+    cols_sq = filter_dataframe_by_columns(sq.metadata, vq.metadata.name)
+    matching_indices_sq = findall(cols_sq.name .== lhs .|| cols_sq.name .== rhs)
+    cols_sq.current_selxn[matching_indices_sq] .= 0
+    cols_names_sq = cols_sq.name[cols_sq.current_selxn .>= 1] |> Vector
+
+    # Add `COALESCE(...)` for lhs
+    for (lhs_col, rhs_col) in zip(lhs, rhs)
+        push!(coalesce_exprs, "COALESCE($most_recent_source.$lhs_col, $join_table_name.$rhs_col) AS $lhs_col")
+    end
+    
+
+    # Add remaining columns from `sq`
+    for col in cols_names_sq
+        push!(column_exprs, "$most_recent_source.$col")
+    end
+
+    # Process `vq`
+    cols_vq = vq.metadata
+    matching_indices_vq = findall(cols_vq.name .== lhs .|| cols_vq.name .== rhs)
+    cols_vq.current_selxn[matching_indices_vq] .= 0
+    cols_names_vq = cols_vq.name[cols_vq.current_selxn .>= 1 .&& cols_vq.table_name .!= join_table_name] |> Vector
+
+    # Add remaining columns from `vq`
+    for col in cols_names_vq
+        push!(column_exprs, "$join_table_name.$col")
+    end
+
+    # Combine all expressions
+    final_columns = join(vcat(coalesce_exprs, column_exprs), ", ")  
+    
+    return final_columns   #*gbq_join_parse(most_recent_source)
+
+
+end
+
 function sql_join_on(sq, join_table_name, lhs_cols::Vector{String}, rhs_cols::Vector{String}, operators::Vector{String}; closest_expr=String[])
     table_from = isa(sq, SQLQuery) ? sq.from : sq
     conditions = String[]
@@ -92,6 +143,119 @@ function sql_join_on(sq, join_table_name, lhs_cols::Vector{String}, rhs_cols::Ve
        # on *=  " AND " * join(closest_expr, " AND ")
     end
     return on
+end
+
+function do_join(
+    join_type::String,
+    sq::SQLQuery,
+    jq::Union{SQLQuery,String},
+    lhs_col_str::Vector{String},
+    rhs_col_str::Vector{String},
+    operators::Vector{String},
+    closest_expr::Vector{String},
+    as_of::String
+)
+
+    needs_new_cte = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
+
+    if needs_new_cte
+        sq.cte_count += 1
+        cte_name = "cte_" * string(sq.cte_count)
+        most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
+
+        # === handle `jq` (join_table) if it is another SQLQuery ===
+        if isa(jq, SQLQuery)
+            jq.cte_count += 1
+            sq.join_count += 1
+            needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
+
+            if needs_new_cte_jq
+                joinc = "j" * string(sq.join_count)
+                for cte in jq.ctes
+                    cte.name = joinc * cte.name
+                end
+                cte_name_jq = joinc * "cte_" * string(jq.cte_count)
+                most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
+                select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
+                new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
+                push!(jq.ctes, new_cte_jq)
+                jq.from = cte_name_jq
+            end
+
+            sq.ctes = vcat(sq.ctes, jq.ctes)
+            sq.metadata = vcat(sq.metadata, jq.metadata)
+            join_table_name = jq.from
+
+        else
+            # === handle `jq` if it is just a string/table-name ===
+            join_table_name = string(jq)
+            if current_sql_mode[] != :athena
+                new_metadata = get_table_metadata(sq.db, join_table_name)
+            else
+                new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
+            end
+            sq.metadata = vcat(sq.metadata, new_metadata)
+        end
+
+        # If grouping is present, finalize the previous partial query as a CTE
+        if sq.groupBy != ""
+            most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
+        end
+
+
+        join_sql = " " * most_recent_source * ".*, " *
+                           get_join_columns(sq.db, join_table_name, lhs_col_str) * gbq_join_parse(most_recent_source) *
+                           as_of * " " * join_type * " JOIN " * join_table_name * " ON " *
+                        sql_join_on(most_recent_source, join_table_name, lhs_col_str, rhs_col_str, operators)
+
+        # Create and add the new CTE
+        new_cte = CTE(name=cte_name, select=join_sql)
+        push!(sq.ctes, new_cte)
+        sq.from = cte_name
+
+    else
+        # === no new CTE needed, proceed with direct join string building ===
+        if isa(jq, SQLQuery)
+            needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
+            sq.join_count += 1
+            if needs_new_cte_jq
+                joinc = "j" * string(sq.join_count)
+                for cte in jq.ctes
+                    cte.name = joinc * cte.name
+                end
+                jq.cte_count += 1
+                cte_name_jq = joinc * "cte_" * string(jq.cte_count)
+                most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
+                select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
+                new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
+                push!(jq.ctes, new_cte_jq)
+                jq.from = cte_name_jq
+            end
+            sq.ctes = vcat(sq.ctes, jq.ctes)
+            sq.metadata = vcat(sq.metadata, jq.metadata)
+            join_table_name = jq.from
+        else
+            join_table_name = string(jq)
+            if current_sql_mode[] != :athena
+                new_metadata = get_table_metadata(sq.db, join_table_name)
+            else
+                new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
+            end
+            sq.metadata = vcat(sq.metadata, new_metadata)
+        end
+
+        if sq.groupBy != ""
+            most_recent_source, cte_name = create_and_add_cte(sq, "cte_" * string(sq.cte_count))
+        end
+
+       
+        join_clause = as_of * " " * join_type * " JOIN " * join_table_name * " ON " *
+                    sql_join_on(sq.from, join_table_name, lhs_col_str, rhs_col_str, operators)
+               
+        sq.from *= join_clause
+    end
+
+    return sq
 end
 
 
@@ -112,108 +276,20 @@ macro left_join(sqlquery, join_table, expr... )
     operators    = vcat([p[3] for p in parsed]...)
     closest_expr = vcat([p[4] for p in parsed]...)
     as_of        = join([p[5] for p in parsed], "") 
+
     return quote
         sq = $(esc(sqlquery))
-        jq = $(esc(join_table))  # Evaluate join_table
-
-        if isa(sq, SQLQuery)
-            needs_new_cte = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
-            if needs_new_cte
-                sq.cte_count += 1
-                cte_name = "cte_" * string(sq.cte_count)
-                most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
-
-                if isa(jq, SQLQuery)
-                    jq.cte_count += 1                    # Handle when join_table is an SQLQuery
-                    sq.join_count += 1
-                    needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                    if needs_new_cte_jq
-                        joinc = "j" * string(sq.join_count)
-                        for cte in jq.ctes
-                            cte.name = joinc * cte.name
-                        end
-                        
-                        cte_name_jq = joinc* "cte_" * string(jq.cte_count)
-                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
-                        new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                        push!(jq.ctes, new_cte_jq)
-                        jq.from = cte_name_jq   
-                    end
-                    # Combine CTEs and metadata
-                    sq.ctes = vcat(sq.ctes, jq.ctes)
-                    sq.metadata = vcat(sq.metadata, jq.metadata)
-                    join_table_name = jq.from
-                else
-                    # When join_table is a table name
-                    join_table_name = string(jq)
-                    if current_sql_mode[] != :athena
-                        new_metadata = get_table_metadata(sq.db, join_table_name)
-                    else
-                        new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
-                    end
-                    sq.metadata = vcat(sq.metadata, new_metadata)
-                end
-                if sq.groupBy != ""
-                      most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-                end
-                
-                join_sql = " " * most_recent_source * ".*, " *
-                           get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
-                          $as_of * " LEFT JOIN " * join_table_name * " ON " * 
-                        sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str, $operators; closest_expr = $closest_expr)
-
-                # Create and add the new CTE
-                new_cte = CTE(name=cte_name, select=join_sql)
-                push!(sq.ctes, new_cte)
-                # Update the FROM clause
-                sq.from = cte_name
-            else
-                if isa(jq, SQLQuery)
-                    # Handle when join_table is an SQLQuery
-                    needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                    sq.join_count += 1
-                    if needs_new_cte_jq
-                        joinc = "j" * string(sq.join_count)
-                        for cte in jq.ctes
-                            cte.name = joinc * cte.name
-                        end
-                        jq.cte_count += 1
-                        cte_name_jq = joinc * "cte_" * string(jq.cte_count) #
-                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
-                        new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                        push!(jq.ctes, new_cte_jq)
-                        jq.from = cte_name_jq
-                    end
-                    # Combine CTEs and metadata
-                    sq.ctes = vcat(sq.ctes, jq.ctes)
-                    sq.metadata = vcat(sq.metadata, jq.metadata)
-                    join_table_name = jq.from
-                else
-                    # When join_table is a table name
-
-                    join_table_name = string(jq)
-                    if current_sql_mode[] != :athena
-                        new_metadata = get_table_metadata(sq.db, join_table_name)
-                    else
-                        new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
-                    end
-                    sq.metadata = vcat(sq.metadata, new_metadata)
-                end
-                if sq.groupBy != ""
-                    most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-                end
-                join_clause = $as_of * " LEFT JOIN " * join_table_name * " ON " * 
-                    sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str, $operators; closest_expr = $closest_expr)
-               
-                sq.from *= join_clause
-
-            end
-        else
-            error("Expected sqlquery to be an instance of SQLQuery")
-        end
-        sq
+        jq = $(esc(join_table))
+        do_join(
+            "LEFT",
+            sq,
+            jq,
+            $lhs_col_str,
+            $rhs_col_str,
+            $operators,
+            $closest_expr,
+            $as_of
+        )
     end
 end
 
@@ -222,7 +298,7 @@ end
 """
 $docstring_right_join
 """
-macro right_join(sqlquery, join_table, expr...)
+macro right_join(sqlquery, join_table, expr... )
     lhs_col_str = String[]
     rhs_col_str = String[]
     operators   = String[]
@@ -239,102 +315,17 @@ macro right_join(sqlquery, join_table, expr...)
 
     return quote
         sq = $(esc(sqlquery))
-        jq = $(esc(join_table))  # Evaluate join_table
-
-        if isa(sq, SQLQuery)
-            needs_new_cte = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
-            if needs_new_cte
-                sq.cte_count += 1
-                cte_name = "cte_" * string(sq.cte_count)
-                most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
-
-                if isa(jq, SQLQuery)
-                    jq.cte_count += 1                    # Handle when join_table is an SQLQuery
-                    sq.join_count += 1
-                    needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                    if needs_new_cte_jq
-                        joinc = "j" * string(sq.join_count)
-                        for cte in jq.ctes
-                            cte.name = joinc * cte.name
-                        end
-                        
-                        cte_name_jq = joinc* "cte_" * string(jq.cte_count)
-                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
-                        new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                        push!(jq.ctes, new_cte_jq)
-                        jq.from = cte_name_jq   
-                    end
-                    # Combine CTEs and metadata
-                    sq.ctes = vcat(sq.ctes, jq.ctes)
-                    sq.metadata = vcat(sq.metadata, jq.metadata)
-                    join_table_name = jq.from
-                else
-                    # When join_table is a table name
-                    join_table_name = string(jq)
-                    if current_sql_mode[] != :athena
-                        new_metadata = get_table_metadata(sq.db, join_table_name)
-                    else
-                        new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
-                    end
-                    sq.metadata = vcat(sq.metadata, new_metadata)
-                end
-                if sq.groupBy != ""
-                    most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-               end
-                join_sql = " " * most_recent_source * ".*, " *
-                           get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
-                           " RIGHT JOIN " * join_table_name * " ON " *
-                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
-
-                # Create and add the new CTE
-                new_cte = CTE(name=cte_name, select=join_sql)
-                push!(sq.ctes, new_cte)
-                # Update the FROM clause
-                sq.from = cte_name
-            else
-                if isa(jq, SQLQuery)
-                    # Handle when join_table is an SQLQuery
-                    needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                    sq.join_count += 1
-                    if needs_new_cte_jq
-                        joinc = "j" * string(sq.join_count)
-                        for cte in jq.ctes
-                            cte.name = joinc * cte.name
-                        end
-                        jq.cte_count += 1
-                        cte_name_jq = joinc * "cte_" * string(jq.cte_count) #
-                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
-                        new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                        push!(jq.ctes, new_cte_jq)
-                        jq.from = cte_name_jq
-                    end
-                    # Combine CTEs and metadata
-                    sq.ctes = vcat(sq.ctes, jq.ctes)
-                    sq.metadata = vcat(sq.metadata, jq.metadata)
-                    join_table_name = jq.from
-                else
-                    # When join_table is a table name
-                    join_table_name = string(jq)
-                    if current_sql_mode[] != :athena
-                        new_metadata = get_table_metadata(sq.db, join_table_name)
-                    else
-                        new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
-                    end
-                    sq.metadata = vcat(sq.metadata, new_metadata)
-                end
-                if sq.groupBy != ""
-                    most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-               end
-                join_clause = " RIGHT JOIN " * join_table_name * " ON " * 
-                        sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
-                sq.from *= join_clause
-            end
-        else
-            error("Expected sqlquery to be an instance of SQLQuery")
-        end
-        sq
+        jq = $(esc(join_table))
+        do_join(
+            "RIGHT",
+            sq,
+            jq,
+            $lhs_col_str,
+            $rhs_col_str,
+            $operators,
+            $closest_expr,
+            $as_of
+        )
     end
 end
 
@@ -342,7 +333,7 @@ end
 """
 $docstring_inner_join
 """
-macro inner_join(sqlquery, join_table, expr...)
+macro inner_join(sqlquery, join_table, expr... )
     lhs_col_str = String[]
     rhs_col_str = String[]
     operators   = String[]
@@ -359,110 +350,27 @@ macro inner_join(sqlquery, join_table, expr...)
 
     return quote
         sq = $(esc(sqlquery))
-        jq = $(esc(join_table))  # Evaluate join_table
-
-        if isa(sq, SQLQuery)
-            needs_new_cte = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
-            if needs_new_cte
-                sq.cte_count += 1
-                cte_name = "cte_" * string(sq.cte_count)
-                most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
-
-                if isa(jq, SQLQuery)
-                    jq.cte_count += 1                    # Handle when join_table is an SQLQuery
-                    sq.join_count += 1
-                    needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                    if needs_new_cte_jq
-                        joinc = "j" * string(sq.join_count)
-                        for cte in jq.ctes
-                            cte.name = joinc * cte.name
-                        end
-                        
-                        cte_name_jq = joinc* "cte_" * string(jq.cte_count)
-                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
-                        new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                        push!(jq.ctes, new_cte_jq)
-                        jq.from = cte_name_jq   
-                    end
-                    # Combine CTEs and metadata
-                    sq.ctes = vcat(sq.ctes, jq.ctes)
-                    sq.metadata = vcat(sq.metadata, jq.metadata)
-                    join_table_name = jq.from
-                else
-                    # When join_table is a table name
-                    join_table_name = string(jq)
-                    if current_sql_mode[] != :athena
-                        new_metadata = get_table_metadata(sq.db, join_table_name)
-                    else
-                        new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
-                    end
-                    sq.metadata = vcat(sq.metadata, new_metadata)
-                end
-                if sq.groupBy != ""
-                    most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-                end
-                join_sql = " " * most_recent_source * ".*, " *
-                           get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
-                           " INNER JOIN " * join_table_name * " ON " *
-                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
-
-                # Create and add the new CTE
-                new_cte = CTE(name=cte_name, select=join_sql)
-                push!(sq.ctes, new_cte)
-                # Update the FROM clause
-                sq.from = cte_name
-            else
-                if isa(jq, SQLQuery)
-                    # Handle when join_table is an SQLQuery
-                    needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                    sq.join_count += 1
-                    if needs_new_cte_jq
-                        joinc = "j" * string(sq.join_count)
-                        for cte in jq.ctes
-                            cte.name = joinc * cte.name
-                        end
-                        jq.cte_count += 1
-                        cte_name_jq = joinc * "cte_" * string(jq.cte_count) #
-                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
-                        new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                        push!(jq.ctes, new_cte_jq)
-                        jq.from = cte_name_jq
-                    end
-                    # Combine CTEs and metadata
-                    sq.ctes = vcat(sq.ctes, jq.ctes)
-                    sq.metadata = vcat(sq.metadata, jq.metadata)
-                    join_table_name = jq.from
-                else
-                    # When join_table is a table name
-                    join_table_name = string(jq)
-                    if current_sql_mode[] != :athena
-                        new_metadata = get_table_metadata(sq.db, join_table_name)
-                    else
-                        new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
-                    end
-                    sq.metadata = vcat(sq.metadata, new_metadata)
-                end
-                if sq.groupBy != ""
-                    most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-               end
-                join_clause = " INNER JOIN " * join_table_name * " ON " * 
-                    sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
-                sq.from *= join_clause
-            end
-        else
-            error("Expected sqlquery to be an instance of SQLQuery")
-        end
-        sq
+        jq = $(esc(join_table))
+        do_join(
+            "INNER",
+            sq,
+            jq,
+            $lhs_col_str,
+            $rhs_col_str,
+            $operators,
+            $closest_expr,
+            $as_of
+        )
     end
 end
+
+
 
 
 """
 $docstring_full_join
 """
-macro full_join(sqlquery, join_table, expr...)
+macro full_join(sqlquery, join_table, expr... )
     lhs_col_str = String[]
     rhs_col_str = String[]
     operators   = String[]
@@ -479,113 +387,25 @@ macro full_join(sqlquery, join_table, expr...)
 
     return quote
         sq = $(esc(sqlquery))
-        jq = $(esc(join_table))  # Evaluate join_table
-
-        if isa(sq, SQLQuery)
-            needs_new_cte = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
-            if needs_new_cte
-                sq.cte_count += 1
-                cte_name = "cte_" * string(sq.cte_count)
-                most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
-
-                if isa(jq, SQLQuery)
-                    jq.cte_count += 1                    # Handle when join_table is an SQLQuery
-                    sq.join_count += 1
-                    needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                    if needs_new_cte_jq
-                        joinc = "j" * string(sq.join_count)
-                        for cte in jq.ctes
-                            cte.name = joinc * cte.name
-                        end
-                        
-                        cte_name_jq = joinc* "cte_" * string(jq.cte_count)
-                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
-                        new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                        push!(jq.ctes, new_cte_jq)
-                        jq.from = cte_name_jq   
-                    end
-                    # Combine CTEs and metadata
-                    sq.ctes = vcat(sq.ctes, jq.ctes)
-                    sq.metadata = vcat(sq.metadata, jq.metadata)
-                    join_table_name = jq.from
-                else
-                    # When join_table is a table name
-                    join_table_name = string(jq)
-                    if current_sql_mode[] != :athena
-                        new_metadata = get_table_metadata(sq.db, join_table_name)
-                    else
-                        new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
-                    end
-                    sq.metadata = vcat(sq.metadata, new_metadata)
-                   
-                end
-                if sq.groupBy != ""
-                    most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-               end
-                join_sql = " " * most_recent_source * ".*, " *
-                           get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
-                           " FULL JOIN " * join_table_name * " ON " *
-                                 sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
-
-                # Create and add the new CTE
-                new_cte = CTE(name=cte_name, select=join_sql)
-                push!(sq.ctes, new_cte)
-                # Update the FROM clause
-                sq.from = cte_name
-            else
-                if isa(jq, SQLQuery)
-                    # Handle when join_table is an SQLQuery
-                    needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                    sq.join_count += 1
-                    if needs_new_cte_jq
-                        joinc = "j" * string(sq.join_count)
-                        for cte in jq.ctes
-                            cte.name = joinc * cte.name
-                        end
-                        jq.cte_count += 1
-                        cte_name_jq = joinc * "cte_" * string(jq.cte_count) #
-                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
-                        new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                        push!(jq.ctes, new_cte_jq)
-                        jq.from = cte_name_jq
-                    end
-                    # Combine CTEs and metadata
-                    sq.ctes = vcat(sq.ctes, jq.ctes)
-                    sq.metadata = vcat(sq.metadata, jq.metadata)
-                    join_table_name = jq.from
-                else
-                    # When join_table is a table name
-                    join_table_name = string(jq)
-                    if current_sql_mode[] != :athena
-                        new_metadata = get_table_metadata(sq.db, join_table_name)
-                    else
-                        new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
-                    end
-                    sq.metadata = vcat(sq.metadata, new_metadata)
-                end
-                if sq.groupBy != ""
-                    most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-               end
-                join_clause = " FULL JOIN " * join_table_name * " ON " * 
-                    sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
-                sq.from *= join_clause
-            end
-            
-        else
-            error("Expected sqlquery to be an instance of SQLQuery")
-        end
-        sq
+        jq = $(esc(join_table))
+        do_join(
+            "FULL",
+            sq,
+            jq,
+            $lhs_col_str,
+            $rhs_col_str,
+            $operators,
+            $closest_expr,
+            $as_of
+        )
     end
 end
-
 
 
 """
 $docstring_semi_join
 """
-macro semi_join(sqlquery, join_table, expr...)
+macro semi_join(sqlquery, join_table, expr... )
     lhs_col_str = String[]
     rhs_col_str = String[]
     operators   = String[]
@@ -599,112 +419,29 @@ macro semi_join(sqlquery, join_table, expr...)
     operators    = vcat([p[3] for p in parsed]...)
     closest_expr = vcat([p[4] for p in parsed]...)
     as_of        = join([p[5] for p in parsed], "") 
+
     return quote
         sq = $(esc(sqlquery))
-        jq = $(esc(join_table))  # Evaluate join_table
-
-        if isa(sq, SQLQuery)
-            needs_new_cte = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
-            if needs_new_cte
-                sq.cte_count += 1
-                cte_name = "cte_" * string(sq.cte_count)
-                most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
-
-                if isa(jq, SQLQuery)
-                    jq.cte_count += 1                    # Handle when join_table is an SQLQuery
-                    sq.join_count += 1
-                    needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                    if needs_new_cte_jq
-                        joinc = "j" * string(sq.join_count)
-                       # joinc = "j" * string(sq.join_count)
-                        for cte in jq.ctes
-                            cte.name = joinc * cte.name
-                        end
-                        
-                        cte_name_jq = joinc* "cte_" * string(jq.cte_count)
-                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
-                        new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                        push!(jq.ctes, new_cte_jq)
-                        jq.from = cte_name_jq   
-                    end
-                    # Combine CTEs and metadata
-                    sq.ctes = vcat(sq.ctes, jq.ctes)
-                    sq.metadata = vcat(sq.metadata, jq.metadata)
-                    join_table_name = jq.from
-                else
-                    # When join_table is a table name
-                    join_table_name = string(jq)
-                    if current_sql_mode[] != :athena
-                        new_metadata = get_table_metadata(sq.db, join_table_name)
-                    else
-                        new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
-                    end
-                    sq.metadata = vcat(sq.metadata, new_metadata)
-                end
-                if sq.groupBy != ""
-                    most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-               end
-                join_sql = " " * most_recent_source * ".*, " *
-                           get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
-                           " SEMI JOIN " * join_table_name * " ON " *
-                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
-
-                # Create and add the new CTE
-                new_cte = CTE(name=cte_name, select=join_sql)
-                push!(sq.ctes, new_cte)
-                # Update the FROM clause
-                sq.from = cte_name
-            else
-                if isa(jq, SQLQuery)
-                    # Handle when join_table is an SQLQuery
-                    needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                    sq.join_count += 1
-                    if needs_new_cte_jq
-                        joinc = "j" * string(sq.join_count)
-                        for cte in jq.ctes
-                            cte.name = joinc * cte.name
-                        end
-                        jq.cte_count += 1
-                        cte_name_jq = joinc * "cte_" * string(jq.cte_count) #
-                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
-                        new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                        push!(jq.ctes, new_cte_jq)
-                        jq.from = cte_name_jq
-                    end
-                    # Combine CTEs and metadata
-                    sq.ctes = vcat(sq.ctes, jq.ctes)
-                    sq.metadata = vcat(sq.metadata, jq.metadata)
-                    join_table_name = jq.from
-                else
-                    # When join_table is a table name
-                    join_table_name = string(jq)
-                    if current_sql_mode[] != :athena
-                        new_metadata = get_table_metadata(sq.db, join_table_name)
-                    else
-                        new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
-                    end
-                    sq.metadata = vcat(sq.metadata, new_metadata)
-                end
-                if sq.groupBy != ""
-                    most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-               end
-                join_clause = " SEMI JOIN " * join_table_name * " ON " * sql_join_on(sq, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
-                sq.from *= join_clause
-            end
-        else
-            error("Expected sqlquery to be an instance of SQLQuery")
-        end
-        sq
+        jq = $(esc(join_table))
+        do_join(
+            "SEMI",
+            sq,
+            jq,
+            $lhs_col_str,
+            $rhs_col_str,
+            $operators,
+            $closest_expr,
+            $as_of
+        )
     end
 end
+
 
 
 """
 $docstring_anti_join
 """
-macro anti_join(sqlquery, join_table, expr...)
+macro anti_join(sqlquery, join_table, expr... )
     lhs_col_str = String[]
     rhs_col_str = String[]
     operators   = String[]
@@ -718,105 +455,23 @@ macro anti_join(sqlquery, join_table, expr...)
     operators    = vcat([p[3] for p in parsed]...)
     closest_expr = vcat([p[4] for p in parsed]...)
     as_of        = join([p[5] for p in parsed], "") 
+
     return quote
         sq = $(esc(sqlquery))
-        jq = $(esc(join_table))  # Evaluate join_table
-
-        if isa(sq, SQLQuery)
-            needs_new_cte = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
-            if needs_new_cte
-                sq.cte_count += 1
-                cte_name = "cte_" * string(sq.cte_count)
-                most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
-
-                if isa(jq, SQLQuery)
-                    jq.cte_count += 1                    # Handle when join_table is an SQLQuery
-                    sq.join_count += 1
-                    needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                    if needs_new_cte_jq
-                        joinc = "j" * string(sq.join_count)
-                        for cte in jq.ctes
-                            cte.name = joinc * cte.name
-                        end
-                        
-                        cte_name_jq = joinc* "cte_" * string(jq.cte_count)
-                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
-                        new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                        push!(jq.ctes, new_cte_jq)
-                        jq.from = cte_name_jq   
-                    end
-                    # Combine CTEs and metadata
-                    sq.ctes = vcat(sq.ctes, jq.ctes)
-                    sq.metadata = vcat(sq.metadata, jq.metadata)
-                    join_table_name = jq.from
-                else
-                    # When join_table is a table name
-                    join_table_name = string(jq)
-                    if current_sql_mode[] != :athena
-                        new_metadata = get_table_metadata(sq.db, join_table_name)
-                    else
-                        new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
-                    end
-                    sq.metadata = vcat(sq.metadata, new_metadata)
-                end
-                if sq.groupBy != ""
-                    most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-                end
-                join_sql = " " * most_recent_source * ".*, " *
-                           get_join_columns(sq.db, join_table_name, $lhs_col_str) * gbq_join_parse(most_recent_source) *
-                           " ANTI JOIN " * join_table_name * " ON " *
-                           sql_join_on(most_recent_source, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
-
-                # Create and add the new CTE
-                new_cte = CTE(name=cte_name, select=join_sql)
-                push!(sq.ctes, new_cte)
-                # Update the FROM clause
-                sq.from = cte_name
-            else
-                if isa(jq, SQLQuery)
-                    # Handle when join_table is an SQLQuery
-                    needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-                    sq.join_count += 1
-                    if needs_new_cte_jq
-                        joinc = "j" * string(sq.join_count)
-                        for cte in jq.ctes
-                            cte.name = joinc * cte.name
-                        end
-                        jq.cte_count += 1
-                        cte_name_jq = joinc * "cte_" * string(jq.cte_count) #
-                        most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
-                        select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
-                        new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                        push!(jq.ctes, new_cte_jq)
-                        jq.from = cte_name_jq
-                    end
-                    # Combine CTEs and metadata
-                    sq.ctes = vcat(sq.ctes, jq.ctes)
-                    sq.metadata = vcat(sq.metadata, jq.metadata)
-                    join_table_name = jq.from
-                else
-                    # When join_table is a table name
-                    join_table_name = string(jq)
-                    if current_sql_mode[] != :athena
-                        new_metadata = get_table_metadata(sq.db, join_table_name)
-                    else
-                        new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
-                    end
-                    sq.metadata = vcat(sq.metadata, new_metadata)
-                end
-                if sq.groupBy != ""
-                    most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
-                end
-                join_clause = " ANTI JOIN " * join_table_name * " ON " * sql_join_on(sq.from, join_table_name, $lhs_col_str, $rhs_col_str, $operators)
-                sq.from *= join_clause
-            end
-        else
-            error("Expected sqlquery to be an instance of SQLQuery")
-        end
-        sq
+        jq = $(esc(join_table))
+        do_join(
+            "ANTI",
+            sq,
+            jq,
+            $lhs_col_str,
+            $rhs_col_str,
+            $operators,
+            $closest_expr,
+            $as_of
+        )
     end
 end
+
 
 
 """

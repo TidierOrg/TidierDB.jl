@@ -506,20 +506,28 @@ function parse_join_expression(expr)
 
     # Handle single operator-based expressions (e.g., sale_date <= promo_date)
     if isa(expr, Expr) && expr.head == :call && expr.args[1] in (
-        Symbol("=="), Symbol(">="), Symbol("<="), Symbol("!="), Symbol(">"), Symbol("<")
-    )
+        Symbol("=="), Symbol(">="), Symbol("<="), Symbol("!="), Symbol(">"), Symbol("<"), Symbol("=")
+    ) 
         push!(operators, string(expr.args[1]))
         push!(lhs_cols, string(expr.args[2]))
         push!(rhs_cols, string(expr.args[3]))
         return lhs_cols, rhs_cols, operators, closests, as_of
+    elseif isa(expr, Expr) && expr.head == :(=)
+            # The user wrote: id = id2
+            # Typically we'd interpret that as an SQL "id = id2"
+            push!(operators, "==")
+            push!(lhs_cols, string(expr.args[1]))
+            push!(rhs_cols, string(expr.args[2]))
+            return lhs_cols, rhs_cols, operators, closests, as_of
+        
     end
 
     # Handle single bare column (e.g., id)
     if isa(expr, Symbol)
         return [string(expr)], [string(expr)], ["=="], closests, as_of
     end
-
-    error("Unsupported join expression: $expr")
+    
+        error("Unsupported join expression: $expr")
 end
 
 
@@ -544,8 +552,7 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
             actual_expr = parsed
         end
     end
-#    println(typeof(actual_expr))
-#    println(typeof(actual_expr[1]))
+
 
     # If actual_expr is a vector, process each element individually
     if isa(actual_expr, AbstractVector)

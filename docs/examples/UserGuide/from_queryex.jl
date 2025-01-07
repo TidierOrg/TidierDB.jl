@@ -31,7 +31,7 @@
 # Now, `from_query`, or `t()` a convienece wrapper, will allow you to reuse the query to calculate the average horsepower for each efficiency category
 # ```julia
 # DB.@chain DB.t(query) begin
-#    DB.@left_join(DB.t(mtcars), join_by(cyl == cyl))
+#    DB.@left_join(DB.t(mtcars), cyl)
 #    DB.@group_by(efficiency)
 #    DB.@summarize(avg_hp = mean(hp))
 #    DB.@collect
@@ -67,7 +67,7 @@
 #
 #
 # DB.@chain DB.db_table(db, "viewer") begin
-#            DB.@left_join(DB.t(query2), join_by(cyl == cyl))
+#            DB.@left_join(DB.t(query2), cyl == cyl)
 #            DB.@group_by(efficiency)
 #            DB.@summarize(avg_mean = mean(mpg))
 #            DB.@mutate(mean = avg_mean / 4 )

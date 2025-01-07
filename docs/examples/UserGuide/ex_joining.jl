@@ -2,16 +2,20 @@
 
 # ## General Syntax 
 # All joins share the same argument format
-#   - `*_join(query, join_table, joining_keys...)`
+#   - `*_join(query, join_table, joining_keys...)
+
+# ## Equi Joins
 # Equi joins can be written in any of the following ways, and the key column will be dropped from the right hand (new) table to avoid duplication.
 #   - `@left_join(DB.t(table), "table2", key_col)`
 #   - `@left_join(DB.t(table), "table2", key_col = key_col2)`
 #  To join mutliple columns, separate the different pairs with a `,`
 #   - `@left_join(DB.t(table), "table2", key_col == key_col2, key2 == key2)`
 
-# Inequality joins or nonequijoins will use the same syntax, just witth a different operator
+# ## Inequality Joins
+# Inequality joins or non-equi-joins use the same syntax, just with a inequality operators
 #   - `@left_join(DB.t(table), "table2", key_col >= key_col2, key2 < key2)`
 
+# ## AsOf
 # To use an AsOf or rolling join, simply wrap the inequality in `closest. Of note, at this time, only one inequality can be supported at a time with AsOf joins
 #   - `@left_join(DB.t(table), "table2", closest(key_col >= key_col2), key2 == key2)`
 
@@ -19,7 +23,7 @@
 # However, the joining table can also be a TidierDB query, in which case, the query is written as follows
 #   - `@left_join(DB.t(table), DB.t(query), key)`
 
-# Examples
+# ## Examples
 # The examples below will use the `mtcars` dataset and a synthetic dataset called `mt2` 
 # hosted on a personal MotherDuck instance. Examples will cover how to join 
 # tables with different schemas in different databases, and how to write queries on 
@@ -159,7 +163,7 @@
 # prices = db_table(db, "https://duckdb.org/data/prices.csv", "prices")
 # holdings = db_table(db, "https://duckdb.org/data/holdings.csv", "holdings")
 
-# DB.@chain  t(holdings) begin
+# @chain t(holdings) begin
 #    @inner_join(t(prices), ticker = ticker, closest(when >= when))
 #    @select(holdings.ticker, holdings.when) 
 #    @mutate(value = price * shares)

@@ -107,9 +107,10 @@ macro mutate(sqlquery, mutations...)
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
 
-            if sq.post_aggregation
+            if sq.post_aggregation #|| sq.post_join 
                 # Reset post_aggregation as we're now handling it
                 sq.post_aggregation = false
+                sq.post_join = false
                 select_expressions = !isempty(sq.select) ? [sq.select] : ["*"]
 
                 cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from

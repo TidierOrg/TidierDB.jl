@@ -77,48 +77,57 @@ function create_and_add_cte(sq, cte_name)
     return most_recent_source, cte_name
 end
 
-function process_and_generate_columns(sq, vq, lhs, rhs, most_recent_source, join_table_name)
+function process_and_generate_columns(sq, vq, lhs, rhs, most_recent_source, join_table_name, operators)
     # Initialize strings for the final result
     coalesce_exprs = String[]
     column_exprs = String[]
     
-    # Process `sq`
-    function filter_dataframe_by_columns(df, column_set, remove=true)
-        # Identify rows to keep or remove based on column_set
-        if remove
-            filtered_df = filter(row -> !(row.name in column_set), df)
-        else
-            filtered_df = filter(row -> row.name in column_set, df)
+    if occursin(" AS ", join_table_name)
+        join_table_name = strip(split(join_table_name, " AS ")[end])
+    end
+    if occursin(" AS ", most_recent_source)
+        most_recent_source = strip(split(most_recent_source, " AS ")[end])
+    end
+
+    lhs_d = []
+    rhs_d = []
+    for (l, r, o) in zip(lhs, rhs, operators)
+        o == "==" ? push!(lhs_d, l) : nothing
+        o == "==" ? push!(rhs_d, r) : nothing
+    end
+    if !isempty(lhs_d)
+        for (lhs_col, rhs_col) in zip(lhs_d, rhs_d)
+            
+                push!(coalesce_exprs, "COALESCE($most_recent_source.$lhs_col, $join_table_name.$rhs_col) AS $lhs_col")
         end
-        return filtered_df
     end
-    
-    cols_sq = filter_dataframe_by_columns(sq.metadata, vq.metadata.name)
-    matching_indices_sq = findall(cols_sq.name .== lhs .|| cols_sq.name .== rhs)
-    cols_sq.current_selxn[matching_indices_sq] .= 0
-    cols_names_sq = cols_sq.name[cols_sq.current_selxn .>= 1] |> Vector
-
-    # Add `COALESCE(...)` for lhs
-    for (lhs_col, rhs_col) in zip(lhs, rhs)
-        push!(coalesce_exprs, "COALESCE($most_recent_source.$lhs_col, $join_table_name.$rhs_col) AS $lhs_col")
+    if isempty(lhs_d)
+        cols_names_sq = sq.name[sq.current_selxn .>= 1]
+    else
+        matching_indices_sq = findall(name -> name in lhs_d, sq.name)
+        sq.current_selxn[matching_indices_sq] .= 0
+        cols_names_sq = sq.name[sq.current_selxn .>= 1] |> Vector
     end
     
 
-    # Add remaining columns from `sq`
     for col in cols_names_sq
         push!(column_exprs, "$most_recent_source.$col")
     end
 
-    # Process `vq`
-    cols_vq = vq.metadata
-    matching_indices_vq = findall(cols_vq.name .== lhs .|| cols_vq.name .== rhs)
-    cols_vq.current_selxn[matching_indices_vq] .= 0
-    cols_names_vq = cols_vq.name[cols_vq.current_selxn .>= 1 .&& cols_vq.table_name .!= join_table_name] |> Vector
+    if isempty(rhs_d)
+        cols_names_sq = vq.metadata.name[vq.metadata.current_selxn .>= 0] |> Vector
+    else
+        matching_indices_sq = findall(name -> name in rhs_d, vq.metadata.name)
+        vq.metadata.current_selxn[matching_indices_sq] .= 0
+        cols_names_sq = vq.metadata.name[vq.metadata.current_selxn .>= 1] |> Vector
+    end
 
-    # Add remaining columns from `vq`
-    for col in cols_names_vq
+
+    for col in cols_names_sq
         push!(column_exprs, "$join_table_name.$col")
     end
+
+    # Process `vq`
 
     # Combine all expressions
     final_columns = join(vcat(coalesce_exprs, column_exprs), ", ")  
@@ -128,11 +137,12 @@ function process_and_generate_columns(sq, vq, lhs, rhs, most_recent_source, join
 
 end
 
+
 function sql_join_on(sq, join_table_name, lhs_cols::Vector{String}, rhs_cols::Vector{String}, operators::Vector{String}; closest_expr=String[])
     table_from = isa(sq, SQLQuery) ? sq.from : sq
     conditions = String[]
-    for (lhs_col_str, rhs_col_str, symb_str) in zip(lhs_cols, rhs_cols, operators)
-        condition = gbq_join_parse(table_from) * "." * lhs_col_str * " " * symb_str * " " *
+    for (lhs, rhs_col_str, oper) in zip(lhs_cols, rhs_cols, operators)
+        condition = gbq_join_parse(table_from) * "." * lhs * " " * oper * " " *
                     gbq_join_parse(join_table_name) * "." * rhs_col_str
         push!(conditions, condition)
     end
@@ -154,10 +164,15 @@ function do_join(
     operators::Vector{String},
     closest_expr::Vector{String},
     as_of::String
-)
+)    
+
+    rhs_d = []
+    for (r, o) in zip(rhs_col_str, operators)
+        o == "==" ? push!(rhs_d, r) : nothing
+    end
 
     needs_new_cte = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
-
+    sq.post_join = true
     if needs_new_cte
         sq.cte_count += 1
         cte_name = "cte_" * string(sq.cte_count)
@@ -183,6 +198,8 @@ function do_join(
             end
 
             sq.ctes = vcat(sq.ctes, jq.ctes)
+            oq_metadata = sq.metadata
+            jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
             sq.metadata = vcat(sq.metadata, jq.metadata)
             join_table_name = jq.from
 
@@ -194,6 +211,7 @@ function do_join(
             else
                 new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
             end
+            oq_metadata = sq.metadata
             sq.metadata = vcat(sq.metadata, new_metadata)
         end
 
@@ -202,13 +220,19 @@ function do_join(
             most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
         end
 
+       # matching_indices_sq = findall(vq.metadata.name == rhs)
+        jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
 
-        join_sql = " " * most_recent_source * ".*, " *
-                           get_join_columns(sq.db, join_table_name, lhs_col_str) * gbq_join_parse(most_recent_source) *
-                           as_of * " " * join_type * " JOIN " * join_table_name * " ON " *
-                        sql_join_on(most_recent_source, join_table_name, lhs_col_str, rhs_col_str, operators)
-
+        join_sql = " " *
+                   process_and_generate_columns( oq_metadata, jq, lhs_col_str, rhs_col_str,
+                                                most_recent_source, join_table_name, operators) *
+                   " FROM " * gbq_join_parse(most_recent_source) *
+                   as_of * " " * join_type * " JOIN " * join_table_name * " ON " *
+                   sql_join_on(most_recent_source, join_table_name,
+                               lhs_col_str, rhs_col_str, operators;
+                               closest_expr = closest_expr)
         # Create and add the new CTE
+        
         new_cte = CTE(name=cte_name, select=join_sql)
         push!(sq.ctes, new_cte)
         sq.from = cte_name
@@ -232,6 +256,8 @@ function do_join(
                 jq.from = cte_name_jq
             end
             sq.ctes = vcat(sq.ctes, jq.ctes)
+            oq_metadata = sq.metadata
+            jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
             sq.metadata = vcat(sq.metadata, jq.metadata)
             join_table_name = jq.from
         else
@@ -241,6 +267,9 @@ function do_join(
             else
                 new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
             end
+            oq_metadata = sq.metadata
+            new_metadata = filter(row -> !(row.name in rhs_d), new_metadata)
+
             sq.metadata = vcat(sq.metadata, new_metadata)
         end
 
@@ -248,10 +277,18 @@ function do_join(
             most_recent_source, cte_name = create_and_add_cte(sq, "cte_" * string(sq.cte_count))
         end
 
-       
+        jq = jq isa String ? db_table(sq.db, jq) : jq
+        jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
+        
+        if !(join_type in ["SEMI", "ANTI"])
+            sq.select = process_and_generate_columns(oq_metadata, jq, lhs_col_str, rhs_col_str,
+                                                    sq.from, join_table_name, operators)
+        end
+
         join_clause = as_of * " " * join_type * " JOIN " * join_table_name * " ON " *
-                    sql_join_on(sq.from, join_table_name, lhs_col_str, rhs_col_str, operators)
-               
+                      sql_join_on(sq.from, join_table_name,
+                                  lhs_col_str, rhs_col_str, operators)
+
         sq.from *= join_clause
     end
 

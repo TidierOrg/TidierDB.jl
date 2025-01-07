@@ -372,6 +372,7 @@ macro show_query(sqlquery)
         formatted_query = replace(formatted_query, " RIGHT JOIN " => "\n\tRIGHT JOIN ")
         formatted_query = replace(formatted_query, " INNER JOIN " => "\n\tINNER JOIN ")
         formatted_query = replace(formatted_query, " OUTER JOIN " => "\n\tOUTER JOIN ")
+        formatted_query = replace(formatted_query, " ASOF " => "\n\tASOF ")
     #    formatted_query = replace(formatted_query, " JOIN " => "\n\tJOIN ") # General JOIN clause
         
         # Print the formatted query

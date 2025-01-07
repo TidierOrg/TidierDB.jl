@@ -609,9 +609,11 @@ const docstring_left_join =
     @left_join(sql_query, join_table, orignal_table_col == new_table_col)
 
 Perform a left join between two SQL queries based on a specified condition. 
-This syntax here is slightly different than TidierData.jl, however, because 
-SQL does not drop the joining column, for the metadata storage, it is 
-preferrable for the names to be different 
+Joins can be equi joins or inequality joins. For equi joins, the joining table 
+key column is dropped. Inequality joins can be made into AsOf or rolling joins 
+by wrapping the inequality in closest(key >= key2). With inequality joins, the 
+columns from both tables are kept. Multiple joining criteria can be added, but 
+need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
@@ -684,9 +686,11 @@ const docstring_right_join =
     @right_join(sql_query, join_table, orignal_table_col == new_table_col)
 
 Perform a right join between two SQL queries based on a specified condition. 
-This syntax here is slightly different than TidierData.jl, however, because 
-SQL does not drop the joining column, for the metadata storage, it is 
-preferrable for the names to be different 
+Joins can be equi joins or inequality joins. For equi joins, the joining table 
+key column is dropped. Inequality joins can be made into AsOf or rolling joins 
+by wrapping the inequality in closest(key >= key2). With inequality joins, the 
+columns from both tables are kept. Multiple joining criteria can be added, but 
+need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
@@ -753,9 +757,11 @@ const docstring_inner_join =
     @inner_join(sql_query, join_table, orignal_table_col == new_table_col)
 
 Perform an inner join between two SQL queries based on a specified condition. 
-This syntax here is slightly different than TidierData.jl, however, because 
-SQL does not drop the joining column, for the metadata storage, it is 
-preferrable for the names to be different 
+Joins can be equi joins or inequality joins. For equi joins, the joining table 
+key column is dropped. Inequality joins can be made into AsOf or rolling joins 
+by wrapping the inequality in closest(key >= key2). With inequality joins, the 
+columns from both tables are kept. Multiple joining criteria can be added, but 
+need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
@@ -799,9 +805,11 @@ const docstring_full_join =
     @inner_join(sql_query, join_table, orignal_table_col == new_table_col)
     
 Perform an full join between two SQL queries based on a specified condition. 
-This syntax here is slightly different than TidierData.jl, however, because 
-SQL does not drop the joining column, for the metadata storage, it is 
-preferrable for the names to be different 
+Joins can be equi joins or inequality joins. For equi joins, the joining table 
+key column is dropped. Inequality joins can be made into AsOf or rolling joins 
+by wrapping the inequality in closest(key >= key2). With inequality joins, the 
+columns from both tables are kept. Multiple joining criteria can be added, but 
+need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
@@ -852,9 +860,11 @@ const docstring_semi_join =
     @semi_join(sql_query, join_table, orignal_table_col == new_table_col)
 
 Perform an semi join between two SQL queries based on a specified condition. 
-This syntax here is slightly different than TidierData.jl, however, because 
-SQL does not drop the joining column, for the metadata storage, it is 
-preferrable for the names to be different 
+Joins can be equi joins or inequality joins. For equi joins, the joining table 
+key column is dropped. Inequality joins can be made into AsOf or rolling joins 
+by wrapping the inequality in closest(key >= key2). With inequality joins, the 
+columns from both tables are kept. Multiple joining criteria can be added, but 
+need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
@@ -899,9 +909,11 @@ const docstring_anti_join =
     @anti_join(sql_query, join_table, orignal_table_col == new_table_col)
 
 Perform an anti join between two SQL queries based on a specified condition. 
-This syntax here is slightly different than TidierData.jl, however, because 
-SQL does not drop the joining column, for the metadata storage, it is 
-preferrable for the names to be different 
+Joins can be equi joins or inequality joins. For equi joins, the joining table 
+key column is dropped. Inequality joins can be made into AsOf or rolling joins 
+by wrapping the inequality in closest(key >= key2). With inequality joins, the 
+columns from both tables are kept. Multiple joining criteria can be added, but 
+need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.

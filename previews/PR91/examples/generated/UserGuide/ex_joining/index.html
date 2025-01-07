@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#setup" class="md-skip">
+        <a href="#general-syntax" class="md-skip">
           Skip to content
         </a>
       
@@ -472,6 +472,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#general-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      General Syntax
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#setup" class="md-nav__link">
     <span class="md-ellipsis">
       Setup
@@ -502,6 +511,15 @@
   <a href="#using-a-view" class="md-nav__link">
     <span class="md-ellipsis">
       Using a View
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asofrolling-join" class="md-nav__link">
+    <span class="md-ellipsis">
+      AsOf/Rolling join
     </span>
   </a>
   
@@ -660,6 +678,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#general-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      General Syntax
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#setup" class="md-nav__link">
     <span class="md-ellipsis">
       Setup
@@ -695,6 +722,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#asofrolling-join" class="md-nav__link">
+    <span class="md-ellipsis">
+      AsOf/Rolling join
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -712,7 +748,36 @@
 
   <h1>Joining Tables</h1>
 
-<p>This page will illustrate how to join different tables in TidierDB. The examples will use the <code>mtcars</code> dataset and a synthetic dataset called <code>mt2</code> hosted on a personal MotherDuck instance. Examples will cover how to join tables with different schemas in different databases, and how to write queries on tables and then join them together, and how to do this by levaraging views.</p>
+<p>TidierDB supports mutliple join types including equi-joins, nonequi-joins, and as of or rolling joins.</p>
+<p><a id='General-Syntax'></a></p>
+<p><a id='General-Syntax-1'></a></p>
+<h2 id="general-syntax">General Syntax<a class="headerlink" href="#general-syntax" title="Permanent link">¤</a></h2>
+<p>All joins share the same argument format</p>
+<ul>
+<li><code>*_join(query, join_table, joining_keys...)</code></li>
+</ul>
+<p>Equi joins can be written in any of the following ways, and the key column will be dropped from the right hand (new) table to avoid duplication.</p>
+<ul>
+<li><code>@left_join(DB.t(table), "table2", key_col)</code></li>
+<li><code>@left_join(DB.t(table), "table2", key_col = key_col2)</code></li>
+</ul>
+<p>To join mutliple columns, separate the different pairs with a <code>,</code></p>
+<ul>
+<li><code>@left_join(DB.t(table), "table2", key_col == key_col2, key2 == key2)</code></li>
+</ul>
+<p>Inequality joins or nonequijoins will use the same syntax, just witth a different operator</p>
+<ul>
+<li><code>@left_join(DB.t(table), "table2", key_col &gt;= key_col2, key2 &lt; key2)</code></li>
+</ul>
+<p>To use an AsOf or rolling join, simply wrap the inequality in `closest. Of note, at this time, only one inequality can be supported at a time with AsOf joins</p>
+<ul>
+<li><code>@left_join(DB.t(table), "table2", closest(key_col &gt;= key_col2), key2 == key2)</code></li>
+</ul>
+<p>When the joining table is already availabe on the database, a string of the table name used as shown above. However, the joining table can also be a TidierDB query, in which case, the query is written as follows</p>
+<ul>
+<li><code>@left_join(DB.t(table), DB.t(query), key)</code></li>
+</ul>
+<p>Examples The examples below will use the <code>mtcars</code> dataset and a synthetic dataset called <code>mt2</code> hosted on a personal MotherDuck instance. Examples will cover how to join tables with different schemas in different databases, and how to write queries on tables and then join them together, and how to do this by levaraging views.</p>
 <p><a id='Setup'></a></p>
 <p><a id='Setup-1'></a></p>
 <h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">¤</a></h2>
@@ -764,38 +829,38 @@
 <div class="highlight"><pre><span></span><code><span class="n">other_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ducks_db.mt2&quot;</span><span class="p">)</span><span class="w"> </span><span class="nd">@filter</span><span class="p">(</span><span class="o">!</span><span class="n">str_detect</span><span class="p">(</span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;M&quot;</span><span class="p">))</span>
 <span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">other_db</span><span class="p">),</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">car</span><span class="p">)</span>
-<span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">fuel_efficiency</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@collect</span>
 <span class="k">end</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>5×2 DataFrame
- Row │ car                model
-     │ String             String
-─────┼──────────────────────────────────────
-   1 │ Datsun 710         Datsun 710
-   2 │ Hornet 4 Drive     Hornet 4 Drive
-   3 │ Hornet Sportabout  Hornet Sportabout
-   4 │ Valiant            Valiant
-   5 │ Duster 360         Duster 360
+ Row │ model              fuel_efficiency
+     │ String             Int64
+─────┼────────────────────────────────────
+   1 │ Datsun 710                      24
+   2 │ Hornet 4 Drive                  18
+   3 │ Hornet Sportabout               16
+   4 │ Valiant                         15
+   5 │ Duster 360                      14
 </code></pre></div>
 <p>To join directly to the table, you can use the <code>@left_join</code> macro with the table name as a string.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="s">&quot;ducks_db.mt2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">car</span><span class="p">)</span>
-<span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">fuel_efficiency</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@collect</span>
 <span class="k">end</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>5×2 DataFrame
- Row │ car                model
-     │ String             String
-─────┼──────────────────────────────────────
-   1 │ Mazda RX4          Mazda RX4
-   2 │ Mazda RX4 Wag      Mazda RX4 Wag
-   3 │ Datsun 710         Datsun 710
-   4 │ Hornet 4 Drive     Hornet 4 Drive
-   5 │ Hornet Sportabout  Hornet Sportabout
+ Row │ model              fuel_efficiency
+     │ String             Int64
+─────┼────────────────────────────────────
+   1 │ Datsun 710                      24
+   2 │ Hornet 4 Drive                  18
+   3 │ Hornet Sportabout               16
+   4 │ Valiant                         15
+   5 │ Duster 360                      14
 </code></pre></div>
 <p><a id='Using-a-View'></a></p>
 <p><a id='Using-a-View-1'></a></p>
@@ -833,6 +898,28 @@
 ─────┼───────────────────────────────
    1 │ High        106.655   26.6636
    2 │ Moderate     84.5333  21.1333
+</code></pre></div>
+<p><a id='AsOf/Rolling-join'></a></p>
+<p><a id='AsOf/Rolling-join-1'></a></p>
+<h2 id="asofrolling-join">AsOf/Rolling join<a class="headerlink" href="#asofrolling-join" title="Permanent link">¤</a></h2>
+<p>This example reproduces an example in the (DuckDB Docs)[https://duckdb.org/docs/guides/sql<em>features/asof</em>join.html#what-is-an-asof-join]</p>
+<div class="highlight"><pre><span></span><code>prices = db_table(db, &quot;https://duckdb.org/data/prices.csv&quot;, &quot;prices&quot;)
+holdings = db_table(db, &quot;https://duckdb.org/data/holdings.csv&quot;, &quot;holdings&quot;)
+
+DB.@chain  t(holdings) begin
+   @inner_join(t(prices), ticker = ticker, closest(when &gt;= when))
+   @select(holdings.ticker, holdings.when)
+   @mutate(value = price * shares)
+   @collect
+end
+ 4×3 DataFrame
+ Row │ ticker  when                 value
+     │ String  DateTime             Float64
+─────┼──────────────────────────────────────
+   1 │ APPL    2001-01-01T00:00:30     2.94
+   2 │ APPL    2001-01-01T00:01:30    48.26
+   3 │ GOOG    2001-01-01T00:00:30    23.45
+   4 │ GOOG    2001-01-01T00:01:30    21.16
 </code></pre></div>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>

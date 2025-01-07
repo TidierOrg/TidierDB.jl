@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.48">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
     
     
       
@@ -754,7 +754,7 @@ using TidierDB  #rexports DuckDB
 db = DuckDB.DB()
 con = DuckDB.connect(db) # this will be important for UDFs
 mtcars_path = &quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;
-mtcars = db_tbable(con, mtcars_path);
+mtcars = db_tbable(db, mtcars_path);
 </code></pre></div>
 <p><a id='aggregate-function-in-@summarize'></a></p>
 <p><a id='aggregate-function-in-@summarize-1'></a></p>
@@ -839,7 +839,7 @@ end
 <h2 id="rowid-and-pseudocolumns"><code>rowid</code> and pseudocolumns<a class="headerlink" href="#rowid-and-pseudocolumns" title="Permanent link">¤</a></h2>
 <p>When a table is not being read directly from a file, <code>rowid</code> is avaialable for use. In general, TidierDB should support all pseudocolumns.</p>
 <div class="highlight"><pre><span></span><code>copy_to(db, mtcars_path, &quot;mtcars&quot;); # copying table in for demostration purposes
-@chain db_table(con, :mtcars) begin
+@chain db_table(db, :mtcars) begin
       @filter(rowid == 4)
       @select(model:hp)
       @collect
@@ -1012,7 +1012,7 @@ end
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.copy", "content.code.annotate", "navigation.top", "navigation.footer", "search.highlight", "search.share", "search.suggest", "toc.follow", "header.autohide"], "search": "../../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.83f73b43.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

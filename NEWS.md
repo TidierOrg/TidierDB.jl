@@ -1,9 +1,17 @@
 # TidierDB.jl updates
-## v.05.3 - 2024-12-13
+## v0.6.0 - 2025-01-07
+- Adds support for joining on multiple columns
+- Adds support for inequality joins
+- Adds support for AsOf / rolling joins
+- Equi-joins no longer duplicate key columns
+- Fixes bug to allow array columns to be mutated in 
+
+## v0.5.3 - 2024-12-13
 - adds `@relocate`
 - bug fix when reading file paths with `*` wildcard with DuckDB
+- Fix edge case when creating an `array` column in `@mutate` 
 
-## v.05.2 - 2024-12-03
+## v0.5.2 - 2024-12-03
 - adds support `_by` support to `@mutate` and `@summarize` for grouping within the macro call.
 - adds support for `n()` in `@mutate`
 - add support for unnesting content to mutate/filter etc via `column[key]`syntax

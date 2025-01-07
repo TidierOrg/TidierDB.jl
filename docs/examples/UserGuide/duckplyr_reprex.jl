@@ -28,33 +28,33 @@
 # While this long chain could be broken up into multiple smaller chains, lets reproduce the duckplyr code from example and demonstrate how TidierDB also supports multiple joins after filtering, mutating, etc the joining tables. 6 different tables are being joined together through sequential inner joins.
 # ```julia
 # @chain DB.t(data) begin
-#   DB.@filter(str_detect(count, r"^\d+$")) 
-#   DB.@mutate(count_ = as_integer(count)) 
-#   DB.@filter(count_ > 0) 
+#   DB.@filter(str_detect(count, r"^\d+$"))
+#   DB.@mutate(count_ = as_integer(count))
+#   DB.@filter(count_ > 0)
 #   DB.@inner_join(
-#     (@chain DB.t(age) begin 
-#     DB.@filter(str_detect(Description, r"^\d+ years$")) 
+#     (@chain DB.t(age) begin
+#     DB.@filter(str_detect(Description, r"^\d+ years$"))
 #     DB.@mutate(age_ = as_integer(str_remove(Code, "years"))) end),
-#     Age = Code
-#   ) 
-#   DB.@inner_join((@chain DB.t(year) DB.@mutate(year_ = Description)), year = Code)
+#     Age == Code
+#   )
+#   DB.@inner_join((@chain DB.t(year) DB.@mutate(year_ = Description)), year == Code)
 #   DB.@inner_join((@chain DB.t(area) begin
-#     DB.@mutate(area_ = Description) 
-#     DB.@filter(!str_detect(area_, r"^Total")) 
+#     DB.@mutate(area_ = Description)
+#     DB.@filter(!str_detect(area_, r"^Total"))
 #   end)
-#     , Area = Code) 
+#     , Area == Code)
 #     DB.@inner_join((@chain DB.t(ethnic) begin
-#       DB.@mutate(ethnic_ = Description) 
-#       DB.@filter(!str_detect( ethnic_, r"^Total",)) end), Ethnic = Code)
+#       DB.@mutate(ethnic_ = Description)
+#       DB.@filter(!str_detect( ethnic_, r"^Total",)) end), Ethnic == Code)
 #   DB.@inner_join((@chain DB.t(sex) begin
-#     DB.@mutate(sex_ = Description) 
-#     DB.@filter(!str_detect( sex_, r"^Total")) 
+#     DB.@mutate(sex_ = Description)
+#     DB.@filter(!str_detect( sex_, r"^Total"))
 #   end)
-#    , Sex = Code)
-#   DB.@inner_join((@chain DB.t(year) DB.@mutate(year_ = Description)), Year = Code)
+#    , Sex == Code)
+#   DB.@inner_join((@chain DB.t(year) DB.@mutate(year_ = Description)), Year == Code)
 #   @aside DB.@show_query _
 #   DB.@create_view(joined_up)
-# end;
+# end
 
 # @chain DB.db_table(db, "joined_up") begin 
 #   DB.@filter begin

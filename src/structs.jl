@@ -21,6 +21,7 @@ mutable struct SQLQuery
     windowFrame::String 
     is_aggregated::Bool
     post_aggregation::Bool
+    post_join::Bool
     metadata::DataFrame
     distinct::Bool
     db::Any 
@@ -32,11 +33,11 @@ mutable struct SQLQuery
     join_count::Int
 
     function SQLQuery(;select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
-        window_order::String="", windowFrame::String="", is_aggregated::Bool=false, post_aggregation::Bool=false, metadata::DataFrame=DataFrame(), 
+        window_order::String="", windowFrame::String="", is_aggregated::Bool=false, post_aggregation::Bool=false, post_join::Bool=false, metadata::DataFrame=DataFrame(), 
         distinct::Bool=false, db::Any=nothing, ctes::Vector{CTE}=Vector{CTE}(), cte_count::Int=0, athena_params::Any=nothing, limit::String="", 
         ch_settings::String="", join_count::Int = 0)
         new(select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, 
-        post_aggregation, metadata, distinct, db, ctes, cte_count, athena_params, limit, ch_settings, join_count)
+        post_aggregation, post_join, metadata, distinct, db, ctes, cte_count, athena_params, limit, ch_settings, join_count)
     end
 end
 
@@ -58,6 +59,8 @@ function from_query(query::TidierDB.SQLQuery)
         windowFrame=query.windowFrame,
         is_aggregated=query.is_aggregated,
         post_aggregation=query.post_aggregation,
+        post_join=query.post_join,
+
         metadata=deepcopy(query.metadata), 
         distinct=query.distinct,
         db=query.db,

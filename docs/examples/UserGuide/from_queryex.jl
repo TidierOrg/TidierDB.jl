@@ -5,9 +5,9 @@
 # ## Setup
 # ```julia
 # import TidierDB as DB
-# con = DB.connect(duckdb())
+# con = DB.connect(DB.duckdb())
 # mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
-# mtcars = DB.db_table(con, mtcars_path)
+# mtcars = DB.db_table(con, mtcars_path);
 # ```
 
 # Start a query to analyze fuel efficiency by number of cylinders. However, to further build on this query later, end the chain without using `@show_query` or `@collect`
@@ -49,8 +49,8 @@
 # ## @create_view
 # This can also be done with `@create_view`.
 # ```julia
-# query2 = @chain t(mtcars) @filter(mpg>20) @mutate(mpg = mpg *4); 
-# DB.@chain  DB.db_table(db, "mtcars") begin
+# query2 = @chain DB.t(mtcars) DB.@filter(mpg>20) DB.@mutate(mpg = mpg *4); 
+# DB.@chain  DB.t(mtcars) begin
 #            DB.@group_by cyl
 #            DB.@summarize begin
 #                across(mpg, (mean, minimum, maximum))
@@ -66,10 +66,9 @@
 #        end;
 #
 #
-# DB.@chain DB.db_table(db, "viewer") begin
+# DB.@chain DB.db_table(con, "viewer") begin
 #            DB.@left_join(DB.t(query2), cyl == cyl)
-#            DB.@group_by(efficiency)
-#            DB.@summarize(avg_mean = mean(mpg))
+#            DB.@summarize(avg_mean = mean(mpg), _by = efficiency)
 #            DB.@mutate(mean = avg_mean / 4 )
 #            @aside DB.@show_query _
 #            DB.@collect

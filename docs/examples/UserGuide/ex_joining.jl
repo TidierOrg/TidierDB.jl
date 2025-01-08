@@ -2,7 +2,7 @@
 
 # ## General Syntax 
 # All joins share the same argument format
-#   - `*_join(query, join_table, joining_keys...)
+#   - `*_join(query, join_table, joining_keys...)`
 
 # ## Equi Joins
 # Equi joins can be written in any of the following ways, and the key column will be dropped from the right hand (new) table to avoid duplication.
@@ -159,7 +159,7 @@
 
 # ## AsOf/Rolling join
 # This example reproduces an example in the (DuckDB Docs)[https://duckdb.org/docs/guides/sql_features/asof_join.html#what-is-an-asof-join]
-# ```
+# ```julia
 # prices = db_table(db, "https://duckdb.org/data/prices.csv", "prices")
 # holdings = db_table(db, "https://duckdb.org/data/holdings.csv", "holdings")
 
@@ -169,6 +169,8 @@
 #    @mutate(value = price * shares)
 #    @collect
 # end
+# ```
+# ```
 #  4×3 DataFrame
 #  Row │ ticker  when                 value   
 #      │ String  DateTime             Float64 

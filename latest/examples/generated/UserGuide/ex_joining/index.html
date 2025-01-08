@@ -826,7 +826,7 @@
 <h2 id="general-syntax">General Syntax<a class="headerlink" href="#general-syntax" title="Permanent link">¤</a></h2>
 <p>All joins share the same argument format</p>
 <ul>
-<li>`*<em>join(query, join</em>table, joining_keys...)</li>
+<li><code>*_join(query, join_table, joining_keys...)</code></li>
 </ul>
 <p><a id='Equi-Joins'></a></p>
 <p><a id='Equi-Joins-1'></a></p>
@@ -987,16 +987,17 @@
 <p><a id='AsOf/Rolling-join-1'></a></p>
 <h2 id="asofrolling-join">AsOf/Rolling join<a class="headerlink" href="#asofrolling-join" title="Permanent link">¤</a></h2>
 <p>This example reproduces an example in the (DuckDB Docs)[https://duckdb.org/docs/guides/sql<em>features/asof</em>join.html#what-is-an-asof-join]</p>
-<div class="highlight"><pre><span></span><code>prices = db_table(db, &quot;https://duckdb.org/data/prices.csv&quot;, &quot;prices&quot;)
-holdings = db_table(db, &quot;https://duckdb.org/data/holdings.csv&quot;, &quot;holdings&quot;)
+<div class="highlight"><pre><span></span><code><span class="n">prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://duckdb.org/data/prices.csv&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;prices&quot;</span><span class="p">)</span>
+<span class="n">holdings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://duckdb.org/data/holdings.csv&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;holdings&quot;</span><span class="p">)</span>
 
-@chain t(holdings) begin
-   @inner_join(t(prices), ticker = ticker, closest(when &gt;= when))
-   @select(holdings.ticker, holdings.when)
-   @mutate(value = price * shares)
-   @collect
-end
- 4×3 DataFrame
+<span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">holdings</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">   </span><span class="nd">@inner_join</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">prices</span><span class="p">),</span><span class="w"> </span><span class="n">ticker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticker</span><span class="p">,</span><span class="w"> </span><span class="n">closest</span><span class="p">(</span><span class="n">when</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">when</span><span class="p">))</span>
+<span class="w">   </span><span class="nd">@select</span><span class="p">(</span><span class="n">holdings</span><span class="o">.</span><span class="n">ticker</span><span class="p">,</span><span class="w"> </span><span class="n">holdings</span><span class="o">.</span><span class="n">when</span><span class="p">)</span>
+<span class="w">   </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">shares</span><span class="p">)</span>
+<span class="w">   </span><span class="nd">@collect</span>
+<span class="k">end</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code> 4×3 DataFrame
  Row │ ticker  when                 value
      │ String  DateTime             Float64
 ─────┼──────────────────────────────────────

@@ -1,7 +1,7 @@
 name = "TidierDB"
 uuid = "86993f9b-bbba-4084-97c5-ee15961ad48b"
 authors = ["Daniel Rizk <rizk.daniel.12@gmail.com> and contributors"]
-version = "0.6.0"
+version = "0.6.1"
 
 [deps]
 Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45"
@@ -43,7 +43,7 @@ ClickHouse = "0.2"
 DataFrames = "1.5"
 Dates = "1.9"
 Documenter = "0.27, 1"
-DuckDB = "1.0, 1.1"
+DuckDB = "1 - 2"
 GZip = "0.6"
 GoogleCloud = "0.11"
 HTTP = "1.1"
@@ -54,7 +54,7 @@ MySQL = "1.4"
 ODBC = "1.1"
 Reexport = "0.2, 1"
 SQLite = "1.6"
-julia = "1.9"
+julia = "1.10"
 
 [extras]
 AWS = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"

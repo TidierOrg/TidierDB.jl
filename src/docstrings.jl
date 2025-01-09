@@ -1355,13 +1355,14 @@ SQLQuery("", "df_mem", "", "", "", "", "", "", false, false, 4×4 DataFrame
 
 const docstring_union = 
 """
-    @union(sql_query1, sql_query2)
+    @union(sql_query1, sql_query2, all = false)
 
 Combine two SQL queries using the `UNION` operator.
 
 # Arguments
 - `sql_query1`: The first SQL query to combine.
 - `sql_query2`: The second SQL query to combine.
+- `all`: Defaults to false, when true it will will return duplicates. `UNION ALL`
 
 # Returns
 - A lazy query of all distinct rows in the second query bound to the first
@@ -1420,6 +1421,18 @@ julia> @chain t(df1_table) begin
    1 │     1     10
    2 │     2     20
    3 │     3     30
+
+julia> @chain t(df1_table) @union(df1_table, all = true) @collect
+6×2 DataFrame
+ Row │ id     value 
+     │ Int64  Int64 
+─────┼──────────────
+   1 │     1     10
+   2 │     2     20
+   3 │     3     30
+   4 │     1     10
+   5 │     2     20
+   6 │     3     30
 ```
 """
 
@@ -1457,6 +1470,104 @@ julia> @chain t(df1_table) @union_all(df1_table) @collect
    4 │     1     10
    5 │     2     20
    6 │     3     30
+```
+"""
+
+const docstring_intersect = 
+"""
+    @intersect(sql_query1, sql_query2, all = false)
+
+Combine two SQL queries/tables using `INTERSECT`
+
+# Arguments
+- `sql_query1`: The first SQL query to combine.
+- `sql_query2`: The second SQL query to combine.
+- `all`: Defaults to false, when true it will return duplicates. `INTERSECT ALL`
+
+# Returns
+- A lazy query of all rows in the second query bound to the first
+
+# Examples
+```jldoctest
+julia> db = connect(duckdb());
+
+julia> df1 = DataFrame(id = [1, 2, 2, 3, 4],
+        name = ["Alice", "Bob", "Bob", "Charlie", "David"]);
+
+julia> df2 = DataFrame( id = [2, 2, 3, 5],
+       name = ["Bob", "Bob", "Charlie", "Eve"]);
+
+julia> copy_to(db, df1, "df1"); copy_to(db, df2, "df2");
+
+julia> df1_table = db_table(db, "df1"); 
+
+julia> df2_table = db_table(db, "df2"); 
+
+julia> @chain t(df1_table) @intersect(df2_table) @collect
+2×2 DataFrame
+ Row │ id     name    
+     │ Int64  String  
+─────┼────────────────
+   1 │     2  Bob
+   2 │     3  Charlie
+
+julia> @chain t(df1_table) @intersect(df2_table, all = true) @collect
+3×2 DataFrame
+ Row │ id     name    
+     │ Int64  String  
+─────┼────────────────
+   1 │     3  Charlie
+   2 │     2  Bob
+   3 │     2  Bob
+```
+"""
+
+const docstring_setdiff = 
+"""
+    @setdiff(sql_query1, sql_query2, all = false)
+
+Combine two SQL queries/tables using `EXECPT`
+
+# Arguments
+- `sql_query1`: The first SQL query to combine.
+- `sql_query2`: The second SQL query to combine.
+- `all`: Defaults to false, when true it will return duplicates. `EXCEPT ALL`
+
+# Returns
+- A lazy query of all rows in the second query bound to the first
+
+# Examples
+```jldoctest
+julia> db = connect(duckdb());
+
+julia> df1 = DataFrame(id = [1, 1, 2, 2, 3, 4],
+        name = ["Alice", "Alice", "Bob", "Bob", "Charlie", "David"]);
+
+julia> df2 = DataFrame(id = [2, 2, 3, 5],
+       name = ["Bob", "Bob", "Charlie", "Eve"]);
+  
+julia> copy_to(db, df1, "df1"); copy_to(db, df2, "df2");
+
+julia> df1_table = db_table(db, "df1"); 
+
+julia> df2_table = db_table(db, "df2"); 
+
+julia> @chain t(df1_table) @setdiff(df2_table) @collect
+2×2 DataFrame
+ Row │ id     name   
+     │ Int64  String 
+─────┼───────────────
+   1 │     1  Alice
+   2 │     4  David
+
+julia> @chain t(df1_table) @setdiff(df2_table, all = true) @collect
+3×2 DataFrame
+ Row │ id     name   
+     │ Int64  String 
+─────┼───────────────
+   1 │     1  Alice
+   2 │     1  Alice
+   3 │     4  David
 ```
 """
 

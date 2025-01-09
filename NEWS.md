@@ -1,4 +1,11 @@
 # TidierDB.jl updates
+## v0.6.2 - 2025-01-09
+- adds `@intersect` and `@setdiff` (SQLs `INTERSECT` and `EXCEPT`) respectively, with optional `all` argument
+- adds support for `all` arg to `@union` (equivalent to `@union_all`)
+
+## v0.6.1 - 2025-01-07
+- Bumps julia LTS to 1.10
+
 ## v0.6.0 - 2025-01-07
 - Adds support for joining on multiple columns
 - Adds support for inequality joins

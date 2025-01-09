@@ -221,6 +221,7 @@ function do_join(
         end
 
        # matching_indices_sq = findall(vq.metadata.name == rhs)
+        jq = jq isa String ? db_table(sq.db, jq) : jq
         jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
 
         join_sql = " " *

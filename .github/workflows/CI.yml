@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - main
-    tags: ['*']
+    tags: ["*"]
   pull_request:
   workflow_dispatch:
 concurrency:
@@ -19,8 +19,9 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.9'
-          - 'nightly'
+          - "1.10"
+          - "1.11"
+          - "nightly"
         os:
           - ubuntu-latest
         arch:
@@ -34,3 +35,7 @@ jobs:
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
+      - uses: coverallsapp/github-action@v1.1.2
+        with:
+          github-token: ${{ github.token }}
+          path-to-lcov: lcov.info

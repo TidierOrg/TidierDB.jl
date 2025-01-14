@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/TidierOrg/TidierDB.jl/blob/main/LICENSE)
 [![Docs: Latest](https://img.shields.io/badge/Docs-Latest-blue.svg)](https://tidierorg.github.io/TidierDB.jl/latest)
 [![Downloads](https://img.shields.io/badge/dynamic/json?url=http%3A%2F%2Fjuliapkgstats.com%2Fapi%2Fv1%2Fmonthly_downloads%2FTidierDB&query=total_requests&suffix=%2Fmonth&label=Downloads)](http://juliapkgstats.com/pkg/TidierDB)
+[![Coverage Status](https://coveralls.io/repos/github/TidierOrg/TidierDB.jl/badge.svg?branch=main)](https://coveralls.io/github/TidierOrg/TidierDB.jl?branch=main)
 
 <img src="docs/src/assets/logo.png" align="right" style="padding-left:10px;" width="150"/>
 
@@ -14,7 +15,7 @@ The main goal of TidierDB.jl is to bring the syntax of Tidier.jl to multiple SQL
 
 ## Currently supported backends include:
 
-|   |   |   |   | 
+|   |   |   |   |
 |---------|----------|----------|----------|
 | DuckDB (default) | `duckdb()` |ClickHouse | `clickhouse()`
 | SQLite | `sqlite()` | Postgres | `postgres()` |
@@ -46,8 +47,8 @@ TidierDB.jl currently supports the following top-level macros:
 | **TidierDates.jl Functions**   | `year`, `month`, `day`, `hour`, `min`, `second`, `floor_date`, `difftime`, `mdy`, `ymd`, `dmy`                                                                                                    |
 | **Aggregate Functions**          | `mean`, `minimum`, `maximum`, `std`, `sum`, `cumsum`, `cor`, `cov`, `var`, all aggregate sql fxns
 
-`@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.        
-`@mutate` supports all builtin SQL functions as well.                                                                                            
+`@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.
+`@mutate` supports all builtin SQL functions as well.
 
 When using the DuckDB backend, if `db_table` recieves a file path (`.parquet`, `.json`, `.csv`, `iceberg` or `delta`), it does not copy it into memory. This allows for queries on files too big for memory. `db_table` also supports S3 bucket locations via DuckDB.
 
@@ -74,12 +75,12 @@ mtcars = DB.db_table(db, path_or_name);
     DB.@filter(!starts_with(model, "M"))
     DB.@group_by(cyl)
     DB.@summarize(mpg = mean(mpg))
-    DB.@mutate(mpg_squared = mpg^2, 
-               mpg_rounded = round(mpg), 
+    DB.@mutate(mpg_squared = mpg^2,
+               mpg_rounded = round(mpg),
                mpg_efficiency = case_when(
                                  mpg >= cyl^2 , "efficient",
                                  mpg < 15.2 , "inefficient",
-                                 "moderate"))            
+                                 "moderate"))
     DB.@filter(mpg_efficiency in ("moderate", "efficient"))
     DB.@arrange(desc(mpg_rounded))
     DB.@collect
@@ -88,8 +89,8 @@ end
 
 ```
 2×5 DataFrame
- Row │ cyl     mpg       mpg_squared  mpg_rounded  mpg_efficiency 
-     │ Int64?  Float64?  Float64?     Float64?     String?        
+ Row │ cyl     mpg       mpg_squared  mpg_rounded  mpg_efficiency
+     │ Int64?  Float64?  Float64?     Float64?     String?
 ─────┼────────────────────────────────────────────────────────────
    1 │      4   27.3444      747.719         27.0  efficient
    2 │      6   19.7333      389.404         20.0  moderate
@@ -97,19 +98,19 @@ end
 
 ## What if we wanted to pivot the result?
 
-We cannot do this using TidierDB. However, we can call `@pivot_longer()` from TidierData *after* the result of the query has been instantiated as a DataFrame, like this: 
+We cannot do this using TidierDB. However, we can call `@pivot_longer()` from TidierData *after* the result of the query has been instantiated as a DataFrame, like this:
 
 ```julia
 @chain DB.t(mtcars) begin
     DB.@filter(!starts_with(model, "M"))
     DB.@group_by(cyl)
     DB.@summarize(mpg = mean(mpg))
-    DB.@mutate(mpg_squared = mpg^2, 
-               mpg_rounded = round(mpg), 
+    DB.@mutate(mpg_squared = mpg^2,
+               mpg_rounded = round(mpg),
                mpg_efficiency = case_when(
                                  mpg >= cyl^2 , "efficient",
                                  mpg < 15.2 , "inefficient",
-                                 "moderate"))            
+                                 "moderate"))
     DB.@filter(mpg_efficiency in ("moderate", "efficient"))
     DB.@arrange(desc(mpg_rounded))
     DB.@collect
@@ -119,8 +120,8 @@ end
 
 ```
 10×2 DataFrame
- Row │ variable        value     
-     │ String          Any       
+ Row │ variable        value
+     │ String          Any
 ─────┼───────────────────────────
    1 │ cyl             4
    2 │ cyl             6
@@ -143,12 +144,12 @@ We can replace `DB.collect()` with `DB.@show_query` to reveal the underlying SQL
     DB.@filter(!starts_with(model, "M"))
     DB.@group_by(cyl)
     DB.@summarize(mpg = mean(mpg))
-    DB.@mutate(mpg_squared = mpg^2, 
-               mpg_rounded = round(mpg), 
+    DB.@mutate(mpg_squared = mpg^2,
+               mpg_rounded = round(mpg),
                mpg_efficiency = case_when(
                                  mpg >= cyl^2 , "efficient",
                                  mpg < 15.2 , "inefficient",
-                                 "moderate"))            
+                                 "moderate"))
     DB.@filter(mpg_efficiency in ("moderate", "efficient"))
     DB.@arrange(desc(mpg_rounded))
     DB.@show_query
@@ -170,9 +171,9 @@ SELECT  cyl, mpg, POWER(mpg, 2) AS mpg_squared, ROUND(mpg) AS mpg_rounded, CASE 
 cte_4 AS (
 SELECT *
         FROM cte_3
-        WHERE mpg_efficiency in ('moderate', 'efficient'))  
+        WHERE mpg_efficiency in ('moderate', 'efficient'))
 SELECT *
-        FROM cte_4  
+        FROM cte_4
         ORDER BY mpg_rounded DESC
 ```
 
@@ -188,8 +189,8 @@ end
 
 ```
 3×5 DataFrame
- Row │ cyl     am_mean   vs_mean   am_sum   vs_sum  
-     │ Int64?  Float64?  Float64?  Int128?  Int128? 
+ Row │ cyl     am_mean   vs_mean   am_sum   vs_sum
+     │ Int64?  Float64?  Float64?  Int128?  Int128?
 ─────┼──────────────────────────────────────────────
    1 │      4  0.727273  0.909091        8       10
    2 │      6  0.428571  0.571429        3        4

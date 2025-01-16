@@ -45,6 +45,17 @@ macro filter(sqlquery, conditions...)
         if isa(sq, SQLQuery)
             # Early handling for non-aggregated context
             if !sq.is_aggregated
+                if sq.post_join
+                    combined_conditions = String[]
+                    for condition in $(esc(conditions))
+                        condition_str = string(expr_to_sql(condition, sq))
+                        condition_str = replace(condition_str, "'\"" => "'",  "'\"" => "'", "\"'" => "'", "[" => "(", "]" => ")")
+                        push!(combined_conditions, condition_str)
+                    end
+                    combined_condition_str = join(combined_conditions, " AND ")
+                    sq.where = combined_condition_str
+                    sq.post_join = false
+                else
                 cte_name = "cte_" * string(sq.cte_count + 1)
                 combined_conditions = String[]
                 for condition in $(esc(conditions))
@@ -57,7 +68,7 @@ macro filter(sqlquery, conditions...)
                 push!(sq.ctes, new_cte)
                 sq.from = cte_name
                 sq.cte_count += 1
-                
+            end
             else
             aggregated_columns = Set{String}()
             

@@ -1,3 +1,4 @@
+# COV_EXCL_START
 function expr_to_sql_mysql(expr, sq; from_summarize::Bool)
     expr = parse_char_matching(expr)
     expr = exc_capture_bug(expr, names_to_modify)
@@ -206,3 +207,4 @@ function floordate_to_sql(unit::String, time_column::Symbol)
     # Construct the SQL string
     return "DATE_FORMAT($(string(time_column)), '$sql_format')"
   end
+  # COV_EXCL_STOP

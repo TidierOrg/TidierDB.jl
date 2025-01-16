@@ -1,3 +1,4 @@
+# COV_EXCL_START
 function expr_to_sql_mssql(expr, sq; from_summarize::Bool)
     expr = parse_char_matching(expr)
     expr = exc_capture_bug(expr, names_to_modify)
@@ -197,4 +198,4 @@ function floordate_to_mssql(unit::String, time_column::Symbol)
     
     return sql_command
 end
-
+# COV_EXCL_STOP

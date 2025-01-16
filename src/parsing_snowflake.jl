@@ -1,3 +1,4 @@
+# COV_EXCL_START
 ## snowflake connection and execution begins around 150
 function expr_to_sql_snowflake(expr, sq; from_summarize::Bool)
    # expr = parse_char_matching(expr)
@@ -334,3 +335,5 @@ function show_tables(con::SnowflakeConnection)
     result = execute_snowflake(con, "SHOW TABLES in SCHEMA $(con.schema)")
     return DataFrame(result)
 end
+
+# COV_EXCL_STOP

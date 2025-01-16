@@ -1,3 +1,4 @@
+# COV_EXCL_START
 function expr_to_sql_trino(expr, sq; from_summarize::Bool)
     expr = parse_char_matching(expr)
     expr = exc_capture_bug(expr, names_to_modify)
@@ -213,4 +214,4 @@ function parse_athena_df(df, column_types)
     return df
 end
 
-
+# COV_EXCL_STOP

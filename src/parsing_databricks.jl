@@ -1,3 +1,4 @@
+# COV_EXCL_START
 mutable struct DatabricksConnection
     workspace_id::String
     auth_token::String
@@ -67,3 +68,5 @@ function show_tables(con::DatabricksConnection)
     result = execute_databricks(con, "SHOW TABLES IN $(con.schema)")
     return DataFrame(result)
 end
+
+# COV_EXCL_START

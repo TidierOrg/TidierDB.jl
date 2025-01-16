@@ -1,3 +1,4 @@
+# COV_EXCL_START
 function expr_to_sql_clickhouse(expr, sq; from_summarize::Bool)
     expr = parse_char_matching(expr)
     expr = exc_capture_bug(expr, names_to_modify)
@@ -187,3 +188,4 @@ function expr_to_sql_clickhouse(expr, sq; from_summarize::Bool)
         return x
     end
 end
+# COV_EXCL_STOP

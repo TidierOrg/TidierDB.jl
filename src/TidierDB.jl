@@ -68,12 +68,13 @@ include("union_intersect_setdiff.jl")
 
 # Unified expr_to_sql function to use right mode
 function expr_to_sql(expr, sq; from_summarize::Bool = false)
-    if current_sql_mode[] == sqlite()
-        return expr_to_sql_lite(expr, sq, from_summarize=from_summarize)
+    if current_sql_mode[] == duckdb()
+        return expr_to_sql_duckdb(expr, sq, from_summarize=from_summarize)
+        # COV_EXCL_START
     elseif current_sql_mode[] == postgres()
         return expr_to_sql_postgres(expr, sq; from_summarize=from_summarize)
-    elseif current_sql_mode[] == duckdb()
-        return expr_to_sql_duckdb(expr, sq; from_summarize=from_summarize)
+    elseif current_sql_mode[] == sqlite()
+        return expr_to_sql_lite(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == mysql()
         return expr_to_sql_mysql(expr, sq; from_summarize=from_summarize)
     elseif current_sql_mode[] == mssql()
@@ -94,6 +95,7 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
 end
+# COV_EXCL_STOP
 
 """
 $docstring_warnings
@@ -372,7 +374,7 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
         if current_sql_mode[] == duckdb()
             DuckDB.register_data_frame(conn, df_or_path, name)
         end
-    # If the input is not a DataFrame, treat it as a file path
+    # COV_EXCL_START
     elseif isa(df_or_path, AbstractString)
         if current_sql_mode[] != duckdb()
             error("Direct file loading is only supported for DuckDB in this implementation.")
@@ -410,7 +412,7 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
         error("Unsupported type for df_or_path: Must be DataFrame or file path string.")
     end
 end
-
+# COV_EXCL_STOP
 
 """
 $docstring_connect
@@ -427,7 +429,7 @@ function connect(::duckdb; kwargs...)
     return db
 end
 
-
+# COV_EXCL_START
 function connect(::snowflake, identifier::String, auth_token::String, database::String, schema::String, warehouse::String)
         set_sql_mode(snowflake())
         api_url = "https://$identifier.snowflakecomputing.com/api/v2/statements"
@@ -473,5 +475,6 @@ end
 function connect(::duckdb, token::String)
      return DBInterface.connect(DuckDB.DB, token)
 end
+# COV_EXCL_STOP
 
 end

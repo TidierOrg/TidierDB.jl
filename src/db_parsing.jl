@@ -26,7 +26,7 @@ function parse_tidy_db(exprs, metadata::DataFrame)
     excluded_columns = String[]
 
     # Convert tuple to vector if necessary
-exprs_iterable = isa(exprs, Tuple) || isa(exprs, AbstractVector) ? exprs : [exprs]
+    exprs_iterable = isa(exprs, Tuple) || isa(exprs, AbstractVector) ? exprs : [exprs]
 
     for expr in exprs_iterable
         # First, check for exclusion
@@ -383,8 +383,13 @@ function parse_across(expr, metadata)
     else
         columns_exprs = [columns_expr]
     end
-
+   # metadata = metadata[metadata.current_selxn .>= 1, :]
     resolved_columns = parse_tidy_db(columns_exprs, metadata)
+   # println(resolved_columns)
+  #  filtered_names = metadata.name[metadata.current_selxn .>= 1]
+  #  resolved_columns = intersect(resolved_columns, filtered_names)
+  #  println(resolved_columns)
+
     funcs = isa(funcs_expr, Expr) && funcs_expr.head == :tuple ? funcs_expr.args : [funcs_expr]
     result_exprs = []
 
@@ -531,6 +536,8 @@ function parse_join_expression(expr)
 end
 
 
+# This function allows for tidy selection in relocate, and prob could be used in the _by argument as well
+# COV_EXCL_START
 function filter_columns_by_expr(actual_expr, metadata::DataFrame)
     # Filter metadata by current_selxn != 0
     selected_df = metadata[metadata.current_selxn .!= 0, :]
@@ -719,3 +726,4 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
         end
     end
 end
+# COV_EXCL_STOP

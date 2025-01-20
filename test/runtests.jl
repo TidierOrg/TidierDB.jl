@@ -16,16 +16,19 @@ import TidierDB as DB
 using Test
 using TidierDates
 
-test_df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
-                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
-                        value = repeat(1:5, 2), 
-                        percent = 0.1:0.1:1.0);
- df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
-                category = ["X", "Y", "X", "Y", "X", "Y", "X"],
-                score = [88, 92, 77, 83, 95, 68, 74]);
-df3 = DataFrame(id3 = ["AA", "AG", "AI", "AM", "AN"],
-                description = ["Desc1", "Desc2", "Desc3", "Desc4", "Desc5"],
-                value2 = [10, 20, 30, 40, 50])
+test_df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:199], 
+                  groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:200], 
+                  value = repeat(1:20, 10), 
+                  percent = [i/200 for i in 1:200]);
+
+df2 = DataFrame(
+               id2 = [string(Char('A' + i ÷ 26), Char('A' + i % 26)) for i in 0:159],
+               category = repeat(["X", "Y", "Z"], inner=54)[1:160], # Ensure length is 160
+               score = [50 + rand(1:50) for i in 1:160])
+
+df3 = DataFrame(id3 = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:179],
+                description = ["Desc" * string(i) for i in 1:180],
+                value2 = [10 * i for i in 1:180])
 
 db = DB.connect(DB.duckdb());
 DB.copy_to(db, test_df, "test_df");

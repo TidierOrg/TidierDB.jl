@@ -158,7 +158,7 @@
 # ```
 
 # ## AsOf/Rolling join
-# This example reproduces an example in the (DuckDB Docs)[https://duckdb.org/docs/guides/sql_features/asof_join.html#what-is-an-asof-join]
+# This example reproduces an example in the [DuckDB Docs](https://duckdb.org/docs/guides/sql_features/asof_join.html#what-is-an-asof-join)
 # ```julia
 # prices = db_table(db, "https://duckdb.org/data/prices.csv", "prices")
 # holdings = db_table(db, "https://duckdb.org/data/holdings.csv", "holdings")

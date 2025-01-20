@@ -1,5 +1,3 @@
-# To use TidierDB.jl, you will have to set up a connection. TidierDB.jl gives you access to duckdb via `duckdb_open` and `duckdb_connect`. However, to use MySql, ClickHouse, MSSQL, Postgres, or SQLite, you will have to load those packages in first. 
-
 # If you plan to use TidierDB.jl with TidierData.jl or Tidier.jl, it is most convenenient to load the packages as follows:
 
 # ```julia
@@ -10,22 +8,23 @@
 # Alternatively, `using Tidier` will import TidierDB in the above manner for you, where TidierDB functions and macros will be available as `DB.@mutate()` and so on, and the TidierData equivalent would be `@mutate()`.
 
 # ## Connecting
-# To connect to a database, you can uset the `connect` function  as shown below, or establish your own connection through the respecitve libraries.
+# To use TidierDB, a connection must first be established. To connect to a database, you can uset the `connect` function  as shown below, or establish your own connection through the respecitve libraries.
 
 # For example
-# Connecting to MySQL
-# ```julia
-# conn = DB.connect(DB.mysql(); host="localhost", user="root", password="password", db="mydb")
-# ```
-# versus connecting to DuckDB
+# Connecting to DuckDB
 # ```julia
 # conn = DB.connect(DB.duckdb())
 # ```
+# versus connecting to MySQL
+# ```julia
+# conn = DB.connect(DB.mysql(); host="localhost", user="root", password="password", db="mydb")
+# ```
+# The [`connect` docstring](https://tidierorg.github.io/TidierDB.jl/latest/reference/#TidierDB.connect-Tuple{duckdb}) has many examples for how to use the connect function to connect to various backends or to MotherDuck. 
 
-# ## Connect to a local database file
+# ## Connect to a local database file with DuckDB
 # You can also connect to an existing database by passing the database file path as a string.
 # ```julia
-# db = DB.connect(DB.duckdb(), "mydb.duckdb")
+# db = DB.connect(DB.duckdb(), "path/to/mydb.duckdb")
 # ```
 
 # You can also establish any DuckDB connection through an alternate method that you prefer, and use that as your connection as well. 
@@ -56,7 +55,7 @@
 # ``` 
 # `db_table` also supports iceberg, delta, and S3 file paths via DuckDB.
 
-# ## Minimizing Compute Costs
+# ## Minimizing Compute Costs and Keystrokes
 # If you are working with a backend where compute cost is important, it will be important to minimize using `db_table` as this will requery for metadata each time. 
 # Compute costs are relevant to backends such as AWS, databricks and Snowflake. 
 

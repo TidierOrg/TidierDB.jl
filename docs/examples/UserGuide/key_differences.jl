@@ -2,7 +2,7 @@
 
 # ## Creating a database
 
-# For these examples we will use DuckDB, the default backend, although SQLite, Postgres, MySQL, MariaDB, MSSQL, and ClickHouse are possible. If you have an existing DuckDB connection, then this step is not required. For these examples, we will create a data frame and copy it to an in-memory DuckDB database.
+# For these examples we will use DuckDB, the default backend. If you have an existing DuckDB connection, then this step is not required. For these examples, we will create a data frame and copy it to an in-memory DuckDB database.
 
 using DataFrames, TidierDB
 
@@ -55,6 +55,3 @@ end
                                 true, "middle"))
     @collect
  end
-
- # ## Joining Tables
- # When joining a table, the column from both tables will be present, in contrast to TidierData which will keep one column

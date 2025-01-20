@@ -53,7 +53,7 @@ macro filter(sqlquery, conditions...)
                         push!(combined_conditions, condition_str)
                     end
                     combined_condition_str = join(combined_conditions, " AND ")
-                    sq.where = combined_condition_str
+                    sq.where = " WHERE " * combined_condition_str
                     sq.post_join = false
                 else
                 cte_name = "cte_" * string(sq.cte_count + 1)
@@ -443,6 +443,7 @@ function stream_collect(sqlquery::SQLQuery)
 
     return df
 end
+# COV_EXCL_STOP
 
 
 """
@@ -458,6 +459,7 @@ macro collect(sqlquery, stream = false)
             else
                 final_collect($(esc(sqlquery)), duckdb)
             end
+        # COV_EXCL_START 
         elseif backend == clickhouse()
             final_collect($(esc(sqlquery)), clickhouse)
         elseif backend == sqlite()
@@ -481,6 +483,7 @@ macro collect(sqlquery, stream = false)
         else
             throw(ArgumentError("Unsupported SQL mode: $backend"))
         end
+        # COV_EXCL_STOP
     end
 end
 

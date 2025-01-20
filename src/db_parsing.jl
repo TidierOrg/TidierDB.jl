@@ -536,6 +536,8 @@ function parse_join_expression(expr)
 end
 
 
+# This function allows for tidy selection in relocate, and prob could be used in the _by argument as well
+# COV_EXCL_START
 function filter_columns_by_expr(actual_expr, metadata::DataFrame)
     # Filter metadata by current_selxn != 0
     selected_df = metadata[metadata.current_selxn .!= 0, :]
@@ -724,3 +726,4 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
         end
     end
 end
+# COV_EXCL_STOP

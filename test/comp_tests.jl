@@ -7,11 +7,8 @@
         TDB_3 = @chain DB.t(test_db) DB.@select(!(groups:value)) DB.@collect
         TDF_4 = @chain test_df @select(!value)
         TDB_4 = @chain DB.t(test_db) DB.@select(!test_df.value) DB.@collect
-        
         TDF_5 = @chain test_df @relocate([groups, value], ends_with("d"), after = percent)
         TDB_5 = @chain DB.t(test_db) DB.@relocate([groups, value], ends_with("d"), after = percent) DB.@collect
-
-
         TDF_6 = @chain test_df @select(!value) @relocate(groups, ends_with("d"), after = percent)
         TDB_6 = @chain DB.t(test_db) DB.@select(!value) DB.@relocate(groups, ends_with("d"), after = percent) DB.@collect
 
@@ -30,6 +27,7 @@
         TDB_2 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(across(starts_with("v"), (mean, minimum, maximum, std))) DB.@mutate(value_std = round(value_std,  4)) DB.@collect
         TDF_3 = @chain test_df @group_by(groups) @summarize(across(value,(mean, minimum, maximum))) @mutate(value_mean = value_mean + 4 * 4)
         TDB_3 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(across(value, (mean, minimum, maximum))) DB.@mutate(value_mean = value_mean + 4 * 4) DB.@collect
+        
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
         @test all(isequal.(Array(TDF_2), Array(TDB_2)))
         @test all(isequal.(Array(TDF_3), Array(TDB_3)))
@@ -62,7 +60,6 @@
         #str_detect Regex
         TDF_13 = @chain test_df @filter(str_detect(id, r"C$"))
         TDB_13 = @chain DB.t(test_db) DB.@filter(str_detect(id, r"C$")) DB.@collect
-
         TDF_14 = @chain test_df @filter(str_detect(id, r"^a"))
         TDB_14 = @chain DB.t(test_db) DB.@filter(str_detect(id, r"^a")) DB.@collect
 
@@ -155,13 +152,13 @@
         TDF_4 = @chain test_df @group_by(groups) @summarize(across(value,(mean, minimum))) @mutate(new = value_mean - value_minimum)
         TDB_4 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(across(value, (mean, minimum))) DB.@mutate(new = value_mean - value_minimum) DB.@collect
         #TDF_5 = @chain test_df @group_by(groups) @mutate(value = cumsum(value)) @ungroup() @arrange(id)
-      #  TDB_5 = @chain DB.t(test_db) DB.@mutate(value = cumsum(value), _by = groups)  DB.@collect() @arrange(id)
+        #TDB_5 = @chain DB.t(test_db) DB.@mutate(value = cumsum(value), _by = groups)  DB.@collect() @arrange(id)
         TDF_6 = @chain test_df @mutate(id = lowercase(id), groups = uppercase(groups))
         TDB_6 = @chain DB.t(test_db)  DB.@mutate(id = lower(id), groups = upper(groups)) DB.@collect
-        #mutating with agg function across groups, then filtering
+        # mutating with agg function across groups, then filtering
         TDF_7 = @chain test_df @group_by(groups) @mutate(min_value = minimum(value)) @ungroup() @filter(value > min_value) @arrange(percent)
         TDB_7 = @chain DB.t(test_db) DB.@group_by(groups) DB.@mutate(min_value = minimum(value)) DB.@filter(value > min_value) DB.@arrange(percent) DB.@collect
-        #mutating with string functions
+        # mutating with string functions
         TDF_8 = @chain test_df @mutate(groups = str_replace_all(groups,"a", "TEST"))
         TDB_8 = @chain DB.t(test_db) DB.@mutate(groups = str_replace_all(groups,"a", "TEST")) DB.@collect
         TDF_8 = @chain test_df @mutate(groups = str_replace(groups,"a", "TEST"))

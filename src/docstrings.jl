@@ -445,6 +445,30 @@ julia> @chain db_table(db, :df_mem) begin
      │ String  String  Int64  Float64  Int64    
 ─────┼──────────────────────────────────────────
    1 │ AB      aa          2      0.2         1
+
+julia> @chain db_table(db, :df_mem) begin
+         @group_by groups
+         @slice_min(percent)
+         @arrange groups
+         @collect
+       end
+2×5 DataFrame
+ Row │ id      groups  value  percent  rank_col 
+     │ String  String  Int64  Float64  Int64    
+─────┼──────────────────────────────────────────
+   1 │ AB      aa          2      0.2         1
+   2 │ AA      bb          1      0.1         1
+
+julia> @chain db_table(db, :df_mem) begin
+         @summarize(percent_mean = mean(percent), _by = groups)
+         @slice_min(percent_mean)
+         @collect
+       end
+1×3 DataFrame
+ Row │ groups  percent_mean  rank_col 
+     │ String  Float64       Int64    
+─────┼────────────────────────────────
+   1 │ bb               0.5         1
 ```
 """
 
@@ -506,6 +530,30 @@ julia> @chain db_table(db, :df_mem) begin
      │ String  String  Int64  Float64  Int64    
 ─────┼──────────────────────────────────────────
    1 │ AH      aa          3      0.8         1
+
+julia>  @chain db_table(db, :df_mem) begin
+         @group_by groups
+         @slice_max(percent)
+         @arrange groups
+         @collect
+       end
+2×5 DataFrame
+ Row │ id      groups  value  percent  rank_col 
+     │ String  String  Int64  Float64  Int64    
+─────┼──────────────────────────────────────────
+   1 │ AJ      aa          5      1.0         1
+   2 │ AI      bb          4      0.9         1
+
+julia> @chain db_table(db, :df_mem) begin
+         @summarize(percent_mean = mean(percent), _by = groups)
+         @slice_max(percent_mean)
+         @collect
+       end
+1×3 DataFrame
+ Row │ groups  percent_mean  rank_col 
+     │ String  Float64       Int64    
+─────┼────────────────────────────────
+   1 │ aa               0.6         1
 ```
 """
 
@@ -1177,7 +1225,7 @@ julia> @chain t(df_mem) begin
 
 julia> @chain t(df_mem) begin
         @group_by groups
-       # @window_frame(to = -3)
+        @window_frame(to = -3)
         @mutate(avg = mean(percent))
         #@show_query
         @collect
@@ -1185,9 +1233,10 @@ julia> @chain t(df_mem) begin
 
 julia> @chain t(df_mem) begin
         @group_by groups
-        @window_frame()
+        @window_frame(from = -3)
         @mutate(avg = mean(percent))
         #@show_query
+        @collect
        end;
 ```
 """

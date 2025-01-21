@@ -130,7 +130,33 @@ function parse_tidy_db(exprs, metadata::DataFrame)
             end
 
         end
-
+    elseif isa(actual_expr, AbstractVector)
+        for item in actual_expr
+            col_name = string(item)
+            if current_sql_mode[] == snowflake()
+                col_name = uppercase(col_name)
+            end
+            if is_excluded
+                push!(excluded_columns, col_name)
+            else
+                push!(included_columns, col_name)
+            end
+        end
+        elseif isa(actual_expr, Tuple) && all(isa.(actual_expr, Vector{Symbol}))
+            for vec in actual_expr
+                for item in vec
+                    col_name = string(item)[2:end]
+                    if current_sql_mode[] == snowflake()
+                        col_name = uppercase(col_name)
+                    end
+                    if is_excluded
+                        push!(excluded_columns, col_name)
+                    else
+                        push!(included_columns, col_name)
+                    end
+                end
+            end
+       
         else
             error("Unsupported expression type: $expr")
         end
@@ -164,6 +190,9 @@ function parse_tidy_db(exprs, metadata::DataFrame)
 
     return included_columns
 end
+
+
+
 
 function parse_if_else(expr)
     transformed_expr = MacroTools.postwalk(expr) do x

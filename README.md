@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/TidierOrg/TidierDB.jl/blob/main/LICENSE)
 [![Docs: Latest](https://img.shields.io/badge/Docs-Latest-blue.svg)](https://tidierorg.github.io/TidierDB.jl/latest)
 [![Downloads](https://img.shields.io/badge/dynamic/json?url=http%3A%2F%2Fjuliapkgstats.com%2Fapi%2Fv1%2Fmonthly_downloads%2FTidierDB&query=total_requests&suffix=%2Fmonth&label=Downloads)](http://juliapkgstats.com/pkg/TidierDB)
-[![Coverage Status](https://coveralls.io/repos/github/TidierOrg/TidierDB.jl/badge.svg?branch=main)](https://coveralls.io/github/TidierOrg/TidierDB.jl?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/TidierOrg/TidierDB.jl/badge.svg?branch=main&kill=1)](https://coveralls.io/github/TidierOrg/TidierDB.jl?branch=main&kill=1)
 
 <img src="docs/src/assets/logo.png" align="right" style="padding-left:10px;" width="150"/>
 
@@ -39,7 +39,7 @@ TidierDB.jl currently supports the following top-level macros:
 | **Category**                     | **Supported Macros and Functions**                                                                                                                                               |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Data Manipulation**     | `@arrange`, `@group_by`, `@filter`, `@select`, `@mutate` (supports `across`), `@summarize`/`@summarise` (supports `across`), `@distinct`, `@relocate`                                 |
-| **Joining**                  | `@left_join`, `@right_join`, `@inner_join`, `@anti_join`, `@full_join`, `@semi_join`, `@union`, `@union_all`, `@intersect`, `@setdiff`                                         |
+| **Joining/Setting**                  | `@left_join`, `@right_join`, `@inner_join`, `@anti_join`, `@full_join`, `@semi_join`, `@union`, `@union_all`, `@intersect`, `@setdiff`                                         |
 | **Slice and Order**       | `@slice_min`, `@slice_max`, `@slice_sample`, `@order`, `@window_order`, `@window_frame`                                                                                                |
 | **Utility**               | `@show_query`, `@collect`, `@head`, `@count`, `show_tables`, `@create_view` , `drop_view`                                                                                                                                          |
 | **Helper Functions**             | `across`, `desc`, `if_else`, `case_when`, `n`, `starts_with`, `ends_with`, `contains`, `as_float`, `as_integer`, `as_string`, `is_missing`, `missing_if`, `replace_missing` |

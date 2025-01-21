@@ -1,4 +1,7 @@
 # TidierDB.jl updates
+## v0.6.3 - 2025-01-20
+- Resolve issue when filtering immediately after joining
+
 ## v0.6.2 - 2025-01-09
 - adds `@intersect` and `@setdiff` (SQLs `INTERSECT` and `EXCEPT`) respectively, with optional `all` argument
 - adds support for `all` arg to `@union` (equivalent to `@union_all`)

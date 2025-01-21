@@ -234,12 +234,15 @@
         TBD_1 = @chain DB.t(test_db) DB.@count(groups) DB.@collect
         TDF_2 = @chain test_df @count(groups, id) @arrange(groups, id)
         TBD_2 = @chain DB.t(test_db) DB.@count(groups, id) DB.@arrange(groups, id) DB.@collect
+        TDF_3 = @chain test_df @mutate(sum = sum(value))
+        TBD_3 = @chain DB.t(test_db) DB.@mutate(sum = sum(value)) DB.@collect
         @test all(isequal.(Array(TDF_1), Array(TBD_1)))
         @test all(isequal.(Array(TDF_2), Array(TBD_2)))
+        @test all(isequal.(Array(TDF_3), Array(TBD_3)))
     end
     @testset "Date Parsing" begin
-        TDF_1 = @chain test_df @mutate(test = ymd_hms("2023-06-15 00:00:00"))
-        TDB_1 = @chain DB.t(test_db) DB.@mutate(test = ymd("2023-06-15")) DB.@collect
+        TDF_1 = @chain test_df @mutate(test = ymd_hms("2023-06-15 00:00:00"), test2 = mdy_hms("06-12-2023 00:00:00")) @mutate(y = year(test), m = month(test), d = day(test), h = hour(test), mi = minute(test), s = second(test), floor = floor_date(test, "month"), dif = difftime(test, test2, "hours"))
+        TDB_1 = @chain DB.t(test_db) DB.@mutate(test = ymd("2023-06-15"), test2 = mdy("06-12-2023")) DB.@mutate(y = year(test), m = month(test), d = day(test), h = hour(test), mi = minute(test), s = second(test), floor = floor_date(test, "month"), dif = difftime(test, test2, "hours")) DB.@collect
         # Filter by date
         TDF_2 = @chain test_df @mutate(test = ymd_hms("2023-06-15 00:00:00")) @filter(test <  ymd("2023-04-14"))
         TDB_2 = @chain DB.t(test_db) DB.@mutate(test = ymd("2023-06-15")) DB.@filter(test <  ymd("2023-04-14")) DB.@collect

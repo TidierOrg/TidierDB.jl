@@ -35,6 +35,10 @@ macro create_view(sqlquery, name, replace = true)
     end
 end
 
+
+"""
+$docstring_drop_view
+"""
 function drop_view(db, name)
     DBInterface.execute(db, "DROP VIEW $name")
 end

@@ -399,6 +399,7 @@ function final_collect(sqlquery::SQLQuery, ::Type{<:duckdb})
     return DataFrame(result)
 end
 
+# COV_EXCL_START
 function final_collect(sqlquery::SQLQuery, ::Type{<:databricks})
     final_query = finalize_query(sqlquery)
     result = execute_databricks(sqlquery.db, final_query)
@@ -410,7 +411,7 @@ function final_collect(sqlquery::SQLQuery, ::Type{<:snowflake})
     result = execute_snowflake(sqlquery.db, final_query)
     return DataFrame(result)
 end
-#using TidierDB
+
 function stream_collect(sqlquery::SQLQuery)
     final_query = finalize_query(sqlquery)
     res = DBInterface.execute(sqlquery.db, final_query, DuckDB.StreamResult)

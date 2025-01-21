@@ -378,8 +378,17 @@ julia> copy_to(db, df, "df_mem");
 julia> @chain db_table(db, :df_mem) begin
          @group_by(groups)
          @slice_min(value, n = 2)
+         @arrange(groups, percent) # arranged due to duckdb multi threading
          @collect
-       end;
+       end
+4×5 DataFrame
+ Row │ id      groups  value  percent  rank_col 
+     │ String  String  Int64  Float64  Int64    
+─────┼──────────────────────────────────────────
+   1 │ AB      aa          2      0.2         2
+   2 │ AF      aa          1      0.6         1
+   3 │ AA      bb          1      0.1         1
+   4 │ AG      bb          2      0.7         2
 
 julia> @chain db_table(db, :df_mem) begin
          @slice_min(value)
@@ -391,6 +400,17 @@ julia> @chain db_table(db, :df_mem) begin
 ─────┼──────────────────────────────────────────
    1 │ AA      bb          1      0.1         1
    2 │ AF      aa          1      0.6         1
+
+julia> @chain db_table(db, :df_mem) begin
+         @filter(percent > .1)
+         @slice_min(percent)
+         @collect
+       end
+1×5 DataFrame
+ Row │ id      groups  value  percent  rank_col 
+     │ String  String  Int64  Float64  Int64    
+─────┼──────────────────────────────────────────
+   1 │ AB      aa          2      0.2         1
 ```
 """
 
@@ -419,8 +439,17 @@ julia> copy_to(db, df, "df_mem");
 julia> @chain db_table(db, :df_mem) begin
          @group_by(groups)
          @slice_max(value, n = 2)
+         @arrange(groups)
          @collect
-       end;
+       end
+4×5 DataFrame
+ Row │ id      groups  value  percent  rank_col 
+     │ String  String  Int64  Float64  Int64    
+─────┼──────────────────────────────────────────
+   1 │ AJ      aa          5      1.0         1
+   2 │ AD      aa          4      0.4         2
+   3 │ AE      bb          5      0.5         1
+   4 │ AI      bb          4      0.9         2
 
 julia> @chain db_table(db, :df_mem) begin
          @slice_max(value)
@@ -432,6 +461,17 @@ julia> @chain db_table(db, :df_mem) begin
 ─────┼──────────────────────────────────────────
    1 │ AE      bb          5      0.5         1
    2 │ AJ      aa          5      1.0         1
+
+julia> @chain db_table(db, :df_mem) begin
+        @filter(percent < .9)
+        @slice_max(percent)
+        @collect
+       end
+1×5 DataFrame
+ Row │ id      groups  value  percent  rank_col 
+     │ String  String  Int64  Float64  Int64    
+─────┼──────────────────────────────────────────
+   1 │ AH      aa          3      0.8         1
 ```
 """
 
@@ -1567,7 +1607,7 @@ julia> @chain t(df1_table) @setdiff(df2_table, all = true) @collect
 
 const docstring_create_view =
 """
-    @view(sql_query, name, replace = true)
+    @create_view(sql_query, name, replace = true)
 
 Create a view from a SQL query. Currently supports DuckDB, MySQL, GBQ, Postgres
 
@@ -1587,6 +1627,30 @@ julia> copy_to(db, df, "df1");
 julia> @chain db_table(db, "df1") @create_view(viewer);
 
 julia> db_table(db, "viewer");
+```
+"""
+
+const docstring_drop_view =
+"""
+    drop_view(sql_query, name)
+
+Drop a view. Currently supports DuckDB, MySQL, GBQ, Postgres
+
+# Arguments
+- `sql_query`: The SQL query to create a view from.
+- `name`: The name of the view to drop.
+
+# Examples
+```jldoctest
+julia> db = connect(duckdb());
+
+julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
+
+julia> copy_to(db, df, "df1");
+
+julia> @chain db_table(db, "df1") @create_view(viewer);
+
+julia> drop_view(db, viewer);
 ```
 """
 

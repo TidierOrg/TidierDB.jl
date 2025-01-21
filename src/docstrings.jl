@@ -117,6 +117,21 @@ julia> @chain db_table(db, :df_mem) begin
 ─────┼─────────────────
    1 │ aa          0.6
    2 │ bb          0.5
+
+julia> q = @chain db_table(db, :df_mem) @summarize(mean = mean(value));
+
+julia> @eval @chain db_table(db, :df_mem) begin
+         @filter(value < \$q) 
+         @collect
+       end
+4×4 DataFrame
+ Row │ id      groups  value  percent 
+     │ String  String  Int64  Float64 
+─────┼────────────────────────────────
+   1 │ AA      bb          1      0.1
+   2 │ AB      aa          2      0.2
+   3 │ AF      aa          1      0.6
+   4 │ AG      bb          2      0.7
 ```
 """
 
@@ -242,6 +257,25 @@ julia> @chain db_table(db, :df_mem) begin
    8 │ AE      bb          5      0.5      10        6
    9 │ AC      bb          3      0.3       9        1
   10 │ AA      bb          1      0.1       4  missing 
+
+julia> @chain db_table(db, :df_mem) begin
+         @mutate(across([:value, :percent], agg(kurtosis)))
+         @collect
+       end
+10×6 DataFrame
+ Row │ id      groups  value  percent  value_kurtosis  percent_kurtosis 
+     │ String  String  Int64  Float64  Float64         Float64          
+─────┼──────────────────────────────────────────────────────────────────
+   1 │ AA      bb          1      0.1        -1.33393              -1.2
+   2 │ AB      aa          2      0.2        -1.33393              -1.2
+   3 │ AC      bb          3      0.3        -1.33393              -1.2
+   4 │ AD      aa          4      0.4        -1.33393              -1.2
+   5 │ AE      bb          5      0.5        -1.33393              -1.2
+   6 │ AF      aa          1      0.6        -1.33393              -1.2
+   7 │ AG      bb          2      0.7        -1.33393              -1.2
+   8 │ AH      aa          3      0.8        -1.33393              -1.2
+   9 │ AI      bb          4      0.9        -1.33393              -1.2
+  10 │ AJ      aa          5      1.0        -1.33393              -1.2
 ```
 """
 
@@ -718,6 +752,19 @@ julia> @chain db_table(db, "df_mem") begin
    8 │ AG      bb          2      0.7  missing   missing 
    9 │ AH      aa          3      0.8  missing   missing 
   10 │ AJ      aa          5      1.0  missing   missing 
+
+julia>  @chain db_table(db, "df_mem") begin
+         @mutate(test = percent * 100)
+         @left_join("df_join", test <= score, id = id2)
+         @collect
+       end;
+
+
+julia>  @chain db_table(db, "df_mem") begin
+         @mutate(test = percent * 200)
+         @left_join("df_join", closest(test >= score)) # asof join
+         @collect
+       end;
 ```
 """
 
@@ -1650,7 +1697,7 @@ julia> copy_to(db, df, "df1");
 
 julia> @chain db_table(db, "df1") @create_view(viewer);
 
-julia> drop_view(db, viewer);
+julia> drop_view(db, "viewer");
 ```
 """
 
@@ -1684,21 +1731,6 @@ SQLQuery("", "table", "", "", "", "", "", "", false, false, 2×4 DataFrame
    1 │ id      BIGINT              1  table2
    2 │ value   BIGINT              1  table2, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
 ```
-"""
-
-
-const docstring_drop_view =
-"""
-    drop_view(db, name)
-
-Drop a view from a database.
-
-# Arguments
-- `db`: The database to drop the view from.
-- `name`: The name of the view to drop.
-
-# Examples
-`drop_view(db, "viewer")`
 """
 
 const docstring_warnings =

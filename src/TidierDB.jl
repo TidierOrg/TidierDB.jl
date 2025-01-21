@@ -231,8 +231,8 @@ end
 
 
 
-
-
+# too many backends are tesed here to reasonably include in code coverage
+# COV_EXCL_START
 """
 $docstring_db_table
 """
@@ -364,6 +364,8 @@ function db_table(db, table::Vector{String}, athena_params::Any=nothing)
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
 end
+
+# COV_EXCL_STOP
 
 """
 $docstring_copy_to

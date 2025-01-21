@@ -130,32 +130,7 @@ function parse_tidy_db(exprs, metadata::DataFrame)
             end
 
         end
-    elseif isa(actual_expr, AbstractVector)
-        for item in actual_expr
-            col_name = string(item)
-            if current_sql_mode[] == snowflake()
-                col_name = uppercase(col_name)
-            end
-            if is_excluded
-                push!(excluded_columns, col_name)
-            else
-                push!(included_columns, col_name)
-            end
-        end
-        elseif isa(actual_expr, Tuple) && all(isa.(actual_expr, Vector{Symbol}))
-            for vec in actual_expr
-                for item in vec
-                    col_name = string(item)[2:end]
-                    if current_sql_mode[] == snowflake()
-                        col_name = uppercase(col_name)
-                    end
-                    if is_excluded
-                        push!(excluded_columns, col_name)
-                    else
-                        push!(included_columns, col_name)
-                    end
-                end
-            end
+
         else
             error("Unsupported expression type: $expr")
         end
@@ -311,11 +286,8 @@ function parse_case_when(expr)
 end
 
 
-#hacky, but only way i could figure out how to get
-#the right syntax for starts_with, ends_with, contains
-#this is different then the tidy_selection starts_with, ends_with, contains, 
-#as that relies on matching column names from the metadata dataframe. 
-
+#this fxn is not being tested, bc its only in backends. - i might be able to get rid of it entirely as well
+# COV_EXCL_START
 function parse_char_matching(expr) 
     MacroTools.postwalk(expr) do x
         if isa(x, Expr) && x.head == :call
@@ -371,6 +343,8 @@ function parse_char_matching(expr)
         return x  # Return the expression unchanged if no specific handling applies
     end
 end
+# COV_EXCL_STOP
+
 
 function parse_across(expr, metadata)
     columns_expr, funcs_expr = expr.args[2], expr.args[3]

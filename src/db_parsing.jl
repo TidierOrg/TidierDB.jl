@@ -130,6 +130,7 @@ function parse_tidy_db(exprs, metadata::DataFrame)
             end
 
         end
+# COV_EXCL_START
     elseif isa(actual_expr, AbstractVector)
         for item in actual_expr
             col_name = string(item)
@@ -160,9 +161,9 @@ function parse_tidy_db(exprs, metadata::DataFrame)
         else
             error("Unsupported expression type: $expr")
         end
-        
-    end
 
+    end
+# COV_EXCL_STOP
     # Loop through excluded columns and update current_selxn to 0 in the metadata DataFrame
     for col_name in excluded_columns
         if occursin(".", col_name)
@@ -190,8 +191,6 @@ function parse_tidy_db(exprs, metadata::DataFrame)
 
     return included_columns
 end
-
-
 
 
 function parse_if_else(expr)

@@ -276,6 +276,13 @@ julia> @chain db_table(db, :df_mem) begin
    8 │ AH      aa          3      0.8        -1.33393              -1.2
    9 │ AI      bb          4      0.9        -1.33393              -1.2
   10 │ AJ      aa          5      1.0        -1.33393              -1.2
+
+julia> @chain db_table(db, :df_mem) begin
+          @mutate(value2 = sum(value), 
+                      _order = desc([:value, :percent]),
+                      _frame = 2);  
+          @collect
+       end;
 ```
 """
 
@@ -1525,23 +1532,8 @@ julia> @chain t(df1_table) @union(df2_table) @collect
    5 │     5     50
    6 │     6     60
 
-julia> query = @chain t(df2_table) @filter(value == 50);
-
 julia> @chain t(df1_table) begin 
-        @union(t(query))
-        @collect
-       end
-4×2 DataFrame
- Row │ id     value 
-     │ Int64  Int64 
-─────┼──────────────
-   1 │     1     10
-   2 │     2     20
-   3 │     3     30
-   4 │     5     50
-
-julia> @chain t(df1_table) begin 
-        @union(t(df1_table))
+        @union("df1", all = false)
         @collect
        end
 3×2 DataFrame
@@ -1552,7 +1544,10 @@ julia> @chain t(df1_table) begin
    2 │     2     20
    3 │     3     30
 
-julia> @chain t(df1_table) @union(df1_table, all = true) @collect
+julia> @chain t(df1_table) begin 
+        @union("df1", all = true) 
+        @collect
+       end
 6×2 DataFrame
  Row │ id     value 
      │ Int64  Int64 
@@ -1563,6 +1558,22 @@ julia> @chain t(df1_table) @union(df1_table, all = true) @collect
    4 │     1     10
    5 │     2     20
    6 │     3     30
+
+julia> query = @chain t(df2_table) @filter(value == 50);
+
+julia> @chain t(df1_table) begin 
+        @mutate(id = id + 5)
+        @filter(id > 6)
+        @union(t(query))
+        @collect
+       end
+3×2 DataFrame
+ Row │ id     value 
+     │ Int64  Int64 
+─────┼──────────────
+   1 │     7     20
+   2 │     8     30
+   3 │     5     50
 ```
 """
 
@@ -1843,7 +1854,7 @@ julia> @chain db_table(db, :df_mem) begin
   10 │     1.0  aa          5  AJ
 
 julia> @chain db_table(db, :df_mem) begin 
-        @relocate([percent, groups], before = id) 
+        @relocate([:percent, :groups], before = id) 
         @collect
        end
 10×4 DataFrame
@@ -1860,5 +1871,75 @@ julia> @chain db_table(db, :df_mem) begin
    8 │     0.8  aa      AH          3
    9 │     0.9  bb      AI          4
   10 │     1.0  aa      AJ          5
+```
+"""
+
+
+const docstring_aggregate_functions =
+"""
+       Aggregate Functions
+
+Nearly all aggregate functions from any database are supported both `@summarize` and `@mutate`. 
+
+With `@summarize`, an aggregate functions available on a SQL backend can be used as they are in sql with the same syntax (`'` should be replaced with `"`)
+
+`@mutate` supports them as well, however, unless listed below, the function call muset be wrapped with `agg()`
+       - `maximum`, `minimum`, `mean`, `std`
+
+The list of DuckDB aggregate functions and their syntax can be found [here](https://duckdb.org/docs/sql/functions/aggregates.html#general-aggregate-functions)
+Please refer to your backend documentation for a complete list with syntac, but open an issue on TidierDB if your run into roadblocks.  
+# Examples
+```jldoctest
+julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                value1 = [i - 4^1 for i in -4.5:4.5], 
+                value2 = [i + 2^i for i in 1:10], 
+                percent = 0.1:0.1:1.0);
+
+julia> db = connect(duckdb());
+
+julia> copy_to(db, df, "df_agg");
+
+julia> @chain db_table(db, :df_agg) begin
+         @summarise(
+             r2 = regr_r2(value2, value1),
+             across(contains("value"), median), 
+             _by = groups)
+         @arrange(groups)
+         @collect
+       end
+2×4 DataFrame
+ Row │ groups  r2        value1_median  value2_median 
+     │ String  Float64   Float64        Float64       
+─────┼────────────────────────────────────────────────
+   1 │ aa      0.700161           -3.5           70.0
+   2 │ bb      0.703783           -4.5           37.0
+
+julia> @chain db_table(db, :df_agg) begin
+         @mutate(
+            slope = agg(regr_slope(value1, value2)),
+            var = agg(var_samp(value2)),
+            std = std(value2), # since this is in the list above, it does not get wrapped in `agg`
+            _by = groups
+         )
+         @mutate(var = round(var))
+         @select !percent
+         @arrange(groups)
+         @collect
+       end
+10×7 DataFrame
+ Row │ id      groups  value1   value2  slope       var       std     
+     │ String  String  Float64  Int64   Float64     Float64   Float64 
+─────┼────────────────────────────────────────────────────────────────
+   1 │ AB      aa         -7.5       6  0.00608835  188885.0  434.609
+   2 │ AD      aa         -5.5      20  0.00608835  188885.0  434.609
+   3 │ AF      aa         -3.5      70  0.00608835  188885.0  434.609
+   4 │ AH      aa         -1.5     264  0.00608835  188885.0  434.609
+   5 │ AJ      aa          0.5    1034  0.00608835  188885.0  434.609
+   6 │ AA      bb         -8.5       3  0.0121342    47799.0  218.629
+   7 │ AC      bb         -6.5      11  0.0121342    47799.0  218.629
+   8 │ AE      bb         -4.5      37  0.0121342    47799.0  218.629
+   9 │ AG      bb         -2.5     135  0.0121342    47799.0  218.629
+  10 │ AI      bb         -0.5     521  0.0121342    47799.0  218.629
 ```
 """

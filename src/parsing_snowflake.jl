@@ -63,27 +63,6 @@ function expr_to_sql_snowflake(expr, sq; from_summarize::Bool)
                 window_clause = construct_window_clause(sq, )
                 return  "STDDEV_SAMP($(string(a))) $(window_clause)"
             end
-        elseif @capture(x, cor(a_, b_))
-            if from_summarize
-                return :(CORR($a))
-            else
-                window_clause = construct_window_clause(sq)
-                return  "CORR($(string(a))) $(window_clause)"
-            end
-        elseif @capture(x, cov(a_, b_))
-            if from_summarize
-                return :(COVAR_SAMP($a))
-            else
-                window_clause = construct_window_clause(sq)
-                return  "COVAR_SAMP($(string(a))) $(window_clause)"
-            end
-        elseif @capture(x, var(a_))
-            if from_summarize
-                return :(VAR_SAMP($a))
-            else
-                window_clause = construct_window_clause(sq)
-                return  "VAR_SAMP($(string(a))) $(window_clause)"
-            end
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :agg
             args = x.args[2:end]       # Capture all arguments to agg
             if from_summarize

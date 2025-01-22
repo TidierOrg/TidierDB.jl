@@ -1721,7 +1721,7 @@ Create a view from a SQL query. Currently supports DuckDB, MySQL, GBQ, Postgres
 # Arguments
 - `sql_query`: The SQL query to create a view from.
 - `name`: The name of the view to create.
-- `replace`: defaults to true if view should be replaced
+- `replace`: Boolean value that defaults to false so as not to replace exisiting views
 
 # Examples
 ```jldoctest
@@ -1731,9 +1731,11 @@ julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
 julia> copy_to(db, df, "df1");
 
-julia> @chain db_table(db, "df1") @create_view(viewer);
+julia> @chain db_table(db, "df1") @create_view(viewer); # will note overwrite existing view
 
 julia> db_table(db, "viewer");
+
+julia> @chain db_table(db, "df1") @create_view(viewer, true); # will overwrite exisiting view
 ```
 """
 
@@ -1883,8 +1885,8 @@ Nearly all aggregate functions from any database are supported both `@summarize`
 
 With `@summarize`, an aggregate functions available on a SQL backend can be used as they are in sql with the same syntax (`'` should be replaced with `"`)
 
-`@mutate` supports them as well, however, unless listed below, the function call muset be wrapped with `agg()`
-       - `maximum`, `minimum`, `mean`, `std`
+`@mutate` supports them as well, however, unless listed below, the function call must be wrapped with `agg()`
+       - `maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`
 
 The list of DuckDB aggregate functions and their syntax can be found [here](https://duckdb.org/docs/sql/functions/aggregates.html#general-aggregate-functions)
 Please refer to your backend documentation for a complete list with syntac, but open an issue on TidierDB if your run into roadblocks.  

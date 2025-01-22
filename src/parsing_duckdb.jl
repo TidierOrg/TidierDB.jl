@@ -173,8 +173,11 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
     end
 end
 
+# This is to get aggreagate function docstring.
+# COV_EXCL_START
 """
 $docstring_aggregate_functions
 """
-function aggregate_fxns() 
+function aggregate_functions() 
 end
+# COV_EXCL_STOP

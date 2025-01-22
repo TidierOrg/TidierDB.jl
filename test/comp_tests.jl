@@ -152,8 +152,8 @@
         #mutating after summarizing and with cumsum
         TDF_4 = @chain test_df @group_by(groups) @summarize(across(value,(mean, minimum))) @mutate(new = value_mean - value_minimum)
         TDB_4 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(across(value, (mean, minimum))) DB.@mutate(new = value_mean - value_minimum) DB.@collect
-        #TDF_5 = @chain test_df @group_by(groups) @mutate(value = cumsum(value)) @ungroup() @arrange(id)
-        #TDB_5 = @chain DB.t(test_db) DB.@mutate(value = cumsum(value), _by = groups)  DB.@collect() @arrange(id)
+        TDF_5 = @chain test_df @group_by(groups) @mutate(value = cumsum(value)) @ungroup() 
+        TDB_5 = @chain DB.t(test_db) DB.@mutate(value = cumsum(value), _order = id, _by = groups)  DB.@collect() @arrange(id) 
         TDF_6 = @chain test_df @mutate(id = lowercase(id), groups = uppercase(groups))
         TDB_6 = @chain DB.t(test_db)  DB.@mutate(id = lower(id), groups = upper(groups)) DB.@collect
         # mutating with agg function across groups, then filtering
@@ -185,7 +185,7 @@
         @test all(isequal.(Array(TDF_2), Array(TDB_2)))
         @test all(isequal.(Array(TDF_3), Array(TDB_3)))
         @test all(isequal.(Array(TDF_4), Array(TDB_4)))
-       # @test all(isequal.(Array(TDF_5), Array(TDB_5)))
+        @test all(isequal.(Array(TDF_5), Array(TDB_5)))
         @test all(isequal.(Array(TDF_6), Array(TDB_6)))
         @test all(isequal.(Array(TDF_7), Array(TDB_7)))
         @test all(isequal.(Array(TDF_8), Array(TDB_8)))

@@ -10,7 +10,7 @@ end
 """
 $docstring_create_view
 """
-macro create_view(sqlquery, name, replace = true)
+macro create_view(sqlquery, name, replace = false)
     if replace == true 
         sql_cr_or_replace = "CREATE OR REPLACE VIEW $name AS "
     elseif replace == false
@@ -20,8 +20,6 @@ macro create_view(sqlquery, name, replace = true)
         sq = $(esc(sqlquery))
         if current_sql_mode[] == duckdb()
             final_compute($(esc(sqlquery)), duckdb, $sql_cr_or_replace)
-
-
         elseif current_sql_mode[] == postgres()
             final_compute($(esc(sqlquery)), postgres, $sql_cr_or_replace)
         elseif current_sql_mode[] == gbq()

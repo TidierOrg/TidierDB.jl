@@ -95,13 +95,13 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
         error("Unsupported SQL mode: $(current_sql_mode[])")
     end
 end
-# COV_EXCL_STOP
+
 
 """
 $docstring_warnings
 """
 function warnings(flag::Bool) _warning_[] = flag end
-
+# COV_EXCL_STOP
 
 function finalize_ctes(ctes::Vector{CTE})
     if isempty(ctes)
@@ -206,7 +206,7 @@ function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_nam
     end
     result = DuckDB.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
-    if occursin("*" , table_name) 
+    if occursin("*" , table_name) || alias != ""
         if alias != ""
             table_name = alias
         else 

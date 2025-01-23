@@ -1355,6 +1355,8 @@ TidierDB.SQLQuery("", "df_mem", "", "", "", "", "", "", false, false, 4×4 DataF
    2 │ groups   VARCHAR              1  df_mem
    3 │ value    BIGINT               1  df_mem
    4 │ percent  DOUBLE               1  df_mem, false, DuckDB.Connection(":memory:"), TidierDB.CTE[], 0, nothing)
+
+julia> db_table(db, "main.df_mem");
 ```
 """
 

@@ -294,15 +294,32 @@
         @test all(isequal.(Array(TDB_3), Array(TDB_3_)))
     end
 
-    @testset "Catch all for code coverage" begin 
+    @testset "Code coverage misc" begin 
         @test !isempty(@chain DB.t(test_db) begin 
         DB.@mutate(aa = MAP(ARRAY["value", "percent"], ARRAY[value, percent]))
         DB.@mutate(aaa = aa[percent])
         DB.@head(6)
        # @aside DB.@show_query _
         DB.@collect
-    end)
-
+        end)
+       
+        @test !isempty(@chain DB.t(test_db) begin 
+        DB.@summarize(mean = mean(value), _by = groups)
+        DB.@mutate(doub = mean * 2)
+        DB.@filter(groups == "bb" || doub > 20)
+        DB.@slice_max(doub)
+       # @aside DB.@show_query _
+        DB.@collect
+        end)
+        
+        @test !isempty(@chain DB.t(test_db) begin 
+        DB.@summarize(mean = mean(value), _by = groups)
+        DB.@mutate(doub = mean * 2)
+        DB.@filter(groups == "bb" || doub > 20)
+        DB.@slice_min(doub)
+       # @aside DB.@show_query _
+        DB.@collect
+        end)
     end
 
 

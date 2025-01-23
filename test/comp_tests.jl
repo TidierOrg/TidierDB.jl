@@ -8,7 +8,7 @@
         TDF_4 = @chain test_df @select(!value)
         TDB_4 = @chain DB.t(test_db) DB.@select(!test_df.value) DB.@collect
         TDF_5 = @chain test_df @relocate([groups, value], ends_with("d"), after = percent)
-        TDB_5 = @chain DB.t(test_db) DB.@relocate([groups, value], ends_with("d"), after = percent) DB.@collect
+        TDB_5 = @chain DB.t(test_db) DB.@relocate([:groups, :value], ends_with("d"), after = percent) DB.@collect
         TDF_6 = @chain test_df @select(!value) @relocate(groups, ends_with("d"), after = percent)
         TDB_6 = @chain DB.t(test_db) DB.@select(!value) DB.@relocate(groups, ends_with("d"), after = percent) DB.@collect
         TDF_7 = @chain test_df @select([:id, :value], groups)
@@ -292,6 +292,17 @@
         @test all(isequal.(Array(TDB_1), Array(TDB_1_)))
         @test all(isequal.(Array(TDB_2), Array(TDB_2_)))
         @test all(isequal.(Array(TDB_3), Array(TDB_3_)))
+    end
+
+    @testset "Catch all for code coverage" begin 
+        @test !isempty(@chain DB.t(test_db) begin 
+        DB.@mutate(aa = MAP(ARRAY["value", "percent"], ARRAY[value, percent]))
+        DB.@mutate(aaa = aa[percent])
+        DB.@head(6)
+       # @aside DB.@show_query _
+        DB.@collect
+    end)
+
     end
 
 

@@ -636,6 +636,25 @@ julia> @chain db_table(db, :df_mem) begin
    8 │ AD      aa          4      0.4
    9 │ AJ      aa          5      1.0
   10 │ AE      bb          5      0.5
+
+julia> @chain db_table(db, :df_mem) begin
+         @arrange(desc(df_mem.value))
+         @collect
+       end
+10×4 DataFrame
+ Row │ id      groups  value  percent 
+     │ String  String  Int64  Float64 
+─────┼────────────────────────────────
+   1 │ AE      bb          5      0.5
+   2 │ AJ      aa          5      1.0
+   3 │ AD      aa          4      0.4
+   4 │ AI      bb          4      0.9
+   5 │ AC      bb          3      0.3
+   6 │ AH      aa          3      0.8
+   7 │ AB      aa          2      0.2
+   8 │ AG      bb          2      0.7
+   9 │ AA      bb          1      0.1
+  10 │ AF      aa          1      0.6
 ```
 """
 

@@ -320,6 +320,8 @@
        # @aside DB.@show_query _
         DB.@collect
         end)
+
+        @test !isempty(@chain DB.t(test_db) DB.@mutate(test2 = dmy("06-12-2023")) DB.@collect)
     end
 
 

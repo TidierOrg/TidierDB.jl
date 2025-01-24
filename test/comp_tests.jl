@@ -302,26 +302,11 @@
        # @aside DB.@show_query _
         DB.@collect
         end)
-       
-        @test !isempty(@chain DB.t(test_db) begin 
-        DB.@summarize(mean = mean(value), _by = groups)
-        DB.@mutate(doub = mean * 2)
-        DB.@filter(groups == "bb" || doub > 20)
-        DB.@slice_max(doub)
-       # @aside DB.@show_query _
-        DB.@collect
-        end)
-        
-        @test !isempty(@chain DB.t(test_db) begin 
-        DB.@summarize(mean = mean(value), _by = groups)
-        DB.@mutate(doub = mean * 2)
-        DB.@filter(groups == "bb" || doub > 20)
-        DB.@slice_min(doub)
-       # @aside DB.@show_query _
-        DB.@collect
-        end)
+        test = @chain DB.t(test_db) DB.@summarize(mean = mean(value) * 4)
+        @test !isempty(@eval @chain DB.t(test_db) DB.@mutate(new = $test * value) DB.@collect)
 
         @test !isempty(@chain DB.t(test_db) DB.@mutate(test2 = dmy("06-12-2023")) DB.@collect)
+        
     end
 
 

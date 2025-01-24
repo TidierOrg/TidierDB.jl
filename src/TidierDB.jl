@@ -183,9 +183,9 @@ function finalize_query(sqlquery::SQLQuery)
     if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end
-    if current_sql_mode[] == postgres()
-        complete_query = replace(complete_query, r"INTERVAL (\d+) ([a-zA-Z]+)" => s"INTERVAL '\1 \2'")
-    end
+    
+        complete_query = current_sql_mode[] == postgres() ?  replace(complete_query, r"INTERVAL (\d+) ([a-zA-Z]+)" => s"INTERVAL '\1 \2'") : complete_query
+    
 
     return complete_query
 end
@@ -219,9 +219,8 @@ function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_nam
     else
         table_name = table_name
     end
-    if occursin("-" , table_name)
-        table_name = replace(table_name, "-" => "_")
-    end
+    
+    table_name = occursin("-", table_name) ? replace(table_name, "-" => "_") : table_name
 
     result[!, :table_name] .= table_name
     # Adjust the select statement to include the new table_name column

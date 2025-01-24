@@ -86,18 +86,12 @@ function parse_tidy_db(exprs, metadata::DataFrame)
         elseif isa(actual_expr, Symbol) || isa(actual_expr, String)
             # Handle single column name
             if occursin(".", string(actual_expr))
-                if is_excluded
-                    push!(excluded_columns, string(actual_expr))
-                else
-                    push!(included_columns, string(actual_expr))
-                end
+                is_excluded ? push!(excluded_columns, string(actual_expr)) : push!(included_columns, string(actual_expr))
                 continue
             end
 
             col_name = isa(actual_expr, Symbol) ? string(actual_expr) : actual_expr
-            if current_sql_mode[] == snowflake()
-                col_name = uppercase(col_name)
-            end
+            col_name = current_sql_mode[] == snowflake() ? uppercase(col_name) : col_name
             if is_excluded
                 push!(excluded_columns, col_name)
             else
@@ -116,27 +110,15 @@ function parse_tidy_db(exprs, metadata::DataFrame)
                     push!(included_columns, col_name)
                 end
             end
-            if isa(actual_expr, Tuple) && length(actual_expr) == 1 && isa(actual_expr[1], Vector{Symbol})
-            for item in actual_expr[1]
-                col_name = string(item)
-                if current_sql_mode[] == snowflake()
-                    col_name = uppercase(col_name)
-                end
-                if is_excluded
-                    push!(excluded_columns, col_name)
-                else
-                    push!(included_columns, col_name)
-                end
-            end
 
-        end
+
+     
 # COV_EXCL_START
     elseif isa(actual_expr, AbstractVector)
         for item in actual_expr
             col_name = string(item)
-            if current_sql_mode[] == snowflake()
-                col_name = uppercase(col_name)
-            end
+            col_name = current_sql_mode[] == snowflake() ? uppercase(col_name) : col_name
+
             if is_excluded
                 push!(excluded_columns, col_name)
             else
@@ -147,14 +129,8 @@ function parse_tidy_db(exprs, metadata::DataFrame)
             for vec in actual_expr
                 for item in vec
                     col_name = string(item)[2:end]
-                    if current_sql_mode[] == snowflake()
-                        col_name = uppercase(col_name)
-                    end
-                    if is_excluded
-                        push!(excluded_columns, col_name)
-                    else
-                        push!(included_columns, col_name)
-                    end
+                    col_name = current_sql_mode[] == snowflake() ? uppercase(col_name) : col_name
+                    is_excluded ? push!(excluded_columns, col_name) : push!(included_columns, col_name)
                 end
             end
        

@@ -295,5 +295,13 @@
         @test all(isequal.(Array(TDB_3), Array(TDB_3_)))
     end
 
-
+    @testset "Code coverage misc" begin 
+        @test !isempty(@chain DB.t(test_db) begin 
+        DB.@mutate(aa = MAP(ARRAY["value", "percent"], ARRAY[value, percent]))
+        DB.@mutate(aaa = aa[percent])
+        DB.@head(6)
+       # @aside DB.@show_query _
+        DB.@collect
+        end)
+    end
 

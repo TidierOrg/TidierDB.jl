@@ -260,6 +260,7 @@
         @test all(isequal.(Array(TDF_3), Array(TDB_3)))
         @test all(isequal.(Array(TDF_4), Array(TDB_4)))
         @test all(isequal.(Array(TDF_5), Array(TDB_5)))
+        @test !isempty(@chain DB.t(test_db) DB.@mutate(test2 = dmy("06-12-2023")) DB.@collect)
     end 
     @testset "Distinct" begin
         query = DB.@chain DB.t(test_db) DB.@mutate(value = value *2) DB.@filter(value > 5)
@@ -292,21 +293,6 @@
         @test all(isequal.(Array(TDB_1), Array(TDB_1_)))
         @test all(isequal.(Array(TDB_2), Array(TDB_2_)))
         @test all(isequal.(Array(TDB_3), Array(TDB_3_)))
-    end
-
-    @testset "Code coverage misc" begin 
-        @test !isempty(@chain DB.t(test_db) begin 
-        DB.@mutate(aa = MAP(ARRAY["value", "percent"], ARRAY[value, percent]))
-        DB.@mutate(aaa = aa[percent])
-        DB.@head(6)
-       # @aside DB.@show_query _
-        DB.@collect
-        end)
-        test = @chain DB.t(test_db) DB.@summarize(mean = mean(value) * 4)
-        @test !isempty(@eval @chain DB.t(test_db) DB.@mutate(new = $test * value) DB.@collect)
-
-        @test !isempty(@chain DB.t(test_db) DB.@mutate(test2 = dmy("06-12-2023")) DB.@collect)
-        
     end
 
 

@@ -38,24 +38,8 @@ macro slice_min(sqlquery, column, n=1)
             #rank_clause = "RANK() OVER (ORDER BY " * $(string(column)) *" ASC) AS rank_col"
             partition_by_clause = !isempty(sq.groupBy) && !sq.is_aggregated ? "PARTITION BY " * sq.groupBy : ""
            # partition_by_clause = isempty(sq.groupBy) && !sq.is_aggregated ? "PARTITION BY " * most_recent_groupBy : ""
-            if isempty(sq.groupBy) && !sq.is_aggregated
-                for cte in reverse(sq.ctes)
-                    if !isempty(cte.groupBy)
-                        most_recent_groupBy = cte.groupBy
-                       # println(most_recent_groupBy)
-                        partition_by_clause =  "PARTITION BY " * most_recent_groupBy
 
-                        break
-                    #else 
-                    end
-                end
-              #  partition_by_clause =  "PARTITION BY " * most_recent_groupBy
-            else
-                nothing
-            end
-            if !isempty(partition_by_clause) 
-                sq.groupBy = ""
-            end
+            if !isempty(partition_by_clause) sq.groupBy = ""; end
 
             # Update rank_clause to correctly order by column in ASCENDING order for slice_min
             rank_clause = "RANK() OVER (" * partition_by_clause * " ORDER BY " * $(string(column)) * " ASC) AS rank_col"
@@ -124,24 +108,8 @@ macro slice_max(sqlquery, column, n=1)
             sq.cte_count += 1
             partition_by_clause = !isempty(sq.groupBy) && !sq.is_aggregated ? "PARTITION BY " * sq.groupBy : ""
            # partition_by_clause = isempty(sq.groupBy) && !sq.is_aggregated ? "PARTITION BY " * most_recent_groupBy : ""
-            if isempty(sq.groupBy) && !sq.is_aggregated
-                for cte in reverse(sq.ctes)
-                    if !isempty(cte.groupBy)
-                        most_recent_groupBy = cte.groupBy
-                       # println(most_recent_groupBy)
-                        partition_by_clause =  "PARTITION BY " * most_recent_groupBy
 
-                        break
-                    #else 
-                    end
-                end
-              #  partition_by_clause =  "PARTITION BY " * most_recent_groupBy
-            else
-                nothing
-            end
-            if !isempty(partition_by_clause) 
-                sq.groupBy = ""
-            end
+           if !isempty(partition_by_clause) sq.groupBy = ""; end
 
             # Update rank_clause to correctly order by column in ASCENDING order for slice_min
             rank_clause = "RANK() OVER (" * partition_by_clause * " ORDER BY " * $(string(column)) * " DESC) AS rank_col"

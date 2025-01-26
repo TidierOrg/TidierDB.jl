@@ -9,8 +9,8 @@ df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
-copy_to(db, df, "dfm");
-df_mem = db_table(db, "dfm");
+
+dfv = db_table(db,  df, "dfm");
 
 # ## Interpolation
 # Variables are interpoated using `@eval` and `$`. Place `@eval` before you begin the chain or call a TidierDb macro
@@ -18,7 +18,7 @@ df_mem = db_table(db, "dfm");
 
 num = [3]; 
 column = :id;
-@eval @chain t(df_mem) begin
+@eval @chain t(dfv) begin
         @filter(value in $num) 
         @select($column)
         @collect
@@ -27,7 +27,7 @@ column = :id;
 # ## Function set up 
 # Begin by defining your function as your normally would, but before `@chain` you need to use `@eval`. For the variables to be interpolated in need to be started with `$`
 function test(vals, cols)
-    @eval @chain t(df_mem) begin
+    @eval @chain t(dfv) begin
         @filter(value in $vals) 
         @select($cols)
         @collect
@@ -45,7 +45,7 @@ test(other_vals, cols)
 
 # Defineing a new function
 function gs(groups, aggs, new_name, threshold)
-    @eval @chain t(df_mem) begin
+    @eval @chain t(dfv) begin
         @group_by($groups) 
         @summarize($new_name = mean($aggs))
         @filter($new_name > $threshold)
@@ -71,7 +71,7 @@ function moving_aggs(table, start, stop, group, order, col)
     return qry
 end;
 
-@chain t(df_mem) begin
+@chain t(dfv) begin
     moving_aggs(-2, 1, :groups, :percent, :value)
     @filter value_mean > 2.75 
     @aside @show_query _
@@ -79,7 +79,7 @@ end;
 end
 
 # Filtering before the window functions
-@chain t(df_mem) begin
+@chain t(dfv) begin
     @filter(value >=2 )
     moving_aggs(-1, 1, :groups, :percent, :value)
     @aside @show_query _
@@ -88,23 +88,23 @@ end
 
 # ## Interpolating Queries
 # To use a prior, uncollected TidierDB query in other TidierDB macros, interpolate the needed query without showing or collecting it 
-ok = @chain t(df_mem) @summarize(mean = mean(value));
+ok = @chain t(dfv) @summarize(mean = mean(value));
 # The mean value represented in SQL from the above is 3
 
 # With `@filter`
-@eval @chain t(df_mem) begin 
+@eval @chain t(dfv) begin 
     @filter( value > $ok) 
     @collect 
 end
 
 # With `@mutate`
-@eval @chain t(df_mem) begin 
+@eval @chain t(dfv) begin 
     @mutate(value2 =  value + $ok) 
     @collect 
 end
 
 # With `@summarize`
-@eval @chain t(df_mem) begin 
+@eval @chain t(dfv) begin 
     @summarize(value =  mean(value) * $ok) 
     @collect 
 end

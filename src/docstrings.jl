@@ -5,9 +5,12 @@ const docstring_select =
 Select specified columns from a SQL table.
 
 # Arguments
-- `sql_query`: The SQL query to select columns from.
-- `columns`: Expressions specifying the columns to select. Columns can be specified by name, 
-                and new columns can be created with expressions using existing column values.
+- `sql_query::SQLQuery`: the SQL query to select columns from.
+- `columns`: Expressions specifying the columns to select. Columns can be specified by 
+        - name, `table.name`
+        - selectors - `starts_with()` 
+        - ranges - `col1:col5`
+        - excluded with `!` notation
 
 # Examples
 ```jldoctest
@@ -18,9 +21,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> df_mem = db_table(db, :df_mem);
+julia> df_mem = db_table(db, df, "df_view");
 
 julia> @chain t(df_mem) begin
          @select(groups:percent)
@@ -69,10 +71,10 @@ const docstring_filter =
 Filter rows in a SQL table based on specified conditions.
 
 # Arguments
-- `sql_query`: The SQL query to filter rows from.
+- `sql_query::SQLQuery`: The SQL query to filter rows from.
 - `conditions`: Expressions specifying the conditions that rows must satisfy to be included in the output. 
                    Rows for which the expression evaluates to `true` will be included in the result. 
-                   Multiple conditions can be combined using logical operators (`&&`, `||`). It will automatically 
+                   Multiple conditions can be combined using logical operators (`&&`, `||`). `@filter` will automatically 
                    detect whether the conditions belong in WHERE vs HAVING. 
 
                    Temporarily, it is best to use begin and end when filtering multiple conditions. (ex 2 below)
@@ -85,9 +87,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @filter(percent > .5)
          @collect
        end
@@ -101,7 +102,7 @@ julia> @chain db_table(db, :df_mem) begin
    4 │ AI      bb          4      0.9
    5 │ AJ      aa          5      1.0
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @group_by(groups)
          @summarise(mean = mean(percent))
          @filter begin 
@@ -118,9 +119,9 @@ julia> @chain db_table(db, :df_mem) begin
    1 │ aa          0.6
    2 │ bb          0.5
 
-julia> q = @chain db_table(db, :df_mem) @summarize(mean = mean(value));
+julia> q = @chain db_table(db, df, "df_view") @summarize(mean = mean(value));
 
-julia> @eval @chain db_table(db, :df_mem) begin
+julia> @eval @chain db_table(db, df, "df_view") begin
          @filter(value < \$q) 
          @collect
        end
@@ -154,9 +155,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @group_by(groups)
          @arrange(groups)
          @collect
@@ -174,11 +174,11 @@ const docstring_mutate =
 """
     @mutate(sql_query, exprs...; _by, _frame, _order)
 
-Mutate SQL table rows by adding new columns or modifying existing ones.
+Mutate SQL table by adding new columns or modifying existing ones.
 
 # Arguments
-- `sql_query`: The SQL query to operate on.
-- `exprs`: Expressions for mutating the table. New columns can be added or existing columns modified using column_name = expression syntax, where expression can involve existing columns.
+- `sql_query::SQLQuery`: The SQL query to operate on.
+- `exprs`: Expressions for mutating the table. New columns can be added or existing columns modified using `column_name = expression syntax`, where expression can involve existing columns.
 - `_by`: optional argument that supports single column names, or vectors of columns to allow for grouping for the transformation in the macro call
 - `_frame`: optional argument that allows window frames to be determined within `@mutate`. supports single digits or tuples of numbers. supports `desc()` prefix
 - `_order`: optional argument that allows window orders to be determined within `@mutate`. supports single columns or vectors of names  
@@ -192,9 +192,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @mutate(value = value * 4, new_col = percent^2)
          @collect
        end
@@ -213,7 +212,7 @@ julia> @chain db_table(db, :df_mem) begin
    9 │ AI      bb         16      0.9     0.81
   10 │ AJ      aa         20      1.0     1.0
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @mutate(max = maximum(percent), sum = sum(percent), _by = groups)
          @collect
        end
@@ -232,7 +231,7 @@ julia> @chain db_table(db, :df_mem) begin
    9 │ AG      bb          2      0.7      0.9      2.5
   10 │ AI      bb          4      0.9      0.9      2.5
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
           @mutate(value1 = sum(value), 
                       _order = percent, 
                       _frame = (-1, 1), 
@@ -258,7 +257,7 @@ julia> @chain db_table(db, :df_mem) begin
    9 │ AC      bb          3      0.3       9        1
   10 │ AA      bb          1      0.1       4  missing 
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @mutate(across([:value, :percent], agg(kurtosis)))
          @collect
        end
@@ -277,7 +276,7 @@ julia> @chain db_table(db, :df_mem) begin
    9 │ AI      bb          4      0.9        -1.33393              -1.2
   10 │ AJ      aa          5      1.0        -1.33393              -1.2
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
           @mutate(value2 = sum(value), 
                       _order = desc([:value, :percent]),
                       _frame = 2);  
@@ -293,7 +292,7 @@ const docstring_summarize =
 Aggregate and summarize specified columns of a SQL table.
 
 # Arguments
-- `sql_query`: The SQL query to operate on.
+- `sql_query::SQLQuery`: The SQL query to summarize
 - `exprs`: Expressions defining the aggregation and summarization operations. These can specify simple aggregations like mean, sum, and count, or more complex expressions involving existing column values.
 - `_by`: optional argument that supports single column names, or vectors of columns to allow for grouping for the aggregatation in the macro call
 # Examples
@@ -305,9 +304,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @group_by(groups)
          @summarise(across((ends_with("e"), starts_with("p")), (mean, sum)))
          @arrange(groups)
@@ -320,7 +318,7 @@ julia> @chain db_table(db, :df_mem) begin
    1 │ aa             3.0           0.6         15          3.0
    2 │ bb             3.0           0.5         15          2.5
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @group_by(groups)
          @summarise(test = sum(percent), n = n())
          @arrange(groups)
@@ -333,7 +331,7 @@ julia> @chain db_table(db, :df_mem) begin
    1 │ aa          3.0      5
    2 │ bb          2.5      5
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
                 @summarise(test = sum(percent), n = n(), _by = groups)
                 @arrange(groups)
                 @collect
@@ -353,8 +351,14 @@ const docstring_summarise =
 Aggregate and summarize specified columns of a SQL table.
 
 # Arguments
-- `sql_query`: The SQL query to operate on.
-- `exprs`: Expressions defining the aggregation and summarization operations. These can specify simple aggregations like mean, sum, and count, or more complex expressions involving existing column values.
+- `sql_query::SQLQuery`: query to be summarized 
+- `exprs`: Expressions defining the aggregation and summarization operations. 
+    These can specify simple aggregations like mean, sum, and count, ' or more complex expressions 
+    involving existing column values. `@summarize`  supports all SQL database aggregate functions
+    as long as they are written with matching syntax
+    
+
+
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -364,9 +368,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @group_by(groups)
          @summarise(across((value:percent), (mean, sum)))
          @arrange(groups)
@@ -379,7 +382,7 @@ julia> @chain db_table(db, :df_mem) begin
    1 │ aa             3.0           0.6         15          3.0
    2 │ bb             3.0           0.5         15          2.5
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @group_by(groups)
          @summarise(test = sum(percent), n = n())
          @arrange(groups)
@@ -401,7 +404,7 @@ const docstring_slice_min =
 Select rows with the smallest values in specified column. This will always return ties. 
 
 # Arguments
-- `sql_query`: The SQL query to operate on.
+- `sql_query::SQLQuery`: The SQL query to operate on.
 - `column`: Column to identify the smallest values.
 - `n`: The number of rows to select with the smallest values for each specified column. Default is 1, which selects the row with the smallest value.
 
@@ -414,9 +417,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @group_by(groups)
          @slice_min(value, n = 2)
          @arrange(groups, percent) # arranged due to duckdb multi threading
@@ -431,7 +433,7 @@ julia> @chain db_table(db, :df_mem) begin
    3 │ AA      bb          1      0.1         1
    4 │ AG      bb          2      0.7         2
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @slice_min(value)
          @collect
        end
@@ -442,7 +444,7 @@ julia> @chain db_table(db, :df_mem) begin
    1 │ AA      bb          1      0.1         1
    2 │ AF      aa          1      0.6         1
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @filter(percent > .1)
          @slice_min(percent)
          @collect
@@ -453,7 +455,7 @@ julia> @chain db_table(db, :df_mem) begin
 ─────┼──────────────────────────────────────────
    1 │ AB      aa          2      0.2         1
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @group_by groups
          @slice_min(percent)
          @arrange groups
@@ -466,7 +468,7 @@ julia> @chain db_table(db, :df_mem) begin
    1 │ AB      aa          2      0.2         1
    2 │ AA      bb          1      0.1         1
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @summarize(percent_mean = mean(percent), _by = groups)
          @slice_min(percent_mean)
          @collect
@@ -486,7 +488,7 @@ const docstring_slice_max =
 Select rows with the largest values in specified column. This will always return ties. 
 
 # Arguments
-- `sql_query`: The SQL query to operate on.
+- `sql_query::SQLQuery`: The SQL query to operate on.
 - `column`: Column to identify the smallest values.
 - `n`: The number of rows to select with the largest values for each specified column. Default is 1, which selects the row with the smallest value.
 
@@ -499,9 +501,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @group_by(groups)
          @slice_max(value, n = 2)
          @arrange(groups)
@@ -516,7 +517,7 @@ julia> @chain db_table(db, :df_mem) begin
    3 │ AE      bb          5      0.5         1
    4 │ AI      bb          4      0.9         2
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @slice_max(value)
          @collect
        end
@@ -527,7 +528,7 @@ julia> @chain db_table(db, :df_mem) begin
    1 │ AE      bb          5      0.5         1
    2 │ AJ      aa          5      1.0         1
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
         @filter(percent < .9)
         @slice_max(percent)
         @collect
@@ -538,7 +539,7 @@ julia> @chain db_table(db, :df_mem) begin
 ─────┼──────────────────────────────────────────
    1 │ AH      aa          3      0.8         1
 
-julia>  @chain db_table(db, :df_mem) begin
+julia>  @chain db_table(db, df, "df_view") begin
          @group_by groups
          @slice_max(percent)
          @arrange groups
@@ -551,7 +552,7 @@ julia>  @chain db_table(db, :df_mem) begin
    1 │ AJ      aa          5      1.0         1
    2 │ AI      bb          4      0.9         1
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @summarize(percent_mean = mean(percent), _by = groups)
          @slice_max(percent_mean)
          @collect
@@ -570,7 +571,7 @@ const docstring_slice_sample =
 
 Randomly select a specified number of rows from a SQL table.
 # Arguments
-- `sql_query`: The SQL query to operate on.
+- `sql_query::SQLQuery`: The SQL query to sample
 - `n`: The number of rows to randomly select.
 
 # Examples
@@ -582,15 +583,14 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @group_by(groups)
          @slice_sample(n = 2)
          @collect
        end;
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
        @slice_sample()
        @collect
        end;
@@ -604,7 +604,7 @@ const docstring_arrange =
 Order SQL table rows based on specified column(s).
 
 # Arguments
-- `sql_query`: The SQL query to operate on.
+- `sql_query::SQLQuery`: The SQL query to arrange
 - `columns`: Columns to order the rows by. Can include multiple columns for nested sorting. Wrap column name with `desc()` for descending order.
 
 # Examples
@@ -616,9 +616,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
-
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @arrange(value, desc(percent))
          @collect
        end
@@ -637,8 +635,8 @@ julia> @chain db_table(db, :df_mem) begin
    9 │ AJ      aa          5      1.0
   10 │ AE      bb          5      0.5
 
-julia> @chain db_table(db, :df_mem) begin
-         @arrange(desc(df_mem.value))
+julia> @chain db_table(db, df, "df_view") begin
+         @arrange(desc(df_view.value))
          @collect
        end
 10×4 DataFrame
@@ -665,7 +663,7 @@ const docstring_count =
 Count the number of rows grouped by specified column(s).
 
 # Arguments
-- `sql_query`: The SQL query to operate on.
+- `sql_query::SQLQuery`: The SQL query to operate on.
 - `columns`: Columns to group by before counting. If no columns are specified, counts all rows in the query.
 
 # Examples
@@ -677,9 +675,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
-
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @count(groups)
          @arrange(groups)
          @collect
@@ -701,7 +697,7 @@ Select distinct rows based on specified column(s). Distinct works differently in
 therefore TidierDB. Distinct will also select only the only columns it is given (or all if given none)
 
 # Arguments
-`sql_query`: The SQL query to operate on.
+`sql_query::SQLQuery`: The SQL query to operate on.
 `columns`: Columns to determine uniqueness. If no columns are specified, all columns are used to identify distinct rows.
 
 # Examples
@@ -713,9 +709,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @distinct(value)
          @arrange(value)
          @collect
@@ -730,7 +725,7 @@ julia> @chain db_table(db, :df_mem) begin
    4 │     4
    5 │     5
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @distinct
          @arrange(id)
          @collect
@@ -764,8 +759,8 @@ columns from both tables are kept. Multiple joining criteria can be added, but
 need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
-- `sql_query`: The primary SQL query to operate on.
-- `join_table`: The secondary SQL table to join with the primary query table.
+- `sql_query::SQLQuery`: The primary SQL query to operate on.
+- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table.
 - `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
 - `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
@@ -781,12 +776,10 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
+julia> dfm = db_table(db, df, "df_mem"); dfj = db_table(db, df2, "df_join");
 
-julia> copy_to(db, df2, "df_join");
-
-julia> @chain db_table(db, "df_mem") begin
-         @left_join("df_join", id == id2 )
+julia> @chain t(dfm) begin
+         @left_join(t(dfj), id == id2 )
          @collect
        end
 10×6 DataFrame
@@ -808,7 +801,7 @@ julia> query = @chain db_table(db, "df_join") begin
                   @filter(score > 85) # only show scores above 85 in joining table
                 end;
 
-julia> @chain db_table(db, "df_mem") begin
+julia> @chain t(dfm) begin
          @left_join(t(query), id == id2)
          @collect
        end
@@ -827,16 +820,16 @@ julia> @chain db_table(db, "df_mem") begin
    9 │ AH      aa          3      0.8  missing   missing 
   10 │ AJ      aa          5      1.0  missing   missing 
 
-julia>  @chain db_table(db, "df_mem") begin
+julia>  @chain t(dfm) begin
          @mutate(test = percent * 100)
-         @left_join("df_join", test <= score, id = id2)
+         @left_join(t(dfj), test <= score, id = id2)
          @collect
        end;
 
 
-julia>  @chain db_table(db, "df_mem") begin
+julia>  @chain t(dfm) begin
          @mutate(test = percent * 200)
-         @left_join("df_join", closest(test >= score)) # asof join
+         @left_join(t(dfj), closest(test >= score)) # asof join
          @collect
        end;
 ```
@@ -855,9 +848,9 @@ need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
-- `join_table`: The secondary SQL table to join with the primary query table.
+- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table.
 - `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
-- `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
+- `new_table_col`: Column from the new table that matches for join.  Accepts columnss as bare column names or strings
 
 # Examples
 ```jldoctest
@@ -872,12 +865,11 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> copy_to(db, df2, "df_join");
+julia> dfj = db_table(db, df2, "df_join");
 
-julia> @chain db_table(db, :df_mem) begin
-         @right_join("df_join", id == id2)
+julia> @chain db_table(db, df, "df_view") begin
+         @right_join(t(dfj), id == id2)
          @collect
        end
 7×6 DataFrame
@@ -892,11 +884,11 @@ julia> @chain db_table(db, :df_mem) begin
    6 │ AK      missing  missing  missing    Y            68
    7 │ AM      missing  missing  missing    X            74
 
-julia> query = @chain db_table(db, "df_join") begin
+julia> query = @chain t(dfj) begin
                   @filter(score >= 74) # only show scores above 85 in joining table
                 end;
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @right_join(t(query), id == id2)
          @collect
        end
@@ -926,9 +918,9 @@ need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
-- `join_table`: The secondary SQL table to join with the primary query table.
+- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table.
 - `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
-- `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
+- `new_table_col`: Column from the new table that matches for join.  Accepts columns as bare column names or strings
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -942,12 +934,11 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> copy_to(db, df2, "df_join");
+julia> dfj = db_table(db, df2, "df_join");
 
-julia> @chain db_table(db, :df_mem) begin
-         @inner_join("df_join", id == id2)
+julia> @chain db_table(db, df, "df_view") begin
+         @inner_join(t(dfj), id == id2)
          @collect
        end
 5×6 DataFrame
@@ -974,7 +965,7 @@ need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
-- `join_table`: The secondary SQL table to join with the primary query table.
+- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table.
 - `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
 - `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
@@ -990,11 +981,10 @@ julia> df2 = DataFrame(id = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> copy_to(db, df2, "df_join");
+julia> dfj = db_table(db, df2, "df_join");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
          @full_join((@chain db_table(db, "df_join") @filter(score > 70)), id == id)
          @collect
        end
@@ -1029,7 +1019,7 @@ need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
-- `join_table`: The secondary SQL table to join with the primary query table.
+- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table.
 - `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
 - `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
@@ -1045,12 +1035,11 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> copy_to(db, df2, "df_join");
+julia> dfj = db_table(db, df2, "df_join");
 
-julia> @chain db_table(db, :df_mem) begin
-         @semi_join("df_join", id == id2)
+julia> @chain db_table(db, df, "df_view") begin
+         @semi_join(t(dfj), id == id2)
          @collect
        end
 5×4 DataFrame
@@ -1078,7 +1067,7 @@ need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
-- `join_table`: The secondary SQL table to join with the primary query table.
+- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table.
 - `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
 - `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
@@ -1094,12 +1083,11 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> copy_to(db, df2, "df_join");
+julia> dfj = db_table(db, df2, "df_join");
 
-julia> @chain db_table(db, :df_mem) begin
-        @anti_join("df_join", id == id2)
+julia> @chain db_table(db, df, "df_view") begin
+        @anti_join(t(dfj), id == id2)
         @collect
        end
 5×4 DataFrame
@@ -1134,9 +1122,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
        @rename(new_name = percent)
        @collect
        end
@@ -1197,9 +1184,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
         @group_by groups
         @window_frame(3)
         @window_order(desc(percent))
@@ -1231,9 +1217,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> df_mem = db_table(db, :df_mem);
+julia> df_mem = db_table(db, df, "df_view");
 
 julia> @chain t(df_mem) begin
         @group_by groups
@@ -1314,14 +1299,15 @@ DuckDB.DB(":memory:")
 
 const docstring_db_table =
 """
-    db_table(database, table_name, athena_params, delta = false, iceberg = false)
+    db_table(database, table_name, athena_params, delta = false, iceberg = false, alias = "", df_name)
 
 `db_table` starts the underlying SQL query struct, adding the metadata and table. If paths are passed directly to db_table instead of a 
-name it will not copy it to memory, but rather ready directly from the file. `db_table` only supports direct file paths to a table. It does not support database file paths such as `dbname.duckdb` or `dbname.sqlite`. Such files must be used with `connect first`
+name it will not copy it to memory, but rather ready directly from the file. `db_table` only supports direct file paths to a table. DataFrames 
+are read as a view. It does not support database file paths such as `dbname.duckdb` or `dbname.sqlite`. Such files must be used with `connect first`
 
 # Arguments
 - `database`: The Database or connection object
-- `table_name`: tablename as a string (name, local path, or URL).
+- `table_name`: tablename as a string (dataframe, name, local path, or URL).
       - CSV/TSV  
       - Parquet
       - Json 
@@ -1330,12 +1316,13 @@ name it will not copy it to memory, but rather ready directly from the file. `db
       - S3 tables from AWS or Google Cloud 
      - DuckDB and ClickHouse support vectors of paths and URLs. 
      - DuckDB and ClickHouse also support use of `*` wildcards to read all files of a type in a location such as:
-- `db_table(db, "Path/to/testing_files/*.parquet")`
+        - `db_table(db, "Path/to/testing_files/*.parquet")`
 - `delta`: must be true to read delta files
 - `iceberg`: must be true to read iceberg finalize_ctes
 - `alias`: optional argument when using a `*` wildcard in a file path, that allows user to determine an alias for the data being read in. If empty, it will refer to table as `data`
+- `df_name` when using a DataFrame as the second argument, a third string argument must be supplied to become the name of the view.
 # Example
-```julia
+```jldoctest
 
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
                         groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
@@ -1344,17 +1331,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
-
-julia> db_table(db, "df_mem")
-TidierDB.SQLQuery("", "df_mem", "", "", "", "", "", "", false, false, 4×4 DataFrame
- Row │ name     type     current_selxn  table_name 
-     │ String?  String?  Int64          String     
-─────┼─────────────────────────────────────────────
-   1 │ id       VARCHAR              1  df_mem
-   2 │ groups   VARCHAR              1  df_mem
-   3 │ value    BIGINT               1  df_mem
-   4 │ percent  DOUBLE               1  df_mem, false, DuckDB.Connection(":memory:"), TidierDB.CTE[], 0, nothing)
+julia> db_table(db, df, "df_mem");
 
 julia> db_table(db, "main.df_mem");
 ```
@@ -1378,7 +1355,6 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
                         
-julia> copy_to(db, df, "df_mem");
 
 julia> @collect db_table(db, "df_mem")
 10×4 DataFrame
@@ -1417,10 +1393,9 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
+                     
 
-julia> copy_to(db, df, "df_mem");                     
-
-julia> @chain db_table(db, :df_mem) begin
+julia> @chain db_table(db, df, "df_view") begin
         @head(1) ## supports expressions ie `3-2` would return the same df below
         @collect
        end
@@ -1468,12 +1443,11 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> df_mem = db_table(db, "df_mem");
+julia> dfm = db_table(db, df, "df");
 
 
-julia> @chain t(df_mem) @collect
+julia> @chain t(dfm) @collect
 10×4 DataFrame
  Row │ id      groups  value  percent 
      │ String  String  Int64  Float64 
@@ -1533,13 +1507,9 @@ julia> df1 = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
 julia> df2 = DataFrame(id = [4, 5, 6], value = [40, 50, 60]);
 
-julia> copy_to(db, df1, "df1");
+julia> df1_table = db_table(db, df1, "df1");
 
-julia> copy_to(db, df2, "df2");
-
-julia> df1_table = db_table(db, "df1");
-
-julia> df2_table = db_table(db, "df2");
+julia> df2_table = db_table(db, df2, "df2");
 
 julia> @chain t(df1_table) @union(df2_table) @collect
 6×2 DataFrame
@@ -1617,9 +1587,7 @@ julia> db = connect(duckdb());
 
 julia> df1 = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
-julia> copy_to(db, df1, "df1");
-
-julia> df1_table = db_table(db, "df1");
+julia> df1_table = db_table(db, df1, "df1");
 
 julia> @chain t(df1_table) @union_all(df1_table) @collect
 6×2 DataFrame
@@ -1659,11 +1627,9 @@ julia> df1 = DataFrame(id = [1, 2, 2, 3, 4],
 julia> df2 = DataFrame( id = [2, 2, 3, 5],
        name = ["Bob", "Bob", "Charlie", "Eve"]);
 
-julia> copy_to(db, df1, "df1"); copy_to(db, df2, "df2");
+julia> df1_table = db_table(db, df1, "df1"); 
 
-julia> df1_table = db_table(db, "df1"); 
-
-julia> df2_table = db_table(db, "df2"); 
+julia> df2_table = db_table(db, df2, "df2"); 
 
 julia> @chain t(df1_table) @intersect(df2_table) @collect
 2×2 DataFrame
@@ -1707,12 +1673,10 @@ julia> df1 = DataFrame(id = [1, 1, 2, 2, 3, 4],
 
 julia> df2 = DataFrame(id = [2, 2, 3, 5],
        name = ["Bob", "Bob", "Charlie", "Eve"]);
-  
-julia> copy_to(db, df1, "df1"); copy_to(db, df2, "df2");
 
-julia> df1_table = db_table(db, "df1"); 
+julia> df1_table = db_table(db, df1, "df1"); 
 
-julia> df2_table = db_table(db, "df2"); 
+julia> df2_table = db_table(db, df2, "df2");
 
 julia> @chain t(df1_table) @setdiff(df2_table) @collect
 2×2 DataFrame
@@ -1750,13 +1714,11 @@ julia> db = connect(duckdb());
 
 julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
-julia> copy_to(db, df, "df1");
-
-julia> @chain db_table(db, "df1") @create_view(viewer); # will note overwrite existing view
+julia> @chain db_table(db, df, "df1") @create_view(viewer); # will not overwrite existing view
 
 julia> db_table(db, "viewer");
 
-julia> @chain db_table(db, "df1") @create_view(viewer, true); # will overwrite exisiting view
+julia> @chain db_table(db, df, "df1") @create_view(viewer, true); # will overwrite exisiting view
 ```
 """
 
@@ -1776,9 +1738,7 @@ julia> db = connect(duckdb());
 
 julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
-julia> copy_to(db, df, "df1");
-
-julia> @chain db_table(db, "df1") @create_view(viewer);
+julia> @chain db_table(db, df, "df1") @create_view(viewer);
 
 julia> drop_view(db, "viewer");
 ```
@@ -1802,9 +1762,7 @@ julia> db = connect(duckdb());
 
 julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
-julia> copy_to(db, df, "df1");
-
-julia> @chain db_table(db, "df1") @compute(table2, true);
+julia> @chain db_table(db, df, "df1") @compute(table2, true);
 
 julia> db_table(db, "table2")
 SQLQuery("", "table", "", "", "", "", "", "", false, false, 2×4 DataFrame
@@ -1855,9 +1813,8 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_mem");
 
-julia> @chain db_table(db, :df_mem) begin 
+julia> @chain db_table(db, df, "df_view") begin 
         @relocate(groups, value, ends_with("d"), after = percent) 
         @collect
        end
@@ -1876,7 +1833,7 @@ julia> @chain db_table(db, :df_mem) begin
    9 │     0.9  bb          4  AI
   10 │     1.0  aa          5  AJ
 
-julia> @chain db_table(db, :df_mem) begin 
+julia> @chain db_table(db, df, "df_view") begin 
         @relocate([:percent, :groups], before = id) 
         @collect
        end
@@ -1921,9 +1878,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> copy_to(db, df, "df_agg");
-
-julia> @chain db_table(db, :df_agg) begin
+julia> @chain db_table(db, df, "df_agg") begin
          @summarise(
              r2 = regr_r2(value2, value1),
              across(contains("value"), median), 
@@ -1938,7 +1893,7 @@ julia> @chain db_table(db, :df_agg) begin
    1 │ aa      0.700161           -3.5           70.0
    2 │ bb      0.703783           -4.5           37.0
 
-julia> @chain db_table(db, :df_agg) begin
+julia> @chain db_table(db, df, "df_agg") begin
          @mutate(
             slope = agg(regr_slope(value1, value2)),
             var = agg(var_samp(value2)),

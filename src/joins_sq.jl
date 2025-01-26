@@ -1,5 +1,6 @@
 ## Join macros are long, but all basically identical logic 
 ## just change the join keyword. 
+
 function gbq_join_parse(input)
     input = string(input)
     parts = split(input, ".")
@@ -15,6 +16,7 @@ function gbq_join_parse(input)
         return input
     end
 end
+
 
 function get_join_columns(db, join_table, lhs_col_str)
     if current_sql_mode[] == mssql()

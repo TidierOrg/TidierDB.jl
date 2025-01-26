@@ -1,6 +1,3 @@
-## Join macros are long, but all basically identical logic 
-## just change the join keyword. 
-
 function gbq_join_parse(input)
     input = string(input)
     parts = split(input, ".")
@@ -17,7 +14,8 @@ function gbq_join_parse(input)
     end
 end
 
-
+# COV_EXCL_START
+# no longer used, need to test but anticipate deleting
 function get_join_columns(db, join_table, lhs_col_str)
     if current_sql_mode[] == mssql()
         cols = get_table_metadata(db, string(join_table))
@@ -29,6 +27,8 @@ function get_join_columns(db, join_table, lhs_col_str)
         return string(gbq_join_parse(join_table)) * ".* FROM "
     end
 end
+# COV_EXCL_STOP
+
 
 function finalize_query_jq(sqlquery::SQLQuery, from_clause)
 

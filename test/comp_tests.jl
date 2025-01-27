@@ -87,7 +87,8 @@
     end
     @testset "Joins, Unions, Post Wrangle Joins" begin
         TDF_1 = @chain test_df @left_join( df2, id = id2) @arrange(id)
-        TDB_1 = @chain DB.t(test_db) DB.@left_join("df_join", id == id2) DB.@collect() @arrange(id)
+        TDB_1 = @chain DB.t(test_db) DB.@left_join("main.df_join", id == id2) DB.@collect() @arrange(id)
+        TDB_1_1 = @chain DB.t(test_db) DB.@left_join("df_join", id == id2) DB.@collect() @arrange(id)
         query = DB.@chain DB.t(join_db) DB.@filter(score > 85)
         TDF_2 = @chain test_df @left_join( @filter(df2, score > 85), id = id2) @arrange(percent)
         TDB_2 = @chain DB.t(test_db) DB.@left_join(DB.t(query), id == id2) DB.@arrange(percent) DB.@collect
@@ -126,6 +127,7 @@
         TDB_14 = @chain DB.t(test_db) DB.@full_join(DB.t(query), id == id2) DB.@mutate(score = replace_missing(score, 0)) DB.@right_join((@chain DB.t(join_db2) DB.@filter(value2 != 20)), id == id3) DB.@arrange(description) DB.@collect
 
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
+        @test all(isequal.(Array(TDF_1), Array(TDB_1_1)))
         @test all(isequal.(Array(TDF_2), Array(TDB_2)))
         @test all(isequal.(Array(TDF_3), Array(TDB_3)))
         @test all(isequal.(Array(TDF_4), Array(TDB_4)))

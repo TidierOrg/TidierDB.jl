@@ -238,9 +238,9 @@ $docstring_db_table
 function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, delta::Bool=false, alias::String="")
     table_name = string(table)
     
-    if current_sql_mode[] == sqlite()
-        metadata = get_table_metadata(db, table_name)
-    elseif current_sql_mode[] == postgres() ||current_sql_mode[] ==  duckdb() || current_sql_mode[] ==  mysql() || current_sql_mode[] ==  mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == gbq() ||current_sql_mode[] == oracle()
+    if current_sql_mode[] == postgres() ||current_sql_mode[] ==  duckdb() || current_sql_mode[] ==  mysql() || 
+        current_sql_mode[] ==  mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == gbq() ||
+        current_sql_mode[] == oracle() || current_sql_mode[] == sqlite()
         if iceberg
             DBInterface.execute(db, "INSTALL iceberg;")
             DBInterface.execute(db, "LOAD iceberg;")
@@ -364,6 +364,12 @@ function db_table(db, table::Vector{String}, athena_params::Any=nothing)
     end
 end
 
+function db_table(db, table::DataFrame, alias::String) 
+    DuckDB.register_data_frame(db, table, alias)
+    metadata = get_table_metadata(db, alias)
+    return SQLQuery(from = alias, metadata=metadata, db=db)
+end
+
 # COV_EXCL_STOP
 
 """
@@ -373,7 +379,10 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
     # Check if the input is a DataFrame
     if isa(df_or_path, DataFrame)
         if current_sql_mode[] == duckdb()
-            DuckDB.register_data_frame(conn, df_or_path, name)
+            name_view = name * "view"
+            DuckDB.register_data_frame(conn, df_or_path, name_view)
+            DBInterface.execute(conn, "CREATE OR REPLACE TABLE $name AS SELECT * FROM $name_view")
+            DBInterface.execute(conn, "DROP VIEW $name_view ")
         end
     # COV_EXCL_START
     elseif isa(df_or_path, AbstractString)

@@ -1,4 +1,8 @@
 # TidierDB.jl updates
+## v0.7.0 - 2025-01-26
+- `db_table` now supports viewing a dataframe directly - `db_table(db, df, "name4db")`
+- `copy_to` will copy a table to the DuckDB db, instead of creating a view
+
 ## v0.6.3 - 2025-01-20
 - Resolve issue when filtering immediately after joining
 

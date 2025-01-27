@@ -13,7 +13,7 @@ df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 db = connect(duckdb());
 
-copy_to(db, df, "df_mem"); # copying over the data frame to an in-memory database
+dfv = db_table(db, df, "dfv"); # create a view (not a copy) of the dataframe on a in-memory database
 
 # ## Row ordering
 
@@ -28,7 +28,7 @@ copy_to(db, df, "df_mem"); # copying over the data frame to an in-memory databas
 # In TidierDB, when performing `@group_by` then `@mutate`, the table will be ungrouped after applying all of the mutations in the clause to the grouped data. To perform subsequent grouped operations, the user would have to regroup the data. This is demonstrated below.
 
 
-@chain db_table(db, :df_mem) begin
+@chain t(dfv) begin
     @group_by(groups)
     @summarize(mean_percent = mean(percent))
     @collect
@@ -36,7 +36,7 @@ copy_to(db, df, "df_mem"); # copying over the data frame to an in-memory databas
 
 # Regrouping following `@mutate`
 
-@chain db_table(db, :df_mem) begin
+@chain t(dfv) begin
     @group_by(groups)
     @mutate(max = maximum(percent), min = minimum(percent))
     @group_by(groups)
@@ -49,7 +49,7 @@ end
 # In TidierDB, after the clause is completed, the result for the new column should is separated by a comma `,`
 # in contrast to TidierData.jl, where the result for the new column is separated by a `=>` .
 
-@chain db_table(db, :df_mem) begin
+@chain t(dfv) begin
     @mutate(new_col = case_when(percent > .5, "Pass",  # in TidierData, percent > .5 => "Pass", 
                                 percent <= .5, "Try Again", # percent <= .5 => "Try Again"
                                 true, "middle"))

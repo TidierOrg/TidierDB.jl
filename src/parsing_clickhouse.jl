@@ -73,15 +73,6 @@ function expr_to_sql_clickhouse(expr, sq; from_summarize::Bool)
                 str = "$(arg_str)"
                 return "$(str) $(window_clause)"
             end
-        elseif !isempty(sq.window_order) && isa(x, Expr) && x.head == :call
-            function_name = x.args[1]  # This will be `lead`
-            args = x.args[2:end]       # Capture all arguments from the second position onward
-            window_clause = construct_window_clause(sq)
-        
-            # Create the SQL string representation of the function call
-            arg_str = join(map(string, args), ", ")  # Join arguments into a string
-            str = "$(function_name)($(arg_str))"      # Construct the function call string
-            return "$(str) $(window_clause)"
         #stringr functions, have to use function that removes _ so capture can capture name
         elseif @capture(x, strreplaceall(str_, pattern_, replace_))
             return :(replaceRegexpAll($str, $pattern, $replace))
@@ -153,14 +144,15 @@ function expr_to_sql_clickhouse(expr, sq; from_summarize::Bool)
                 pattern_str = string(pattern)[2:end]
                 return string("match(", column, ", '", pattern_str, "')")
             end
-        elseif isa(x, Expr) && x.head == :call && x.args[1] == :n && length(x.args) == 1
-            if from_summarize
-                return "COUNT(*)"
-            else
+        elseif x.args[1] == :n && length(x.args) == 1
+            return from_summarize ? "COUNT(*)" : "COUNT(*) $(construct_window_clause(sq))"
+        elseif string(x.args[1]) in String.(window_agg_fxns)
+                args = x.args[2:end]       
                 window_clause = construct_window_clause(sq)
-                return "COUNT(*) $(window_clause)"
-            end
-            end
+                arg_str = join(map(string, args), ", ")        
+                str_representation = "$(string(x.args[1]))($(arg_str))"  
+                return "$(str_representation) $(window_clause)"
+            end  
         elseif isa(x, SQLQuery)
             return "(__(" * finalize_query(x) * ")__("
         end

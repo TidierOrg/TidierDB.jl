@@ -1856,17 +1856,20 @@ julia> @chain db_table(db, df, "df_view") begin
 """
 
 
-const docstring_aggregate_functions =
+const docstring_aggregate_and_window_functions =
 """
-       Aggregate Functions
+       Aggregate and Window Functions
 
 Nearly all aggregate functions from any database are supported both `@summarize` and `@mutate`. 
 
 With `@summarize`, an aggregate functions available on a SQL backend can be used as they are in sql with the same syntax (`'` should be replaced with `"`)
 
 `@mutate` supports them as well, however, unless listed below, the function call must be wrapped with `agg()`
-       - `maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`
+       - Aggregate Functions:`maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`, 
+       - Window Functions: `lead`, `lag`, `dense_rank`, `nth_value`, `ntile`, `rank_dense`, `row_number`, `first_value`, `last_value`, `cume_dist`
 
+If a function is needed regularly, instead of wrapping it in `agg`, it can also be added to `window_agg_fxns` with `push!` as demonstrated below
+       
 The list of DuckDB aggregate functions and their syntax can be found [here](https://duckdb.org/docs/sql/functions/aggregates.html#general-aggregate-functions)
 Please refer to your backend documentation for a complete list with syntac, but open an issue on TidierDB if your run into roadblocks.  
 # Examples
@@ -1920,5 +1923,31 @@ julia> @chain db_table(db, df, "df_agg") begin
    8 │ AE      bb         -4.5      37  0.0121342    47799.0  218.629
    9 │ AG      bb         -2.5     135  0.0121342    47799.0  218.629
   10 │ AI      bb         -0.5     521  0.0121342    47799.0  218.629
+
+julia> push!(TidierDB.window_agg_fxns, :regr_slope);
+
+julia> @chain db_table(db, df, "df_agg") begin
+         @mutate(
+            slope = regr_slope(value1, value2), # no longer wrapped in `agg` following the above
+            _by = groups
+         )
+         @select !percent
+         @arrange(groups)
+         @collect
+       end
+10×5 DataFrame
+ Row │ id      groups  value1   value2  slope      
+     │ String  String  Float64  Int64   Float64    
+─────┼─────────────────────────────────────────────
+   1 │ AB      aa         -7.5       6  0.00608835
+   2 │ AD      aa         -5.5      20  0.00608835
+   3 │ AF      aa         -3.5      70  0.00608835
+   4 │ AH      aa         -1.5     264  0.00608835
+   5 │ AJ      aa          0.5    1034  0.00608835
+   6 │ AA      bb         -8.5       3  0.0121342
+   7 │ AC      bb         -6.5      11  0.0121342
+   8 │ AE      bb         -4.5      37  0.0121342
+   9 │ AG      bb         -2.5     135  0.0121342
+  10 │ AI      bb         -0.5     521  0.0121342
 ```
 """

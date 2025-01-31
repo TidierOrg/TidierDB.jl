@@ -151,24 +151,29 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
                 end
             elseif x.args[1] == :n && length(x.args) == 1
                 return from_summarize ? "COUNT(*)" : "COUNT(*) $(construct_window_clause(sq))"
-            elseif string(x.args[1]) in window_agg_fxns
-                    args = x.args[2:end]       
-                    window_clause = construct_window_clause(sq)
-                    arg_str = join(map(string, args), ", ")        
-                    str_representation = "$(string(x.args[1]))($(arg_str))"  
-                    return "$(str_representation) $(window_clause)"
+            elseif string(x.args[1]) in String.(window_agg_fxns)
+                    if from_summarize
+                        return x
+                    else
+                        args = x.args[2:end]       
+                        window_clause = construct_window_clause(sq)
+                        arg_str = join(map(string, args), ", ")        
+                        str_representation = "$(string(x.args[1]))($(arg_str))"  
+                        return "$(str_representation) $(window_clause)"
+                    end
                 end    
-       elseif isa(x, SQLQuery)
+        elseif isa(x, SQLQuery)
             return "(__(" * finalize_query(x) * ")__("
         end
         return x
     end
 end
 
-# This is to get aggreagate function docstring.
+
+# This is to get aggregate function docstring.
 # COV_EXCL_START
 """
-$docstring_aggregate_functions
+$docstring_aggregate_and_window_functions
 """
 function aggregate_functions() 
 end

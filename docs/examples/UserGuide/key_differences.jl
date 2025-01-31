@@ -53,9 +53,15 @@ end
 
 # ## Window Functions
 
-# SQL and TidierDB allow for the use of window functions. When ordering a window function, `@arrange` should not be used. Rather, `@window_order` or, preferably, `_order` in `@mutate` should be used.
- @chain t(dfv) begin
-    @mutate(row_id = agg(row_number()), 
+# SQL and TidierDB allow for the use of window functions. When ordering a window function, `@arrange` should not be used. Rather, `@window_order` or, preferably, `_order` (and `_frame`) in `@mutate` should be used.
+# The following window functions are included by default
+#     - `lead`, `lag`, `dense_rank`, `nth_value`, `ntile`, `rank_dense`, `row_number`, `first_value`, `last_value`, `cume_dist`
+# The following aggregate functions are included by default
+#     - `maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`
+# Window and aggregate functions not listed in the above can be either wrapped in `agg(kurtosis(column))` or added to an internal vector using 
+#     - `push!(TidierDB.window_agg_fxns, :kurtosis);`
+@chain t(dfv) begin
+    @mutate(row_id = row_number(), 
         _by = groups, 
         _order = value
         # _frame is an available argument as well. 
@@ -69,7 +75,7 @@ end
  @chain t(dfv) begin
     @group_by groups
     @window_order value
-    @mutate(row_id = agg(row_number()))
+    @mutate(row_id = row_number())
     @arrange(groups, value)
     @collect
 end 

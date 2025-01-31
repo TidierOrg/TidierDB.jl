@@ -1865,7 +1865,7 @@ Nearly all aggregate functions from any database are supported both `@summarize`
 With `@summarize`, an aggregate functions available on a SQL backend can be used as they are in sql with the same syntax (`'` should be replaced with `"`)
 
 `@mutate` supports them as well, however, unless listed below, the function call must be wrapped with `agg()`
-       - Aggregate Functions:`maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`, 
+       - Aggregate Functions:`maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`
        - Window Functions: `lead`, `lag`, `dense_rank`, `nth_value`, `ntile`, `rank_dense`, `row_number`, `first_value`, `last_value`, `cume_dist`
 
 If a function is needed regularly, instead of wrapping it in `agg`, it can also be added to `window_agg_fxns` with `push!` as demonstrated below

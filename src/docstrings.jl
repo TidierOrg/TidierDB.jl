@@ -601,7 +601,8 @@ const docstring_arrange =
 """
     @arrange(sql_query, columns...)
 
-Order SQL table rows based on specified column(s).
+Order SQL table rows based on specified column(s). Of note, `@arrange` should not be used when performing ordered window functions, 
+`@window_order`, or preferably the `_order` argument in `@mutate` should be used instead
 
 # Arguments
 - `sql_query::SQLQuery`: The SQL query to arrange

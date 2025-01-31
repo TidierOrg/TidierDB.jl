@@ -32,14 +32,15 @@ TidierDB.jl currently supports:
 
 | **Category**                     | **Supported Macros and Functions**                                                                                                                                               |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Data Manipulation**     | `@arrange`, `@group_by`, `@filter`, `@select`, `@mutate` (supports `across`), `@summarize`/`@summarise` (supports `across`), `@distinct`, `@relocate`                                   |
-| **Joining**                  | `@left_join`, `@right_join`, `@inner_join`, `@anti_join`, `@full_join`, `@semi_join`, `@union`, `@union_all`, `@intersect`, `@setdiff`                                         |
+| **Data Manipulation**     | `@arrange`, `@group_by`, `@filter`, `@select`, `@mutate` (supports `across`), `@summarize`/`@summarise` (supports `across`), `@distinct`, `@relocate`                                 |
+| **Joining/Setting**                  | `@left_join`, `@right_join`, `@inner_join`, `@anti_join`, `@full_join`, `@semi_join`, `@union`, `@union_all`, `@intersect`, `@setdiff`                                         |
 | **Slice and Order**       | `@slice_min`, `@slice_max`, `@slice_sample`, `@order`, `@window_order`, `@window_frame`                                                                                                |
 | **Utility**               | `@show_query`, `@collect`, `@head`, `@count`, `show_tables`, `@create_view` , `drop_view`                                                                                                                                          |
 | **Helper Functions**             | `across`, `desc`, `if_else`, `case_when`, `n`, `starts_with`, `ends_with`, `contains`, `as_float`, `as_integer`, `as_string`, `is_missing`, `missing_if`, `replace_missing` |
 | **TidierStrings.jl Functions** | `str_detect`, `str_replace`, `str_replace_all`, `str_remove_all`, `str_remove`                                                                                               |
 | **TidierDates.jl Functions**   | `year`, `month`, `day`, `hour`, `min`, `second`, `floor_date`, `difftime`, `mdy`, `ymd`, `dmy`                                                                                                    |
-| **Aggregate Functions**          | `mean`, `minimum`, `maximum`, `std`, `sum`, `cumsum`, and nearly all aggregate sql fxns supported
+| **Aggregate Functions**          | `mean`, `minimum`, `maximum`, `std`, `sum`, `cumsum`, and nearly all aggregate sql fxns supported |
+| **Window Functions**             | `@window_order`, `@window_frame`, or `_by`, `_order`, and `_frame` within `@mutate`                                                                                                          |
 
 `@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.   
 `@mutate` supports all builtin SQL functions as well.                                                                                                 
@@ -153,7 +154,7 @@ end
 ```
 WITH cte_1 AS (
 SELECT *
-        FROM mtcars
+        FROM 'https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv' AS mtcars 
         WHERE NOT (starts_with(model, 'M'))),
 cte_2 AS (
 SELECT cyl, AVG(mpg) AS mpg

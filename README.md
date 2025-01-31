@@ -45,7 +45,8 @@ TidierDB.jl currently supports the following top-level macros:
 | **Helper Functions**             | `across`, `desc`, `if_else`, `case_when`, `n`, `starts_with`, `ends_with`, `contains`, `as_float`, `as_integer`, `as_string`, `is_missing`, `missing_if`, `replace_missing` |
 | **TidierStrings.jl Functions** | `str_detect`, `str_replace`, `str_replace_all`, `str_remove_all`, `str_remove`                                                                                               |
 | **TidierDates.jl Functions**   | `year`, `month`, `day`, `hour`, `min`, `second`, `floor_date`, `difftime`, `mdy`, `ymd`, `dmy`                                                                                                    |
-| **Aggregate Functions**          | `mean`, `minimum`, `maximum`, `std`, `sum`, `cumsum`, and nearly all aggregate sql fxns supported
+| **Aggregate Functions**          | `mean`, `minimum`, `maximum`, `std`, `sum`, `cumsum`, and nearly all aggregate sql fxns supported |
+| **Window Functions**             | `@window_order`, `@window_frame`, or `_by`, `_order`, and `_frame` within `@mutate`                                                                                                          |
 
 `@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.
 `@mutate` supports all builtin SQL functions as well.
@@ -159,7 +160,7 @@ end
 ```
 WITH cte_1 AS (
 SELECT *
-        FROM mtcars
+        FROM 'https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv' AS mtcars 
         WHERE NOT (starts_with(model, 'M'))),
 cte_2 AS (
 SELECT cyl, AVG(mpg) AS mpg
@@ -171,9 +172,9 @@ SELECT  cyl, mpg, POWER(mpg, 2) AS mpg_squared, ROUND(mpg) AS mpg_rounded, CASE 
 cte_4 AS (
 SELECT *
         FROM cte_3
-        WHERE mpg_efficiency in ('moderate', 'efficient'))
+        WHERE mpg_efficiency in ('moderate', 'efficient'))  
 SELECT *
-        FROM cte_4
+        FROM cte_4  
         ORDER BY mpg_rounded DESC
 ```
 

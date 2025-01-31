@@ -19,24 +19,24 @@ using GZip
  @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, 
  @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,  @head, 
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, 
- t, @union, @create_view, drop_view, @compute, warnings, @relocate, @union_all, @setdiff, @intersect
+ t, @union, @create_view, drop_view, @compute, warnings, @relocate, @union_all, @setdiff, @intersect, add_window_agg_fxn
 
  abstract type SQLBackend end
 
  struct clickhouse <: SQLBackend end
  struct duckdb <: SQLBackend end
- struct sqlite <: SQLBackend end
- struct mysql <: SQLBackend end
- struct mssql <: SQLBackend end
+ struct sqlite <: SQLBackend end # COV_EXCL_LINE
+ struct mysql <: SQLBackend end # COV_EXCL_LINE
+ struct mssql <: SQLBackend end # COV_EXCL_LINE
  struct postgres <: SQLBackend end
- struct athena <: SQLBackend end
+ struct athena <: SQLBackend end # COV_EXCL_LINE
  struct snowflake <: SQLBackend end
  struct gbq <: SQLBackend end
- struct oracle <: SQLBackend end
+ struct oracle <: SQLBackend end # COV_EXCL_LINE
  struct databricks <: SQLBackend end
  
  const  _warning_ = Ref(false)
-
+ const window_agg_fxns = ["lead", "lag"]
  current_sql_mode = Ref{SQLBackend}(duckdb())
  
  function set_sql_mode(mode::SQLBackend) current_sql_mode[] = mode end
@@ -96,6 +96,14 @@ function expr_to_sql(expr, sq; from_summarize::Bool = false)
     end
 end
 
+function add_window_agg_fxn(fxn::String)
+    if fxn in window_agg_fxns
+        println("Function '$fxn' is already in window_agg_fxns.")
+    else
+        push!(window_agg_fxns, fxn)
+        println("Function '$fxn' has been added to window_agg_fxns.")
+    end
+end
 
 """
 $docstring_warnings

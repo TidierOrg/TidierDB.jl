@@ -138,26 +138,26 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
                 return Expr(:call, Symbol("TRY_CAST"), column, Symbol("AS STRING"))
             elseif x.args[1] == :case_when
                 return parse_case_when(x)
-        elseif isa(x, Expr) && x.head == :call && x.args[1] == :!  && x.args[1] != :!= && length(x.args) == 2
-            inner_expr = expr_to_sql_duckdb(x.args[2], sq, from_summarize = false)  # Recursively transform the inner expression
-            return string("NOT (", inner_expr, ")")
-        elseif x.args[1] == :str_detect && length(x.args) == 3
-            column, pattern = x.args[2], x.args[3]
-            if pattern isa String
-                return string(column, " LIKE \'%", pattern, "%'")
-            elseif pattern isa Expr
-                pattern_str = string(pattern)[2:end]
-                return string("regexp_matches(", column, ", '", pattern_str, "')")
-            end
-
-        elseif isa(x, Expr) && x.head == :call && x.args[1] == :n && length(x.args) == 1
-            if from_summarize
-                return "COUNT(*)"
-            else
-                window_clause = construct_window_clause(sq)
-                return "COUNT(*) $(window_clause)"
-            end
-            end
+            elseif isa(x, Expr) && x.head == :call && x.args[1] == :!  && x.args[1] != :!= && length(x.args) == 2
+                inner_expr = expr_to_sql_duckdb(x.args[2], sq, from_summarize = false)  # Recursively transform the inner expression
+                return string("NOT (", inner_expr, ")")
+            elseif x.args[1] == :str_detect && length(x.args) == 3
+                column, pattern = x.args[2], x.args[3]
+                if pattern isa String
+                    return string(column, " LIKE \'%", pattern, "%'")
+                elseif pattern isa Expr
+                    pattern_str = string(pattern)[2:end]
+                    return string("regexp_matches(", column, ", '", pattern_str, "')")
+                end
+            elseif x.args[1] == :n && length(x.args) == 1
+                return from_summarize ? "COUNT(*)" : "COUNT(*) $(construct_window_clause(sq))"
+            elseif string(x.args[1]) in window_agg_fxns
+                    args = x.args[2:end]       
+                    window_clause = construct_window_clause(sq)
+                    arg_str = join(map(string, args), ", ")        
+                    str_representation = "$(string(x.args[1]))($(arg_str))"  
+                    return "$(str_representation) $(window_clause)"
+                end    
        elseif isa(x, SQLQuery)
             return "(__(" * finalize_query(x) * ")__("
         end

@@ -91,7 +91,7 @@ function process_mutate_expression(expr, sq, select_expressions, cte_name)
             push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => cte_name))
         end
     else
-        throw("Unsupported expression format in @mutate: $(expr)")
+        throw("Unsupported expression format in @mutate: $(expr)") # COV_EXCL_LINE
     end
 end
 
@@ -244,7 +244,7 @@ function process_summary_expression(expr, sq, summary_str)
     
         push!(summary_str, summary_operation * " AS " * summary_column)
     else
-        throw("Unsupported expression format in @summarize: $(expr)")
+        throw("Unsupported expression format in @summarize: $(expr)") # COV_EXCL_LINE
     end
 end
 
@@ -322,7 +322,7 @@ macro summarize(sqlquery, expressions...)
             sq.is_aggregated = true        # Mark the query as aggregated
             sq.post_aggregation = true     # Indicate ready for post-aggregation operations
         else
-            error("Expected sqlquery to be an instance of SQLQuery")
+            error("Expected sqlquery to be an instance of SQLQuery") # COV_EXCL_LINE
         end
         sq
     end

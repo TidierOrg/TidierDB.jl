@@ -45,7 +45,7 @@ macro window_order(sqlquery, order_by_expr...)
                 sq.from = cte_name
             end
         else
-            error("Expected sqlquery to be an instance of SQLQuery")
+            error("Expected sqlquery to be an instance of SQLQuery") # COV_EXCL_LINE
         end
         sq
     end
@@ -71,11 +71,11 @@ macro window_frame(sqlquery, args...)
             elseif arg_name == :to
                 frame_to_expr = arg_value
             else
-                error("Unknown keyword argument: $(arg_name)")
+                error("Unknown keyword argument: $(arg_name)") # COV_EXCL_LINE
             end
         elseif isa(arg, Expr) && arg.head == :tuple
             if length(arg.args) != 2
-                error("`_frame` must be a tuple with exactly two elements: (_frame = (from, to))")
+                error("`_frame` must be a tuple with exactly two elements: (_frame = (from, to))") # COV_EXCL_LINE
             end
             frame_from_expr = arg.args[1]
             frame_to_expr = arg.args[2]
@@ -86,7 +86,7 @@ macro window_frame(sqlquery, args...)
             elseif frame_to_expr === nothing
                 frame_to_expr = arg
             else
-                error("Too many positional arguments")
+                error("Too many positional arguments") # COV_EXCL_LINE
             end
         end
     end
@@ -169,7 +169,7 @@ macro window_frame(sqlquery, args...)
             # Update the windowFrame field of the SQLQuery instance
             sq.windowFrame = frame_clause
         else
-            error("Expected sqlquery to be an instance of SQLQuery")
+            error("Expected sqlquery to be an instance of SQLQuery") # COV_EXCL_LINE
         end
         sq
     end

@@ -157,9 +157,9 @@ function expr_to_sql_snowflake(expr, sq; from_summarize::Bool)
                         return "$(str_representation) $(window_clause)"
                     end
                 end     
-            elseif isa(x, SQLQuery)
-                return "(__(" * finalize_query(x) * ")__("
-            end
+        elseif isa(x, SQLQuery)
+            return "(__(" * finalize_query(x) * ")__("
+        end
         return x
     end
 end

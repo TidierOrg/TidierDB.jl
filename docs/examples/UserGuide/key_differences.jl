@@ -63,8 +63,7 @@ end
 @chain t(dfv) begin
     @mutate(row_id = row_number(), 
         _by = groups, 
-        _order = value
-        # _frame is an available argument as well. 
+        _order = value # _frame is an available argument as well. 
         )
     @arrange(groups, value)
     @aside @show_query _

@@ -64,7 +64,7 @@ macro slice_min(sqlquery, column, n=1)
             # Update the FROM clause to reference the new filter CTE
             sq.from = filter_cte_name
         else
-            error("Expected sqlquery to be an instance of SQLQuery")
+            error("Expected sqlquery to be an instance of SQLQuery") # COV_EXCL_LINE
         end
         sq
     end
@@ -138,7 +138,7 @@ macro slice_max(sqlquery, column, n=1)
             # Update the FROM clause to reference the new filter CTE
             sq.from = filter_cte_name
         else
-            error("Expected sqlquery to be an instance of SQLQuery")
+            error("Expected sqlquery to be an instance of SQLQuery") # COV_EXCL_LINE
         end
         sq
     end
@@ -202,7 +202,7 @@ macro slice_sample(sqlquery, n=1)
             # Reset sq.select to select everything from the final CTE
             sq.select = "*"
         else
-            error("Expected sqlquery to be an instance of SQLQuery")
+            error("Expected sqlquery to be an instance of SQLQuery") # COV_EXCL_LINE
         end
         sq
     end

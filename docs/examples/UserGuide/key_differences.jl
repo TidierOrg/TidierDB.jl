@@ -27,10 +27,9 @@ dfv = db_table(db, df, "dfv"); # create a view (not a copy) of the dataframe on 
 
 # In TidierDB, when performing `@group_by` then `@mutate`, the table will be ungrouped after applying all of the mutations in the clause to the grouped data. To perform subsequent grouped operations, the user would have to regroup the data. This is demonstrated below.
 
-
 @chain t(dfv) begin
     @group_by(groups)
-    @summarize(mean_percent = mean(percent))
+    @mutate(mean_percent = mean(percent))
     @collect
  end
 
@@ -43,6 +42,42 @@ dfv = db_table(db, df, "dfv"); # create a view (not a copy) of the dataframe on 
     @summarise(mean_percent = mean(percent))
     @collect
 end
+
+# TidierDB also supports `_by` for grouping directly within a mutate clause (a feature coming to TidierData in the the future)
+
+@chain t(dfv) begin
+    @mutate(mean_percent = mean(percent),
+        _by = groups)
+    @collect
+ end
+
+# ## Window Functions
+
+# SQL and TidierDB allow for the use of window functions. When ordering a window function, `@arrange` should not be used. Rather, `@window_order` or, preferably, `_order` (and `_frame`) in `@mutate` should be used.
+# The following window functions are included by default
+#     - `lead`, `lag`, `dense_rank`, `nth_value`, `ntile`, `rank_dense`, `row_number`, `first_value`, `last_value`, `cume_dist`
+# The following aggregate functions are included by default
+#     - `maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`
+# Window and aggregate functions not listed in the above can be either wrapped in `agg(kurtosis(column))` or added to an internal vector using 
+#     - `push!(TidierDB.window_agg_fxns, :kurtosis);`
+@chain t(dfv) begin
+    @mutate(row_id = row_number(), 
+        _by = groups, 
+        _order = value # _frame is an available argument as well. 
+        )
+    @arrange(groups, value)
+    @aside @show_query _
+    @collect
+end 
+
+# The above query could have alternatively been written as 
+ @chain t(dfv) begin
+    @group_by groups
+    @window_order value
+    @mutate(row_id = row_number())
+    @arrange(groups, value)
+    @collect
+end 
 
 # ## Differences in `case_when()`
 

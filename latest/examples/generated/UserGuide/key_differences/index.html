@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.50">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.1">
     
     
       
@@ -275,6 +275,7 @@
   
   <span class="md-ellipsis">
     Home
+    
   </span>
   
 
@@ -302,6 +303,7 @@
   
   <span class="md-ellipsis">
     Key Differences from TidierData.jl
+    
   </span>
   
 
@@ -313,6 +315,7 @@
   
   <span class="md-ellipsis">
     Key Differences from TidierData.jl
+    
   </span>
   
 
@@ -368,6 +371,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#window-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Window Functions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#differences-in-case_when" class="md-nav__link">
     <span class="md-ellipsis">
       Differences in case_when()
@@ -396,6 +408,7 @@
   
   <span class="md-ellipsis">
     Getting Started
+    
   </span>
   
 
@@ -416,6 +429,7 @@
   
   <span class="md-ellipsis">
     Reusing a Query (and Views)
+    
   </span>
   
 
@@ -436,6 +450,7 @@
   
   <span class="md-ellipsis">
     S3 + DuckDB + TidierDB
+    
   </span>
   
 
@@ -456,6 +471,7 @@
   
   <span class="md-ellipsis">
     Using Athena
+    
   </span>
   
 
@@ -476,6 +492,7 @@
   
   <span class="md-ellipsis">
     Using Snowflake
+    
   </span>
   
 
@@ -496,6 +513,7 @@
   
   <span class="md-ellipsis">
     Using Databricks
+    
   </span>
   
 
@@ -516,6 +534,7 @@
   
   <span class="md-ellipsis">
     Joining Tables
+    
   </span>
   
 
@@ -536,6 +555,7 @@
   
   <span class="md-ellipsis">
     Writing Functions with TidierDB Chains
+    
   </span>
   
 
@@ -556,6 +576,7 @@
   
   <span class="md-ellipsis">
     Working With Larger than RAM Datasets
+    
   </span>
   
 
@@ -576,6 +597,7 @@
   
   <span class="md-ellipsis">
     TidierDB.jl vs Ibis
+    
   </span>
   
 
@@ -596,6 +618,7 @@
   
   <span class="md-ellipsis">
     Reproduce a duckplyr example
+    
   </span>
   
 
@@ -616,6 +639,7 @@
   
   <span class="md-ellipsis">
     Flexible Syntax and UDFs
+    
   </span>
   
 
@@ -636,6 +660,7 @@
   
   <span class="md-ellipsis">
     Reference
+    
   </span>
   
 
@@ -705,6 +730,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#window-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Window Functions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#differences-in-case_when" class="md-nav__link">
     <span class="md-ellipsis">
       Differences in case_when()
@@ -726,6 +760,7 @@
               <article class="md-content__inner md-typeset">
                 
                   
+
 
 
   <h1>Key Differences from TidierData.jl</h1>
@@ -760,12 +795,12 @@
 <p>In TidierDB, when performing <code>@group_by</code> then <code>@mutate</code>, the table will be ungrouped after applying all of the mutations in the clause to the grouped data. To perform subsequent grouped operations, the user would have to regroup the data. This is demonstrated below.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
-<span class="w">    </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mean_percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">percent</span><span class="p">))</span>
+<span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mean_percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">percent</span><span class="p">))</span>
 <span class="w">    </span><span class="nd">@collect</span>
 <span class="w"> </span><span class="k">end</span>
 </code></pre></div>
-<div><div style = "float: left;"><span>2×2 DataFrame</span></div><div style = "clear: both;"></div></div>
-<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">mean_percent</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">0.5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">0.6</td></tr></tbody></table></div>
+<div><div style = "float: left;"><span>10×5 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th><th style = "text-align: left;">mean_percent</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">AB</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.2</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">AD</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.4</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">AF</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.6</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">AH</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.8</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">AJ</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">5</td><td style = "text-align: right;">1.0</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">AA</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.1</td><td style = "text-align: right;">0.5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">7</td><td style = "text-align: left;">AC</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.3</td><td style = "text-align: right;">0.5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">8</td><td style = "text-align: left;">AE</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">5</td><td style = "text-align: right;">0.5</td><td style = "text-align: right;">0.5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">9</td><td style = "text-align: left;">AG</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.7</td><td style = "text-align: right;">0.5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">10</td><td style = "text-align: left;">AI</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.9</td><td style = "text-align: right;">0.5</td></tr></tbody></table></div>
 
 <p>Regrouping following <code>@mutate</code></p>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
@@ -778,6 +813,45 @@
 </code></pre></div>
 <div><div style = "float: left;"><span>2×2 DataFrame</span></div><div style = "clear: both;"></div></div>
 <div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">mean_percent</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">0.5</td></tr></tbody></table></div>
+
+<p>TidierDB also supports <code>_by</code> for grouping directly within a mutate clause (a feature coming to TidierData in the the future)</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mean_percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">percent</span><span class="p">),</span>
+<span class="w">        </span><span class="n">_by</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">groups</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@collect</span>
+<span class="w"> </span><span class="k">end</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>10×5 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th><th style = "text-align: left;">mean_percent</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">AB</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.2</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">AD</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.4</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">AF</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.6</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">AH</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.8</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">AJ</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">5</td><td style = "text-align: right;">1.0</td><td style = "text-align: right;">0.6</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">AA</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.1</td><td style = "text-align: right;">0.5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">7</td><td style = "text-align: left;">AC</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.3</td><td style = "text-align: right;">0.5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">8</td><td style = "text-align: left;">AE</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">5</td><td style = "text-align: right;">0.5</td><td style = "text-align: right;">0.5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">9</td><td style = "text-align: left;">AG</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.7</td><td style = "text-align: right;">0.5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">10</td><td style = "text-align: left;">AI</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.9</td><td style = "text-align: right;">0.5</td></tr></tbody></table></div>
+
+<p><a id='Window-Functions'></a></p>
+<p><a id='Window-Functions-1'></a></p>
+<h2 id="window-functions">Window Functions<a class="headerlink" href="#window-functions" title="Permanent link">¤</a></h2>
+<p>SQL and TidierDB allow for the use of window functions. When ordering a window function, <code>@arrange</code> should not be used. Rather, <code>@window_order</code> or, preferably, <code>_order</code> (and <code>_frame</code>) in <code>@mutate</code> should be used. The following window functions are included by default     - <code>lead</code>, <code>lag</code>, <code>dense_rank</code>, <code>nth_value</code>, <code>ntile</code>, <code>rank_dense</code>, <code>row_number</code>, <code>first_value</code>, <code>last_value</code>, <code>cume_dist</code> The following aggregate functions are included by default     - <code>maximum</code>, <code>minimum</code>, <code>mean</code>, <code>std</code>, <code>sum</code>, <code>cumsum</code> Window and aggregate functions not listed in the above can be either wrapped in <code>agg(kurtosis(column))</code> or added to an internal vector using     - <code>push!(TidierDB.window_agg_fxns, :kurtosis);</code></p>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">row_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">row_number</span><span class="p">(),</span>
+<span class="w">        </span><span class="n">_by</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">groups</span><span class="p">,</span>
+<span class="w">        </span><span class="n">_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="c"># _frame is an available argument as well.</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@arrange</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@aside</span><span class="w"> </span><span class="nd">@show_query</span><span class="w"> </span><span class="n">_</span>
+<span class="w">    </span><span class="nd">@collect</span>
+<span class="k">end</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>10×5 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th><th style = "text-align: left;">row_id</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">AF</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.6</td><td style = "text-align: right;">1</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">AB</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.2</td><td style = "text-align: right;">2</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">AH</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.8</td><td style = "text-align: right;">3</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">AD</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.4</td><td style = "text-align: right;">4</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">AJ</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">5</td><td style = "text-align: right;">1.0</td><td style = "text-align: right;">5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">AA</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.1</td><td style = "text-align: right;">1</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">7</td><td style = "text-align: left;">AG</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.7</td><td style = "text-align: right;">2</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">8</td><td style = "text-align: left;">AC</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.3</td><td style = "text-align: right;">3</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">9</td><td style = "text-align: left;">AI</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.9</td><td style = "text-align: right;">4</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">10</td><td style = "text-align: left;">AE</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">5</td><td style = "text-align: right;">0.5</td><td style = "text-align: right;">5</td></tr></tbody></table></div>
+
+<p>The above query could have alternatively been written as</p>
+<div class="highlight"><pre><span></span><code><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@group_by</span><span class="w"> </span><span class="n">groups</span>
+<span class="w">    </span><span class="nd">@window_order</span><span class="w"> </span><span class="n">value</span>
+<span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">row_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">row_number</span><span class="p">())</span>
+<span class="w">    </span><span class="nd">@arrange</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@collect</span>
+<span class="k">end</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>10×5 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th><th style = "text-align: left;">row_id</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">AF</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.6</td><td style = "text-align: right;">1</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">AB</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.2</td><td style = "text-align: right;">2</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">AH</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.8</td><td style = "text-align: right;">3</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">AD</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.4</td><td style = "text-align: right;">4</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">AJ</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">5</td><td style = "text-align: right;">1.0</td><td style = "text-align: right;">5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">AA</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.1</td><td style = "text-align: right;">1</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">7</td><td style = "text-align: left;">AG</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.7</td><td style = "text-align: right;">2</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">8</td><td style = "text-align: left;">AC</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.3</td><td style = "text-align: right;">3</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">9</td><td style = "text-align: left;">AI</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.9</td><td style = "text-align: right;">4</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">10</td><td style = "text-align: left;">AE</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">5</td><td style = "text-align: right;">0.5</td><td style = "text-align: right;">5</td></tr></tbody></table></div>
 
 <p><a id='Differences-in-case_when()'></a></p>
 <p><a id='Differences-in-case_when()-1'></a></p>
@@ -916,7 +990,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.copy", "content.code.annotate", "navigation.top", "navigation.footer", "search.highlight", "search.share", "search.suggest", "toc.follow", "header.autohide"], "search": "../../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.60a45f97.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.5090c770.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.50">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.1">
     
     
       
@@ -280,6 +280,7 @@
   
   <span class="md-ellipsis">
     Home
+    
   </span>
   
 
@@ -291,6 +292,7 @@
   
   <span class="md-ellipsis">
     Home
+    
   </span>
   
 
@@ -401,6 +403,7 @@
   
   <span class="md-ellipsis">
     Key Differences from TidierData.jl
+    
   </span>
   
 
@@ -421,6 +424,7 @@
   
   <span class="md-ellipsis">
     Getting Started
+    
   </span>
   
 
@@ -441,6 +445,7 @@
   
   <span class="md-ellipsis">
     Reusing a Query (and Views)
+    
   </span>
   
 
@@ -461,6 +466,7 @@
   
   <span class="md-ellipsis">
     S3 + DuckDB + TidierDB
+    
   </span>
   
 
@@ -481,6 +487,7 @@
   
   <span class="md-ellipsis">
     Using Athena
+    
   </span>
   
 
@@ -501,6 +508,7 @@
   
   <span class="md-ellipsis">
     Using Snowflake
+    
   </span>
   
 
@@ -521,6 +529,7 @@
   
   <span class="md-ellipsis">
     Using Databricks
+    
   </span>
   
 
@@ -541,6 +550,7 @@
   
   <span class="md-ellipsis">
     Joining Tables
+    
   </span>
   
 
@@ -561,6 +571,7 @@
   
   <span class="md-ellipsis">
     Writing Functions with TidierDB Chains
+    
   </span>
   
 
@@ -581,6 +592,7 @@
   
   <span class="md-ellipsis">
     Working With Larger than RAM Datasets
+    
   </span>
   
 
@@ -601,6 +613,7 @@
   
   <span class="md-ellipsis">
     TidierDB.jl vs Ibis
+    
   </span>
   
 
@@ -621,6 +634,7 @@
   
   <span class="md-ellipsis">
     Reproduce a duckplyr example
+    
   </span>
   
 
@@ -641,6 +655,7 @@
   
   <span class="md-ellipsis">
     Flexible Syntax and UDFs
+    
   </span>
   
 
@@ -661,6 +676,7 @@
   
   <span class="md-ellipsis">
     Reference
+    
   </span>
   
 
@@ -780,6 +796,7 @@
                   
 
 
+
   <h1>Home</h1>
 
 <p><a id='What-is-TidierDB.jl?'></a></p>
@@ -860,7 +877,7 @@
 <td style="text-align: right;"><code>@arrange</code>, <code>@group_by</code>, <code>@filter</code>, <code>@select</code>, <code>@mutate</code> (supports <code>across</code>), <code>@summarize</code>/<code>@summarise</code> (supports <code>across</code>), <code>@distinct</code>, <code>@relocate</code></td>
 </tr>
 <tr>
-<td style="text-align: right;"><strong>Joining</strong></td>
+<td style="text-align: right;"><strong>Joining/Setting</strong></td>
 <td style="text-align: right;"><code>@left_join</code>, <code>@right_join</code>, <code>@inner_join</code>, <code>@anti_join</code>, <code>@full_join</code>, <code>@semi_join</code>, <code>@union</code>, <code>@union_all</code>, <code>@intersect</code>, <code>@setdiff</code></td>
 </tr>
 <tr>
@@ -886,6 +903,10 @@
 <tr>
 <td style="text-align: right;"><strong>Aggregate Functions</strong></td>
 <td style="text-align: right;"><code>mean</code>, <code>minimum</code>, <code>maximum</code>, <code>std</code>, <code>sum</code>, <code>cumsum</code>, and nearly all aggregate sql fxns supported</td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>Window Functions</strong></td>
+<td style="text-align: right;"><code>@window_order</code>, <code>@window_frame</code>, or <code>_by</code>, <code>_order</code>, and <code>_frame</code> within <code>@mutate</code></td>
 </tr>
 </tbody>
 </table>
@@ -982,7 +1003,7 @@
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>WITH cte_1 AS (
 SELECT *
-        FROM mtcars
+        FROM &#39;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&#39; AS mtcars 
         WHERE NOT (starts_with(model, &#39;M&#39;))),
 cte_2 AS (
 SELECT cyl, AVG(mpg) AS mpg
@@ -1128,7 +1149,7 @@ SELECT *
     <script id="__config" type="application/json">{"base": ".", "features": ["content.code.copy", "content.code.annotate", "navigation.top", "navigation.footer", "search.highlight", "search.share", "search.suggest", "toc.follow", "header.autohide"], "search": "assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.60a45f97.min.js"></script>
+      <script src="assets/javascripts/bundle.5090c770.min.js"></script>
       
         <script src="javascripts/mathjax.js"></script>
       

@@ -55,6 +55,9 @@ function symbol_to_string(s)
 end
 
 function process_mutate_expression(expr, sq, select_expressions, cte_name)
+    #println(select_expressions)
+   # println(sq.post_join )
+
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
         # Extract column name and convert to string
         col_name = string(expr.args[1])
@@ -110,7 +113,7 @@ macro mutate(sqlquery, mutations...)
             if sq.post_aggregation #|| sq.post_join 
                 # Reset post_aggregation as we're now handling it
                 sq.post_aggregation = false
-                sq.post_join = false
+               
                 select_expressions = !isempty(sq.select) ? [sq.select] : ["*"]
 
                 cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
@@ -120,11 +123,11 @@ macro mutate(sqlquery, mutations...)
                 end
                 if !isempty(sq.where)
                     cte_sql *= " WHERE " * sq.where
-                    sq.where = " "
+                    sq.where = ""
                 end
                 if !isempty(sq.having)
                     cte_sql *= "  " * sq.having
-                    sq.having = " "
+                    sq.having = ""
                 end
 
                 # Create and add the new CTE
@@ -148,8 +151,15 @@ macro mutate(sqlquery, mutations...)
                 for row in eachrow(sq.metadata) if row[:current_selxn] != 0
             ]            
             select_expressions = [col for col in all_columns]  # Start with all currently selected columns
-
             # Set the grouping variable if `by` is provided
+            #println("here" ,select_expressions, sq.post_join)
+            if !sq.post_join
+                select_expressions = [
+                    occursin(".", expr) ? join(split(expr, ".")[2:end], ".") : expr 
+                    for expr in select_expressions
+                ]
+             #   println(select_expressions)
+            end
             if $(esc(grouping_var)) != nothing
                 group_vars = $(esc(grouping_var))
                 group_vars_sql = expr_to_sql(group_vars, sq)
@@ -177,6 +187,8 @@ macro mutate(sqlquery, mutations...)
                     process_mutate_expression(expr, sq, select_expressions, cte_name)
                 end
             end
+            sq.post_join = false
+
             if $(esc(grouping_var)) != nothing
                 sq.groupBy = ""
             end
@@ -188,6 +200,7 @@ macro mutate(sqlquery, mutations...)
             end
             if !isempty(sq.where)
                 cte_sql *= " WHERE " * sq.where
+                sq.where = ""
             end
 
             # Create and add the new CTE

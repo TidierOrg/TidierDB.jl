@@ -51,6 +51,7 @@ function finalize_query_jq(sqlquery::SQLQuery, from_clause)
     complete_query = join(filter(!isempty, query_parts), " ")
     return complete_query
 end
+
 function create_and_add_cte(sq, cte_name)
     select_expressions = !isempty(sq.select) ? [sq.select] : ["*"]
     cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
@@ -99,7 +100,6 @@ function process_and_generate_columns(sq, vq, lhs, rhs, most_recent_source, join
     end
     if !isempty(lhs_d)
         for (lhs_col, rhs_col) in zip(lhs_d, rhs_d)
-            
                 push!(coalesce_exprs, "COALESCE($most_recent_source.$lhs_col, $join_table_name.$rhs_col) AS $lhs_col")
         end
     end
@@ -167,12 +167,13 @@ function do_join(
     closest_expr::Vector{String},
     as_of::String
 )    
-
+        matching_indices = findall(x -> x in lhs_col_str, sq.metadata.name)
+        sq.metadata.current_selxn[matching_indices] .= 2
     rhs_d = []
     for (r, o) in zip(rhs_col_str, operators)
         o == "==" ? push!(rhs_d, r) : nothing
     end
-
+    
     needs_new_cte = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
     sq.post_join = true
     if needs_new_cte
@@ -185,7 +186,7 @@ function do_join(
             jq.cte_count += 1
             sq.join_count += 1
             needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-
+            
             if needs_new_cte_jq
                 joinc = "j" * string(sq.join_count)
                 for cte in jq.ctes
@@ -197,6 +198,7 @@ function do_join(
                 new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                 push!(jq.ctes, new_cte_jq)
                 jq.from = cte_name_jq
+                sq.post_join = false
             end
 
             sq.ctes = vcat(sq.ctes, jq.ctes)
@@ -245,6 +247,7 @@ function do_join(
         if isa(jq, SQLQuery)
             needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
             sq.join_count += 1
+            
             if needs_new_cte_jq
                 joinc = "j" * string(sq.join_count)
                 for cte in jq.ctes
@@ -257,6 +260,7 @@ function do_join(
                 new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                 push!(jq.ctes, new_cte_jq)
                 jq.from = cte_name_jq
+                sq.post_join = false
             end
             sq.ctes = vcat(sq.ctes, jq.ctes)
             oq_metadata = sq.metadata

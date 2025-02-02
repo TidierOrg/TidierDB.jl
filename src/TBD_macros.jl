@@ -54,7 +54,7 @@ macro filter(sqlquery, conditions...)
                     end
                     combined_condition_str = join(combined_conditions, " AND ")
                     sq.where = " WHERE " * combined_condition_str
-                    sq.post_join = false
+                  #  sq.post_join = false
                 else
                 cte_name = "cte_" * string(sq.cte_count + 1)
                 combined_conditions = String[]
@@ -68,6 +68,8 @@ macro filter(sqlquery, conditions...)
                 push!(sq.ctes, new_cte)
                 sq.from = cte_name
                 sq.cte_count += 1
+         #      matching_indices = findall(sq.metadata.name .== 2)
+         #       sq.metadata.current_selxn[matching_indices] .= 1
             end
             else
             aggregated_columns = Set{String}()
@@ -116,12 +118,15 @@ macro filter(sqlquery, conditions...)
                 sq.where = "WHERE " * join(non_aggregated_conditions, " AND ")
                 sq.from = cte_name
                 sq.cte_count += 1
+             #   matching_indices = findall(sq.metadata.name .== 2)
+            #    sq.metadata.current_selxn[matching_indices] .= 1
             end
         end
 
         else
             error("Expected sqlquery to be an instance of SQLQuery")
         end
+       
         sq
     end
 end

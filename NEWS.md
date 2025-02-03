@@ -1,11 +1,12 @@
 # TidierDB.jl updates
-## v0.7.0 - 2025-01-30
+## v0.7.0 - 2025-02-04
 - fixes bug when using `agg()` with window ordering and framing
 - include default support for all of the following window functions
     - `lead`, `lag`, `dense_rank`, `nth_value`, `ntile`, `rank_dense`, `row_number`, `first_value`, `last_value`, `cume_dist`
 - add ability to change what functions are on this list to avoid the use of agg in the following manner 
     - `push!(TidierDB.window_agg_fxns, :kurtosis);`
 - fixes edge case query construction issues with `@mutate`,`@filter`,`@*_join`
+- fix edge case with `@select` call after group_by -> summarize
 
 ## v0.7.0 - 2025-01-26
 - `db_table` now supports viewing a dataframe directly - `db_table(db, df, "name4db")`

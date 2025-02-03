@@ -170,8 +170,8 @@ function do_join(
     closest_expr::Vector{String},
     as_of::String
 )    
-        matching_indices = findall(x -> x in lhs_col_str, sq.metadata.name)
-        sq.metadata.current_selxn[matching_indices] .= 2
+    matching_indices = findall(x -> x in lhs_col_str, sq.metadata.name)
+    sq.metadata.current_selxn[matching_indices] .= 2
     rhs_d = []
     for (r, o) in zip(rhs_col_str, operators)
         o == "==" ? push!(rhs_d, r) : nothing
@@ -206,6 +206,8 @@ function do_join(
             end
             sq.ctes = vcat(sq.ctes, jq.ctes)
             oq_metadata = sq.metadata
+            matching_indices = findall(x -> x in rhs_col_str, jq.metadata.name)
+            jq.metadata.current_selxn[matching_indices] .= 2
             jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
             sq.metadata = vcat(sq.metadata, jq.metadata)
             join_table_name = jq.from
@@ -219,6 +221,8 @@ function do_join(
                 new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
             end
             oq_metadata = sq.metadata
+            matching_indices = findall(x -> x in rhs_col_str, new_metadata.name)
+            new_metadata.current_selxn[matching_indices] .= 2
             new_metadata = filter(row -> !(row.name in rhs_d), new_metadata)
             sq.metadata = vcat(sq.metadata, new_metadata)
         end
@@ -271,6 +275,8 @@ function do_join(
             end
             sq.ctes = vcat(sq.ctes, jq.ctes)
             oq_metadata = sq.metadata
+            matching_indices = findall(x -> x in rhs_col_str, jq.metadata.name)
+            jq.metadata.current_selxn[matching_indices] .= 2
             jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
             sq.metadata = vcat(sq.metadata, jq.metadata)
             join_table_name = jq.from
@@ -283,7 +289,8 @@ function do_join(
             end
             oq_metadata = sq.metadata
             new_metadata = filter(row -> !(row.name in rhs_d), new_metadata)
-
+            matching_indices = findall(x -> x in rhs_col_str, new_metadata.name)
+            new_metadata.current_selxn[matching_indices] .= 2
             sq.metadata = vcat(sq.metadata, new_metadata)
         end
 

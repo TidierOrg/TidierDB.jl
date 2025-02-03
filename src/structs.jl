@@ -83,7 +83,7 @@ function up_cte_name(sq, cte_name)
     end
 end
 
-function process_sq!(sq)
+function build_cte!(sq)
     # or if you want to also check sq.post_join, add it here
     cte_name = "cte_" * string(sq.cte_count + 1)
 

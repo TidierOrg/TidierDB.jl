@@ -7,7 +7,7 @@ macro select(sqlquery, exprs...)
     return quote
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
 
-        process_sq!($(esc(sqlquery)))
+        build_cte!($(esc(sqlquery)))
         let columns = parse_tidy_db(exprs_str, $(esc(sqlquery)).metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
             $(esc(sqlquery)).select = columns_str

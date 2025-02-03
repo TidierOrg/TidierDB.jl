@@ -55,8 +55,6 @@ function symbol_to_string(s)
 end
 
 function process_mutate_expression(expr, sq, select_expressions, cte_name)
-    #println(select_expressions)
-   # println(sq.post_join )
 
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
         # Extract column name and convert to string
@@ -111,8 +109,6 @@ macro mutate(sqlquery, mutations...)
             cte_name = "cte_" * string(sq.cte_count + 1)
 
             if sq.post_aggregation #|| sq.post_join 
-                # Reset post_aggregation as we're now handling it
-
                 if sq.post_aggregation
                     for row in eachrow(sq.metadata)
                         if row[:current_selxn] == 2
@@ -154,10 +150,7 @@ macro mutate(sqlquery, mutations...)
             cte_name = "cte_" * string(sq.cte_count + 1)
             sq.cte_count += 1
 
-            # Prepare select expressions, starting with existing selections if any
-           
             select_expressions = ["*"]
-
             all_columns = [
                 (row[:current_selxn] == 1 ? row[:name] : row[:table_name] * "." * row[:name])
                 for row in eachrow(sq.metadata) if row[:current_selxn] != 0
@@ -207,7 +200,6 @@ macro mutate(sqlquery, mutations...)
                 sq.where = ""
             end
 
-            # Create and add the new CTE
             new_cte = CTE(name=string(cte_name), select=cte_sql)
             up_cte_name(sq, cte_name)
             push!(sq.ctes, new_cte)
@@ -329,7 +321,7 @@ macro summarize(sqlquery, expressions...)
             if startswith(existing_select, "SELECT")
                 sq.select = existing_select * ", " * summary_clause
             elseif isempty(summary_clause)
-                sq.select = "SELECT *"
+                sq.select = "SUMMARIZE"
             else
                 if $(esc(grouping_var)) != nothing
                     sq.select = "SELECT " * replace(sq.groupBy, "GROUP BY " => "") * ", " * summary_clause

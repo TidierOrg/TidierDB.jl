@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../duckplyr_reprex/">
+        <link rel="prev" href="../udfs_ex/">
       
       
-        <link rel="next" href="../misc_tips/">
+        <link rel="next" href="../../../../reference/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Flexible Syntax and UDFs - TidierDB.jl</title>
+        <title>Misc Tips/Tricks - TidierDB.jl</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#aggregate-function-in-summarize" class="md-skip">
+        <a href="#duckdbs-summarize" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Flexible Syntax and UDFs
+              Misc Tips/Tricks
             
           </span>
         </div>
@@ -540,6 +540,27 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../udfs_ex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -554,7 +575,7 @@
           
   
   <span class="md-ellipsis">
-    Flexible Syntax and UDFs
+    Misc Tips/Tricks
     
   </span>
   
@@ -566,7 +587,7 @@
         
   
   <span class="md-ellipsis">
-    Flexible Syntax and UDFs
+    Misc Tips/Tricks
     
   </span>
   
@@ -587,54 +608,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#aggregate-function-in-summarize" class="md-nav__link">
+  <a href="#duckdbs-summarize" class="md-nav__link">
     <span class="md-ellipsis">
-      aggregate function in @summarize
+      DuckDB's SUMMARIZE
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#aggregate-functions-in-mutate" class="md-nav__link">
+  <a href="#show_querycollect" class="md-nav__link">
     <span class="md-ellipsis">
-      aggregate functions in @mutate
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#duckdb-function-chaining" class="md-nav__link">
-    <span class="md-ellipsis">
-      DuckDB function chaining
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rowid-and-pseudocolumns" class="md-nav__link">
-    <span class="md-ellipsis">
-      rowid and pseudocolumns
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#udf-sqlite-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      UDF SQLite Example
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-create-udf-in-duckdb" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to create UDF in DuckDB
+      show_query/collect
     </span>
   </a>
   
@@ -644,27 +629,6 @@
   
 </nav>
       
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../misc_tips/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Misc Tips/Tricks
-    
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -715,54 +679,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#aggregate-function-in-summarize" class="md-nav__link">
+  <a href="#duckdbs-summarize" class="md-nav__link">
     <span class="md-ellipsis">
-      aggregate function in @summarize
+      DuckDB's SUMMARIZE
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#aggregate-functions-in-mutate" class="md-nav__link">
+  <a href="#show_querycollect" class="md-nav__link">
     <span class="md-ellipsis">
-      aggregate functions in @mutate
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#duckdb-function-chaining" class="md-nav__link">
-    <span class="md-ellipsis">
-      DuckDB function chaining
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rowid-and-pseudocolumns" class="md-nav__link">
-    <span class="md-ellipsis">
-      rowid and pseudocolumns
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#udf-sqlite-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      UDF SQLite Example
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-create-udf-in-duckdb" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to create UDF in DuckDB
+      show_query/collect
     </span>
   </a>
   
@@ -784,149 +712,44 @@
 
 
 
-  <h1>Flexible Syntax and UDFs</h1>
+  <h1>Misc Tips/Tricks</h1>
 
-<p>TidierDB is unique in its statement parsing flexiblility.  This means that using any built in SQL function or user defined functions (or UDFS) or is readily avaialable. To use any function built into a database in <code>@mutate</code> or in <code>@summarize</code>, simply correctly write the correctly, but replace <code>'</code> with <code>"</code>. This also applies to any UDF. The example below will illustrate UDFs in the context of DuckDB.</p>
-<div class="highlight"><pre><span></span><code># Set up the connection
-using TidierDB  #rexports DuckDB
-db = DuckDB.DB()
-con = DuckDB.connect(db) # this will be important for UDFs
-mtcars_path = &quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;
-mtcars = db_tbable(db, mtcars_path);
-</code></pre></div>
-<p><a id='aggregate-function-in-@summarize'></a></p>
-<p><a id='aggregate-function-in-@summarize-1'></a></p>
-<h2 id="aggregate-function-in-summarize">aggregate function in <code>@summarize</code><a class="headerlink" href="#aggregate-function-in-summarize" title="Permanent link">¤</a></h2>
-<p>Lets use the DuckDB <code>kurtosis</code> aggregate function</p>
-<div class="highlight"><pre><span></span><code>@chain t(mtcars) begin
-      @group_by cyl
-      @summarize(kurt = kurtosis(mpg))
-      @collect
-end
-3×2 DataFrame
- Row │ cyl     kurt
-     │ Int64?  Float64?
-─────┼───────────────────
-   1 │      4  -1.43411
-   2 │      6  -1.82944
-   3 │      8   0.330061
-</code></pre></div>
-<p><a id='aggregate-functions-in-@mutate'></a></p>
-<p><a id='aggregate-functions-in-@mutate-1'></a></p>
-<h2 id="aggregate-functions-in-mutate">aggregate functions in <code>@mutate</code><a class="headerlink" href="#aggregate-functions-in-mutate" title="Permanent link">¤</a></h2>
-<p>To aggregate sql functions that are builtin to any database, but exist outside of the TidierDB parser, simply wrap the function call in <code>agg()</code></p>
-<div class="highlight"><pre><span></span><code>@chain t(mtcars) begin
-    @group_by(cyl)
-    @mutate(kurt = agg(kurtosis(mpg)))
-    @select cyl mpg kurt
-    @collect
-end
+<p>There are a few miscellaneous feautures of TidierDB that are documented on this page</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">DataFrames</span><span class="p">,</span><span class="w"> </span><span class="n">TidierDB</span>
 
-32×3 DataFrame
- Row │ cyl     mpg       kurt
-     │ Int64?  Float64?  Float64?
-─────┼─────────────────────────────
-   1 │      8      18.7   0.330061
-   2 │      8      14.3   0.330061
-   3 │      8      16.4   0.330061
-   4 │      8      17.3   0.330061
-   5 │      8      15.2   0.330061
-   6 │      8      10.4   0.330061
-   7 │      8      10.4   0.330061
-  ⋮  │   ⋮        ⋮          ⋮
-  27 │      6      21.0  -1.82944
-  28 │      6      21.4  -1.82944
-  29 │      6      18.1  -1.82944
-  30 │      6      19.2  -1.82944
-  31 │      6      17.8  -1.82944
-  32 │      6      19.7  -1.82944
-                    19 rows omitted
-end
-</code></pre></div>
-<p><a id='DuckDB-function-chaining'></a></p>
-<p><a id='DuckDB-function-chaining-1'></a></p>
-<h2 id="duckdb-function-chaining">DuckDB function chaining<a class="headerlink" href="#duckdb-function-chaining" title="Permanent link">¤</a></h2>
-<p>In DuckDB, functions can be chained together with <code>.</code>. TidierDB lets you leverage this.</p>
-<div class="highlight"><pre><span></span><code>@chain t(mtcars) begin
-    @mutate(model2 = model.upper().string_split(&quot; &quot;).list_aggr(&quot;string_agg&quot;,&quot;.&quot;).concat(&quot;.&quot;))
-    @select model model2
-    @collect
-end
-32×2 DataFrame
- Row │ model              model2
-     │ String?            String?
-─────┼───────────────────────────────────────
-   1 │ Mazda RX4          MAZDA.RX4.
-   2 │ Mazda RX4 Wag      MAZDA.RX4.WAG.
-   3 │ Datsun 710         DATSUN.710.
-   4 │ Hornet 4 Drive     HORNET.4.DRIVE.
-   5 │ Hornet Sportabout  HORNET.SPORTABOUT.
-   6 │ Valiant            VALIANT.
-   7 │ Duster 360         DUSTER.360.
-  ⋮  │         ⋮                  ⋮
-  27 │ Porsche 914-2      PORSCHE.914-2.
-  28 │ Lotus Europa       LOTUS.EUROPA.
-  29 │ Ford Pantera L     FORD.PANTERA.L.
-  30 │ Ferrari Dino       FERRARI.DINO.
-  31 │ Maserati Bora      MASERATI.BORA.
-  32 │ Volvo 142E         VOLVO.142E.
-                              19 rows omitted
-</code></pre></div>
-<p><a id='rowid-and-pseudocolumns'></a></p>
-<p><a id='rowid-and-pseudocolumns-1'></a></p>
-<h2 id="rowid-and-pseudocolumns"><code>rowid</code> and pseudocolumns<a class="headerlink" href="#rowid-and-pseudocolumns" title="Permanent link">¤</a></h2>
-<p>When a table is not being read directly from a file, <code>rowid</code> is avaialable for use. In general, TidierDB should support all pseudocolumns.</p>
-<div class="highlight"><pre><span></span><code>copy_to(db, mtcars_path, &quot;mtcars&quot;); # copying table in for demostration purposes
-@chain db_table(db, :mtcars) begin
-      @filter(rowid == 4)
-      @select(model:hp)
-      @collect
-end
-1×5 DataFrame
- Row │ model              mpg       cyl     disp      hp
-     │ String?            Float64?  Int64?  Float64?  Int64?
-─────┼───────────────────────────────────────────────────────
-   1 │ Hornet Sportabout      18.7       8     360.0     175
-</code></pre></div>
-<p><a id='UDF-SQLite-Example'></a></p>
-<p><a id='UDF-SQLite-Example-1'></a></p>
-<h2 id="udf-sqlite-example">UDF SQLite Example<a class="headerlink" href="#udf-sqlite-example" title="Permanent link">¤</a></h2>
-<div class="highlight"><pre><span></span><code>using SQLite
-sql = connect(sqlite());
-df = DataFrame(id = [string(&#39;A&#39; + i ÷ 26, &#39;A&#39; + i % 26) for i in 0:9],
-                        groups = [i % 2 == 0 ? &quot;aa&quot; : &quot;bb&quot; for i in 1:10],
-                        value = repeat(1:5, 2),
-                        percent = 0.1:0.1:1.0);
+<span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">string</span><span class="p">(</span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">÷</span><span class="w"> </span><span class="mi">26</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">26</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">:</span><span class="mi">9</span><span class="p">],</span>
+<span class="w">                        </span><span class="n">groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;aa&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;bb&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="mi">10</span><span class="p">],</span>
+<span class="w">                        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span>
+<span class="w">                        </span><span class="n">percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="o">:</span><span class="mf">0.1</span><span class="o">:</span><span class="mf">1.0</span><span class="p">);</span>
 
-copy_to(db, sql, &quot;df_mem&quot;);
-SQLite.@register sql function diff_of_squares(x, y)
-              x^2 - y^2
-              end;
+<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">());</span>
 
-@chain db_table(sql, &quot;df_mem&quot;) begin
-      @select(value, percent)
-      @mutate(plus3 = diff_of_squares(value, percent))
-      @collect
-end
-10×3 DataFrame
- Row │ value  percent  plus3
-     │ Int64  Float64  Float64
-─────┼─────────────────────────
-   1 │     1      0.1     0.99
-   2 │     2      0.2     3.96
-   3 │     3      0.3     8.91
-   4 │     4      0.4    15.84
-   5 │     5      0.5    24.75
-   6 │     1      0.6     0.64
-   7 │     2      0.7     3.51
-   8 │     3      0.8     8.36
-   9 │     4      0.9    15.19
-  10 │     5      1.0    24.0
+<span class="n">dfv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dfv&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p><a id='How-to-create-UDF-in-DuckDB'></a></p>
-<p><a id='How-to-create-UDF-in-DuckDB-1'></a></p>
-<h2 id="how-to-create-udf-in-duckdb">How to create UDF in DuckDB<a class="headerlink" href="#how-to-create-udf-in-duckdb" title="Permanent link">¤</a></h2>
-<p>Example coming soon..</p>
+<p><a id='DuckDB's-SUMMARIZE'></a></p>
+<p><a id='DuckDB's-SUMMARIZE-1'></a></p>
+<h2 id="duckdbs-summarize">DuckDB's SUMMARIZE<a class="headerlink" href="#duckdbs-summarize" title="Permanent link">¤</a></h2>
+<p>DuckDB has a feature tosummarize tables that gives information about the table, such as mean, std, q25, q75 etc. To use this feature with TidierDB, simply call an empty <code>@summarize</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="nd">@summarize</span><span class="p">()</span><span class="w"> </span><span class="nd">@collect</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>4×12 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">column_name</th><th style = "text-align: left;">column_type</th><th style = "text-align: left;">min</th><th style = "text-align: left;">max</th><th style = "text-align: left;">approx_unique</th><th style = "text-align: left;">avg</th><th style = "text-align: left;">std</th><th style = "text-align: left;">q25</th><th style = "text-align: left;">q50</th><th style = "text-align: left;">q75</th><th style = "text-align: left;">count</th><th style = "text-align: left;">null_percentage</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "FixedPointDecimals.FixedDecimal{Int32, 0x02}" style = "text-align: left;">FixedDec…</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">id</td><td style = "text-align: left;">VARCHAR</td><td style = "text-align: left;">AA</td><td style = "text-align: left;">AJ</td><td style = "text-align: right;">11</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "text-align: right;">10</td><td style = "text-align: right;">0.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">groups</td><td style = "text-align: left;">VARCHAR</td><td style = "text-align: left;">aa</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "text-align: right;">10</td><td style = "text-align: right;">0.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">value</td><td style = "text-align: left;">BIGINT</td><td style = "text-align: left;">1</td><td style = "text-align: left;">5</td><td style = "text-align: right;">5</td><td style = "text-align: left;">3.0</td><td style = "text-align: left;">1.4907119849998598</td><td style = "text-align: left;">2</td><td style = "text-align: left;">3</td><td style = "text-align: left;">4</td><td style = "text-align: right;">10</td><td style = "text-align: right;">0.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">percent</td><td style = "text-align: left;">DOUBLE</td><td style = "text-align: left;">0.1</td><td style = "text-align: left;">1.0</td><td style = "text-align: right;">10</td><td style = "text-align: left;">0.55</td><td style = "text-align: left;">0.3027650354097492</td><td style = "text-align: left;">0.3</td><td style = "text-align: left;">0.55</td><td style = "text-align: left;">0.8</td><td style = "text-align: right;">10</td><td style = "text-align: right;">0.0</td></tr></tbody></table></div>
+
+<p><a id='show_query/collect'></a></p>
+<p><a id='show_query/collect-1'></a></p>
+<h2 id="show_querycollect">show_query/collect<a class="headerlink" href="#show_querycollect" title="Permanent link">¤</a></h2>
+<p>If you find yourself frequently showing a query while collecting, you can define the following function</p>
+<div class="highlight"><pre><span></span><code><span class="n">sqc</span><span class="p">(</span><span class="n">qry</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">qry</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">                </span><span class="nd">@aside</span><span class="w"> </span><span class="nd">@show_query</span><span class="w"> </span><span class="n">_</span>
+<span class="w">                </span><span class="nd">@collect</span><span class="p">()</span>
+<span class="w">            </span><span class="k">end</span><span class="p">;</span>
+</code></pre></div>
+<p>Call this function at the end of a chain similar the <code>@show_query</code> or<code>@collect</code> macros</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="nd">@summarize</span><span class="p">()</span><span class="w"> </span><span class="n">sqc</span><span class="p">()</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>4×12 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">column_name</th><th style = "text-align: left;">column_type</th><th style = "text-align: left;">min</th><th style = "text-align: left;">max</th><th style = "text-align: left;">approx_unique</th><th style = "text-align: left;">avg</th><th style = "text-align: left;">std</th><th style = "text-align: left;">q25</th><th style = "text-align: left;">q50</th><th style = "text-align: left;">q75</th><th style = "text-align: left;">count</th><th style = "text-align: left;">null_percentage</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "FixedPointDecimals.FixedDecimal{Int32, 0x02}" style = "text-align: left;">FixedDec…</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">id</td><td style = "text-align: left;">VARCHAR</td><td style = "text-align: left;">AA</td><td style = "text-align: left;">AJ</td><td style = "text-align: right;">11</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "text-align: right;">10</td><td style = "text-align: right;">0.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">groups</td><td style = "text-align: left;">VARCHAR</td><td style = "text-align: left;">aa</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "text-align: right;">10</td><td style = "text-align: right;">0.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">value</td><td style = "text-align: left;">BIGINT</td><td style = "text-align: left;">1</td><td style = "text-align: left;">5</td><td style = "text-align: right;">5</td><td style = "text-align: left;">3.0</td><td style = "text-align: left;">1.4907119849998598</td><td style = "text-align: left;">2</td><td style = "text-align: left;">3</td><td style = "text-align: left;">4</td><td style = "text-align: right;">10</td><td style = "text-align: right;">0.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">percent</td><td style = "text-align: left;">DOUBLE</td><td style = "text-align: left;">0.1</td><td style = "text-align: left;">1.0</td><td style = "text-align: right;">10</td><td style = "text-align: left;">0.55</td><td style = "text-align: left;">0.3027650354097492</td><td style = "text-align: left;">0.3</td><td style = "text-align: left;">0.55</td><td style = "text-align: left;">0.8</td><td style = "text-align: right;">10</td><td style = "text-align: right;">0.0</td></tr></tbody></table></div>
+
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 
@@ -964,7 +787,7 @@ end
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../duckplyr_reprex/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Reproduce a duckplyr example">
+          <a href="../udfs_ex/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Flexible Syntax and UDFs">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -974,20 +797,20 @@ end
                 Previous
               </span>
               <div class="md-ellipsis">
-                Reproduce a duckplyr example
+                Flexible Syntax and UDFs
               </div>
             </div>
           </a>
         
         
           
-          <a href="../misc_tips/" class="md-footer__link md-footer__link--next" aria-label="Next: Misc Tips/Tricks">
+          <a href="../../../../reference/" class="md-footer__link md-footer__link--next" aria-label="Next: Reference/Docstrings">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Misc Tips/Tricks
+                Reference/Docstrings
               </div>
             </div>
             <div class="md-footer__button md-icon">

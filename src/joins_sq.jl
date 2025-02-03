@@ -73,9 +73,12 @@ function create_and_add_cte(sq, cte_name)
     end
     # Create and add the new CTE
     new_cte = CTE(name=string(cte_name), select=cte_sql)
+
+    
     push!(sq.ctes, new_cte)
     sq.cte_count += 1
     cte_name = "cte_" * string(sq.cte_count)
+    up_cte_name(sq, cte_name)
     most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
     return most_recent_source, cte_name
 end
@@ -196,11 +199,11 @@ function do_join(
                 most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                 select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                 new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
+                up_cte_name(jq, cte_name_jq)
                 push!(jq.ctes, new_cte_jq)
                 jq.from = cte_name_jq
                 sq.post_join = false
             end
-
             sq.ctes = vcat(sq.ctes, jq.ctes)
             oq_metadata = sq.metadata
             jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
@@ -216,6 +219,7 @@ function do_join(
                 new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
             end
             oq_metadata = sq.metadata
+            new_metadata = filter(row -> !(row.name in rhs_d), new_metadata)
             sq.metadata = vcat(sq.metadata, new_metadata)
         end
 
@@ -239,6 +243,8 @@ function do_join(
         # Create and add the new CTE
         
         new_cte = CTE(name=cte_name, select=join_sql)
+        up_cte_name(sq, cte_name)
+        
         push!(sq.ctes, new_cte)
         sq.from = cte_name
 
@@ -261,6 +267,7 @@ function do_join(
                 push!(jq.ctes, new_cte_jq)
                 jq.from = cte_name_jq
                 sq.post_join = false
+                up_cte_name(jq, cte_name_jq)
             end
             sq.ctes = vcat(sq.ctes, jq.ctes)
             oq_metadata = sq.metadata
@@ -282,6 +289,7 @@ function do_join(
 
         if sq.groupBy != ""
             most_recent_source, cte_name = create_and_add_cte(sq, "cte_" * string(sq.cte_count))
+            up_cte_name(sq, cte_name)
         end
 
         jq = jq isa String ? db_table(sq.db, jq) : jq

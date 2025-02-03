@@ -74,3 +74,11 @@ function from_query(query::TidierDB.SQLQuery)
 end
 
 t(table) = from_query(table)
+
+function up_cte_name(sq, cte_name)
+    if cte_name != "cte_1"
+        if all(x -> x >= 1, sq.metadata.current_selxn)
+            sq.metadata.table_name .= cte_name
+        end
+    end
+end

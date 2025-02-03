@@ -40,7 +40,7 @@ TidierDB.jl currently supports:
 | **TidierStrings.jl Functions** | `str_detect`, `str_replace`, `str_replace_all`, `str_remove_all`, `str_remove`                                                                                               |
 | **TidierDates.jl Functions**   | `year`, `month`, `day`, `hour`, `min`, `second`, `floor_date`, `difftime`, `mdy`, `ymd`, `dmy`                                                                                                    |
 | **Aggregate Functions**          | `mean`, `minimum`, `maximum`, `std`, `sum`, `cumsum`, and nearly all aggregate sql fxns supported |
-| **Window Functions**             | `@window_order`, `@window_frame`, or `_by`, `_order`, and `_frame` within `@mutate`                                                                                                          |
+| **Window Functions**             | `lead`, `lag`, `dense_rank`, `nth_value`, `ntile`, `rank_dense`, `row_number`, `first_value`, `last_value`, `cume_dist`, `@window_order`, `@window_frame`, or `_by`, `_order`, and `_frame` within `@mutate`                                                                                                          |
 
 `@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.   
 `@mutate` supports all builtin SQL functions as well.                                                                                                 

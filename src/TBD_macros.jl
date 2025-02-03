@@ -65,6 +65,8 @@ macro filter(sqlquery, conditions...)
                 end
                 combined_condition_str = join(combined_conditions, " AND ")
                 new_cte = CTE(name=cte_name, select="*", from=(isempty(sq.ctes) ? sq.from : last(sq.ctes).name), where=combined_condition_str)
+                up_cte_name(sq, cte_name)
+                
                 push!(sq.ctes, new_cte)
                 sq.from = cte_name
                 sq.cte_count += 1
@@ -110,6 +112,8 @@ macro filter(sqlquery, conditions...)
                 combined_conditions = join(non_aggregated_conditions, " AND ")
                 cte_name = "cte_" * string(sq.cte_count + 1)
                 new_cte = CTE(name=cte_name, select=sq.select, from=(isempty(sq.ctes) ? sq.from : last(sq.ctes).name), groupBy = sq.groupBy, having=sq.having)
+                up_cte_name(sq, cte_name)
+                
                 push!(sq.ctes, new_cte)
                 sq.select = "*"
                 sq.groupBy = ""
@@ -245,7 +249,6 @@ macro distinct(sqlquery, distinct_columns...)
                 
                 # Create the CTE instance
                 cte = CTE(name=cte_name, select=cte_select)
-                
                 # Add the CTE to the SQLQuery's CTEs vector
                 push!(sq.ctes, cte)
                 

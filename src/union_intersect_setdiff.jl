@@ -14,6 +14,8 @@ function perform_set_operation(sq::SQLQuery, uq_or_table, op::String; all::Bool=
         most_recent_source_sq = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
         select_sql_sq = "SELECT * FROM " * most_recent_source_sq
         new_cte_sq = CTE(name=cte_name_sq, select=select_sql_sq)
+        up_cte_name(sq, cte_name_sq)
+        
         push!(sq.ctes, new_cte_sq)
         sq.from = cte_name_sq
     end
@@ -69,6 +71,7 @@ function perform_set_operation(sq::SQLQuery, uq_or_table, op::String; all::Bool=
     sq.cte_count += 1
     union_cte_name = "cte_" * string(sq.cte_count)
     union_cte = CTE(name=union_cte_name, select=union_sql)
+    up_cte_name(sq, union_cte_name)
     push!(sq.ctes, union_cte)
     sq.from = union_cte_name
 

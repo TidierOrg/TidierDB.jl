@@ -320,4 +320,5 @@
        # @aside DB.@show_query _
         DB.@collect
         end)
+        @test (@chain test_df @group_by(groups) @summarize(n=n())) == (@chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(n=n()) DB.@collect())
     end

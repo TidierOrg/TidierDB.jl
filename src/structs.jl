@@ -82,3 +82,41 @@ function up_cte_name(sq, cte_name)
         end
     end
 end
+
+function process_sq!(sq)
+    # or if you want to also check sq.post_join, add it here
+    cte_name = "cte_" * string(sq.cte_count + 1)
+
+        sq.post_aggregation = false
+
+        # Use provided select expression, or "*" if none was specified.
+        select_expressions = !isempty(sq.select) ? [sq.select] : ["*"]
+
+        # Build the SQL for the new CTE.
+        cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
+        if sq.is_aggregated && !isempty(sq.groupBy)
+            cte_sql *= " " * sq.groupBy
+            sq.groupBy = ""
+        end
+        if !isempty(sq.where)
+            cte_sql *= " WHERE " * sq.where
+            sq.where = ""
+        end
+        if !isempty(sq.having)
+            cte_sql *= "  " * sq.having
+            sq.having = ""
+        end
+
+        # Define the new CTE name.
+        cte_name = "cte_" * string(sq.cte_count + 1)
+
+        # Create the new CTE and update sq.
+        new_cte = CTE(name=cte_name, select=cte_sql)
+        up_cte_name(sq, cte_name)
+        push!(sq.ctes, new_cte)
+        sq.cte_count += 1
+        sq.from = cte_name
+
+
+    return sq
+end

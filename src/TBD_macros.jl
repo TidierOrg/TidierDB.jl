@@ -383,7 +383,7 @@ lightblue_crayon  = Crayon(foreground = :light_blue, bold = true)      # for WHE
 pink_crayon       = Crayon(foreground = :magenta, bold = true)
 cyan_crayon       = Crayon(foreground = :cyan, bold = true)         # for FROM and SELECT
 light_gray        = Crayon(foreground = :red, bold = true)
-light_magenta     = Crayon(foreground = :light_magenta, bold = false)
+green             = Crayon(foreground = :green, bold = false)
 # COV_EXCL_STOP
 
 

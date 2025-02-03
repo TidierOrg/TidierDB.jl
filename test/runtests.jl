@@ -30,10 +30,16 @@ df3 = DataFrame(id3 = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:89],
                 description = ["Desc" * string(i) for i in 1:90],
                 value2 = [10 * i for i in 1:90])
 
+df4 = DataFrame(
+               id = [string(Char('A' + i ÷ 26), Char('A' + i % 26)) for i in 0:79],
+               category = repeat(["X", "Y", "Z"], inner=27)[1:80], 
+               score = [50 + rand(1:50) for i in 1:80])
+
 db = DB.connect(DB.duckdb());
 test_db = DB.db_table(db, test_df, "test_df");
 join_db = DB.db_table(db, df2, "df_join");
 join_db2 = DB.db_table(db, df3, "df_join2");
+join_db3 = DB.db_table(db, df4, "df_join3");
 
 @testset "TidierDB to TidierData comparisons" verbose = true begin
    include("comp_tests.jl")

@@ -129,4 +129,5 @@ nav:
   - "TidierDB.jl vs Ibis" : "examples/generated/UserGuide/ibis_comp.md"
   - "Reproduce a duckplyr example" : "examples/generated/UserGuide/duckplyr_reprex.md"
   - "Flexible Syntax and UDFs" : "examples/generated/UserGuide/udfs_ex.md"
-  - "Reference" : "reference.md"
+  - "Misc Tips/Tricks" : "examples/generated/UserGuide/misc_tips.md"
+  - "Reference/Docstrings" : "reference.md"

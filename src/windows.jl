@@ -38,6 +38,7 @@ macro window_order(sqlquery, order_by_expr...)
                 end
                 
                 new_cte = CTE(name=cte_name, select=cte_sql, from=sq.from)
+                up_cte_name(sq, cte_name)
                 push!(sq.ctes, new_cte)
                 sq.cte_count += 1
                 

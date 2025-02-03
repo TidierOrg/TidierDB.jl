@@ -6,6 +6,8 @@ macro select(sqlquery, exprs...)
 
     return quote
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
+
+        build_cte!($(esc(sqlquery)))
         let columns = parse_tidy_db(exprs_str, $(esc(sqlquery)).metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
             $(esc(sqlquery)).select = columns_str
@@ -54,7 +56,7 @@ macro filter(sqlquery, conditions...)
                     end
                     combined_condition_str = join(combined_conditions, " AND ")
                     sq.where = " WHERE " * combined_condition_str
-                    sq.post_join = false
+                  #  sq.post_join = false
                 else
                 cte_name = "cte_" * string(sq.cte_count + 1)
                 combined_conditions = String[]
@@ -65,9 +67,13 @@ macro filter(sqlquery, conditions...)
                 end
                 combined_condition_str = join(combined_conditions, " AND ")
                 new_cte = CTE(name=cte_name, select="*", from=(isempty(sq.ctes) ? sq.from : last(sq.ctes).name), where=combined_condition_str)
+                up_cte_name(sq, cte_name)
+                
                 push!(sq.ctes, new_cte)
                 sq.from = cte_name
                 sq.cte_count += 1
+         #      matching_indices = findall(sq.metadata.name .== 2)
+         #       sq.metadata.current_selxn[matching_indices] .= 1
             end
             else
             aggregated_columns = Set{String}()
@@ -108,6 +114,8 @@ macro filter(sqlquery, conditions...)
                 combined_conditions = join(non_aggregated_conditions, " AND ")
                 cte_name = "cte_" * string(sq.cte_count + 1)
                 new_cte = CTE(name=cte_name, select=sq.select, from=(isempty(sq.ctes) ? sq.from : last(sq.ctes).name), groupBy = sq.groupBy, having=sq.having)
+                up_cte_name(sq, cte_name)
+                
                 push!(sq.ctes, new_cte)
                 sq.select = "*"
                 sq.groupBy = ""
@@ -116,12 +124,15 @@ macro filter(sqlquery, conditions...)
                 sq.where = "WHERE " * join(non_aggregated_conditions, " AND ")
                 sq.from = cte_name
                 sq.cte_count += 1
+             #   matching_indices = findall(sq.metadata.name .== 2)
+            #    sq.metadata.current_selxn[matching_indices] .= 1
             end
         end
 
         else
             error("Expected sqlquery to be an instance of SQLQuery")
         end
+       
         sq
     end
 end
@@ -240,7 +251,6 @@ macro distinct(sqlquery, distinct_columns...)
                 
                 # Create the CTE instance
                 cte = CTE(name=cte_name, select=cte_select)
-                
                 # Add the CTE to the SQLQuery's CTEs vector
                 push!(sq.ctes, cte)
                 

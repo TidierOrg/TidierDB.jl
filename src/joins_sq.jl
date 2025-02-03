@@ -51,6 +51,7 @@ function finalize_query_jq(sqlquery::SQLQuery, from_clause)
     complete_query = join(filter(!isempty, query_parts), " ")
     return complete_query
 end
+
 function create_and_add_cte(sq, cte_name)
     select_expressions = !isempty(sq.select) ? [sq.select] : ["*"]
     cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
@@ -72,9 +73,12 @@ function create_and_add_cte(sq, cte_name)
     end
     # Create and add the new CTE
     new_cte = CTE(name=string(cte_name), select=cte_sql)
+
+    
     push!(sq.ctes, new_cte)
     sq.cte_count += 1
     cte_name = "cte_" * string(sq.cte_count)
+    up_cte_name(sq, cte_name)
     most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
     return most_recent_source, cte_name
 end
@@ -99,7 +103,6 @@ function process_and_generate_columns(sq, vq, lhs, rhs, most_recent_source, join
     end
     if !isempty(lhs_d)
         for (lhs_col, rhs_col) in zip(lhs_d, rhs_d)
-            
                 push!(coalesce_exprs, "COALESCE($most_recent_source.$lhs_col, $join_table_name.$rhs_col) AS $lhs_col")
         end
     end
@@ -167,12 +170,13 @@ function do_join(
     closest_expr::Vector{String},
     as_of::String
 )    
-
+    matching_indices = findall(x -> x in lhs_col_str, sq.metadata.name)
+    sq.metadata.current_selxn[matching_indices] .= 2
     rhs_d = []
     for (r, o) in zip(rhs_col_str, operators)
         o == "==" ? push!(rhs_d, r) : nothing
     end
-
+    
     needs_new_cte = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
     sq.post_join = true
     if needs_new_cte
@@ -185,7 +189,7 @@ function do_join(
             jq.cte_count += 1
             sq.join_count += 1
             needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-
+            
             if needs_new_cte_jq
                 joinc = "j" * string(sq.join_count)
                 for cte in jq.ctes
@@ -195,12 +199,15 @@ function do_join(
                 most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
                 select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                 new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
+                up_cte_name(jq, cte_name_jq)
                 push!(jq.ctes, new_cte_jq)
                 jq.from = cte_name_jq
+                sq.post_join = false
             end
-
             sq.ctes = vcat(sq.ctes, jq.ctes)
             oq_metadata = sq.metadata
+            matching_indices = findall(x -> x in rhs_col_str, jq.metadata.name)
+            jq.metadata.current_selxn[matching_indices] .= 2
             jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
             sq.metadata = vcat(sq.metadata, jq.metadata)
             join_table_name = jq.from
@@ -214,6 +221,9 @@ function do_join(
                 new_metadata = get_table_metadata_athena(sq.db, join_table_name, sq.athena_params)
             end
             oq_metadata = sq.metadata
+            matching_indices = findall(x -> x in rhs_col_str, new_metadata.name)
+            new_metadata.current_selxn[matching_indices] .= 2
+            new_metadata = filter(row -> !(row.name in rhs_d), new_metadata)
             sq.metadata = vcat(sq.metadata, new_metadata)
         end
 
@@ -237,6 +247,8 @@ function do_join(
         # Create and add the new CTE
         
         new_cte = CTE(name=cte_name, select=join_sql)
+        up_cte_name(sq, cte_name)
+        
         push!(sq.ctes, new_cte)
         sq.from = cte_name
 
@@ -245,6 +257,7 @@ function do_join(
         if isa(jq, SQLQuery)
             needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
             sq.join_count += 1
+            
             if needs_new_cte_jq
                 joinc = "j" * string(sq.join_count)
                 for cte in jq.ctes
@@ -257,9 +270,13 @@ function do_join(
                 new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                 push!(jq.ctes, new_cte_jq)
                 jq.from = cte_name_jq
+                sq.post_join = false
+                up_cte_name(jq, cte_name_jq)
             end
             sq.ctes = vcat(sq.ctes, jq.ctes)
             oq_metadata = sq.metadata
+            matching_indices = findall(x -> x in rhs_col_str, jq.metadata.name)
+            jq.metadata.current_selxn[matching_indices] .= 2
             jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
             sq.metadata = vcat(sq.metadata, jq.metadata)
             join_table_name = jq.from
@@ -272,12 +289,14 @@ function do_join(
             end
             oq_metadata = sq.metadata
             new_metadata = filter(row -> !(row.name in rhs_d), new_metadata)
-
+            matching_indices = findall(x -> x in rhs_col_str, new_metadata.name)
+            new_metadata.current_selxn[matching_indices] .= 2
             sq.metadata = vcat(sq.metadata, new_metadata)
         end
 
         if sq.groupBy != ""
             most_recent_source, cte_name = create_and_add_cte(sq, "cte_" * string(sq.cte_count))
+            up_cte_name(sq, cte_name)
         end
 
         jq = jq isa String ? db_table(sq.db, jq) : jq

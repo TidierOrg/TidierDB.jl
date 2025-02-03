@@ -55,6 +55,7 @@ function symbol_to_string(s)
 end
 
 function process_mutate_expression(expr, sq, select_expressions, cte_name)
+
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
         # Extract column name and convert to string
         col_name = string(expr.args[1])
@@ -108,9 +109,15 @@ macro mutate(sqlquery, mutations...)
             cte_name = "cte_" * string(sq.cte_count + 1)
 
             if sq.post_aggregation #|| sq.post_join 
-                # Reset post_aggregation as we're now handling it
+                if sq.post_aggregation
+                    for row in eachrow(sq.metadata)
+                        if row[:current_selxn] == 2
+                            row[:current_selxn] = 1
+                        end
+                    end
+                end
                 sq.post_aggregation = false
-                sq.post_join = false
+               
                 select_expressions = !isempty(sq.select) ? [sq.select] : ["*"]
 
                 cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
@@ -120,15 +127,17 @@ macro mutate(sqlquery, mutations...)
                 end
                 if !isempty(sq.where)
                     cte_sql *= " WHERE " * sq.where
-                    sq.where = " "
+                    sq.where = ""
                 end
                 if !isempty(sq.having)
                     cte_sql *= "  " * sq.having
-                    sq.having = " "
+                    sq.having = ""
                 end
 
                 # Create and add the new CTE
                 new_cte = CTE(name=string(cte_name), select=cte_sql)
+                up_cte_name(sq, string(cte_name))
+                
                 push!(sq.ctes, new_cte)
                 sq.cte_count += 1
                 sq.from = string(cte_name)
@@ -136,12 +145,11 @@ macro mutate(sqlquery, mutations...)
             else
                 sq.cte_count += 1
                 cte_name = "cte_" * string(sq.cte_count)
+                
             end
-
             cte_name = "cte_" * string(sq.cte_count + 1)
             sq.cte_count += 1
 
-            # Prepare select expressions, starting with existing selections if any
             select_expressions = ["*"]
             all_columns = [
                 (row[:current_selxn] == 1 ? row[:name] : row[:table_name] * "." * row[:name])
@@ -149,7 +157,6 @@ macro mutate(sqlquery, mutations...)
             ]            
             select_expressions = [col for col in all_columns]  # Start with all currently selected columns
 
-            # Set the grouping variable if `by` is provided
             if $(esc(grouping_var)) != nothing
                 group_vars = $(esc(grouping_var))
                 group_vars_sql = expr_to_sql(group_vars, sq)
@@ -177,6 +184,8 @@ macro mutate(sqlquery, mutations...)
                     process_mutate_expression(expr, sq, select_expressions, cte_name)
                 end
             end
+            sq.post_join = false
+
             if $(esc(grouping_var)) != nothing
                 sq.groupBy = ""
             end
@@ -188,14 +197,16 @@ macro mutate(sqlquery, mutations...)
             end
             if !isempty(sq.where)
                 cte_sql *= " WHERE " * sq.where
+                sq.where = ""
             end
 
-            # Create and add the new CTE
             new_cte = CTE(name=string(cte_name), select=cte_sql)
+            up_cte_name(sq, cte_name)
             push!(sq.ctes, new_cte)
 
-            # Update sq.from to the latest CTE, reset sq.select for final query
+
             sq.from = string(cte_name)
+
             sq.select = "*"
             if _warning_[]
                 if sq.groupBy != "" || sq.window_order != "" || sq.windowFrame != ""
@@ -310,7 +321,7 @@ macro summarize(sqlquery, expressions...)
             if startswith(existing_select, "SELECT")
                 sq.select = existing_select * ", " * summary_clause
             elseif isempty(summary_clause)
-                sq.select = "SELECT *"
+                sq.select = "SUMMARIZE"
             else
                 if $(esc(grouping_var)) != nothing
                     sq.select = "SELECT " * replace(sq.groupBy, "GROUP BY " => "") * ", " * summary_clause
@@ -321,6 +332,7 @@ macro summarize(sqlquery, expressions...)
 
             sq.is_aggregated = true        # Mark the query as aggregated
             sq.post_aggregation = true     # Indicate ready for post-aggregation operations
+            
         else
             error("Expected sqlquery to be an instance of SQLQuery") # COV_EXCL_LINE
         end

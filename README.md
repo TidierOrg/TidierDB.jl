@@ -51,7 +51,7 @@ TidierDB.jl currently supports the following top-level macros:
 `@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.
 `@mutate` supports all builtin SQL functions as well.
 
-When using the DuckDB backend, if `db_table` recieves a file path (`.parquet`, `.json`, `.csv`, `iceberg` or `delta`), it does not copy it into memory. This allows for queries on files too big for memory. `db_table` also supports S3 bucket locations via DuckDB.
+When using the DuckDB backend, if `db_table` recieves a file path (`.parquet`, `.json`, `.csv`, `iceberg` or `delta`), it does not copy it into memory. This allows for queries on files too big for memory. `db_table` also supports S3 bucket locations and Google Sheets via DuckDB.
 
 ## What is the recommended way to use TidierDB?
 

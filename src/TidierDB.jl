@@ -20,7 +20,7 @@ using Crayons
  @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, 
  @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,  @head, 
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, 
- t, @union, @create_view, drop_view, @compute, warnings, @relocate, @union_all, @setdiff, @intersect#, add_window_agg_fxn
+ t, @union, @create_view, drop_view, @compute, warnings, @relocate, @union_all, @setdiff, @intersect, ghseet_connect
 
  abstract type SQLBackend end
 
@@ -254,6 +254,11 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             table_name2 = "delta_scan('$table_name')"
            # println(table_name2)
             metadata = get_table_metadata(db, table_name2)
+        elseif occursin("docs.google", table_name) 
+            table_name2 = "read_gsheet('$table_name')"
+           # println(table_name2)
+            alias == "" ? alias = "gsheet" : alias = alias
+            metadata = get_table_metadata(db, table_name2, alias = alias)
         elseif startswith(table_name, "read") 
             table_name2 = "$table_name"
            metadata = get_table_metadata(db, table_name2)
@@ -486,6 +491,11 @@ end
 
 function connect(::duckdb, token::String)
      return DBInterface.connect(DuckDB.DB, token)
+end
+
+function ghseet_connect(db)
+        DuckDB.query(db, "INSTALL gsheets FROM community; LOAD gsheets;")
+        DuckDB.query(db, "CREATE SECRET (TYPE gsheet);")
 end
 # COV_EXCL_STOP
 

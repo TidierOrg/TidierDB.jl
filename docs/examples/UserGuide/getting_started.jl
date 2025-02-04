@@ -40,6 +40,7 @@
 # - Athena: `using AWS`
 # - Oracle: `using ODBC` 
 # - Google BigQuery: `using GoogleCloud`
+# - Google Sheets via DuckDB: run the following with your db `ghseet_connect(db)`, copy key and paste back in terminal. Then paste the entire google sheets link as your table name in `db_table`
 
 # ## `db_table`
 # What does `db_table` do? 

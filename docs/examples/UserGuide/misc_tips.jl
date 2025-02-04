@@ -28,6 +28,6 @@ sqc(qry) = @chain t(qry) begin
 @chain t(dfv) @summarize() sqc()
 
 # ## Color Printing
-# Queries print with some code words in color to the REPL. To turn off this feature run the one of the following.
+# Queries print with some code words in color to the REPL. To turn off this feature, run one of the following.
 #   - `TidierDB.color[] = false`
-#   - `DB.color = false`
+#   - `DB.color[] = false`

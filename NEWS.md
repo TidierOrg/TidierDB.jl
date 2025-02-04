@@ -8,7 +8,11 @@
     - `push!(TidierDB.window_agg_fxns, :kurtosis);`
 - fixes edge case query construction issues with `@mutate`,`@filter`,`@*_join`
 - fix edge case with `@select` call after group_by -> summarize
-
+- add Google Sheet support 
+```
+ghseet_connect(db)
+DB.db_table(db, "https://docs.google.com/spreadsheets/d/rest/of/link")
+```
 ## v0.7.0 - 2025-01-26
 - `db_table` now supports viewing a dataframe directly - `db_table(db, df, "name4db")`
 - `copy_to` will copy a table to the DuckDB db, instead of creating a view

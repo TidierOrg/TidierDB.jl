@@ -625,6 +625,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#color-printing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Color Printing
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -696,6 +705,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#color-printing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Color Printing
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -744,12 +762,20 @@
 <span class="w">                </span><span class="nd">@collect</span><span class="p">()</span>
 <span class="w">            </span><span class="k">end</span><span class="p">;</span>
 </code></pre></div>
-<p>Call this function at the end of a chain similar the <code>@show_query</code> or<code>@collect</code> macros</p>
+<p>Call this function at the end of a chain similar the <code>@show_query</code> or<code>@collect</code> macros <em>printed query is not seen here as it prints to the REPL</em></p>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="nd">@summarize</span><span class="p">()</span><span class="w"> </span><span class="n">sqc</span><span class="p">()</span>
 </code></pre></div>
 <div><div style = "float: left;"><span>4×12 DataFrame</span></div><div style = "clear: both;"></div></div>
 <div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">column_name</th><th style = "text-align: left;">column_type</th><th style = "text-align: left;">min</th><th style = "text-align: left;">max</th><th style = "text-align: left;">approx_unique</th><th style = "text-align: left;">avg</th><th style = "text-align: left;">std</th><th style = "text-align: left;">q25</th><th style = "text-align: left;">q50</th><th style = "text-align: left;">q75</th><th style = "text-align: left;">count</th><th style = "text-align: left;">null_percentage</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Union{Missing, String}" style = "text-align: left;">String?</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "FixedPointDecimals.FixedDecimal{Int32, 0x02}" style = "text-align: left;">FixedDec…</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">id</td><td style = "text-align: left;">VARCHAR</td><td style = "text-align: left;">AA</td><td style = "text-align: left;">AJ</td><td style = "text-align: right;">11</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "text-align: right;">10</td><td style = "text-align: right;">0.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">groups</td><td style = "text-align: left;">VARCHAR</td><td style = "text-align: left;">aa</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "font-style: italic; text-align: left;">missing</td><td style = "text-align: right;">10</td><td style = "text-align: right;">0.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">value</td><td style = "text-align: left;">BIGINT</td><td style = "text-align: left;">1</td><td style = "text-align: left;">5</td><td style = "text-align: right;">5</td><td style = "text-align: left;">3.0</td><td style = "text-align: left;">1.4907119849998598</td><td style = "text-align: left;">2</td><td style = "text-align: left;">3</td><td style = "text-align: left;">4</td><td style = "text-align: right;">10</td><td style = "text-align: right;">0.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">percent</td><td style = "text-align: left;">DOUBLE</td><td style = "text-align: left;">0.1</td><td style = "text-align: left;">1.0</td><td style = "text-align: right;">10</td><td style = "text-align: left;">0.55</td><td style = "text-align: left;">0.3027650354097492</td><td style = "text-align: left;">0.3</td><td style = "text-align: left;">0.55</td><td style = "text-align: left;">0.8</td><td style = "text-align: right;">10</td><td style = "text-align: right;">0.0</td></tr></tbody></table></div>
 
+<p><a id='Color-Printing'></a></p>
+<p><a id='Color-Printing-1'></a></p>
+<h2 id="color-printing">Color Printing<a class="headerlink" href="#color-printing" title="Permanent link">¤</a></h2>
+<p>Queries print with some code words in color to the REPL. To turn off this feature run the one of the following.</p>
+<ul>
+<li><code>TidierDB.color[] = false</code></li>
+<li><code>DB.color = false</code></li>
+</ul>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 

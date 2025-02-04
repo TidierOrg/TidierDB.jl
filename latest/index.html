@@ -932,7 +932,7 @@
 </tbody>
 </table>
 <p><code>@summarize</code> supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.    <code>@mutate</code> supports all builtin SQL functions as well.                                                                                                 </p>
-<p>When using the DuckDB backend, if <code>db_table</code> recieves a file path ( <code>.parquet</code>, <code>.json</code>, <code>.csv</code>, <code>iceberg</code> or <code>delta</code>), it does not copy it into memory. This allows for queries on files too big for memory. <code>db_table</code> also supports S3 bucket locations via DuckDB.</p>
+<p>When using the DuckDB backend, if <code>db_table</code> recieves a file path ( <code>.parquet</code>, <code>.json</code>, <code>.csv</code>, <code>iceberg</code> or <code>delta</code>), it does not copy it into memory. This allows for queries on files too big for memory. <code>db_table</code> also supports S3 bucket locations and Google Sheets via DuckDB.</p>
 <p><a id='What-is-the-recommended-way-to-use-TidierDB?'></a></p>
 <p><a id='What-is-the-recommended-way-to-use-TidierDB?-1'></a></p>
 <h2 id="what-is-the-recommended-way-to-use-tidierdb">What is the recommended way to use TidierDB?<a class="headerlink" href="#what-is-the-recommended-way-to-use-tidierdb" title="Permanent link">¤</a></h2>

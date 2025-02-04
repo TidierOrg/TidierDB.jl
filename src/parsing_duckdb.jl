@@ -175,6 +175,6 @@ end
 """
 $docstring_aggregate_and_window_functions
 """
-function aggregate_functions() 
+function aggregate_and_window_functions() 
 end
 # COV_EXCL_STOP

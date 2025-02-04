@@ -1,5 +1,6 @@
 # TidierDB.jl updates
 ## v0.7.0 - 2025-02-04
+- Prints queries in color by default (optional)
 - fixes bug when using `agg()` with window ordering and framing
 - include default support for all of the following window functions
     - `lead`, `lag`, `dense_rank`, `nth_value`, `ntile`, `rank_dense`, `row_number`, `first_value`, `last_value`, `cume_dist`

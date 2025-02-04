@@ -374,14 +374,24 @@ macro rename(sqlquery, renamings...)
     end
 end
 
+# COV_EXCL_START
+cyan_crayon       = Crayon(foreground = :cyan, bold = true)         # for FROM and SELECT
+blue_crayon       = Crayon(foreground = :blue, bold = true)         # for JOINs
+yellow_crayon     = Crayon(foreground = :yellow, bold = true)       # for GROUP BY
+orange_crayon     = Crayon(foreground = 208, bold = true)           # for CASE, WHEN, THEN, ELSE, END (208 is a common orange color)
+lightblue_crayon  = Crayon(foreground = :light_blue, bold = true)      # for WHERE
+pink_crayon       = Crayon(foreground = :magenta, bold = true)
+cyan_crayon       = Crayon(foreground = :cyan, bold = true)         # for FROM and SELECT
+light_gray        = Crayon(foreground = :red, bold = true)
+green             = Crayon(foreground = :green, bold = false)
+# COV_EXCL_STOP
+
 
 macro show_query(sqlquery)
     return quote
-        # Generate the final query string
         final_query = finalize_query($(esc(sqlquery)))
         
-        # Apply formatting for readability, including JOIN clauses
-        formatted_query = replace(final_query, r"(?<=\)), " => ",\n") # New line after each CTE definition
+        formatted_query = replace(final_query, r"(?<=\)), " => ",\n")
         formatted_query = replace(formatted_query, "SELECT " => "\nSELECT ")
         formatted_query = replace(formatted_query, "AS (SELECT " => "AS ( \n\tSELECT ")
         formatted_query = replace(formatted_query, " FROM " => "\n\tFROM ")
@@ -394,12 +404,42 @@ macro show_query(sqlquery)
         formatted_query = replace(formatted_query, " INNER JOIN " => "\n\tINNER JOIN ")
         formatted_query = replace(formatted_query, " OUTER JOIN " => "\n\tOUTER JOIN ")
         formatted_query = replace(formatted_query, " ASOF " => "\n\tASOF ")
-    #    formatted_query = replace(formatted_query, " JOIN " => "\n\tJOIN ") # General JOIN clause
         
-        # Print the formatted query
+        pattern = r"\b(cte_\w+|WITH|FROM|SELECT|AS|LEFT|JOIN|RIGHT|OUTER|UNION|INNER|GROUP\s+BY|CASE|WHEN|THEN|ELSE|END|WHERE|HAVING|ORDER\s+BY|PARTITION|ASC|DESC|INNER)\b"
+        # COV_EXCL_START
+        if TidierDB.color[]
+            formatted_query = replace(formatted_query, pattern => s -> begin
+                token = String(s)  
+                token_upper = uppercase(strip(token))
+                
+                if token_upper in ["FROM", "SELECT", "WITH"]
+                    return $cyan_crayon(token)
+                elseif token_upper in ["AS"]
+                    return $green(token)
+                elseif token_upper in [ "RIGHT", "LEFT", "OUTER", "SEMI", "JOIN", "INNER"]
+                    return $blue_crayon(token)
+                elseif occursin(r"^GROUP\s+BY$", token_upper)
+                    return $yellow_crayon(token)
+                elseif token_upper in ["CASE", "WHEN", "THEN", "ELSE", "END"]
+                    return $orange_crayon(token)
+                elseif token_upper in ["WHERE", "HAVING"]
+                    return $lightblue_crayon(token)
+                elseif occursin(r"^ORDER\s+BY$", token_upper)
+                    return $pink_crayon(token)
+                elseif token_upper in ["ASC", "DESC", "PARTITION"]
+                    return $pink_crayon(token)
+             #   elseif occursin(r"^CTE_\w+$", token_upper)
+              #      return $light_magenta(token)                
+                else
+                    return token  
+                end
+            end)
+        end
+        # COV_EXCL_STOP
         println(formatted_query)
     end
 end
+
 
 
 

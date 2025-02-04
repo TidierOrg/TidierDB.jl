@@ -1302,9 +1302,9 @@ const docstring_db_table =
 """
     db_table(database, table_name, athena_params, delta = false, iceberg = false, alias = "", df_name)
 
-`db_table` starts the underlying SQL query struct, adding the metadata and table. If paths are passed directly to db_table instead of a 
-name it will not copy it to memory, but rather ready directly from the file. `db_table` only supports direct file paths to a table. DataFrames 
-are read as a view. It does not support database file paths such as `dbname.duckdb` or `dbname.sqlite`. Such files must be used with `connect first`
+`db_table` starts the underlying SQL query struct, adding the metadata and table. If paths are passed directly to `db_table` instead of a 
+name it will not copy it to memory, but rather ready directly from the file. `db_table`  only supports direct file paths to a table. DataFrames 
+are read as a view. It does not support database file paths such as  `dbname.duckdb`  or  `dbname.sqlite`. Such files must be used with `connect(db, "path_to_db.duckdb")` first
 
 # Arguments
 - `database`: The Database or connection object
@@ -1315,12 +1315,13 @@ are read as a view. It does not support database file paths such as `dbname.duck
       - Iceberg
       - Delta
       - S3 tables from AWS or Google Cloud 
+      - Google Sheet spreadsheet link
      - DuckDB and ClickHouse support vectors of paths and URLs. 
      - DuckDB and ClickHouse also support use of `*` wildcards to read all files of a type in a location such as:
         - `db_table(db, "Path/to/testing_files/*.parquet")`
 - `delta`: must be true to read delta files
 - `iceberg`: must be true to read iceberg finalize_ctes
-- `alias`: optional argument when using a `*` wildcard in a file path, that allows user to determine an alias for the data being read in. If empty, it will refer to table as `data`
+- `alias`: optional argument when using a `*` wildcard in a file path, that allows user to determine an alias for the data being read in. If empty, it will refer to table as `data`.
 - `df_name` when using a DataFrame as the second argument, a third string argument must be supplied to become the name of the view.
 # Example
 ```jldoctest

@@ -252,8 +252,6 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             DuckDB.execute(db, "INSTALL delta;")
             DuckDB.execute(db, "LOAD delta;")
             table_name2 = "delta_scan('$table_name')"
-           # println(table_name2)
-            metadata = get_table_metadata(db, table_name2)
         elseif occursin("docs.google", table_name) 
             table_name2 = "read_gsheet('$table_name')"
            # println(table_name2)
@@ -261,7 +259,9 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             metadata = get_table_metadata(db, table_name2, alias = alias)
         elseif startswith(table_name, "read") 
             table_name2 = "$table_name"
-           metadata = get_table_metadata(db, table_name2)
+            alias = alias == "" ? "data" : alias
+           # println(table_name2)
+            metadata = get_table_metadata(db, table_name2, alias = alias)
         elseif occursin(r"[:/\\]", table_name) 
             table_name2 = "'$table_name'"
             if current_sql_mode[] == duckdb()

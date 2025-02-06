@@ -404,8 +404,9 @@ macro show_query(sqlquery)
         formatted_query = replace(formatted_query, " INNER JOIN " => "\n\tINNER JOIN ")
         formatted_query = replace(formatted_query, " OUTER JOIN " => "\n\tOUTER JOIN ")
         formatted_query = replace(formatted_query, " ASOF " => "\n\tASOF ")
+        formatted_query = replace(formatted_query, " LIMIT " => "\n\tLIMIT ")
         
-        pattern = r"\b(cte_\w+|WITH|FROM|SELECT|AS|LEFT|JOIN|RIGHT|OUTER|UNION|INNER|GROUP\s+BY|CASE|WHEN|THEN|ELSE|END|WHERE|HAVING|ORDER\s+BY|PARTITION|ASC|DESC|INNER)\b"
+        pattern = r"\b(cte_\w+|WITH|FROM|SELECT|AS|LEFT|JOIN|RIGHT|OUTER|UNION|INNER|ASOF|GROUP\s+BY|CASE|WHEN|THEN|ELSE|END|WHERE|HAVING|ORDER\s+BY|PARTITION|ASC|DESC|INNER)\b"
         # COV_EXCL_START
         if TidierDB.color[]
             formatted_query = replace(formatted_query, pattern => s -> begin
@@ -416,7 +417,7 @@ macro show_query(sqlquery)
                     return $cyan_crayon(token)
                 elseif token_upper in ["AS"]
                     return $green(token)
-                elseif token_upper in [ "RIGHT", "LEFT", "OUTER", "SEMI", "JOIN", "INNER"]
+                elseif token_upper in ["ASOF", "RIGHT", "LEFT", "OUTER", "SEMI", "JOIN", "INNER"]
                     return $blue_crayon(token)
                 elseif occursin(r"^GROUP\s+BY$", token_upper)
                     return $yellow_crayon(token)

@@ -76,8 +76,8 @@ Filter rows in a SQL table based on specified conditions.
                    Rows for which the expression evaluates to `true` will be included in the result. 
                    Multiple conditions can be combined using logical operators (`&&`, `||`). `@filter` will automatically 
                    detect whether the conditions belong in WHERE vs HAVING. 
+Temporarily, it is best to use begin and end when filtering multiple conditions. (ex 2 below)
 
-                   Temporarily, it is best to use begin and end when filtering multiple conditions. (ex 2 below)
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -140,7 +140,9 @@ const docstring_group_by =
 """
     @group_by(sql_query, columns...)
 
-Group SQL table rows by specified column(s). If grouping is performed as a terminal operation without a subsequent mutatation or summarization (as in the example below), then the resulting data frame will be ungrouped when `@collect` is applied.
+Group SQL table rows by specified column(s). If grouping is performed as a terminal operation without a 
+subsequent mutatation or summarization (as in the example below), then the resulting data frame will only 
+contains those groups. Collecting following a grouping will not return a grouped dataframe as TidierData does. 
 
 # Arguments
 - `sql_query`: The SQL query to operate on.
@@ -1151,9 +1153,9 @@ const docstring_copy_to =
 Allows user to copy a df to the database connection. Currently supports DuckDB, SQLite, MySql
 
 # Arguments
--`conn`: the database connection
--`df`: dataframe to be copied or path to serve as source. With DuckDB, path supports .csv, .json, .parquet to be used without copying intermediary df.
--`name`: name as string for the database to be used
+- `conn`: the database connection
+- `df`: dataframe to be copied or path to serve as source. With DuckDB, path supports .csv, .json, .parquet
+- `name`: name as string for the database to be used
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -1303,8 +1305,9 @@ const docstring_db_table =
     db_table(database, table_name, athena_params, delta = false, iceberg = false, alias = "", df_name)
 
 `db_table` starts the underlying SQL query struct, adding the metadata and table. If paths are passed directly to `db_table` instead of a 
-name it will not copy it to memory, but rather ready directly from the file. `db_table`  only supports direct file paths to a table. DataFrames 
-are read as a view. It does not support database file paths such as  `dbname.duckdb`  or  `dbname.sqlite`. Such files must be used with `connect(db, "path_to_db.duckdb")` first
+name it will not copy it to memory, but rather read directly from the file. `db_table`  only supports direct file paths to a table. DataFrames 
+are read as a view. It does not support database file paths such as  `dbname.duckdb`  or  `dbname.sqlite`. Database files must be used with `connect(db, "path_to_db.duckdb")` first 
+to allow `db_table` to read the db tables.
 
 # Arguments
 - `database`: The Database or connection object
@@ -1315,7 +1318,7 @@ are read as a view. It does not support database file paths such as  `dbname.duc
       - Iceberg
       - Delta
       - S3 tables from AWS or Google Cloud 
-      - Google Sheet spreadsheet link
+      - Google Sheets spreadsheet link
      - DuckDB and ClickHouse support vectors of paths and URLs. 
      - DuckDB and ClickHouse also support use of `*` wildcards to read all files of a type in a location such as:
         - `db_table(db, "Path/to/testing_files/*.parquet")`
@@ -1347,7 +1350,7 @@ const docstring_collect =
 
 # Arguments
 - `sql_query`: The SQL query to operate on.
-- `stream`: optional streaming for query/execution of results when using duck db. Defaults to false
+- `stream`: optional streaming for query/execution of results when using DuckDB. Defaults to false
 # Example
 ```julia
 julia> db = connect(duckdb());

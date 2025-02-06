@@ -143,7 +143,7 @@ macro mutate(sqlquery, mutations...)
                 sq.from = string(cte_name)
                 
             else
-                sq.cte_count += 1
+              #  sq.cte_count += 1
                 cte_name = "cte_" * string(sq.cte_count)
                 
             end
@@ -151,10 +151,19 @@ macro mutate(sqlquery, mutations...)
             sq.cte_count += 1
 
             select_expressions = ["*"]
-            all_columns = [
-                (row[:current_selxn] == 1 ? row[:name] : row[:table_name] * "." * row[:name])
-                for row in eachrow(sq.metadata) if row[:current_selxn] != 0
-            ]            
+            most_recent_source = "cte_" * string(sq.cte_count - 1) 
+            if !isempty(sq.ctes) && most_recent_source != "cte_0"
+                all_columns = [
+                    (row[:current_selxn] == 1 ? row[:name] : most_recent_source * "." * row[:name])
+                    for row in eachrow(sq.metadata) if row[:current_selxn] != 0
+                ]      
+                    else
+                    all_columns = [
+                        (row[:current_selxn] == 1 ? row[:name] : row[:table_name] * "." * row[:name])
+                        for row in eachrow(sq.metadata) if row[:current_selxn] != 0
+                    ]        
+                end    
+
             select_expressions = [col for col in all_columns]  # Start with all currently selected columns
 
             if $(esc(grouping_var)) != nothing

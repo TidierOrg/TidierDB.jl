@@ -358,9 +358,9 @@ macro summarise(df, expressions...)
     :(@summarize($(esc(df)), $(expressions...)))
 end
 
-#"""
-#$docstring_transmute
-#"""
+"""
+$docstring_transmute
+"""
 macro transmute(sqlquery, mutations...)
     grouping_var, mutations, order_var, frame_var = parse_mutate(mutations)
     mutations = parse_blocks(mutations...)
@@ -414,9 +414,11 @@ macro transmute(sqlquery, mutations...)
 
             select_expressions = ["*"]
             most_recent_source = "cte_" * string(sq.cte_count - 1) 
-            all_columns = []
-            if !isempty(sq.ctes) && most_recent_source != "cte_0" || !isempty($(esc(grouping_var))) || !isempty(sq.groupBy)
-                gbv = if $(esc(grouping_var)) != nothing 
+            all_columns = []; gbv_vector = []
+            if (!isnothing(sq.ctes) && !isempty(sq.ctes)) && most_recent_source != "cte_0" || 
+                (!isnothing($(esc(grouping_var))) && !isempty($(esc(grouping_var)))) || 
+                (!isnothing(sq.groupBy) && !isempty(sq.groupBy))
+               gbv = if $(esc(grouping_var)) != nothing 
                              $(esc(grouping_var))
                       elseif sq.groupBy != ""
                         replace(sq.groupBy, "GROUP BY " => "")

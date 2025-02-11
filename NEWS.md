@@ -1,4 +1,7 @@
 # TidierDB.jl updates
+## v0.7.2 - 2025-02-12
+- adds `@transmute`
+
 ## v0.7.1 - 2025-02-04
 - Prints queries in color by default (optional)
 - fixes bug when using `agg()` with window ordering and framing

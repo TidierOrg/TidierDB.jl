@@ -38,7 +38,7 @@ TidierDB.jl currently supports the following top-level macros:
 
 | **Category**                     | **Supported Macros and Functions**                                                                                                                                               |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Data Manipulation**     | `@arrange`, `@group_by`, `@filter`, `@select`, `@mutate` (supports `across`), `@summarize`/`@summarise` (supports `across`), `@distinct`, `@relocate`                                 |
+| **Data Manipulation**     | `@arrange`, `@group_by`, `@filter`, `@select`, `@mutate` (supports `across`), `@summarize`/`@summarise` (supports `across`), `@distinct`, `@relocate`, `@transmute`                                |
 | **Joining/Setting**                  | `@left_join`, `@right_join`, `@inner_join`, `@anti_join`, `@full_join`, `@semi_join`, `@union`, `@union_all`, `@intersect`, `@setdiff`                                         |
 | **Slice and Order**       | `@slice_min`, `@slice_max`, `@slice_sample`, `@order`, `@window_order`, `@window_frame`                                                                                                |
 | **Utility**               | `@show_query`, `@collect`, `@head`, `@count`, `show_tables`, `@create_view` , `drop_view`                                                                                                                                          |
@@ -52,6 +52,9 @@ TidierDB.jl currently supports the following top-level macros:
 `@mutate` supports all builtin SQL functions as well.
 
 When using the DuckDB backend, if `db_table` recieves a file path (`.parquet`, `.json`, `.csv`, `iceberg` or `delta`), it does not copy it into memory. This allows for queries on files too big for memory. `db_table` also supports S3 bucket locations and Google Sheets via DuckDB.
+
+> [Note]
+> DuckDB.jl can fail to precompile for some windows users, please see this [discussion](https://discourse.julialang.org/t/help-debugging-failing-precompilation-of-duckdb-jl-windows/122226) for a temporary work around 
 
 ## What is the recommended way to use TidierDB?
 

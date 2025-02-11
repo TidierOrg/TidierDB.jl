@@ -1707,7 +1707,7 @@ julia> @chain t(df1_table) @intersect(df2_table) @collect
    1 │     2  Bob
    2 │     3  Charlie
 
-julia> @chain t(df1_table) @intersect(df2_table, all = true) @collect
+julia> @chain t(df1_table) @intersect(df2_table, all = true) @arrange(desc(id)) @collect
 3×2 DataFrame
  Row │ id     name    
      │ Int64  String  

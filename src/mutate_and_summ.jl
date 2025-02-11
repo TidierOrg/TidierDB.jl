@@ -357,3 +357,154 @@ $docstring_summarise
 macro summarise(df, expressions...)
     :(@summarize($(esc(df)), $(expressions...)))
 end
+
+#"""
+#$docstring_transmute
+#"""
+macro transmute(sqlquery, mutations...)
+    grouping_var, mutations, order_var, frame_var = parse_mutate(mutations)
+    mutations = parse_blocks(mutations...)
+
+    return quote
+        sq = $(esc(sqlquery))
+        if isa(sq, SQLQuery)
+            cte_name = "cte_" * string(sq.cte_count + 1)
+
+            if sq.post_aggregation #|| sq.post_join 
+                if sq.post_aggregation
+                    for row in eachrow(sq.metadata)
+                        if row[:current_selxn] == 2
+                            row[:current_selxn] = 1
+                        end
+                    end
+                end
+                sq.post_aggregation = false
+               
+                select_expressions = !isempty(sq.select) ? [sq.select] : ["*"]
+
+                cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
+                if sq.is_aggregated && !isempty(sq.groupBy)
+                    cte_sql *= " " * sq.groupBy
+                    sq.groupBy = ""
+                end
+                if !isempty(sq.where)
+                    cte_sql *= " WHERE " * sq.where
+                    sq.where = ""
+                end
+                if !isempty(sq.having)
+                    cte_sql *= "  " * sq.having
+                    sq.having = ""
+                end
+
+                # Create and add the new CTE
+                new_cte = CTE(name=string(cte_name), select=cte_sql)
+                up_cte_name(sq, string(cte_name))
+                
+                push!(sq.ctes, new_cte)
+                sq.cte_count += 1
+                sq.from = string(cte_name)
+                
+            else
+              #  sq.cte_count += 1
+                cte_name = "cte_" * string(sq.cte_count)
+                
+            end
+            cte_name = "cte_" * string(sq.cte_count + 1)
+            sq.cte_count += 1
+
+            select_expressions = ["*"]
+            most_recent_source = "cte_" * string(sq.cte_count - 1) 
+            all_columns = []
+            if !isempty(sq.ctes) && most_recent_source != "cte_0" || !isempty($(esc(grouping_var))) || !isempty(sq.groupBy)
+                gbv = if $(esc(grouping_var)) != nothing 
+                             $(esc(grouping_var))
+                      elseif sq.groupBy != ""
+                        replace(sq.groupBy, "GROUP BY " => "")
+                      else 
+                        ""
+                      end
+                gbv_vector = strip.(split(gbv, ","))
+                    all_columns = [
+                        (row[:current_selxn] == 1 ? row[:name] : most_recent_source * "." * row[:name])
+                        for row in eachrow(sq.metadata) if row[:current_selxn] != 0 && row[:name] in gbv_vector
+                    ]      
+                    else
+                    all_columns = [
+                        (row[:current_selxn] == 1 ? row[:name] : row[:table_name] * "." * row[:name])
+                        for row in eachrow(sq.metadata) if row[:current_selxn] != 0 && row[:name] in gbv_vector
+                    ]        
+                    end  
+                    for row in eachrow(sq.metadata)
+                        if !(row[:name] in all_columns)
+                            row[:current_selxn] = 0
+                        end
+                    end
+               # end    
+
+            select_expressions = [col for col in all_columns]  # Start with all currently selected columns
+                
+            if $(esc(grouping_var)) != nothing
+                group_vars = $(esc(grouping_var))
+                group_vars_sql = expr_to_sql(group_vars, sq)
+                sq.groupBy = "GROUP BY " * string(group_vars_sql)
+            end
+
+            if $(esc(order_var)) != nothing
+               TidierDB.@window_order(sq, ($order_var))
+            end
+
+            if $(esc(frame_var)) != nothing
+                 TidierDB.@window_frame(sq, ($frame_var))
+              end
+
+            for expr in $mutations
+                # Transform 'across' expressions first
+                if isa(expr, Expr) && expr.head == :call && expr.args[1] == :across
+                    expr = parse_across(expr, sq.metadata)
+                end
+                if isa(expr, Expr) && expr.head == :tuple
+                    for subexpr in expr.args
+                        process_mutate_expression(subexpr, sq, select_expressions, cte_name)
+                    end
+                else
+                    process_mutate_expression(expr, sq, select_expressions, cte_name)
+                end
+            end
+            sq.post_join = false
+
+            if $(esc(grouping_var)) != nothing
+                sq.groupBy = ""
+            end
+                # Construct CTE SQL, handling aggregated queries differently
+            cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
+            if sq.is_aggregated
+                cte_sql *= " " * sq.groupBy
+                sq.is_aggregated = false
+            end
+            if !isempty(sq.where)
+                cte_sql *= " WHERE " * sq.where
+                sq.where = ""
+            end
+
+            new_cte = CTE(name=string(cte_name), select=cte_sql)
+            up_cte_name(sq, cte_name)
+            push!(sq.ctes, new_cte)
+
+
+            sq.from = string(cte_name)
+
+            sq.select = "*"
+            if _warning_[]
+                if sq.groupBy != "" || sq.window_order != "" || sq.windowFrame != ""
+                    @warn "After applying all mutations, @mutate removed grouping and window clauses."
+                end
+            end
+            sq.groupBy = ""
+            sq.windowFrame = ""
+            sq.window_order = ""
+        else
+            error("Expected sqlquery to be an instance of SQLQuery")
+        end
+        sq
+    end
+end

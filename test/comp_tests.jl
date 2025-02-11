@@ -22,8 +22,8 @@
         @test all(Array(TDF_7 .== TDB_7))
     end
     @testset "Group By Summarize" begin
-        TDF_1 = @chain test_df @group_by(groups) @summarize(value = sum(value), n = n())
-        TDB_1 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(value = sum(value), n = n()) DB.@collect
+        TDF_1 = @chain test_df @group_by(groups) @summarize(value = sum(value), n = n(), max = maximum(value))
+        TDB_1 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(value = sum(value), n = n(), max = maximum(value)) DB.@collect
         TDF_2 = @chain test_df @group_by(groups) @summarize(across(starts_with("v"), (mean, minimum, maximum, std))) @mutate(value_std = round(value_std, digits = 4))
         TDB_2 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(across(starts_with("v"), (mean, minimum, maximum, std))) DB.@mutate(value_std = round(value_std,  4)) DB.@collect
         TDF_3 = @chain test_df @group_by(groups) @summarize(across(value,(mean, minimum, maximum))) @mutate(value_mean = value_mean + 4 * 4)
@@ -197,7 +197,9 @@
         # testing as_string, as_float, as_integer
         TDF_13 = @chain test_df @mutate(value = as_string(value)) @mutate(value2 = as_float(value), value3 = as_integer(value)) @filter(value2 > 4 && value3 < 10)
         TDB_13 = @chain DB.t(test_db) DB.@mutate(value = as_string(value)) DB.@mutate(value2 = as_float(value), value3 = as_integer(value)) DB.@filter(value2 > 4 && value3 < 10) DB.@collect
-
+        TDB_14 = @chain DB.db_table(db, "test_df") DB.@filter(value > 1) DB.@transmute( cum_sum = cumsum(value), _by = groups,  _order =  percent) DB.@arrange(groups, cum_sum) DB.@collect()
+        TDF_14 = @chain test_df @filter(value > 1) @group_by(groups) @arrange(percent) @transmute(cum_sum = cumsum(value)) @arrange(groups, cum_sum) @ungroup
+        
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
         @test all(isequal.(Array(TDF_2), Array(TDB_2)))
         @test all(isequal.(Array(TDF_3), Array(TDB_3)))
@@ -211,6 +213,7 @@
         @test all(isequal.(Array(TDF_11), Array(TDB_11)))
         @test all(isequal.(Array(TDF_12), Array(TDB_12)))
         @test all(isequal.(Array(TDF_13), Array(TDB_13)))
+        @test all(isequal.(Array(TDF_14), Array(TDB_14)))
 
     end
     @testset "Mutate with Conditionals, Strings and then Filter" begin
@@ -279,6 +282,7 @@
         @test all(isequal.(Array(TDF_5), Array(TDB_5)))
         @test !isempty(@chain DB.t(test_db) DB.@mutate(test2 = dmy("06-12-2023")) DB.@collect)
     end 
+   
     @testset "Distinct" begin
         query = DB.@chain DB.t(test_db) DB.@mutate(value = value *2) DB.@filter(value > 5)
         # using mutate to make the some rows distinct instead of creating a new df
@@ -286,6 +290,7 @@
         TDB_1 = @chain DB.t(test_db) DB.@union(DB.t(query)) DB.@mutate(value = if_else(value > 5, value/2, value)) DB.@distinct() DB.@collect 
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
     end
+    
     @testset "_by" begin
         TDB_1 = @chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(value = sum(value), n = n()) DB.@collect
         TBD_by = @chain DB.t(test_db) DB.@summarize(value = sum(value), n = n(), _by = groups) DB.@collect

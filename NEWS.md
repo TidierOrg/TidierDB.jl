@@ -1,5 +1,5 @@
 # TidierDB.jl updates
-## v0.7.0 - 2025-02-04
+## v0.7.1 - 2025-02-04
 - Prints queries in color by default (optional)
 - fixes bug when using `agg()` with window ordering and framing
 - include default support for all of the following window functions

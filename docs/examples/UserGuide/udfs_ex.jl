@@ -1,12 +1,10 @@
-# TidierDB is unique in its statement parsing flexiblility.  This means that using any built in SQL function or user defined functions (or UDFS) or is readily avaialable.  
+# TidierDB is unique in its statement parsing flexiblility.  This means that using any built in SQL function or user defined functions (or UDFS) are readily avaialable.  
 # To use any function built into a database in `@mutate` or in `@summarize`, simply correctly write the correctly, but replace `'` with `"`. This also applies to any UDF. The example below will illustrate UDFs in the context of DuckDB.
 
 
+using TidierDB # DuckDB is reexported by TidierDB
+db = connect(duckdb())
 # ```
-# # Set up the connection
-# using TidierDB  #rexports DuckDB
-# db = DuckDB.DB()
-# con = DuckDB.connect(db) # this will be important for UDFs
 # mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
 # mtcars = db_tbable(db, mtcars_path);
 # ```
@@ -105,7 +103,23 @@
 #    1 │ Hornet Sportabout      18.7       8     360.0     175
 # ```
 
-# ## UDF SQLite Example
+# ## UDFs in DuckDB
+df = db_table(db, DataFrame(a = [1, 2, 3], b = [1, 2, 3]), "df_view")
+
+# A more in depth disccusion of UDFs in DuckDB.jl can be found [here](https://discourse.julialang.org/t/is-it-hard-to-support-julia-udfs-in-duckdb/118509/24?u=true). 
+# define a function 
+bino = (a, b) -> (a + b) * (a + b)
+# create the scalar function 
+fun = DuckDB.@create_scalar_function quad(a::Int, b::Int)::Int;
+DuckDB.register_scalar_function(db, fun);
+# use the scalar function in mutate without any further modifcation.
+@chain t(df) @mutate(c = bino(a, b)) @collect
+
+#notably, when the function is redefined (with the same arguments), the DuckDB UDF will change as well.
+quad = (a, b) -> (a + b) * (a - b);
+@chain t(df) @mutate(c = bino(a, b)) @collect
+
+# ## UDFs in SQLite 
 # ```
 # using SQLite
 # sql = connect(sqlite());
@@ -139,6 +153,3 @@
 #    9 │     4      0.9    15.19
 #   10 │     5      1.0    24.0
 # ```
-
-# ## How to create UDF in DuckDB
-# Example coming soon..

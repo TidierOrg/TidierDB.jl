@@ -31,22 +31,28 @@ end
 
 # ## UDFs in DuckDB
 # TidierDB's flexibility means that once created, UDFs can immediately be used in with `@mutate` or `@transmute`
-df = DataFrame(a = [1, 2, 3], b = [1, 2, 3])
+df = DataFrame(a = [1, 2, 3], b = [1, 2, 3]);
 dfv = db_table(db, df, "df_view");
 
 # A more in depth disccusion of UDFs in DuckDB.jl can be found [here](https://discourse.julialang.org/t/is-it-hard-to-support-julia-udfs-in-duckdb/118509/24?u=true). 
 # define a function 
+
 bino = (a, b) -> (a + b) * (a + b)
+
 # Create the scalar function 
 fun = DuckDB.@create_scalar_function bino(a::Int, b::Int)::Int;
 DuckDB.register_scalar_function(db, fun);
 
 # Use the UDF in mutate without any further modifcation.
+
 @chain t(dfv) @mutate(c = bino(a, b)) @collect
 
+
 # Notably, when the function is redefined (with the same arguments), the DuckDB UDF will change as well.
+
 bino = (a, b) -> (a + b) * (a - b);
 @chain t(dfv) @mutate(c = bino(a, b)) @collect
+
 
 # ## UDFs in SQLite 
 # ```

@@ -2,8 +2,7 @@
 
 using TidierDB # DuckDB is reexported by TidierDB
 db = connect(duckdb())
-mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv";
-mtcars = db_tbable(db, mtcars_path);
+mtcars = db_table(db, "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv")
 
 # ##  DuckDB function chaining
 # In DuckDB, functions can be chained together with `.`. TidierDB lets you leverage this. 
@@ -32,7 +31,7 @@ end
 # ## UDFs in DuckDB
 # TidierDB's flexibility means that once created, UDFs can immediately be used in with `@mutate` or `@transmute`
 df = DataFrame(a = [1, 2, 3], b = [1, 2, 3]);
-dfv = db_table(db, df, "df_view");
+dfv = db_table(db, df, "df_view")
 
 # A more in depth disccusion of UDFs in DuckDB.jl can be found [here](https://discourse.julialang.org/t/is-it-hard-to-support-julia-udfs-in-duckdb/118509/24?u=true). 
 # define a function 
@@ -41,7 +40,7 @@ bino = (a, b) -> (a + b) * (a + b)
 
 # Create the scalar function 
 fun = DuckDB.@create_scalar_function bino(a::Int, b::Int)::Int;
-DuckDB.register_scalar_function(db, fun);
+DuckDB.register_scalar_function(db, fun)
 
 # Use the UDF in mutate without any further modifcation.
 

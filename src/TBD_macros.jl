@@ -463,7 +463,38 @@ function final_collect(sqlquery::SQLQuery, ::Type{<:snowflake})
     return DataFrame(result)
 end
 
+function stream_collect(sqlquery::SQLQuery)
+    final_query = finalize_query(sqlquery)
+    res = DBInterface.execute(sqlquery.db, final_query, DuckDB.StreamResult)
 
+    # Helper function to get the non-Missing type from a Union{Missing, T}
+    function non_missing_type(T)
+        T === Missing && return Any
+        T <: Union{Missing} ? non_missing_type(Base.typesplit(T)[2]) : T
+    end
+
+    # Initialize DataFrame with correct types
+    df = DataFrame([name => Vector{non_missing_type(t)}() for (name, t) in zip(res.names, res.types)])
+
+    while true
+        chunk = DuckDB.nextDataChunk(res)
+        chunk === missing && break  # All chunks processed
+
+        for (col_idx, col_name) in enumerate(res.names)
+            # Convert DuckDB data to Julia data
+            duckdb_logical_type = DuckDB.LogicalType(DuckDB.duckdb_column_logical_type(res.handle, col_idx))
+            duckdb_conversion_state = DuckDB.ColumnConversionData([chunk], col_idx, duckdb_logical_type, nothing)
+            col_data = DuckDB.convert_column(duckdb_conversion_state)
+            
+            # Append the data to the DataFrame
+            append!(df[!, col_name], col_data)
+        end
+
+        DuckDB.destroy_data_chunk(chunk)
+    end
+
+    return df
+end
 # COV_EXCL_STOP
 
 

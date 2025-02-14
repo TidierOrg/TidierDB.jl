@@ -206,7 +206,7 @@ function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_nam
         DESCRIBE SELECT * FROM $(table_name) LIMIT 0
         """
     end
-    result = DuckDB.execute(conn, query) |> DataFrame
+    result = DBInterface.execute(conn, query) |> DataFrame
     result[!, :current_selxn] .= 1
     if occursin("*" , table_name) || alias != ""
         if alias != ""
@@ -249,8 +249,8 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             table_name2 = "iceberg_scan('$table_name', allow_moved_paths = true)"
             metadata = get_table_metadata(db, table_name2)
         elseif delta
-            DuckDB.execute(db, "INSTALL delta;")
-            DuckDB.execute(db, "LOAD delta;")
+            DBInterface.execute(db, "INSTALL delta;")
+            DBInterface.execute(db, "LOAD delta;")
             table_name2 = "delta_scan('$table_name')"
         elseif occursin("docs.google", table_name) 
             table_name2 = "read_gsheet('$table_name')"
@@ -399,17 +399,17 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
         # Determine the file type based on the extension
         if startswith(df_or_path, "http")
             # Install and load the httpfs extension if the path is a URL
-            DuckDB.execute(conn, "INSTALL httpfs;")
-            DuckDB.execute(conn, "LOAD httpfs;")
+            DBInterface.execute(conn, "INSTALL httpfs;")
+            DBInterface.execute(conn, "LOAD httpfs;")
         end
         if occursin(r"\.csv$", df_or_path)
             # Construct and execute a SQL command for loading a CSV file
             sql_command = "CREATE TABLE $name AS SELECT * FROM '$df_or_path';"
-            DuckDB.execute(conn, sql_command)
+            DBInterface.execute(conn, sql_command)
         elseif occursin(r"\.parquet$", df_or_path)
             # Construct and execute a SQL command for loading a Parquet file
             sql_command = "CREATE TABLE $name AS SELECT * FROM '$df_or_path';"
-            DuckDB.execute(conn, sql_command)
+            DBInterface.execute(conn, sql_command)
         elseif occursin(r"\.arrow$", df_or_path)
             # Construct and execute a SQL command for loading a CSV file
             arrow_table = Arrow.Table(df_or_path)
@@ -417,11 +417,11 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
         elseif occursin(r"\.json$", df_or_path)
             # For Arrow files, read the file into a DataFrame and then insert
             sql_command = "CREATE TABLE $name AS SELECT * FROM read_json('$df_or_path');"
-            DuckDB.execute(conn, "INSTALL json;")
-            DuckDB.execute(conn, "LOAD json;")
-            DuckDB.execute(conn, sql_command)
+            DBInterface.execute(conn, "INSTALL json;")
+            DBInterface.execute(conn, "LOAD json;")
+            DBInterface.execute(conn, sql_command)
         elseif startswith(df_or_path, "read")
-             DuckDB.execute(conn, "CREATE TABLE $name AS SELECT * FROM $df_or_path;")
+             DBInterface.execute(conn, "CREATE TABLE $name AS SELECT * FROM $df_or_path;")
         else
             error("Unsupported file type for: $df_or_path")
         end
@@ -473,7 +473,7 @@ function connect(::duckdb, db_type::Symbol; access_key::String="", secret_key::S
     DBInterface.execute(db, "LOAD httpfs;")
 
     if db_type == :gbq
-        DuckDB.execute(db, """
+        DBInterface.execute(db, """
         CREATE SECRET (
             TYPE GCS,
             KEY_ID '$access_key',

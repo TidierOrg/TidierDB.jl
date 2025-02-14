@@ -507,7 +507,7 @@ macro collect(sqlquery, stream = false)
         if backend == duckdb()
             if $stream
                 println("streaming")
-                final_collect($(esc(sqlquery)), duckdb)
+           #     stream_collect($(esc(sqlquery)))
             else
                 final_collect($(esc(sqlquery)), duckdb)
             end

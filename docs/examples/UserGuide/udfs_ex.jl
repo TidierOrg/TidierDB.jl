@@ -45,7 +45,7 @@ DuckDB.register_scalar_function(db, fun);
 @chain t(dfv) @mutate(c = bino(a, b)) @collect
 
 # Notably, when the function is redefined (with the same arguments), the DuckDB UDF will change as well.
-quad = (a, b) -> (a + b) * (a - b);
+bino = (a, b) -> (a + b) * (a - b);
 @chain t(dfv) @mutate(c = bino(a, b)) @collect
 
 # ## UDFs in SQLite 

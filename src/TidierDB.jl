@@ -473,7 +473,7 @@ function connect(::duckdb, db_type::Symbol; access_key::String="", secret_key::S
     DBInterface.execute(db, "LOAD httpfs;")
 
     if db_type == :gbq
-        DBInterface.execute(db, """
+        DuckDB.execute(db, """
         CREATE SECRET (
             TYPE GCS,
             KEY_ID '$access_key',

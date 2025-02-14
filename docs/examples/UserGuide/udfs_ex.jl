@@ -1,11 +1,10 @@
 # TidierDB is unique in its statement parsing flexiblility.  This means that in addition to using any built in SQL database functions, user defined functions (or UDFS) are readily avaialable in TidierDB.  
 
+# ##  DuckDB function chaining
+# In DuckDB, functions can be chained together with `.`. TidierDB lets you leverage this. 
 using TidierDB # DuckDB is reexported by TidierDB
 db = connect(duckdb())
 mtcars = db_table(db, "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv")
-
-# ##  DuckDB function chaining
-# In DuckDB, functions can be chained together with `.`. TidierDB lets you leverage this. 
 @chain t(mtcars) begin 
     @mutate(model2 = model.upper().string_split(" ").list_aggr("string_agg",".").concat("."))
     @select model model2
@@ -30,28 +29,18 @@ end
 
 # ## UDFs in DuckDB
 # TidierDB's flexibility means that once created, UDFs can immediately be used in with `@mutate` or `@transmute`
-df = DataFrame(a = [1, 2, 3], b = [1, 2, 3]);
+df = DataFrame(a = [1, 2, 3], b = [1, 2, 3])
 dfv = db_table(db, df, "df_view")
-
 # A more in depth disccusion of UDFs in DuckDB.jl can be found [here](https://discourse.julialang.org/t/is-it-hard-to-support-julia-udfs-in-duckdb/118509/24?u=true). 
-# define a function 
-
+# define a function and Create the scalar function 
 bino = (a, b) -> (a + b) * (a + b)
-
-# Create the scalar function 
-fun = DuckDB.@create_scalar_function bino(a::Int, b::Int)::Int;
+fun = DuckDB.@create_scalar_function bino(a::Int, b::Int)::Int
 DuckDB.register_scalar_function(db, fun)
-
-# Use the UDF in mutate without any further modifcation.
-
 @chain t(dfv) @mutate(c = bino(a, b)) @collect
-
 
 # Notably, when the function is redefined (with the same arguments), the DuckDB UDF will change as well.
-
-bino = (a, b) -> (a + b) * (a - b);
+bino = (a, b) -> (a + b) * (a - b)
 @chain t(dfv) @mutate(c = bino(a, b)) @collect
-
 
 # ## UDFs in SQLite 
 # ```

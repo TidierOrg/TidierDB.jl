@@ -1,91 +1,17 @@
-# TidierDB is unique in its statement parsing flexiblility.  This means that using any built in SQL function or user defined functions (or UDFS) are readily avaialable.  
-# To use any function built into a database in `@mutate` or in `@summarize`, simply correctly write the correctly, but replace `'` with `"`. This also applies to any UDF. The example below will illustrate UDFs in the context of DuckDB.
-
+# TidierDB is unique in its statement parsing flexiblility.  This means that in addition to using any built in SQL database functions, user defined functions (or UDFS) are readily avaialable in TidierDB.  
 
 using TidierDB # DuckDB is reexported by TidierDB
 db = connect(duckdb())
-# ```
-# mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
-# mtcars = db_tbable(db, mtcars_path);
-# ```
-# ## aggregate function in `@summarize`
-# Lets use the DuckDB `kurtosis` aggregate function 
-# ```
-# @chain t(mtcars) begin
-#       @group_by cyl 
-#       @summarize(kurt = kurtosis(mpg))
-#       @collect 
-# end
-# 3×2 DataFrame
-#  Row │ cyl     kurt      
-#      │ Int64?  Float64?  
-# ─────┼───────────────────
-#    1 │      4  -1.43411
-#    2 │      6  -1.82944
-#    3 │      8   0.330061
-# ```
-
-# ## aggregate functions in `@mutate`
-# To aggregate sql functions that are builtin to any database, but exist outside of the TidierDB parser, simply wrap the function call in `agg()`
-# ```
-# @chain t(mtcars) begin 
-#     @group_by(cyl)
-#     @mutate(kurt = agg(kurtosis(mpg)))
-#     @select cyl mpg kurt
-#     @collect 
-# end
-
-# 32×3 DataFrame
-#  Row │ cyl     mpg       kurt      
-#      │ Int64?  Float64?  Float64?  
-# ─────┼─────────────────────────────
-#    1 │      8      18.7   0.330061
-#    2 │      8      14.3   0.330061
-#    3 │      8      16.4   0.330061
-#    4 │      8      17.3   0.330061
-#    5 │      8      15.2   0.330061
-#    6 │      8      10.4   0.330061
-#    7 │      8      10.4   0.330061
-#   ⋮  │   ⋮        ⋮          ⋮
-#   27 │      6      21.0  -1.82944
-#   28 │      6      21.4  -1.82944
-#   29 │      6      18.1  -1.82944
-#   30 │      6      19.2  -1.82944
-#   31 │      6      17.8  -1.82944
-#   32 │      6      19.7  -1.82944
-#                     19 rows omitted
-# end
-
-# ```
+mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv";
+mtcars = db_tbable(db, mtcars_path);
 
 # ##  DuckDB function chaining
 # In DuckDB, functions can be chained together with `.`. TidierDB lets you leverage this. 
-# ```
-# @chain t(mtcars) begin 
-#     @mutate(model2 = model.upper().string_split(" ").list_aggr("string_agg",".").concat("."))
-#     @select model model2
-#     @collect
-# end
-# 32×2 DataFrame
-#  Row │ model              model2             
-#      │ String?            String?            
-# ─────┼───────────────────────────────────────
-#    1 │ Mazda RX4          MAZDA.RX4.
-#    2 │ Mazda RX4 Wag      MAZDA.RX4.WAG.
-#    3 │ Datsun 710         DATSUN.710.
-#    4 │ Hornet 4 Drive     HORNET.4.DRIVE.
-#    5 │ Hornet Sportabout  HORNET.SPORTABOUT.
-#    6 │ Valiant            VALIANT.
-#    7 │ Duster 360         DUSTER.360.
-#   ⋮  │         ⋮                  ⋮
-#   27 │ Porsche 914-2      PORSCHE.914-2.
-#   28 │ Lotus Europa       LOTUS.EUROPA.
-#   29 │ Ford Pantera L     FORD.PANTERA.L.
-#   30 │ Ferrari Dino       FERRARI.DINO.
-#   31 │ Maserati Bora      MASERATI.BORA.
-#   32 │ Volvo 142E         VOLVO.142E.
-#                               19 rows omitted
-# ```
+@chain t(mtcars) begin 
+    @mutate(model2 = model.upper().string_split(" ").list_aggr("string_agg",".").concat("."))
+    @select model model2
+    @collect
+end
 
 # ## `rowid` and pseudocolumns
 # When a table is not being read directly from a file, `rowid` is avaialable for use. In general, TidierDB should support all pseudocolumns.
@@ -104,20 +30,23 @@ db = connect(duckdb())
 # ```
 
 # ## UDFs in DuckDB
-df = db_table(db, DataFrame(a = [1, 2, 3], b = [1, 2, 3]), "df_view")
+# TidierDB's flexibility means that once created, UDFs can immediately be used in with `@mutate` or `@transmute`
+df = DataFrame(a = [1, 2, 3], b = [1, 2, 3])
+dfv = db_table(db, df, "df_view");
 
 # A more in depth disccusion of UDFs in DuckDB.jl can be found [here](https://discourse.julialang.org/t/is-it-hard-to-support-julia-udfs-in-duckdb/118509/24?u=true). 
 # define a function 
 bino = (a, b) -> (a + b) * (a + b)
-# create the scalar function 
+# Create the scalar function 
 fun = DuckDB.@create_scalar_function bino(a::Int, b::Int)::Int;
 DuckDB.register_scalar_function(db, fun);
-# use the scalar function in mutate without any further modifcation.
-@chain t(df) @mutate(c = bino(a, b)) @collect
 
-#notably, when the function is redefined (with the same arguments), the DuckDB UDF will change as well.
+# Use the UDF in mutate without any further modifcation.
+@chain t(dfv) @mutate(c = bino(a, b)) @collect
+
+# Notably, when the function is redefined (with the same arguments), the DuckDB UDF will change as well.
 quad = (a, b) -> (a + b) * (a - b);
-@chain t(df) @mutate(c = bino(a, b)) @collect
+@chain t(dfv) @mutate(c = bino(a, b)) @collect
 
 # ## UDFs in SQLite 
 # ```

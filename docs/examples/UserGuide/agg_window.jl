@@ -5,7 +5,7 @@
 using TidierDB
 db = connect(duckdb())
 mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
-mtcars = db_tbable(db, mtcars_path);
+mtcars = db_table(db, mtcars_path);
 
 
 # `@mutate`/`@transmute` supports - the following aggregate functions by default: `maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`

@@ -110,7 +110,7 @@ df = db_table(db, DataFrame(a = [1, 2, 3], b = [1, 2, 3]), "df_view")
 # define a function 
 bino = (a, b) -> (a + b) * (a + b)
 # create the scalar function 
-fun = DuckDB.@create_scalar_function quad(a::Int, b::Int)::Int;
+fun = DuckDB.@create_scalar_function bino(a::Int, b::Int)::Int;
 DuckDB.register_scalar_function(db, fun);
 # use the scalar function in mutate without any further modifcation.
 @chain t(df) @mutate(c = bino(a, b)) @collect

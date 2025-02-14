@@ -446,7 +446,7 @@ end
 
 function final_collect(sqlquery::SQLQuery, ::Type{<:duckdb})
     final_query = finalize_query(sqlquery)
-    result = DBInterface.execute(sqlquery.db, final_query)
+    result = DuckDB.query(sqlquery.db, final_query)
     return DataFrame(result)
 end
 

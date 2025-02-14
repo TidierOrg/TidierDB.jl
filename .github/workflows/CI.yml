@@ -37,6 +37,8 @@ jobs:
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
         with:
+          depwarn: no
+        with:
           directories: src
       - uses: coverallsapp/github-action@v2.3.6
         with:

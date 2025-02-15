@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../duckplyr_reprex/">
+        <link rel="prev" href="../agg_window/">
       
       
-        <link rel="next" href="../misc_tips/">
+        <link rel="next" href="../from_queryex/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#aggregate-function-in-summarize" class="md-skip">
+        <a href="#udfs-in-duckdb" class="md-skip">
           Skip to content
         </a>
       
@@ -333,11 +333,138 @@
   
   
     <li class="md-nav__item">
+      <a href="../agg_window/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Aggregate and Window Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#udfs-in-duckdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      UDFs in DuckDB
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duckdb-function-chaining" class="md-nav__link">
+    <span class="md-ellipsis">
+      DuckDB function chaining
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rowid-and-pseudocolumns" class="md-nav__link">
+    <span class="md-ellipsis">
+      rowid and pseudocolumns
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../from_queryex/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     Reusing a Query (and Views)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ex_joining/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Joining Tables
     
   </span>
   
@@ -438,27 +565,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../ex_joining/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Joining Tables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../functions_pass_to_DB/" class="md-nav__link">
         
   
@@ -540,118 +646,6 @@
       
   
   
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Flexible Syntax and UDFs
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  <span class="md-ellipsis">
-    Flexible Syntax and UDFs
-    
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#aggregate-function-in-summarize" class="md-nav__link">
-    <span class="md-ellipsis">
-      aggregate function in @summarize
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#aggregate-functions-in-mutate" class="md-nav__link">
-    <span class="md-ellipsis">
-      aggregate functions in @mutate
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#duckdb-function-chaining" class="md-nav__link">
-    <span class="md-ellipsis">
-      DuckDB function chaining
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rowid-and-pseudocolumns" class="md-nav__link">
-    <span class="md-ellipsis">
-      rowid and pseudocolumns
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#udf-sqlite-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      UDF SQLite Example
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-create-udf-in-duckdb" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to create UDF in DuckDB
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
   
   
     <li class="md-nav__item">
@@ -680,7 +674,7 @@
         
   
   <span class="md-ellipsis">
-    Reference/Docstrings
+    References/Docstrings
     
   </span>
   
@@ -715,18 +709,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#aggregate-function-in-summarize" class="md-nav__link">
+  <a href="#udfs-in-duckdb" class="md-nav__link">
     <span class="md-ellipsis">
-      aggregate function in @summarize
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#aggregate-functions-in-mutate" class="md-nav__link">
-    <span class="md-ellipsis">
-      aggregate functions in @mutate
+      UDFs in DuckDB
     </span>
   </a>
   
@@ -750,24 +735,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#udf-sqlite-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      UDF SQLite Example
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-create-udf-in-duckdb" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to create UDF in DuckDB
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -786,92 +753,57 @@
 
   <h1>Flexible Syntax and UDFs</h1>
 
-<p>TidierDB is unique in its statement parsing flexiblility.  This means that using any built in SQL function or user defined functions (or UDFS) or is readily avaialable. To use any function built into a database in <code>@mutate</code> or in <code>@summarize</code>, simply correctly write the correctly, but replace <code>'</code> with <code>"</code>. This also applies to any UDF. The example below will illustrate UDFs in the context of DuckDB.</p>
-<div class="highlight"><pre><span></span><code># Set up the connection
-using TidierDB  #rexports DuckDB
-db = DuckDB.DB()
-con = DuckDB.connect(db) # this will be important for UDFs
-mtcars_path = &quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;
-mtcars = db_tbable(db, mtcars_path);
+<p>TidierDB is unique in its statement parsing flexiblility.  This means that in addition to using any built in SQL database functions, user defined functions (or UDFS) are readily avaialable in TidierDB.</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span><span class="w"> </span><span class="c"># DuckDB is reexported by TidierDB</span>
+<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">())</span>
 </code></pre></div>
-<p><a id='aggregate-function-in-@summarize'></a></p>
-<p><a id='aggregate-function-in-@summarize-1'></a></p>
-<h2 id="aggregate-function-in-summarize">aggregate function in <code>@summarize</code><a class="headerlink" href="#aggregate-function-in-summarize" title="Permanent link">¤</a></h2>
-<p>Lets use the DuckDB <code>kurtosis</code> aggregate function</p>
-<div class="highlight"><pre><span></span><code>@chain t(mtcars) begin
-      @group_by cyl
-      @summarize(kurt = kurtosis(mpg))
-      @collect
-end
-3×2 DataFrame
- Row │ cyl     kurt
-     │ Int64?  Float64?
-─────┼───────────────────
-   1 │      4  -1.43411
-   2 │      6  -1.82944
-   3 │      8   0.330061
+<div class="highlight"><pre><span></span><code>DuckDB.DB(&quot;:memory:&quot;)
 </code></pre></div>
-<p><a id='aggregate-functions-in-@mutate'></a></p>
-<p><a id='aggregate-functions-in-@mutate-1'></a></p>
-<h2 id="aggregate-functions-in-mutate">aggregate functions in <code>@mutate</code><a class="headerlink" href="#aggregate-functions-in-mutate" title="Permanent link">¤</a></h2>
-<p>To aggregate sql functions that are builtin to any database, but exist outside of the TidierDB parser, simply wrap the function call in <code>agg()</code></p>
-<div class="highlight"><pre><span></span><code>@chain t(mtcars) begin
-    @group_by(cyl)
-    @mutate(kurt = agg(kurtosis(mpg)))
-    @select cyl mpg kurt
-    @collect
-end
+<p><a id='UDFs-in-DuckDB'></a></p>
+<p><a id='UDFs-in-DuckDB-1'></a></p>
+<h2 id="udfs-in-duckdb">UDFs in DuckDB<a class="headerlink" href="#udfs-in-duckdb" title="Permanent link">¤</a></h2>
+<p>Once created, UDFs can immediately be used in with <code>@mutate</code> or <code>@transmute</code></p>
+<div class="highlight"><pre><span></span><code><span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">])</span>
+<span class="n">dfv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_view&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>SQLQuery(&quot;&quot;, &quot;df_view&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, false, false, false, 2×4 DataFrame
+ Row │ name    type    current_selxn  table_name
+     │ String  String  Int64          String
+─────┼───────────────────────────────────────────
+   1 │ a       BIGINT              1  df_view
+   2 │ b       BIGINT              1  df_view, false, DuckDB.DB(&quot;:memory:&quot;), TidierDB.CTE[], 0, nothing, &quot;&quot;, &quot;&quot;, 0)
+</code></pre></div>
+<p>A more in depth disccusion of UDFs in DuckDB.jl can be found <a href="https://discourse.julialang.org/t/is-it-hard-to-support-julia-udfs-in-duckdb/118509/24?u=true">here</a>. define a function in julia, create the scalar function in DuckDB, and then register it</p>
+<div class="highlight"><pre><span></span><code><span class="n">bino</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="n">fun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DuckDB</span><span class="o">.</span><span class="nd">@create_scalar_function</span><span class="w"> </span><span class="n">bino</span><span class="p">(</span><span class="n">a</span><span class="o">::</span><span class="kt">Int</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">::</span><span class="kt">Int</span><span class="p">)</span><span class="o">::</span><span class="kt">Int</span>
+<span class="n">DuckDB</span><span class="o">.</span><span class="n">register_scalar_function</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">fun</span><span class="p">)</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bino</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">))</span><span class="w"> </span><span class="nd">@collect</span>
+</code></pre></div>
+<div><div style = "float: left;"><span>3×3 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">a</th><th style = "text-align: left;">b</th><th style = "text-align: left;">c</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: right;">1</td><td style = "text-align: right;">1</td><td style = "text-align: right;">4</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: right;">2</td><td style = "text-align: right;">2</td><td style = "text-align: right;">16</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: right;">3</td><td style = "text-align: right;">3</td><td style = "text-align: right;">36</td></tr></tbody></table></div>
 
-32×3 DataFrame
- Row │ cyl     mpg       kurt
-     │ Int64?  Float64?  Float64?
-─────┼─────────────────────────────
-   1 │      8      18.7   0.330061
-   2 │      8      14.3   0.330061
-   3 │      8      16.4   0.330061
-   4 │      8      17.3   0.330061
-   5 │      8      15.2   0.330061
-   6 │      8      10.4   0.330061
-   7 │      8      10.4   0.330061
-  ⋮  │   ⋮        ⋮          ⋮
-  27 │      6      21.0  -1.82944
-  28 │      6      21.4  -1.82944
-  29 │      6      18.1  -1.82944
-  30 │      6      19.2  -1.82944
-  31 │      6      17.8  -1.82944
-  32 │      6      19.7  -1.82944
-                    19 rows omitted
-end
+<p>Notably, when the function is redefined (with the same arguments) in julia, the DuckDB UDF representation will change as well.</p>
+<div class="highlight"><pre><span></span><code><span class="n">bino</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bino</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">))</span><span class="w"> </span><span class="nd">@collect</span>
 </code></pre></div>
+<div><div style = "float: left;"><span>3×3 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">a</th><th style = "text-align: left;">b</th><th style = "text-align: left;">c</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: right;">1</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: right;">2</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: right;">3</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0</td></tr></tbody></table></div>
+
 <p><a id='DuckDB-function-chaining'></a></p>
 <p><a id='DuckDB-function-chaining-1'></a></p>
 <h2 id="duckdb-function-chaining">DuckDB function chaining<a class="headerlink" href="#duckdb-function-chaining" title="Permanent link">¤</a></h2>
 <p>In DuckDB, functions can be chained together with <code>.</code>. TidierDB lets you leverage this.</p>
-<div class="highlight"><pre><span></span><code>@chain t(mtcars) begin
-    @mutate(model2 = model.upper().string_split(&quot; &quot;).list_aggr(&quot;string_agg&quot;,&quot;.&quot;).concat(&quot;.&quot;))
-    @select model model2
-    @collect
-end
-32×2 DataFrame
- Row │ model              model2
-     │ String?            String?
-─────┼───────────────────────────────────────
-   1 │ Mazda RX4          MAZDA.RX4.
-   2 │ Mazda RX4 Wag      MAZDA.RX4.WAG.
-   3 │ Datsun 710         DATSUN.710.
-   4 │ Hornet 4 Drive     HORNET.4.DRIVE.
-   5 │ Hornet Sportabout  HORNET.SPORTABOUT.
-   6 │ Valiant            VALIANT.
-   7 │ Duster 360         DUSTER.360.
-  ⋮  │         ⋮                  ⋮
-  27 │ Porsche 914-2      PORSCHE.914-2.
-  28 │ Lotus Europa       LOTUS.EUROPA.
-  29 │ Ford Pantera L     FORD.PANTERA.L.
-  30 │ Ferrari Dino       FERRARI.DINO.
-  31 │ Maserati Bora      MASERATI.BORA.
-  32 │ Volvo 142E         VOLVO.142E.
-                              19 rows omitted
+<div class="highlight"><pre><span></span><code><span class="n">mtcars_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span><span class="p">;</span>
+<span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">mtcars_path</span><span class="p">);</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">model2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">string_split</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">list_aggr</span><span class="p">(</span><span class="s">&quot;string_agg&quot;</span><span class="p">,</span><span class="s">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="nd">@select</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="n">model2</span>
+<span class="w">    </span><span class="nd">@collect</span>
+<span class="k">end</span>
 </code></pre></div>
+<div><div style = "float: left;"><span>32×2 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">model</th><th style = "text-align: left;">model2</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">Mazda RX4</td><td style = "text-align: left;">MAZDA.RX4.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">Mazda RX4 Wag</td><td style = "text-align: left;">MAZDA.RX4.WAG.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">Datsun 710</td><td style = "text-align: left;">DATSUN.710.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">Hornet 4 Drive</td><td style = "text-align: left;">HORNET.4.DRIVE.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">Hornet Sportabout</td><td style = "text-align: left;">HORNET.SPORTABOUT.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">Valiant</td><td style = "text-align: left;">VALIANT.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">7</td><td style = "text-align: left;">Duster 360</td><td style = "text-align: left;">DUSTER.360.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">8</td><td style = "text-align: left;">Merc 240D</td><td style = "text-align: left;">MERC.240D.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">9</td><td style = "text-align: left;">Merc 230</td><td style = "text-align: left;">MERC.230.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">10</td><td style = "text-align: left;">Merc 280</td><td style = "text-align: left;">MERC.280.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">11</td><td style = "text-align: left;">Merc 280C</td><td style = "text-align: left;">MERC.280C.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">12</td><td style = "text-align: left;">Merc 450SE</td><td style = "text-align: left;">MERC.450SE.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">13</td><td style = "text-align: left;">Merc 450SL</td><td style = "text-align: left;">MERC.450SL.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">14</td><td style = "text-align: left;">Merc 450SLC</td><td style = "text-align: left;">MERC.450SLC.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">15</td><td style = "text-align: left;">Cadillac Fleetwood</td><td style = "text-align: left;">CADILLAC.FLEETWOOD.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">16</td><td style = "text-align: left;">Lincoln Continental</td><td style = "text-align: left;">LINCOLN.CONTINENTAL.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">17</td><td style = "text-align: left;">Chrysler Imperial</td><td style = "text-align: left;">CHRYSLER.IMPERIAL.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">18</td><td style = "text-align: left;">Fiat 128</td><td style = "text-align: left;">FIAT.128.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">19</td><td style = "text-align: left;">Honda Civic</td><td style = "text-align: left;">HONDA.CIVIC.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">20</td><td style = "text-align: left;">Toyota Corolla</td><td style = "text-align: left;">TOYOTA.COROLLA.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">21</td><td style = "text-align: left;">Toyota Corona</td><td style = "text-align: left;">TOYOTA.CORONA.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">22</td><td style = "text-align: left;">Dodge Challenger</td><td style = "text-align: left;">DODGE.CHALLENGER.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">23</td><td style = "text-align: left;">AMC Javelin</td><td style = "text-align: left;">AMC.JAVELIN.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">24</td><td style = "text-align: left;">Camaro Z28</td><td style = "text-align: left;">CAMARO.Z28.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">25</td><td style = "text-align: left;">Pontiac Firebird</td><td style = "text-align: left;">PONTIAC.FIREBIRD.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">26</td><td style = "text-align: left;">Fiat X1-9</td><td style = "text-align: left;">FIAT.X1-9.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">27</td><td style = "text-align: left;">Porsche 914-2</td><td style = "text-align: left;">PORSCHE.914-2.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">28</td><td style = "text-align: left;">Lotus Europa</td><td style = "text-align: left;">LOTUS.EUROPA.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">29</td><td style = "text-align: left;">Ford Pantera L</td><td style = "text-align: left;">FORD.PANTERA.L.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">30</td><td style = "text-align: left;">Ferrari Dino</td><td style = "text-align: left;">FERRARI.DINO.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">31</td><td style = "text-align: left;">Maserati Bora</td><td style = "text-align: left;">MASERATI.BORA.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">32</td><td style = "text-align: left;">Volvo 142E</td><td style = "text-align: left;">VOLVO.142E.</td></tr></tbody></table></div>
+
 <p><a id='rowid-and-pseudocolumns'></a></p>
 <p><a id='rowid-and-pseudocolumns-1'></a></p>
 <h2 id="rowid-and-pseudocolumns"><code>rowid</code> and pseudocolumns<a class="headerlink" href="#rowid-and-pseudocolumns" title="Permanent link">¤</a></h2>
@@ -888,45 +820,6 @@ end
 ─────┼───────────────────────────────────────────────────────
    1 │ Hornet Sportabout      18.7       8     360.0     175
 </code></pre></div>
-<p><a id='UDF-SQLite-Example'></a></p>
-<p><a id='UDF-SQLite-Example-1'></a></p>
-<h2 id="udf-sqlite-example">UDF SQLite Example<a class="headerlink" href="#udf-sqlite-example" title="Permanent link">¤</a></h2>
-<div class="highlight"><pre><span></span><code>using SQLite
-sql = connect(sqlite());
-df = DataFrame(id = [string(&#39;A&#39; + i ÷ 26, &#39;A&#39; + i % 26) for i in 0:9],
-                        groups = [i % 2 == 0 ? &quot;aa&quot; : &quot;bb&quot; for i in 1:10],
-                        value = repeat(1:5, 2),
-                        percent = 0.1:0.1:1.0);
-
-copy_to(db, sql, &quot;df_mem&quot;);
-SQLite.@register sql function diff_of_squares(x, y)
-              x^2 - y^2
-              end;
-
-@chain db_table(sql, &quot;df_mem&quot;) begin
-      @select(value, percent)
-      @mutate(plus3 = diff_of_squares(value, percent))
-      @collect
-end
-10×3 DataFrame
- Row │ value  percent  plus3
-     │ Int64  Float64  Float64
-─────┼─────────────────────────
-   1 │     1      0.1     0.99
-   2 │     2      0.2     3.96
-   3 │     3      0.3     8.91
-   4 │     4      0.4    15.84
-   5 │     5      0.5    24.75
-   6 │     1      0.6     0.64
-   7 │     2      0.7     3.51
-   8 │     3      0.8     8.36
-   9 │     4      0.9    15.19
-  10 │     5      1.0    24.0
-</code></pre></div>
-<p><a id='How-to-create-UDF-in-DuckDB'></a></p>
-<p><a id='How-to-create-UDF-in-DuckDB-1'></a></p>
-<h2 id="how-to-create-udf-in-duckdb">How to create UDF in DuckDB<a class="headerlink" href="#how-to-create-udf-in-duckdb" title="Permanent link">¤</a></h2>
-<p>Example coming soon..</p>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 
@@ -964,7 +857,7 @@ end
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../duckplyr_reprex/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Reproduce a duckplyr example">
+          <a href="../agg_window/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Aggregate and Window Functions">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -974,20 +867,20 @@ end
                 Previous
               </span>
               <div class="md-ellipsis">
-                Reproduce a duckplyr example
+                Aggregate and Window Functions
               </div>
             </div>
           </a>
         
         
           
-          <a href="../misc_tips/" class="md-footer__link md-footer__link--next" aria-label="Next: Misc Tips/Tricks">
+          <a href="../from_queryex/" class="md-footer__link md-footer__link--next" aria-label="Next: Reusing a Query (and Views)">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Misc Tips/Tricks
+                Reusing a Query (and Views)
               </div>
             </div>
             <div class="md-footer__button md-icon">

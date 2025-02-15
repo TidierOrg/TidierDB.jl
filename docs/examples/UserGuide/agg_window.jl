@@ -15,6 +15,7 @@ mtcars = db_table(db, mtcars_path);
        @collect 
  end
 
+
 ## Aggregate Functions in `@mutate`
 # By default, `@mutate`/`@transmute` supports (however, you can easily expand this list)
 # - `maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`

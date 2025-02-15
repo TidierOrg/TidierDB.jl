@@ -51,7 +51,7 @@ end
 end 
 
 # The above query could have alternatively been written as 
-@chain t(dfv) begin
+@chain t(mtcars) begin
     @group_by cyl
     @window_order mpg
     @mutate(row_id = row_number())

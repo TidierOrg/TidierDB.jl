@@ -3,24 +3,25 @@ using TidierDB # DuckDB is reexported by TidierDB
 db = connect(duckdb())
 
 # ## UDFs in DuckDB
-# TidierDB's flexibility means that once created, UDFs can immediately be used in with `@mutate` or `@transmute`
+# Once created, UDFs can immediately be used in with `@mutate` or `@transmute`
 df = DataFrame(a = [1, 2, 3], b = [1, 2, 3])
 dfv = db_table(db, df, "df_view")
 
 # A more in depth disccusion of UDFs in DuckDB.jl can be found [here](https://discourse.julialang.org/t/is-it-hard-to-support-julia-udfs-in-duckdb/118509/24?u=true). 
-# define a function and Create the scalar function 
+# define a function in julia, create the scalar function in DuckDB, and then register it 
 bino = (a, b) -> (a + b) * (a + b)
 fun = DuckDB.@create_scalar_function bino(a::Int, b::Int)::Int
 DuckDB.register_scalar_function(db, fun)
 @chain t(dfv) @mutate(c = bino(a, b)) @collect
 
-# Notably, when the function is redefined (with the same arguments), the DuckDB UDF will change as well.
+# Notably, when the function is redefined (with the same arguments) in julia, the DuckDB UDF representation will change as well.
 bino = (a, b) -> (a + b) * (a - b)
 @chain t(dfv) @mutate(c = bino(a, b)) @collect
 
 # ##  DuckDB function chaining
-# In DuckDB, functions can be chained together with `.`. TidierDB lets you leverage this. 
-mtcars = db_table(db, "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv")
+# In DuckDB, functions can be chained together with `.`. TidierDB lets you leverage this.
+mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv";
+mtcars = db_table(db, mtcars_path);
 @chain t(mtcars) begin 
     @mutate(model2 = model.upper().string_split(" ").list_aggr("string_agg",".").concat("."))
     @select model model2

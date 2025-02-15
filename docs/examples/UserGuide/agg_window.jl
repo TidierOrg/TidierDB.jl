@@ -23,6 +23,7 @@ mtcars = db_table(db, mtcars_path);
      @group_by(cyl)
      @mutate(kurt = agg(kurtosis(mpg)))
      @select cyl mpg kurt
+     @head()
      @collect 
 end
 
@@ -32,6 +33,7 @@ push!(TidierDB.window_agg_fxns, :kurtosis);
      @group_by(cyl)
      @mutate(kurt = kurtosis(mpg))
      @select cyl mpg kurt
+     @head()
      @collect 
 end
 
@@ -46,7 +48,6 @@ end
         _by = cyl, 
         _order = mpg # _frame is not used in this example 
         )
-    @aside @show_query _
     @collect
 end 
 

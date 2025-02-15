@@ -1,14 +1,13 @@
 # TidierDB is unique in its statement parsing flexiblility.  This means that in addition to using any built in SQL database functions, user defined functions (or UDFS) are readily avaialable in TidierDB.  
 using TidierDB # DuckDB is reexported by TidierDB
-db = connect(duckdb())
+db = connect(duckdb());
+df = DataFrame(a = [1, 2, 3], b = [1, 2, 3]);
+dfv = db_table(db, df, "df_view");
 
 # ## UDFs in DuckDB
 # Once created, UDFs can immediately be used in with `@mutate` or `@transmute`
-df = DataFrame(a = [1, 2, 3], b = [1, 2, 3])
-dfv = db_table(db, df, "df_view")
-
 # A more in depth disccusion of UDFs in DuckDB.jl can be found [here](https://discourse.julialang.org/t/is-it-hard-to-support-julia-udfs-in-duckdb/118509/24?u=true). 
-# define a function in julia, create the scalar function in DuckDB, and then register it 
+# There are 3 steps 1) Define a function in julia, 2) create the scalar function in DuckDB, and 3) register it 
 bino = (a, b) -> (a + b) * (a + b)
 fun = DuckDB.@create_scalar_function bino(a::Int, b::Int)::Int
 DuckDB.register_scalar_function(db, fun)
@@ -25,6 +24,7 @@ mtcars = db_table(db, mtcars_path);
 @chain t(mtcars) begin 
     @mutate(model2 = model.upper().string_split(" ").list_aggr("string_agg",".").concat("."))
     @select model model2
+    @head() 
     @collect
 end
 

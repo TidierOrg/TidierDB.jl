@@ -822,7 +822,7 @@
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">())</span>
 <span class="go">DuckDB.DB(&quot;:memory:&quot;)</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TidierDB.jl#L434-L476' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TidierDB.jl#L434-L476' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.copy_to-Tuple{Any, Union{AbstractString, DataFrame}, String}' href='#TidierDB.copy_to-Tuple{Any, Union{AbstractString, DataFrame}, String}'>#</a>
 <strong><code>TidierDB.copy_to</code></strong> &mdash; <em>Method</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span><span class="n">copy_to</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">df_or_path</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;name&quot;</span><span class="p">)</span>
@@ -844,7 +844,7 @@
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">copy_to</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TidierDB.jl#L382-L401' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TidierDB.jl#L382-L401' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.db_table' href='#TidierDB.db_table'>#</a>
 <strong><code>TidierDB.db_table</code></strong> &mdash; <em>Function</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">db_table</span><span class="p">(</span><span class="n">database</span><span class="p">,</span><span class="w"> </span><span class="n">table_name</span><span class="p">,</span><span class="w"> </span><span class="n">athena_params</span><span class="p">,</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="n">iceberg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="n">alias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">df_name</span><span class="p">)</span>
@@ -882,7 +882,7 @@
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;main.df_mem&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TidierDB.jl#L237-L276' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TidierDB.jl#L237-L276' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.drop_view-Tuple{Any, Any}' href='#TidierDB.drop_view-Tuple{Any, Any}'>#</a>
 <strong><code>TidierDB.drop_view</code></strong> &mdash; <em>Method</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">drop_view</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">)</span>
@@ -902,7 +902,7 @@
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">drop_view</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;viewer&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/view_compute.jl#L37-L56' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/view_compute.jl#L37-L56' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.show_tables-Tuple{Union{DuckDB.Connection, DuckDB.DB}}' href='#TidierDB.show_tables-Tuple{Union{DuckDB.Connection, DuckDB.DB}}'>#</a>
 <strong><code>TidierDB.show_tables</code></strong> &mdash; <em>Method</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">show_tables</span><span class="p">(</span><span class="n">con</span><span class="p">;</span><span class="w"> </span><span class="n">GBQ_datasetname</span><span class="p">)</span>
@@ -918,7 +918,7 @@
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="n">show_tables</span><span class="p">(</span><span class="n">db</span><span class="p">);</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TBD_macros.jl#L557-L571' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TBD_macros.jl#L557-L571' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.warnings-Tuple{Bool}' href='#TidierDB.warnings-Tuple{Bool}'>#</a>
 <strong><code>TidierDB.warnings</code></strong> &mdash; <em>Method</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">warnings</span><span class="p">(</span><span class="n">show</span><span class="o">::</span><span class="kt">Bool</span><span class="p">)</span>
@@ -933,7 +933,7 @@
 <p><strong>Example</strong></p>
 <div class="highlight"><pre><span></span><code>julia&gt; warnings(true);
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TidierDB.jl#L102-L117' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TidierDB.jl#L102-L117' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@anti_join-Tuple{Any, Any, Vararg{Any}}' href='#TidierDB.@anti_join-Tuple{Any, Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@anti_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@anti_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">)</span>
@@ -975,7 +975,7 @@
 <span class="go">   4 │ AH      aa          3      0.8</span>
 <span class="go">   5 │ AJ      aa          5      1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/joins_sq.jl#L500-L545' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/joins_sq.jl#L500-L545' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@arrange-Tuple{Any, Vararg{Any}}' href='#TidierDB.@arrange-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@arrange</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@arrange</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -1032,7 +1032,7 @@
 <span class="go">   9 │ AA      bb          1      0.1</span>
 <span class="go">  10 │ AF      aa          1      0.6</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TBD_macros.jl#L158-L215' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TBD_macros.jl#L158-L215' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@collect' href='#TidierDB.@collect'>#</a>
 <strong><code>TidierDB.@collect</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@collect</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">)</span>
@@ -1068,7 +1068,7 @@
 <span class="w">   </span><span class="mi">9</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AI</span><span class="w">      </span><span class="n">bb</span><span class="w">          </span><span class="mi">4</span><span class="w">      </span><span class="mf">0.9</span>
 <span class="w">  </span><span class="mi">10</span><span class="w"> </span><span class="n">│</span><span class="w"> </span><span class="n">AJ</span><span class="w">      </span><span class="n">aa</span><span class="w">          </span><span class="mi">5</span><span class="w">      </span><span class="mf">1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TBD_macros.jl#L501-L535' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TBD_macros.jl#L501-L535' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@count-Tuple{Any, Vararg{Any}}' href='#TidierDB.@count-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@count</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@count</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -1099,7 +1099,7 @@
 <span class="go">   1 │ aa          5</span>
 <span class="go">   2 │ bb          5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TBD_macros.jl#L270-L300' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TBD_macros.jl#L270-L300' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@create_view' href='#TidierDB.@create_view'>#</a>
 <strong><code>TidierDB.@create_view</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@create_view</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">replace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">)</span>
@@ -1122,7 +1122,7 @@
 
 <span class="gp">julia&gt;</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df1&quot;</span><span class="p">)</span><span class="w"> </span><span class="nd">@create_view</span><span class="p">(</span><span class="n">viewer</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"> </span><span class="c"># will overwrite exisiting view</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/view_compute.jl#L10-L32' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/view_compute.jl#L10-L32' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@distinct-Tuple{Any, Vararg{Any}}' href='#TidierDB.@distinct-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@distinct</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@distinct</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -1174,7 +1174,7 @@
 <span class="go">   9 │ AI      bb          4      0.9</span>
 <span class="go">  10 │ AJ      aa          5      1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TBD_macros.jl#L230-L285' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TBD_macros.jl#L230-L285' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@filter-Tuple{Any, Vararg{Any}}' href='#TidierDB.@filter-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@filter</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@filter</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">conditions</span><span class="o">...</span><span class="p">)</span>
@@ -1241,7 +1241,7 @@
 <span class="go">   3 │ AF      aa          1      0.6</span>
 <span class="go">   4 │ AG      bb          2      0.7</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TBD_macros.jl#L39-L108' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TBD_macros.jl#L39-L108' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@full_join-Tuple{Any, Any, Vararg{Any}}' href='#TidierDB.@full_join-Tuple{Any, Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@full_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@inner_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">)</span>
@@ -1289,7 +1289,7 @@
 <span class="go">  10 │ AJ      aa             5        1.0  missing   missing </span>
 <span class="go">  11 │ AM      missing  missing  missing    X              74</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/joins_sq.jl#L429-L480' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/joins_sq.jl#L429-L480' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@group_by-Tuple{Any, Vararg{Any}}' href='#TidierDB.@group_by-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@group_by</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@group_by</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -1321,7 +1321,7 @@
 <span class="go">   1 │ aa</span>
 <span class="go">   2 │ bb</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TBD_macros.jl#L192-L225' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TBD_macros.jl#L192-L225' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@head' href='#TidierDB.@head'>#</a>
 <strong><code>TidierDB.@head</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@head</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
@@ -1351,7 +1351,7 @@
 <span class="go">─────┼────────────────────────────────</span>
 <span class="go">   1 │ AA      bb          1      0.1</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TBD_macros.jl#L543-L573' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TBD_macros.jl#L543-L573' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@inner_join-Tuple{Any, Any, Vararg{Any}}' href='#TidierDB.@inner_join-Tuple{Any, Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@inner_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@inner_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">)</span>
@@ -1393,7 +1393,7 @@
 <span class="go">   4 │ AG      bb          2      0.7  Y            83</span>
 <span class="go">   5 │ AI      bb          4      0.9  X            95</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/joins_sq.jl#L392-L437' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/joins_sq.jl#L392-L437' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@intersect-Tuple{Any, Any, Vararg{Any}}' href='#TidierDB.@intersect-Tuple{Any, Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@intersect</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@intersect</span><span class="p">(</span><span class="n">sql_query1</span><span class="p">,</span><span class="w"> </span><span class="n">sql_query2</span><span class="p">,</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">)</span>
@@ -1439,7 +1439,7 @@
 <span class="go">   2 │     2  Bob</span>
 <span class="go">   3 │     2  Bob</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/union_intersect_setdiff.jl#L119-L163' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/union_intersect_setdiff.jl#L119-L163' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@left_join-Tuple{Any, Any, Vararg{Any}}' href='#TidierDB.@left_join-Tuple{Any, Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@left_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@left_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">)</span>
@@ -1521,7 +1521,7 @@
 <span class="w">         </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span><span class="p">;</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/joins_sq.jl#L321-L406' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/joins_sq.jl#L321-L406' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@mutate-Tuple{Any, Vararg{Any}}' href='#TidierDB.@mutate-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@mutate</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@mutate</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">exprs</span><span class="o">...</span><span class="p">;</span><span class="w"> </span><span class="n">_by</span><span class="p">,</span><span class="w"> </span><span class="n">_frame</span><span class="p">,</span><span class="w"> </span><span class="n">_order</span><span class="p">)</span>
@@ -1634,7 +1634,7 @@
 <span class="w">          </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span><span class="p">;</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/mutate_and_summ.jl#L99-L211' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/mutate_and_summ.jl#L99-L211' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@relocate-Tuple{Any, Vararg{Any}}' href='#TidierDB.@relocate-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@relocate</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@relocate</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="p">,</span><span class="w"> </span><span class="n">before</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nothing</span><span class="p">,</span><span class="w"> </span><span class="n">after</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nothing</span><span class="p">)</span>
@@ -1694,7 +1694,7 @@
 <span class="go">   9 │     0.9  bb      AI          4</span>
 <span class="go">  10 │     1.0  aa      AJ          5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/relocate.jl#L44-L103' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/relocate.jl#L44-L103' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@rename-Tuple{Any, Vararg{Any}}' href='#TidierDB.@rename-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@rename</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@rename</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">renamings</span><span class="o">...</span><span class="p">)</span>
@@ -1730,7 +1730,7 @@
 <span class="go">   9 │ AI      bb          4       0.9</span>
 <span class="go">  10 │ AJ      aa          5       1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TBD_macros.jl#L310-L348' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TBD_macros.jl#L310-L348' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@right_join-Tuple{Any, Any, Vararg{Any}}' href='#TidierDB.@right_join-Tuple{Any, Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@right_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@right_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">)</span>
@@ -1793,7 +1793,7 @@
 <span class="go">   5 │ AI      bb             4        0.9  X            95</span>
 <span class="go">   6 │ AM      missing  missing  missing    X            74</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/joins_sq.jl#L357-L424' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/joins_sq.jl#L357-L424' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@select-Tuple{Any, Vararg{Any}}' href='#TidierDB.@select-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@select</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@select</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="p">)</span>
@@ -1853,7 +1853,7 @@
 <span class="go">   9 │     4      0.9</span>
 <span class="go">  10 │     5      1.0</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/TBD_macros.jl#L1-L64' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/TBD_macros.jl#L1-L64' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@semi_join-Tuple{Any, Any, Vararg{Any}}' href='#TidierDB.@semi_join-Tuple{Any, Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@semi_join</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@semi_join</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">join_table</span><span class="p">,</span><span class="w"> </span><span class="n">orignal_table_col</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">new_table_col</span><span class="p">)</span>
@@ -1895,7 +1895,7 @@
 <span class="go">   4 │ AG      bb          2      0.7</span>
 <span class="go">   5 │ AI      bb          4      0.9</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/joins_sq.jl#L464-L509' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/joins_sq.jl#L464-L509' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@setdiff-Tuple{Any, Any, Vararg{Any}}' href='#TidierDB.@setdiff-Tuple{Any, Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@setdiff</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@setdiff</span><span class="p">(</span><span class="n">sql_query1</span><span class="p">,</span><span class="w"> </span><span class="n">sql_query2</span><span class="p">,</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">)</span>
@@ -1941,7 +1941,7 @@
 <span class="go">   2 │     1  Alice</span>
 <span class="go">   3 │     4  David</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/union_intersect_setdiff.jl#L143-L187' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/union_intersect_setdiff.jl#L143-L187' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@slice_max' href='#TidierDB.@slice_max'>#</a>
 <strong><code>TidierDB.@slice_max</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@slice_max</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
@@ -2023,7 +2023,7 @@
 <span class="go">─────┼────────────────────────────────</span>
 <span class="go">   1 │ aa               0.6         1</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/slices_sq.jl#L73-L154' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/slices_sq.jl#L73-L154' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@slice_min' href='#TidierDB.@slice_min'>#</a>
 <strong><code>TidierDB.@slice_min</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@slice_min</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
@@ -2105,7 +2105,7 @@
 <span class="go">─────┼────────────────────────────────</span>
 <span class="go">   1 │ bb               0.5         1</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/slices_sq.jl#L1-L82' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/slices_sq.jl#L1-L82' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@slice_sample' href='#TidierDB.@slice_sample'>#</a>
 <strong><code>TidierDB.@slice_sample</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@slice_sample</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
@@ -2136,7 +2136,7 @@
 <span class="w">       </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span><span class="p">;</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/slices_sq.jl#L147-L176' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/slices_sq.jl#L147-L176' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@summarise-Tuple{Any, Vararg{Any}}' href='#TidierDB.@summarise-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@summarise</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span><span class="nd">@summarise</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">exprs</span><span class="o">...</span><span class="p">)</span>
@@ -2182,7 +2182,7 @@
 <span class="go">   1 │ aa          3.0      5</span>
 <span class="go">   2 │ bb          2.5      5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/mutate_and_summ.jl#L354-L404' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/mutate_and_summ.jl#L354-L404' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@summarize-Tuple{Any, Vararg{Any}}' href='#TidierDB.@summarize-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@summarize</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">exprs</span><span class="o">...</span><span class="p">;</span><span class="w"> </span><span class="n">_by</span><span class="p">)</span>
@@ -2241,7 +2241,7 @@
 <span class="go">   1 │ aa          3.0      5</span>
 <span class="go">   2 │ bb          2.5      5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/mutate_and_summ.jl#L271-L328' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/mutate_and_summ.jl#L271-L328' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@transmute-Tuple{Any, Vararg{Any}}' href='#TidierDB.@transmute-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@transmute</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@transmute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">exprs</span><span class="o">...</span><span class="p">;</span><span class="w"> </span><span class="n">_by</span><span class="p">,</span><span class="w"> </span><span class="n">_frame</span><span class="p">,</span><span class="w"> </span><span class="n">_order</span><span class="p">)</span>
@@ -2301,7 +2301,7 @@
 <span class="go">   9 │ bb          5</span>
 <span class="go">  10 │ bb          5</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/mutate_and_summ.jl#L361-L420' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/mutate_and_summ.jl#L361-L420' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@union-Tuple{Any, Any, Vararg{Any}}' href='#TidierDB.@union-Tuple{Any, Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@union</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@union</span><span class="p">(</span><span class="n">sql_query1</span><span class="p">,</span><span class="w"> </span><span class="n">sql_query2</span><span class="p">,</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">)</span>
@@ -2383,7 +2383,7 @@
 <span class="go">   2 │     8     30</span>
 <span class="go">   3 │     5     50</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/union_intersect_setdiff.jl#L82-L162' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/union_intersect_setdiff.jl#L82-L162' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@union_all-Tuple{Any, Any}' href='#TidierDB.@union_all-Tuple{Any, Any}'>#</a>
 <strong><code>TidierDB.@union_all</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@union</span><span class="p">(</span><span class="n">sql_query1</span><span class="p">,</span><span class="w"> </span><span class="n">sql_query2</span><span class="p">)</span>
@@ -2417,7 +2417,7 @@
 <span class="go">   5 │     2     20</span>
 <span class="go">   6 │     3     30</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/union_intersect_setdiff.jl#L105-L137' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/union_intersect_setdiff.jl#L105-L137' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@window_frame-Tuple{Any, Vararg{Any}}' href='#TidierDB.@window_frame-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@window_frame</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@window_frame</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="o">...</span><span class="p">)</span>
@@ -2477,7 +2477,7 @@
 <span class="w">        </span><span class="nd">@collect</span>
 <span class="w">       </span><span class="k">end</span><span class="p">;</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/windows.jl#L55-L109' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/windows.jl#L55-L109' class='documenter-source'>source</a><br></p>
 <p><a id='TidierDB.@window_order-Tuple{Any, Vararg{Any}}' href='#TidierDB.@window_order-Tuple{Any, Vararg{Any}}'>#</a>
 <strong><code>TidierDB.@window_order</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span><span class="nd">@window_order</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span><span class="w"> </span><span class="n">columns</span><span class="o">...</span><span class="p">)</span>
@@ -2505,7 +2505,7 @@
 <span class="w">       </span><span class="c">#@show_query </span>
 <span class="w">       </span><span class="k">end</span><span class="p">;</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/windows.jl#L1-L27' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/windows.jl#L1-L27' class='documenter-source'>source</a><br></p>
 <p><a id='Reference-Internal-functions'></a></p>
 <p><a id='Reference-Internal-functions-1'></a></p>
 <h2 id="reference-internal-functions">Reference - Internal functions<a class="headerlink" href="#reference-internal-functions" title="Permanent link">¤</a></h2>
@@ -2599,7 +2599,7 @@
 <span class="go">   9 │ AG      bb         -2.5     135  0.0121342</span>
 <span class="go">  10 │ AI      bb         -0.5     521  0.0121342</span>
 </code></pre></div>
-<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/ff04d0b68dfd58dd15f4229f9b2f0a0c69016bc6/src/parsing_duckdb.jl#L175-L268' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/TidierOrg/TidierDB.jl/blob/682930ec232f85fabb170e66e715f3fcc2d9242c/src/parsing_duckdb.jl#L175-L268' class='documenter-source'>source</a><br></p>
 
 
 

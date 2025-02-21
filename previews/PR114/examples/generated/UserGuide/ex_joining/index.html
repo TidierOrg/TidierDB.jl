@@ -1025,25 +1025,20 @@
 <p><a id='AsOf/Rolling-join-1'></a></p>
 <h2 id="asofrolling-join">AsOf/Rolling join<a class="headerlink" href="#asofrolling-join" title="Permanent link">¤</a></h2>
 <p>This example reproduces an example in the <a href="https://duckdb.org/docs/guides/sql_features/asof_join.html#what-is-an-asof-join">DuckDB Docs</a></p>
-<div class="highlight"><pre><span></span><code><span class="n">prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://duckdb.org/data/prices.csv&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;prices&quot;</span><span class="p">)</span>
-<span class="n">holdings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://duckdb.org/data/holdings.csv&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;holdings&quot;</span><span class="p">)</span>
-
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span>
+<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">())</span>
+<span class="n">prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://duckdb.org/data/prices.csv&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;prices&quot;</span><span class="p">);</span>
+<span class="n">holdings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://duckdb.org/data/holdings.csv&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;holdings&quot;</span><span class="p">);</span>
 <span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">holdings</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">   </span><span class="nd">@inner_join</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">prices</span><span class="p">),</span><span class="w"> </span><span class="n">ticker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticker</span><span class="p">,</span><span class="w"> </span><span class="n">closest</span><span class="p">(</span><span class="n">when</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">when</span><span class="p">))</span>
-<span class="w">   </span><span class="nd">@select</span><span class="p">(</span><span class="n">holdings</span><span class="o">.</span><span class="n">ticker</span><span class="p">,</span><span class="w"> </span><span class="n">holdings</span><span class="o">.</span><span class="n">when</span><span class="p">)</span>
-<span class="w">   </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">shares</span><span class="p">)</span>
-<span class="w">   </span><span class="nd">@collect</span>
-<span class="k">end</span>
+<span class="w">    </span><span class="nd">@inner_join</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">prices</span><span class="p">),</span><span class="w"> </span><span class="n">ticker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticker</span><span class="p">,</span><span class="w"> </span><span class="n">closest</span><span class="p">(</span><span class="n">when</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">when</span><span class="p">))</span>
+<span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">holdings</span><span class="o">.</span><span class="n">ticker</span><span class="p">,</span><span class="w"> </span><span class="n">holdings</span><span class="o">.</span><span class="n">when</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">shares</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@collect</span>
+<span class="w"> </span><span class="k">end</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code> 4×3 DataFrame
- Row │ ticker  when                 value
-     │ String  DateTime             Float64
-─────┼──────────────────────────────────────
-   1 │ APPL    2001-01-01T00:00:30     2.94
-   2 │ APPL    2001-01-01T00:01:30    48.26
-   3 │ GOOG    2001-01-01T00:00:30    23.45
-   4 │ GOOG    2001-01-01T00:01:30    21.16
-</code></pre></div>
+<div><div style = "float: left;"><span>4×3 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">ticker</th><th style = "text-align: left;">when</th><th style = "text-align: left;">value</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Dates.DateTime" style = "text-align: left;">DateTime</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">APPL</td><td style = "text-align: left;">2001-01-01T00:00:30</td><td style = "text-align: right;">2.94</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">APPL</td><td style = "text-align: left;">2001-01-01T00:01:30</td><td style = "text-align: right;">48.26</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">GOOG</td><td style = "text-align: left;">2001-01-01T00:00:30</td><td style = "text-align: right;">23.45</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">GOOG</td><td style = "text-align: left;">2001-01-01T00:01:30</td><td style = "text-align: right;">21.16</td></tr></tbody></table></div>
+
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 

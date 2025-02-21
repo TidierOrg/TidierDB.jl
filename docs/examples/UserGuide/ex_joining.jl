@@ -159,24 +159,13 @@
 
 # ## AsOf/Rolling join
 # This example reproduces an example in the [DuckDB Docs](https://duckdb.org/docs/guides/sql_features/asof_join.html#what-is-an-asof-join)
-# ```julia
-# prices = db_table(db, "https://duckdb.org/data/prices.csv", "prices")
-# holdings = db_table(db, "https://duckdb.org/data/holdings.csv", "holdings")
-
-# @chain t(holdings) begin
-#    @inner_join(t(prices), ticker = ticker, closest(when >= when))
-#    @select(holdings.ticker, holdings.when) 
-#    @mutate(value = price * shares)
-#    @collect
-# end
-# ```
-# ```
-#  4×3 DataFrame
-#  Row │ ticker  when                 value   
-#      │ String  DateTime             Float64 
-# ─────┼──────────────────────────────────────
-#    1 │ APPL    2001-01-01T00:00:30     2.94
-#    2 │ APPL    2001-01-01T00:01:30    48.26
-#    3 │ GOOG    2001-01-01T00:00:30    23.45
-#    4 │ GOOG    2001-01-01T00:01:30    21.16
-# ```
+using TidierDB
+db = connect(duckdb())
+prices = db_table(db, "https://duckdb.org/data/prices.csv", "prices");
+holdings = db_table(db, "https://duckdb.org/data/holdings.csv", "holdings");
+@chain t(holdings) begin
+    @inner_join(t(prices), ticker = ticker, closest(when >= when))
+    @select(holdings.ticker, holdings.when) 
+    @mutate(value = price * shares)
+    @collect
+ end

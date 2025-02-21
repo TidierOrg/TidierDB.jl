@@ -1,6 +1,9 @@
 # TidierDB.jl updates
-## v0.7.2 - 2025-02-12
+## v0.8.0 - 2025-02-12
 - adds `@transmute`
+- changes DuckDB compat to avoid precompilation issues 
+- bump DataFrames to 1.7
+- DuckDB 1.2 is still available in dev branch to leverage UDFs
 
 ## v0.7.1 - 2025-02-04
 - Prints queries in color by default (optional)

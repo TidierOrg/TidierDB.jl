@@ -105,6 +105,18 @@ function expr_to_sql_postgres(expr, sq; from_summarize::Bool)
             return "EXTRACT(MINUTE FROM " * string(a) * ")"
         elseif @capture(x, second(a_))
             return "EXTRACT(SECOND FROM " * string(a) * ")"
+        elseif @capture(x, Year(a_))
+            return "(__( INTERVAL $(string(a)) Year )__("
+        elseif @capture(x, Month(a_))
+            return "(__( INTERVAL $(string(a)) Month )__("
+        elseif @capture(x, Day(a_))
+            return "(__( INTERVAL $(string(a)) Day )__("
+        elseif @capture(x, Hour(a_))
+            return "(__( INTERVAL $(string(a)) Hour )__("
+        elseif @capture(x, Minute(a_))
+            return "(__( INTERVAL $(string(a)) Minute )__("
+        elseif @capture(x, Second(a_))
+            return "(__( INTERVAL $(string(a)) Second )__("
         elseif @capture(x, ymd(time_))
             return :(TO_DATE($time, "YYYYMMDD"))
         elseif @capture(x, mdy(time_))

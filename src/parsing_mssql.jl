@@ -97,6 +97,18 @@ function expr_to_sql_mssql(expr, sq; from_summarize::Bool)
             return "DATEPART(MINUTE FROM " * string(a) * ")"
         elseif @capture(x, second(a_))
             return "DATEPART(SECOND FROM " * string(a) * ")"
+        elseif @capture(x, Year(a_))
+            return "(__( INTERVAL $(string(a)) Year )__("
+        elseif @capture(x, Month(a_))
+            return "(__( INTERVAL $(string(a)) Month )__("
+        elseif @capture(x, Day(a_))
+            return "(__( INTERVAL $(string(a)) Day )__("
+        elseif @capture(x, Hour(a_))
+            return "(__( INTERVAL $(string(a)) Hour )__("
+        elseif @capture(x, Minute(a_))
+            return "(__( INTERVAL $(string(a)) Minute )__("
+        elseif @capture(x, Second(a_))
+            return "(__( INTERVAL $(string(a)) Second )__("
       # https://www.mssqltips.com/sqlservertip/1145/date-and-time-conversions-using-sql-server/
         elseif @capture(x, ymd(time_column_))
             return :(convert(varchar, time_column, 23))

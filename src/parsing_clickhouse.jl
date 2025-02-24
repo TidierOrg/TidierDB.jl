@@ -94,17 +94,17 @@ function expr_to_sql_clickhouse(expr, sq; from_summarize::Bool)
                 return """ CASE WHEN $column_str IS NULL THEN NULL ELSE COALESCE(  LIST_EXTRACT( CASE  WHEN '$key_str' IS NULL THEN NULL ELSE ELEMENT_AT($column_str, '$key_str') END, 1 ), NULL) END ***"""
             end        # Date extraction functions
         elseif @capture(x, year(a_))
-            return "(__( toYear(" * string(a) * ") )__("
+            return "(__( toYear(" * string(a) * ") ***"
         elseif @capture(x, month(a_))
-            return "(__( toMonth(" * string(a) * ") )__("
+            return "(__( toMonth(" * string(a) * ") ***"
         elseif @capture(x, day(a_))
-            return "(__( toDayOfMonth(" * string(a) * ") )__("
+            return "(__( toDayOfMonth(" * string(a) * ") ***"
         elseif @capture(x, hour(a_))
-            return "(__( toHour(" * string(a) * ") )__("
+            return "(__( toHour(" * string(a) * ") ***"
         elseif @capture(x, minute(a_))
-            return "(__( toMinute(" * string(a) * ") )__("
+            return "(__( toMinute(" * string(a) * ") ***"
         elseif @capture(x, second(a_))
-            return "(__( toSecond(" * string(a) * ") )__("
+            return "(__( toSecond(" * string(a) * ") ***"
         elseif @capture(x, Year(a_))
             return "(__( INTERVAL $(string(a)) Year )__("
         elseif @capture(x, Month(a_))

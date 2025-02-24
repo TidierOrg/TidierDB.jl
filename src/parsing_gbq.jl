@@ -94,17 +94,17 @@ function expr_to_sql_gbq(expr, sq; from_summarize::Bool)
                 return """ CASE WHEN $column_str IS NULL THEN NULL ELSE COALESCE(  LIST_(__( EXTRACT( CASE  WHEN '$key_str' IS NULL THEN NULL ELSE ELEMENT_AT($column_str, '$key_str') END, 1 ), NULL) END ***"""
             end        # Date (__( EXTRACTion functions
         elseif @capture(x, year(a_))
-            return "(__( EXTRACT(YEAR FROM " * string(a) * ") )__("
+            return "(__( EXTRACT(YEAR FROM " * string(a) * ") ***"
         elseif @capture(x, month(a_))
-            return "(__( EXTRACT(MONTH FROM " * string(a) * ") )__("
+            return "(__( EXTRACT(MONTH FROM " * string(a) * ") ***"
         elseif @capture(x, day(a_))
-            return "(__( EXTRACT(DAY FROM " * string(a) * ") )__("
+            return "(__( EXTRACT(DAY FROM " * string(a) * ") ***"
         elseif @capture(x, hour(a_))
-            return "(__( EXTRACT(HOUR FROM " * string(a) * ") )__("
+            return "(__( EXTRACT(HOUR FROM " * string(a) * ") ***"
         elseif @capture(x, minute(a_))
-            return "(__( EXTRACT(MINUTE FROM " * string(a) * ") )__("
+            return "(__( EXTRACT(MINUTE FROM " * string(a) * ") ***"
         elseif @capture(x, second(a_))
-            return "(__( EXTRACT(SECOND FROM " * string(a) * ") )__("
+            return "(__( EXTRACT(SECOND FROM " * string(a) * ") ***"
         elseif @capture(x, Year(a_))
             return "(__( INTERVAL $(string(a)) Year )__("
         elseif @capture(x, Month(a_))

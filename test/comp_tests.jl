@@ -275,11 +275,14 @@
         # filter by time with interval change
         TDF_5 = @chain test_df @mutate(test = if_else(groups == "aa", ymd_hms("2023-06-15 00:00:00"), ymd_hms("2024-06-15 00:00:00"))) @filter(test >  ymd("2023-06-15") - Year(1))
         TDB_5 = @chain DB.t(test_db) DB.@mutate(test = if_else(groups == "aa", ymd("2023-06-15"),  ymd("2024-06-15"))) DB.@filter(test >  ymd("2023-06-15") - interval1year) DB.@collect
+        TDF_6 = @chain test_df @mutate(test = ymd_hms("2023-06-15 00:00:00")) @mutate(new = test + Year(1) - Month(2) + Day(3) - Hour(4) + Minute(5) + Second(6))
+        TDB_6 = @chain DB.t(test_db) DB.@mutate(test = ymd("2023-06-15")) DB.@mutate(new = test + Year(1) - Month(2) + Day(3) - Hour(4) + Minute(5) + Second(6)) DB.@collect
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
         @test all(isequal.(Array(TDF_2), Array(TDB_2)))
         @test all(isequal.(Array(TDF_3), Array(TDB_3)))
         @test all(isequal.(Array(TDF_4), Array(TDB_4)))
         @test all(isequal.(Array(TDF_5), Array(TDB_5)))
+        @test all(isequal.(Array(TDF_6), Array(TDB_6)))
         @test !isempty(@chain DB.t(test_db) DB.@mutate(test2 = dmy("06-12-2023")) DB.@collect)
     end 
    

@@ -2025,12 +2025,11 @@ const docstring_unnest_wider =
 ```
 julia> db = connect(duckdb());
 
-julia> @chain DB.db_table(db, "test/data.json")  begin 
-            DB.@mutate(og = pos)
-            DB.@select og pos !name
-            DB.@unnest(pos)
-            @aside DB.@show_query _
-            DB.@collect
+julia> @chain db_table(db, "test/data.json")  begin 
+            @mutate(og = pos)
+            @select !name !coordinates
+            @unnest(pos)
+            @collect
        end
 3×3 DataFrame
  Row │ lat      lon      og                       
@@ -2039,5 +2038,17 @@ julia> @chain DB.db_table(db, "test/data.json")  begin
    1 │    10.1     30.3  (lat = 10.1, lon = 30.3)
    2 │    10.2     30.2  (lat = 10.2, lon = 30.2)
    3 │    10.3     30.1  (lat = 10.3, lon = 30.1)
+
+julia> @chain db_table(db, "test/data.json")  begin
+            @unnest(pos, coordinates)
+            @collect
+       end
+3×5 DataFrame
+ Row │ name    lat      lon        latitude  longitude 
+     │ String  Float64  Float64?   Float64   Float64?  
+─────┼─────────────────────────────────────────────────
+   1 │ a          10.1       30.3      10.1       30.3
+   2 │ b          10.2       30.2      10.2       30.2
+   3 │ c          10.3  missing        10.3  missing   
 ```
 """

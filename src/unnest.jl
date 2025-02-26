@@ -1,4 +1,3 @@
-
 function unne(db, col)
     try
         cleaned_string = replace.(db.metadata.type[db.metadata.name .== col], "STRUCT(" => "", ")" => "")
@@ -33,55 +32,44 @@ end
 """
 $docstring_unnest_wider
 """
-macro unnest(sqlquery, col)
-    # Capture the column name as a literal string at macro expansion time.
-    col_name_literal = string(col)
+macro unnest(sqlquery, cols...)
+    # Convert each provided column into its literal string form.
+    col_names = [string(c) for c in cols]
     return quote
-        # Evaluate the sqlquery object.
+        # Evaluate the SQLQuery object.
         sq = $(esc(sqlquery))
-        col_name = $(QuoteNode(col_name_literal))
-        if isa(sq, SQLQuery)
-            # Generate the unnest SQL string for the target column.
-            unnest_str, names = unne(sq, col_name)
-            #n(names)
-            #println(sq.select)
-            # If the SELECT clause contains "*", then expand it from metadata.
+        # Embed the list of column names as a literal vector.
+        unnest_cols = $(QuoteNode(col_names))
+        for col in unnest_cols
+            # Generate the unnest SQL string and list of new names for this column.
+            unnest_str, names = unne(sq, col)
+            # If the current SELECT clause contains "*" then expand it from metadata.
             if occursin("", sq.select)
-              #  println(sq.select)
-                # Filter metadata to list out all the columns that should be selected.
-                # For this example we assume that columns with current_selxn == 1 are the ones to list.
-                cols = [
-                    # Only include the column name without the table name prefix.
+                # Build a list of column names from the metadata for which current_selxn == 1.
+                cols_from_meta = [
                     string(row[:name])
                     for row in eachrow(sq.metadata) if row[:current_selxn] == 1
-                ]  
-               # cols = vcat(cols, names)
-            #   println(cols)
-                #.* " " .* names  # Include all names in the names vector
-                # Join the column names into a SELECT clause.
-                expanded_select = join(cols, ", ")
-                # Replace the target column with the unnest expansion.
-                expanded_select = replace(expanded_select, col_name => unnest_str)
-
-                sq.select = "SELECT " * expanded_select
-             #   println(sq.select)
-                length_names = length(names)
-                for i in 1:length_names
-                    sq.metadata.current_selxn[end - i + 1] = 1
-                end
+                ]
+                # Join these names into a comma-separated string.
+                expanded_select = join(cols_from_meta, ", ")
+                # Replace the target column name with the unnest expansion.
+                expanded_select = replace(expanded_select, col => unnest_str)
+                println(sq.select)
+                sq.select = startswith(sq.select, "SELECT") ? replace(sq.select, col => unnest_str) : 
+                    sq.select = "SELECT " * expanded_select
             else
-            #    println("Lelse")
-                # Otherwise, assume sq.select already lists the columns.
-                sq.select = replace(sq.select, col_name => unnest_str)
+                # Otherwise, replace the column name directly in the already-defined SELECT clause.
+                sq.select = replace(sq.select, col => unnest_str)
+            end
+            # Update the metadata: mark the newly added unnest columns as selected.
             length_names = length(names)
             for i in 1:length_names
                 sq.metadata.current_selxn[end - i + 1] = 1
             end
-            end
-        else
-            error("Expected sqlquery to be an instance of SQLQuery")
         end
         sq
     end
 end
+
+
 export @unnest

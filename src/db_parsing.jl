@@ -538,7 +538,6 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
         end
     end
 
-
     # If actual_expr is a vector, process each element individually
     if isa(actual_expr, AbstractVector)
         final_columns = String[]
@@ -634,74 +633,14 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
                     end
                 end
             else
-                # elem is not a Symbol or vector, treat it as a direct column name
-                elem_str = string(elem)
-                local_cols = all_columns
-                if current_sql_mode[] == snowflake()
-                    elem_str = uppercase(elem_str)
-                    local_cols = uppercase.(local_cols)
-                end
-                if elem_str in local_cols
-                    push!(final_columns, elem_str)
-                else
-                    error("The following columns were not found: [$elem_str]")
-                end
+                println(final_columns)
             end
         end
         return final_columns
     
     
-    
-    elseif isa(parsed, Expr) && parsed.head == :call
-        func = parsed.args[1]
-        if func == :(:)
-            # Handle range expression like id:groups
-            start_col = string(parsed.args[2])
-            end_col = string(parsed.args[3])
-    
-            if current_sql_mode[] == snowflake()
-                start_col = uppercase(start_col)
-                end_col = uppercase(end_col)
-                all_columns = uppercase.(all_columns)
-            end
-    
-            start_idx = findfirst(==(start_col), all_columns)
-            end_idx = findfirst(==(end_col), all_columns)
-            if isnothing(start_idx) || isnothing(end_idx) || start_idx > end_idx
-                error("Column range not found or invalid: $start_col to $end_col")
-            end
-    
-            range_columns = all_columns[start_idx:end_idx]
-            append!(final_columns, range_columns)
-    
-        elseif func == :starts_with || func == :ends_with || func == :contains
-            # Handle starts_with, ends_with, and contains as before
-            substring = string(parsed.args[2])
-            substring = maybe_uppercase(substring)
-            local_cols = current_sql_mode[] == snowflake() ? uppercase.(all_columns) : all_columns
-            match_columns = filter(col ->
-                (func == :starts_with && startswith(col, substring)) ||
-                (func == :ends_with && endswith(col, substring)) ||
-                (func == :contains && occursin(substring, col)),
-                local_cols)
-            append!(final_columns, match_columns)
-        else
-            error("Unsupported function call: $(func)")
-        end
-    
-
-    else
-        # Fallback for a single symbol or other type
-        if isa(actual_expr, Symbol)
-            col_str = string(actual_expr)
-            if current_sql_mode[] == snowflake()
-                col_str = uppercase(col_str)
-                all_columns = uppercase.(all_columns)
-            end
-            return col_str in all_columns ? [col_str] : String[]
-        else
-            return String[]
-        end
     end
+
+    
 end
 # COV_EXCL_STOP

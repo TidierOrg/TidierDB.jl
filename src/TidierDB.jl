@@ -66,6 +66,7 @@ include("windows.jl")
 include("view_compute.jl")
 include("relocate.jl")
 include("union_intersect_setdiff.jl")
+include("unnest.jl")
 
 
 # Unified expr_to_sql function to use right mode

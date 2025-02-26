@@ -2018,3 +2018,26 @@ julia> @chain db_table(db, df, "df_agg") begin
   10 │ AI      bb         -0.5     521  0.0121342
 ```
 """
+
+
+const docstring_unnest_wider =
+"""
+```
+julia> db = connect(duckdb());
+
+julia> @chain DB.db_table(db, "test/data.json")  begin 
+            DB.@mutate(og = pos)
+            DB.@select og pos !name
+            DB.@unnest(pos)
+            @aside DB.@show_query _
+            DB.@collect
+       end
+3×3 DataFrame
+ Row │ lat      lon      og                       
+     │ Float64  Float64  NamedTup…?               
+─────┼────────────────────────────────────────────
+   1 │    10.1     30.3  (lat = 10.1, lon = 30.3)
+   2 │    10.2     30.2  (lat = 10.2, lon = 30.2)
+   3 │    10.3     30.1  (lat = 10.3, lon = 30.1)
+```
+"""

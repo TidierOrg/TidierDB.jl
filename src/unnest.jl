@@ -32,12 +32,13 @@ end
 """
 $docstring_unnest_wider
 """
-macro unnest(sqlquery, cols...)
+macro unnest_wider(sqlquery, cols...)
     # Convert each provided column into its literal string form.
     col_names = [string(c) for c in cols]
     return quote
         # Evaluate the SQLQuery object.
         sq = $(esc(sqlquery))
+        sq.post_unnest ? build_cte!($(esc(sqlquery))) : nothing
         # Embed the list of column names as a literal vector.
         unnest_cols = $(QuoteNode(col_names))
         for col in unnest_cols
@@ -54,7 +55,7 @@ macro unnest(sqlquery, cols...)
                 expanded_select = join(cols_from_meta, ", ")
                 # Replace the target column name with the unnest expansion.
                 expanded_select = replace(expanded_select, col => unnest_str)
-                println(sq.select)
+             #   println(sq.select)
                 sq.select = startswith(sq.select, "SELECT") ? replace(sq.select, col => unnest_str) : 
                     sq.select = "SELECT " * expanded_select
             else
@@ -66,10 +67,62 @@ macro unnest(sqlquery, cols...)
             for i in 1:length_names
                 sq.metadata.current_selxn[end - i + 1] = 1
             end
+            sq.metadata.current_selxn[sq.metadata.name .== col] .= 0
+
         end
+        sq.post_unnest = true
         sq
     end
 end
 
-
-export @unnest
+"""
+$docstring_unnest_longer
+"""
+macro unnest_longer(sqlquery, cols...)
+    # Convert each provided column into its literal string form.
+    col_names = [string(c) for c in cols]
+    return quote
+        # Evaluate the SQLQuery object.
+        sq = $(esc(sqlquery))
+        sq.post_unnest ? build_cte!($(esc(sqlquery))) : nothing
+        # Embed the list of column names as a literal vector.
+        unnest_cols = $(QuoteNode(col_names))
+        for col in unnest_cols
+            # Build the unnest string in the form: unnest(col) AS col
+            unnest_str = " unnest(" * col * ") AS " * col
+            # Build a regex pattern that matches the target column only if it is preceded by
+            # whitespace or start-of-string and followed by whitespace, comma, or end-of-string.
+            pattern = r"(?<=^|\s)" * col * r"(?=\s|,|$)"
+            if occursin("*", sq.select)
+                # The SELECT clause contains a wildcard, so we expand the list of columns from metadata.
+                cols_from_meta = [
+                    string(row[:name])
+                    for row in eachrow(sq.metadata) if row[:current_selxn] >= 1
+                ]
+                expanded_select = join(cols_from_meta, ", ")
+                # Replace the target column with its unnest expansion.
+                expanded_select = replace(expanded_select, pattern => unnest_str)
+                # If the SELECT clause already starts with "SELECT", use replacement,
+                # otherwise prepend "SELECT " to the expanded string.
+                sq.select = startswith(sq.select, "SELECT") ? replace(sq.select, pattern => unnest_str) :
+                    "SELECT " * expanded_select
+            else
+                # Else branch: build the expanded SELECT clause once from metadata,
+                # then loop over all unnest columns to update it.
+                cols_from_meta = [
+                    string(row[:name])
+                    for row in eachrow(sq.metadata) if row[:current_selxn] >= 1
+                ]
+                expanded_select = join(cols_from_meta, ", ")
+                for col_inner in unnest_cols
+                    # For each unnest column, build its unnest string and regex pattern.
+                    local unnest_str_inner = "unnest(" * col_inner * ") AS " * col_inner
+                    local pattern_inner = r"(?<=^|\s)" * col_inner * r"(?=\s|,|$)"
+                    expanded_select = replace(expanded_select, pattern_inner => unnest_str_inner)
+                end
+                sq.select = "SELECT " * expanded_select
+            end
+        end
+        sq
+    end
+end

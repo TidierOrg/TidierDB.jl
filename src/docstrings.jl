@@ -2019,36 +2019,83 @@ julia> @chain db_table(db, df, "df_agg") begin
 ```
 """
 
-
 const docstring_unnest_wider =
 """
-```
+    @unnest_wider(sql_query, column)
+
+Unnests a nested column into wider format. This function takes a column containing nested structures (e.g., rows or arrays) and expands it into separate columns.
+
+# Arguments
+- `column`: The column containing nested structures to be unnested.
+- `sql_query`: The SQL query to create a table from.
+
+# Examples
+```jldoctest
 julia> db = connect(duckdb());
 
-julia> @chain db_table(db, "test/data.json")  begin 
-            @mutate(og = pos)
-            @select !name !coordinates
-            @unnest(pos)
+julia> DuckDB.query(db, "
+        CREATE TABLE df3 (
+            id INTEGER,
+            pos ROW(lat DOUBLE, lon DOUBLE)
+        );
+        INSERT INTO df3 VALUES
+            (1, ROW(10.1, 30.3)),
+            (2, ROW(10.2, 30.2)),
+            (3, ROW(10.3, 30.1));");
+
+julia> @chain db_table(db, :df3) begin
+            @unnest_wider(pos)
             @collect
        end
 3×3 DataFrame
- Row │ lat      lon      og                       
-     │ Float64  Float64  NamedTup…?               
-─────┼────────────────────────────────────────────
-   1 │    10.1     30.3  (lat = 10.1, lon = 30.3)
-   2 │    10.2     30.2  (lat = 10.2, lon = 30.2)
-   3 │    10.3     30.1  (lat = 10.3, lon = 30.1)
+ Row │ id     lat      lon     
+     │ Int32  Float64  Float64 
+─────┼─────────────────────────
+   1 │     1     10.1     30.3
+   2 │     2     10.2     30.2
+   3 │     3     10.3     30.1 
+```
+"""
 
-julia> @chain db_table(db, "test/data.json")  begin
-            @unnest(pos, coordinates)
-            @collect
+const docstring_unnest_longer =
+"""
+    @unnest_longer(sql_query, columns...)
+
+Unnests specified columns into longer format. This function takes multiple columns containing arrays or other nested structures and expands them into a longer format, where each element of the arrays becomes a separate row.
+
+# Arguments
+- `sql_query`: The SQL query to create a table from.
+- `columns...`: One or more columns containing arrays or other nested structures to be unnested.
+
+# Examples
+```jldoctest
+julia> db = connect(duckdb());
+
+julia> DuckDB.query(db, "
+            CREATE TABLE nt (
+                id INTEGER,
+                data ROW(a INTEGER[], b INTEGER[])
+                );
+            INSERT INTO nt VALUES
+                (1, (ARRAY[1,2], ARRAY[3,4])),
+                (2, (ARRAY[5,6], ARRAY[7,8,9])),
+                (3, (ARRAY[10,11], ARRAY[12,13]));");
+
+julia> @chain db_table(db, :nt) begin 
+        @unnest_wider data  
+        @unnest_longer a b 
+        @collect
        end
-3×5 DataFrame
- Row │ name    lat      lon        latitude  longitude 
-     │ String  Float64  Float64?   Float64   Float64?  
-─────┼─────────────────────────────────────────────────
-   1 │ a          10.1       30.3      10.1       30.3
-   2 │ b          10.2       30.2      10.2       30.2
-   3 │ c          10.3  missing        10.3  missing   
+7×3 DataFrame
+ Row │ id     a        b     
+     │ Int32  Int32?   Int32 
+─────┼───────────────────────
+   1 │     1        1      3
+   2 │     1        2      4
+   3 │     2        5      7
+   4 │     2        6      8
+   5 │     2  missing      9
+   6 │     3       10     12
+   7 │     3       11     13
 ```
 """

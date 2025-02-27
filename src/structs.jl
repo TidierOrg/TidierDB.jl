@@ -31,13 +31,13 @@ mutable struct SQLQuery
     limit::String
     ch_settings::String
     join_count::Int
-
+    post_unnest::Bool
     function SQLQuery(;select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
         window_order::String="", windowFrame::String="", is_aggregated::Bool=false, post_aggregation::Bool=false, post_join::Bool=false, metadata::DataFrame=DataFrame(), 
         distinct::Bool=false, db::Any=nothing, ctes::Vector{CTE}=Vector{CTE}(), cte_count::Int=0, athena_params::Any=nothing, limit::String="", 
-        ch_settings::String="", join_count::Int = 0)
+        ch_settings::String="", join_count::Int = 0, post_unnest::Bool = false)
         new(select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, 
-        post_aggregation, post_join, metadata, distinct, db, ctes, cte_count, athena_params, limit, ch_settings, join_count)
+        post_aggregation, post_join, metadata, distinct, db, ctes, cte_count, athena_params, limit, ch_settings, join_count, post_unnest)
     end
 end
 
@@ -68,7 +68,9 @@ function from_query(query::TidierDB.SQLQuery)
         cte_count=query.cte_count,
         athena_params = query.athena_params,
         limit = query.limit,
-        ch_settings = query.ch_settings
+        ch_settings = query.ch_settings,
+        join_count = query.join_count,
+        post_unnest = query.post_unnest
     )
     return new_query
 end

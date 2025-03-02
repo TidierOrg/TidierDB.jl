@@ -1,22 +1,43 @@
 # TidierDB is unique in its statement parsing flexiblility.  This means that in addition to using any built in SQL database functions, user defined functions (or UDFS) are readily avaialable in TidierDB.  
+
 using TidierDB # DuckDB is reexported by TidierDB
 db = connect(duckdb());
 df = DataFrame(a = [1, 2, 3], b = [1, 2, 3]);
 dfv = db_table(db, df, "df_view");
-
 # ## UDFs in DuckDB
 # Once created, UDFs can immediately be used in with `@mutate` or `@transmute`
 # A more in depth disccusion of UDFs in DuckDB.jl can be found [here](https://discourse.julialang.org/t/is-it-hard-to-support-julia-udfs-in-duckdb/118509/24?u=true). 
 # There are 3 steps 1) Define a function in julia, 2) create the scalar function in DuckDB, and 3) register it 
-bino = (a, b) -> (a + b) * (a + b)
-fun = DuckDB.@create_scalar_function bino(a::Int, b::Int)::Int
-DuckDB.register_scalar_function(db, fun)
-@chain t(dfv) @mutate(c = bino(a, b)) @collect
+# ```julia
+# bino = (a, b) -> (a + b) * (a + b)
+# fun = DuckDB.@create_scalar_function bino(a::Int, b::Int)::Int
+# DuckDB.register_scalar_function(db, fun)
+# @chain t(dfv) @mutate(c = bino(a, b)) @collect
+# ```
+# ```
+# 3×3 DataFrame
+#  Row │ a      b      c     
+#      │ Int64  Int64  Int64 
+# ─────┼─────────────────────
+#    1 │     1      1      4
+#    2 │     2      2     16
+#    3 │     3      3     36
+# ```
 
 # Notably, when the function is redefined (with the same arguments) in julia, the DuckDB UDF representation will change as well.
-bino = (a, b) -> (a + b) * (a - b)
-@chain t(dfv) @mutate(c = bino(a, b)) @collect
-
+# ```julia
+# bino = (a, b) -> (a + b) * (a - b)
+# @chain t(dfv) @mutate(c = bino(a, b)) @collect
+# ```
+# ```
+# 3×3 DataFrame
+#  Row │ a      b      c     
+#      │ Int64  Int64  Int64 
+# ─────┼─────────────────────
+#    1 │     1      1      0
+#    2 │     2      2      0
+#    3 │     3      3      0
+# ```
 # ##  DuckDB function chaining
 # In DuckDB, functions can be chained together with `.`. TidierDB lets you leverage this.
 mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv";
@@ -25,8 +46,8 @@ mtcars = db_table(db, mtcars_path);
     @mutate(model2 = model.upper().string_split(" ").list_aggr("string_agg",".").concat("."))
     @select model model2
     @head() 
-    @collect
-end
+     @collect
+ end
 
 # ## `rowid` and pseudocolumns
 # When a table is not being read directly from a file, `rowid` is avaialable for use. In general, TidierDB should support all pseudocolumns.

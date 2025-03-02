@@ -15,7 +15,7 @@ function unne(db, col)
             push!(names, name_type[1])  # First part is the name
             push!(types, name_type[2])  # Second part is the type
         end
-        
+        names = replace.(names, "\""=> "")
         names_new = "$col" .* "." .* names .* " AS " .* names 
         for (name, type) in zip(names, types)
             push!(db.metadata, Dict("name" => name, "type" => type, "current_selxn" => 0, "table_name" => last(db.metadata.table_name)))

@@ -30,9 +30,10 @@ For the stable version:
 
 TidierDB.jl currently supports:
 
+
 | **Category**                     | **Supported Macros and Functions**                                                                                                                                               |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Data Manipulation**     | `@arrange`, `@group_by`, `@filter`, `@select`, `@mutate` (supports `across`), `@summarize`/`@summarise` (supports `across`), `@distinct`, `@relocate`, `@transmute`                                 |
+| **Data Manipulation**     | `@arrange`, `@group_by`, `@filter`, `@select`, `@mutate` (supports `across`), `@summarize`/`@summarise` (supports `across`), `@distinct`, `@relocate`, `@transmute`                                |
 | **Joining/Setting**                  | `@left_join`, `@right_join`, `@inner_join`, `@anti_join`, `@full_join`, `@semi_join`, `@union`, `@union_all`, `@intersect`, `@setdiff`                                         |
 | **Slice and Order**       | `@slice_min`, `@slice_max`, `@slice_sample`, `@order`, `@window_order`, `@window_frame`                                                                                                |
 | **Utility**               | `@show_query`, `@collect`, `@head`, `@count`, `show_tables`, `@create_view` , `drop_view`                                                                                                                                          |
@@ -41,6 +42,7 @@ TidierDB.jl currently supports:
 | **TidierDates.jl Functions**   | `year`, `month`, `day`, `hour`, `min`, `second`, `floor_date`, `difftime`, `mdy`, `ymd`, `dmy`                                                                                                    |
 | **Aggregate Functions**          | `mean`, `minimum`, `maximum`, `std`, `sum`, `cumsum`, and nearly all aggregate sql fxns supported |
 | **Window Functions**             | `lead`, `lag`, `dense_rank`, `nth_value`, `ntile`, `rank_dense`, `row_number`, `first_value`, `last_value`, `cume_dist`, `@window_order`, `@window_frame`, or `_by`, `_order`, and `_frame` within `@mutate`                                                                                                          |
+|**Unnesting**             | `unnest_wider` and `unnest_longer` |
 
 `@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.   
 `@mutate` supports all builtin SQL functions as well.                                                                                                 

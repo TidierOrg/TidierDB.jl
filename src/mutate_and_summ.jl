@@ -54,7 +54,7 @@ function symbol_to_string(s)
     end
 end
 
-function process_mutate_expression(expr, sq, select_expressions, cte_name)
+function process_mutate_expression(expr, sq, select_expressions, cte_name; from_transmute::Bool = false)
 
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
         # Extract column name and convert to string
@@ -91,6 +91,21 @@ function process_mutate_expression(expr, sq, select_expressions, cte_name)
             # Update metadata to include this new column
             push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => cte_name))
         end
+    elseif from_transmute
+
+        col_expr = expr_to_sql(expr, sq)
+        push!(select_expressions, col_expr)
+        meta = DataFrame(DBInterface.execute(sq.db,
+        """
+          DESCRIBE  SELECT  u.* FROM (SELECT UNNEST(items) AS u  FROM readings_stg)
+        """
+        ) )
+      #  println( "HERE",  meta.column_name, meta.column_type)
+        for n in 1:nrow(meta)
+            push!(sq.metadata, Dict("name" => meta.column_name[n], "type" => meta.column_type[n] , "current_selxn" => 1, "table_name" => cte_name))
+        end
+
+     #   println(select_expressions)
     else
         throw("Unsupported expression format in @mutate: $(expr)") # COV_EXCL_LINE
     end
@@ -466,10 +481,10 @@ macro transmute(sqlquery, mutations...)
                 end
                 if isa(expr, Expr) && expr.head == :tuple
                     for subexpr in expr.args
-                        process_mutate_expression(subexpr, sq, select_expressions, cte_name)
+                        process_mutate_expression(subexpr, sq, select_expressions, cte_name, from_transmute = true)
                     end
                 else
-                    process_mutate_expression(expr, sq, select_expressions, cte_name)
+                    process_mutate_expression(expr, sq, select_expressions, cte_name, from_transmute = true)
                 end
             end
             sq.post_join = false

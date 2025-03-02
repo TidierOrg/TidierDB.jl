@@ -64,7 +64,10 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
                 window_clause = construct_window_clause(sq, )
                 return  "STDDEV_SAMP($(string(a))) $(window_clause)"
             end
-
+        elseif @capture(x, unnest(a_)) 
+        #    if from_transmute
+             return  " u.* FROM (SELECT UNNEST($a) AS u "
+          #  end
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :agg
             args = x.args[2:end]       # Capture all arguments to agg
             if from_summarize

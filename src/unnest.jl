@@ -20,11 +20,9 @@ function unne(db, col)
         for (name, type) in zip(names, types)
             push!(db.metadata, Dict("name" => name, "type" => type, "current_selxn" => 0, "table_name" => last(db.metadata.table_name)))
         end
-      #  [println("names")]
         return join(names_new, ", "), names
     catch e
         matching_indices = findall(==(col), db.metadata.name)
-       # println(db.metadata.type[matching_indices[1]])
         throw("@unnest only supports unnesting columns of type STRUCT at this time. $col is of type $(db.metadata.type[matching_indices[1]])")
     end
 end
@@ -39,8 +37,8 @@ macro unnest_wider(sqlquery, cols...)
         # Evaluate the SQLQuery object.
         sq = $(esc(sqlquery))
         sq.post_unnest ? build_cte!($(esc(sqlquery))) : nothing
-        # Embed the list of column names as a literal vector.
-        unnest_cols = $(QuoteNode(col_names))
+
+        unnest_cols = filter_columns_by_expr($col_names, sq.metadata)
         for col in unnest_cols
             # Generate the unnest SQL string and list of new names for this column.
             unnest_str, names = unne(sq, col)
@@ -53,14 +51,13 @@ macro unnest_wider(sqlquery, cols...)
                 ]
                 # Join these names into a comma-separated string.
                 expanded_select = join(cols_from_meta, ", ")
-                # Replace the target column name with the unnest expansion.
-                expanded_select = replace(expanded_select, col => unnest_str)
-             #   println(sq.select)
-                sq.select = startswith(sq.select, "SELECT") ? replace(sq.select, col => unnest_str) : 
+                # Replace the target column name with the unnest expansion using exact matching.
+                expanded_select = replace(expanded_select, Regex("\\b" * col * "\\b") => unnest_str)
+                sq.select = startswith(sq.select, "SELECT") ? replace(sq.select, Regex("\\b" * col * "\\b") => unnest_str) :
                     sq.select = "SELECT " * expanded_select
             else
-                # Otherwise, replace the column name directly in the already-defined SELECT clause.
-                sq.select = replace(sq.select, col => unnest_str)
+                # Otherwise, replace the column name directly in the already-defined SELECT clause with exact matching.
+                sq.select = replace(sq.select, Regex("\\b" * col * "\\b") => unnest_str)
             end
             # Update the metadata: mark the newly added unnest columns as selected.
             length_names = length(names)
@@ -68,7 +65,6 @@ macro unnest_wider(sqlquery, cols...)
                 sq.metadata.current_selxn[end - i + 1] = 1
             end
             sq.metadata.current_selxn[sq.metadata.name .== col] .= 0
-
         end
         sq.post_unnest = true
         sq
@@ -86,7 +82,7 @@ macro unnest_longer(sqlquery, cols...)
         sq = $(esc(sqlquery))
         sq.post_unnest ? build_cte!($(esc(sqlquery))) : nothing
         # Embed the list of column names as a literal vector.
-        unnest_cols = $(QuoteNode(col_names))
+        unnest_cols = filter_columns_by_expr($col_names, sq.metadata)
         for col in unnest_cols
             # Build the unnest string in the form: unnest(col) AS col
             unnest_str = " unnest(" * col * ") AS " * col

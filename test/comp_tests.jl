@@ -327,3 +327,23 @@
         end)
         @test (@chain test_df @group_by(groups) @summarize(n=n()) @select(n))== (@chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(n=n()) DB.@select(n) DB.@collect())
     end
+
+    @testset "Unnesting" begin 
+        DB.DuckDB.query(db, "
+        CREATE OR REPLACE TABLE df3 (
+            id INTEGER,
+            pos ROW(lat DOUBLE, lon DOUBLE),
+            new ROW(lat2 DOUBLE, lon2 DOUBLE),
+            new2 ROW(lat3 DOUBLE, lon3 DOUBLE)
+        );
+        INSERT INTO df3 VALUES
+            (1, ROW(10.1, 30.3), ROW(10.1, 30.3), ROW(10.1, 30.3)),
+            (2, ROW(10.2, 30.2), ROW(10.1, 30.3), ROW(10.1, 30.3)),
+            (3, ROW(10.3, null), ROW(10.1, 30.3), ROW(10.1, 30.3));");
+        df = DB.@collect DB.db_table(db, "df3")
+
+        df_u = @unnest_wider(df, pos:new2)
+        db_u = @chain DB.db_table(db, "df3") DB.@unnest_wider(pos:new2) DB.@collect
+        
+        @test all(isequal.(Array(df_u), Array(db_u)))
+    end

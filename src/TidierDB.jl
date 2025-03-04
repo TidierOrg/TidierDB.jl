@@ -183,10 +183,10 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             if current_sql_mode[] == duckdb()
                 metadata = get_table_metadata(db, table_name2; alias = alias)
             else
-                metadata = get_table_metadata(db, table_name2)
+                metadata = get_table_metadata(db, table_name2;)
             end
         else
-            metadata = get_table_metadata(db, table_name)
+            metadata = get_table_metadata(db, table_name; alias = alias)
         end
     elseif current_sql_mode[] == athena()
         metadata = get_table_metadata(db, table_name; athena_params)
@@ -229,7 +229,9 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
         end
      elseif startswith(table_name, "read") 
          "$table_name"  
-    else
+     elseif alias != ""
+        table_name * " AS $alias"
+     else 
         table_name
     end
 

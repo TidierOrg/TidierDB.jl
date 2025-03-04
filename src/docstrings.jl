@@ -2097,5 +2097,22 @@ julia> @chain db_table(db, :nt) begin
    5 │     2  missing      9
    6 │     3       10     12
    7 │     3       11     13
+
+julia> @chain db_table(db, :nt) begin 
+        @unnest_wider data  
+        @unnest_longer a:b 
+        @collect
+       end
+7×3 DataFrame
+ Row │ id     a        b     
+     │ Int32  Int32?   Int32 
+─────┼───────────────────────
+   1 │     1        1      3
+   2 │     1        2      4
+   3 │     2        5      7
+   4 │     2        6      8
+   5 │     2  missing      9
+   6 │     3       10     12
+   7 │     3       11     13
 ```
 """

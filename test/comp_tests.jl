@@ -340,10 +340,24 @@
             (1, ROW(10.1, 30.3), ROW(10.1, 30.3), ROW(10.1, 30.3)),
             (2, ROW(10.2, 30.2), ROW(10.1, 30.3), ROW(10.1, 30.3)),
             (3, ROW(10.3, null), ROW(10.1, 30.3), ROW(10.1, 30.3));");
+        DB.DuckDB.query(db, "
+            CREATE or replace TABLE nt2 (
+                id INTEGER,
+                data ROW(a INTEGER[], b INTEGER[])
+                );
+            INSERT INTO nt2 VALUES
+                (1, (ARRAY[1,2], ARRAY[3,4])),
+                (2, (ARRAY[5,6], ARRAY[7,8])),
+                (3, (ARRAY[10,11], ARRAY[12,13]));");
         df = DB.@collect DB.db_table(db, "df3")
+        dft = DB.@collect DB.db_table(db, "nt2")
 
         df_u = @unnest_wider(df, pos:new2)
         db_u = @chain DB.db_table(db, "df3") DB.@unnest_wider(pos:new2) DB.@collect
+
+        df_u2 = @chain dft @unnest_wider(data) @unnest_longer(a:b)
+        db_u2 = @chain DB.db_table(db, "nt2") DB.@unnest_wider(data) DB.@unnest_longer(a:b) DB.@collect
         
         @test all(isequal.(Array(df_u), Array(db_u)))
+        @test all(isequal.(Array(df_u2), Array(db_u2)))
     end

@@ -21,7 +21,7 @@ using Crayons
  @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,  @head, 
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, 
  t, @union, @create_view, drop_view, @compute, warnings, @relocate, @union_all, @setdiff, @intersect, ghseet_connect,
- @unnest_wider, @unnest_longer
+ @unnest_wider, @unnest_longer, dt
 
  abstract type SQLBackend end
 
@@ -41,7 +41,6 @@ using Crayons
  const window_agg_fxns = [:lead, :lag, :dense_rank, :nth_value, :ntile, :rank_dense, :row_number, :first_value, :last_value, :cume_dist]
  current_sql_mode = Ref{SQLBackend}(duckdb())
  const color = Ref{Bool}(true)
-
  function set_sql_mode(mode::SQLBackend) current_sql_mode[] = mode end
  
 
@@ -294,7 +293,7 @@ function db_table(db, table::DataFrame, alias::String)
     metadata = get_table_metadata(db, alias)
     return SQLQuery(from = alias, metadata=metadata, db=db)
 end
-
+const dt = db_table # COV_EXCL_LINE
 # COV_EXCL_STOP
 
 """

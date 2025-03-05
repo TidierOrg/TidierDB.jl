@@ -6,6 +6,7 @@
 - fixes duckdb compat issue for windows users 
     - keeps active `duck12` branch active for users who want to use DuckDB 1.2
 - bumps DataFrames.jl compat to 1.5
+- adds more ergonomic `dt` alias for `db_table`
 
 ## v0.7.1 - 2025-02-04
 - Prints queries in color by default (optional)

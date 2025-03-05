@@ -26,9 +26,9 @@ DuckDB.query(db, "
 end
 
 # Single elements can be extracted a new column like so, or using any of exisiting backend fucntion as well.
-@chain DB.db_table(db, "nested_table") begin
-    DB.@mutate(city = loc.city)
-    DB.@collect
+@chain db_table(db, "nested_table") begin
+    @mutate(city = loc.city)
+    @collect
 end
 
 

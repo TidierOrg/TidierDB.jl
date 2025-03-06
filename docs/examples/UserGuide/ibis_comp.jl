@@ -25,9 +25,9 @@
 # ```python
 # mtcars = con.read_csv("https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv")
 # ```
-# In TidierDB, there is only `db_table`, which determines the file type and generates the syntax appropriate for the backend in use.
+# In TidierDB, there is only `dt`, which determines the file type and generates the syntax appropriate for the backend in use.
 # ```julia
-# mtcars = db_table(db, "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv");
+# mtcars = dt(db, "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv");
 # ```
 # ## Previewing the data
 # TidierDB and Ibis use `head`/`@head` to preview the first rows of a dataset.

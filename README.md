@@ -51,7 +51,7 @@ TidierDB.jl currently supports the following top-level macros:
 `@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.
 `@mutate` supports all builtin SQL functions as well.
 
-When using the DuckDB backend, if `db_table` recieves a file path (`.parquet`, `.json`, `.csv`, `iceberg` or `delta`), it does not copy it into memory. This allows for queries on files too big for memory. `db_table` also supports S3 bucket locations and Google Sheets via DuckDB.
+When using the DuckDB backend, if `db_table` aka `dt` recieves a file path (`.parquet`, `.json`, `.csv`, `iceberg` or `delta`), it does not copy it into memory. This allows for queries on files too big for memory. `dt` also supports S3 bucket locations and Google Sheets via DuckDB.
 
 > [Note]
 > DuckDB.jl can fail to precompile for some windows users, please see this [discussion](https://discourse.julialang.org/t/help-debugging-failing-precompilation-of-duckdb-jl-windows/122226) for a temporary work around 
@@ -73,7 +73,7 @@ import TidierDB as DB
 db = DB.connect(DB.duckdb());
 path_or_name = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
 
-mtcars = DB.db_table(db, path_or_name);
+mtcars = DB.dt(db, path_or_name);
 
 @chain DB.t(mtcars) begin
     DB.@filter(!starts_with(model, "M"))

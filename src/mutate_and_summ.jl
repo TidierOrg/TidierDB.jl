@@ -91,6 +91,7 @@ function process_mutate_expression(expr, sq, select_expressions, cte_name; from_
             # Update metadata to include this new column
             push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => cte_name))
         end
+    # COV_EXCL_START
     elseif from_transmute
         col_expr = expr_to_sql(expr, sq)
         push!(select_expressions, col_expr)
@@ -101,7 +102,7 @@ function process_mutate_expression(expr, sq, select_expressions, cte_name; from_
             push!(sq.metadata, Dict("name" => meta.column_name[n], "type" => meta.column_type[n] , "current_selxn" => 1, "table_name" => cte_name))
         end
 
-     #   println(select_expressions)
+     # COV_EXCL_END
     else
         throw("Unsupported expression format in @mutate: $(expr)") # COV_EXCL_LINE
     end

@@ -13,7 +13,7 @@ df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 db = connect(duckdb());
 
-dfv = db_table(db, df, "dfv"); # create a view (not a copy) of the dataframe on a in-memory database
+dfv = dt(db, df, "dfv"); # create a view (not a copy) of the dataframe on a in-memory database
 
 # ## Row ordering
 

@@ -10,7 +10,7 @@
 
 # Two things to note: 
 # - Your OAuth Token may frequently expire, which may require you to rerun your connection line.
-# - Since each time `db_table` runs, it runs a query to pull the metadata, you may choose to use run `db_table` and save the results, and use these results with`from_query()`
+# - Since each time `dt` runs, it runs a query to pull the metadata, you may choose to use run `db_table` and save the results, and use these results with`from_query()`
 #   - This will reduce the number of queries to your database
 #   - Allow you to build a a SQL query and `@show_query` even if the OAuth_token has expired. To `@collect` you will have to reconnect and rerun db_table if your OAuth token has expired
 
@@ -20,7 +20,7 @@
 # token = "OAuth_token_string" 
 # con = connect(:snowflake, ac_id, token, "DEMODB", "PUBLIC", "COMPUTE_WH")
 # # After connection is established, a you may begin querying.
-# stable_table_metadata = db_table(con, "MTCARS")
+# stable_table_metadata = dt(con, "MTCARS")
 # @chain from_query(stable_table_metadata) begin
 #    @select(WT)
 #    @mutate(TEST = WT *2)

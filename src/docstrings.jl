@@ -22,7 +22,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> df_mem = db_table(db, df, "df_view");
+julia> df_mem = dt(db, df, "df_view");
 
 julia> @chain t(df_mem) begin
          @select(groups:percent)
@@ -88,7 +88,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @filter(percent > .5)
          @collect
        end
@@ -102,7 +102,7 @@ julia> @chain db_table(db, df, "df_view") begin
    4 │ AI      bb          4      0.9
    5 │ AJ      aa          5      1.0
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @group_by(groups)
          @summarise(mean = mean(percent))
          @filter begin 
@@ -119,9 +119,9 @@ julia> @chain db_table(db, df, "df_view") begin
    1 │ aa          0.6
    2 │ bb          0.5
 
-julia> q = @chain db_table(db, df, "df_view") @summarize(mean = mean(value));
+julia> q = @chain dt(db, df, "df_view") @summarize(mean = mean(value));
 
-julia> @eval @chain db_table(db, df, "df_view") begin
+julia> @eval @chain dt(db, df, "df_view") begin
          @filter(value < \$q) 
          @collect
        end
@@ -158,7 +158,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @group_by(groups)
          @arrange(groups)
          @collect
@@ -195,7 +195,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @mutate(value = value * 4, new_col = percent^2)
          @collect
        end
@@ -214,7 +214,7 @@ julia> @chain db_table(db, df, "df_view") begin
    9 │ AI      bb         16      0.9     0.81
   10 │ AJ      aa         20      1.0     1.0
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @mutate(max = maximum(percent), sum = sum(percent), _by = groups)
          @collect
        end
@@ -233,7 +233,7 @@ julia> @chain db_table(db, df, "df_view") begin
    9 │ AG      bb          2      0.7      0.9      2.5
   10 │ AI      bb          4      0.9      0.9      2.5
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
           @mutate(value1 = sum(value), 
                       _order = percent, 
                       _frame = (-1, 1), 
@@ -259,7 +259,7 @@ julia> @chain db_table(db, df, "df_view") begin
    9 │ AC      bb          3      0.3       9        1
   10 │ AA      bb          1      0.1       4  missing 
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @mutate(across([:value, :percent], agg(kurtosis)))
          @collect
        end
@@ -278,7 +278,7 @@ julia> @chain db_table(db, df, "df_view") begin
    9 │ AI      bb          4      0.9        -1.33393              -1.2
   10 │ AJ      aa          5      1.0        -1.33393              -1.2
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
           @mutate(value2 = sum(value), 
                       _order = desc([:value, :percent]),
                       _frame = 2);  
@@ -309,7 +309,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @transmute(value = value * 4, new_col = percent^2)
          @collect
        end
@@ -328,7 +328,7 @@ julia> @chain db_table(db, df, "df_view") begin
    9 │    16     0.81
   10 │    20     1.0
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @transmute(max = maximum(value), _by = groups)
          @collect
        end
@@ -370,7 +370,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @group_by(groups)
          @summarise(across((ends_with("e"), starts_with("p")), (mean, sum)))
          @arrange(groups)
@@ -383,7 +383,7 @@ julia> @chain db_table(db, df, "df_view") begin
    1 │ aa             3.0           0.6         15          3.0
    2 │ bb             3.0           0.5         15          2.5
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @group_by(groups)
          @summarise(test = sum(percent), n = n())
          @arrange(groups)
@@ -396,7 +396,7 @@ julia> @chain db_table(db, df, "df_view") begin
    1 │ aa          3.0      5
    2 │ bb          2.5      5
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
                 @summarise(test = sum(percent), n = n(), _by = groups)
                 @arrange(groups)
                 @collect
@@ -434,7 +434,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @group_by(groups)
          @summarise(across((value:percent), (mean, sum)))
          @arrange(groups)
@@ -447,7 +447,7 @@ julia> @chain db_table(db, df, "df_view") begin
    1 │ aa             3.0           0.6         15          3.0
    2 │ bb             3.0           0.5         15          2.5
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @group_by(groups)
          @summarise(test = sum(percent), n = n())
          @arrange(groups)
@@ -483,7 +483,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @group_by(groups)
          @slice_min(value, n = 2)
          @arrange(groups, percent) # arranged due to duckdb multi threading
@@ -498,7 +498,7 @@ julia> @chain db_table(db, df, "df_view") begin
    3 │ AA      bb          1      0.1         1
    4 │ AG      bb          2      0.7         2
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @slice_min(value)
          @collect
        end
@@ -509,7 +509,7 @@ julia> @chain db_table(db, df, "df_view") begin
    1 │ AA      bb          1      0.1         1
    2 │ AF      aa          1      0.6         1
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @filter(percent > .1)
          @slice_min(percent)
          @collect
@@ -520,7 +520,7 @@ julia> @chain db_table(db, df, "df_view") begin
 ─────┼──────────────────────────────────────────
    1 │ AB      aa          2      0.2         1
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @group_by groups
          @slice_min(percent)
          @arrange groups
@@ -533,7 +533,7 @@ julia> @chain db_table(db, df, "df_view") begin
    1 │ AB      aa          2      0.2         1
    2 │ AA      bb          1      0.1         1
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @summarize(percent_mean = mean(percent), _by = groups)
          @slice_min(percent_mean)
          @collect
@@ -567,7 +567,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @group_by(groups)
          @slice_max(value, n = 2)
          @arrange(groups)
@@ -582,7 +582,7 @@ julia> @chain db_table(db, df, "df_view") begin
    3 │ AE      bb          5      0.5         1
    4 │ AI      bb          4      0.9         2
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @slice_max(value)
          @collect
        end
@@ -593,7 +593,7 @@ julia> @chain db_table(db, df, "df_view") begin
    1 │ AE      bb          5      0.5         1
    2 │ AJ      aa          5      1.0         1
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
         @filter(percent < .9)
         @slice_max(percent)
         @collect
@@ -604,7 +604,7 @@ julia> @chain db_table(db, df, "df_view") begin
 ─────┼──────────────────────────────────────────
    1 │ AH      aa          3      0.8         1
 
-julia>  @chain db_table(db, df, "df_view") begin
+julia>  @chain dt(db, df, "df_view") begin
          @group_by groups
          @slice_max(percent)
          @arrange groups
@@ -617,7 +617,7 @@ julia>  @chain db_table(db, df, "df_view") begin
    1 │ AJ      aa          5      1.0         1
    2 │ AI      bb          4      0.9         1
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @summarize(percent_mean = mean(percent), _by = groups)
          @slice_max(percent_mean)
          @collect
@@ -649,13 +649,13 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @group_by(groups)
          @slice_sample(n = 2)
          @collect
        end;
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
        @slice_sample()
        @collect
        end;
@@ -682,7 +682,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @arrange(value, desc(percent))
          @collect
        end
@@ -701,7 +701,7 @@ julia> @chain db_table(db, df, "df_view") begin
    9 │ AJ      aa          5      1.0
   10 │ AE      bb          5      0.5
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @arrange(desc(df_view.value))
          @collect
        end
@@ -741,7 +741,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @count(groups)
          @arrange(groups)
          @collect
@@ -776,7 +776,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @distinct(value)
          @arrange(value)
          @collect
@@ -791,7 +791,7 @@ julia> @chain db_table(db, df, "df_view") begin
    4 │     4
    5 │     5
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @distinct
          @arrange(id)
          @collect
@@ -842,7 +842,7 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 
 julia> db = connect(duckdb());
 
-julia> dfm = db_table(db, df, "df_mem"); dfj = db_table(db, df2, "df_join");
+julia> dfm = dt(db, df, "df_mem"); dfj = dt(db, df2, "df_join");
 
 julia> @chain t(dfm) begin
          @left_join(t(dfj), id == id2 )
@@ -863,7 +863,7 @@ julia> @chain t(dfm) begin
    9 │ AH      aa          3      0.8  missing   missing 
   10 │ AJ      aa          5      1.0  missing   missing 
 
-julia> query = @chain db_table(db, "df_join") begin
+julia> query = @chain dt(db, "df_join") begin
                   @filter(score > 85) # only show scores above 85 in joining table
                 end;
 
@@ -932,9 +932,9 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 julia> db = connect(duckdb());
 
 
-julia> dfj = db_table(db, df2, "df_join");
+julia> dfj = dt(db, df2, "df_join");
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @right_join(t(dfj), id == id2)
          @collect
        end
@@ -954,7 +954,7 @@ julia> query = @chain t(dfj) begin
                   @filter(score >= 74) # only show scores above 85 in joining table
                 end;
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @right_join(t(query), id == id2)
          @collect
        end
@@ -1001,9 +1001,9 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 julia> db = connect(duckdb());
 
 
-julia> dfj = db_table(db, df2, "df_join");
+julia> dfj = dt(db, df2, "df_join");
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @inner_join(t(dfj), id == id2)
          @collect
        end
@@ -1048,10 +1048,10 @@ julia> df2 = DataFrame(id = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 julia> db = connect(duckdb());
 
 
-julia> dfj = db_table(db, df2, "df_join");
+julia> dfj = dt(db, df2, "df_join");
 
-julia> @chain db_table(db, df, "df_view") begin
-         @full_join((@chain db_table(db, "df_join") @filter(score > 70)), id == id)
+julia> @chain dt(db, df, "df_view") begin
+         @full_join((@chain dt(db, "df_join") @filter(score > 70)), id == id)
          @collect
        end
 11×6 DataFrame
@@ -1102,9 +1102,9 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 julia> db = connect(duckdb());
 
 
-julia> dfj = db_table(db, df2, "df_join");
+julia> dfj = dt(db, df2, "df_join");
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
          @semi_join(t(dfj), id == id2)
          @collect
        end
@@ -1150,9 +1150,9 @@ julia> df2 = DataFrame(id2 = ["AA", "AC", "AE", "AG", "AI", "AK", "AM"],
 julia> db = connect(duckdb());
 
 
-julia> dfj = db_table(db, df2, "df_join");
+julia> dfj = dt(db, df2, "df_join");
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
         @anti_join(t(dfj), id == id2)
         @collect
        end
@@ -1189,7 +1189,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
        @rename(new_name = percent)
        @collect
        end
@@ -1251,7 +1251,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
         @group_by groups
         @window_frame(3)
         @window_order(desc(percent))
@@ -1284,7 +1284,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> df_mem = db_table(db, df, "df_view");
+julia> df_mem = dt(db, df, "df_view");
 
 julia> @chain t(df_mem) begin
         @group_by groups
@@ -1399,7 +1399,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> db_table(db, df, "df_mem");
+julia> dt(db, df, "df_mem");
 
 julia> db_table(db, "main.df_mem");
 ```
@@ -1424,7 +1424,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         percent = 0.1:0.1:1.0);
                         
 
-julia> @collect db_table(db, "df_mem")
+julia> @collect dt(db, "df_mem")
 10×4 DataFrame
  Row │ id      groups  value  percent 
      │ String  String  Int64  Float64 
@@ -1463,7 +1463,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         percent = 0.1:0.1:1.0);
                      
 
-julia> @chain db_table(db, df, "df_view") begin
+julia> @chain dt(db, df, "df_view") begin
         @head(1) ## supports expressions ie `3-2` would return the same df below
         @collect
        end
@@ -1512,7 +1512,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> dfm = db_table(db, df, "df");
+julia> dfm = dt(db, df, "df");
 
 
 julia> @chain t(dfm) @collect
@@ -1575,9 +1575,9 @@ julia> df1 = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
 julia> df2 = DataFrame(id = [4, 5, 6], value = [40, 50, 60]);
 
-julia> df1_table = db_table(db, df1, "df1");
+julia> df1_table = dt(db, df1, "df1");
 
-julia> df2_table = db_table(db, df2, "df2");
+julia> df2_table = dt(db, df2, "df2");
 
 julia> @chain t(df1_table) @union(df2_table) @collect
 6×2 DataFrame
@@ -1655,7 +1655,7 @@ julia> db = connect(duckdb());
 
 julia> df1 = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
-julia> df1_table = db_table(db, df1, "df1");
+julia> df1_table = dt(db, df1, "df1");
 
 julia> @chain t(df1_table) @union_all(df1_table) @collect
 6×2 DataFrame
@@ -1695,9 +1695,9 @@ julia> df1 = DataFrame(id = [1, 2, 2, 3, 4],
 julia> df2 = DataFrame( id = [2, 2, 3, 5],
        name = ["Bob", "Bob", "Charlie", "Eve"]);
 
-julia> df1_table = db_table(db, df1, "df1"); 
+julia> df1_table = dt(db, df1, "df1"); 
 
-julia> df2_table = db_table(db, df2, "df2"); 
+julia> df2_table = dt(db, df2, "df2"); 
 
 julia> @chain t(df1_table) @intersect(df2_table) @collect
 2×2 DataFrame
@@ -1742,9 +1742,9 @@ julia> df1 = DataFrame(id = [1, 1, 2, 2, 3, 4],
 julia> df2 = DataFrame(id = [2, 2, 3, 5],
        name = ["Bob", "Bob", "Charlie", "Eve"]);
 
-julia> df1_table = db_table(db, df1, "df1"); 
+julia> df1_table = dt(db, df1, "df1"); 
 
-julia> df2_table = db_table(db, df2, "df2");
+julia> df2_table = dt(db, df2, "df2");
 
 julia> @chain t(df1_table) @setdiff(df2_table) @collect
 2×2 DataFrame
@@ -1782,11 +1782,11 @@ julia> db = connect(duckdb());
 
 julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
-julia> @chain db_table(db, df, "df1") @create_view(viewer); # will not overwrite existing view
+julia> @chain dt(db, df, "df1") @create_view(viewer); # will not overwrite existing view
 
-julia> db_table(db, "viewer");
+julia> dt(db, "viewer");
 
-julia> @chain db_table(db, df, "df1") @create_view(viewer, true); # will overwrite exisiting view
+julia> @chain dt(db, df, "df1") @create_view(viewer, true); # will overwrite exisiting view
 ```
 """
 
@@ -1806,7 +1806,7 @@ julia> db = connect(duckdb());
 
 julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
-julia> @chain db_table(db, df, "df1") @create_view(viewer);
+julia> @chain dt(db, df, "df1") @create_view(viewer);
 
 julia> drop_view(db, "viewer");
 ```
@@ -1830,9 +1830,9 @@ julia> db = connect(duckdb());
 
 julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
-julia> @chain db_table(db, df, "df1") @compute(table2, true);
+julia> @chain dt(db, df, "df1") @compute(table2, true);
 
-julia> db_table(db, "table2")
+julia> dt(db, "table2")
 SQLQuery("", "table", "", "", "", "", "", "", false, false, 2×4 DataFrame
  Row │ name    type    current_selxn  table_name 
      │ String  String  Int64          String     
@@ -1882,7 +1882,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 julia> db = connect(duckdb());
 
 
-julia> @chain db_table(db, df, "df_view") begin 
+julia> @chain dt(db, df, "df_view") begin 
         @relocate(groups, value, ends_with("d"), after = percent) 
         @collect
        end
@@ -1901,7 +1901,7 @@ julia> @chain db_table(db, df, "df_view") begin
    9 │     0.9  bb          4  AI
   10 │     1.0  aa          5  AJ
 
-julia> @chain db_table(db, df, "df_view") begin 
+julia> @chain dt(db, df, "df_view") begin 
         @relocate([:percent, :groups], before = id) 
         @collect
        end
@@ -1949,7 +1949,7 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-julia> @chain db_table(db, df, "df_agg") begin
+julia> @chain dt(db, df, "df_agg") begin
          @summarise(
              r2 = regr_r2(value2, value1),
              across(contains("value"), median), 
@@ -1964,7 +1964,7 @@ julia> @chain db_table(db, df, "df_agg") begin
    1 │ aa      0.700161           -3.5           70.0
    2 │ bb      0.703783           -4.5           37.0
 
-julia> @chain db_table(db, df, "df_agg") begin
+julia> @chain dt(db, df, "df_agg") begin
          @mutate(
             slope = agg(regr_slope(value1, value2)),
             var = agg(var_samp(value2)),
@@ -1993,7 +1993,7 @@ julia> @chain db_table(db, df, "df_agg") begin
 
 julia> push!(TidierDB.window_agg_fxns, :regr_slope);
 
-julia> @chain db_table(db, df, "df_agg") begin
+julia> @chain dt(db, df, "df_agg") begin
          @mutate(
             slope = regr_slope(value1, value2), # no longer wrapped in `agg` following the above
             _by = groups
@@ -2043,7 +2043,7 @@ julia> DuckDB.query(db, "
             (2, ROW(10.2, 30.2)),
             (3, ROW(10.3, 30.1));");
 
-julia> @chain db_table(db, :df3) begin
+julia> @chain dt(db, :df3) begin
             @unnest_wider(pos)
             @collect
        end
@@ -2081,7 +2081,7 @@ julia> DuckDB.query(db, "
                 (2, (ARRAY[5,6], ARRAY[7,8,9])),
                 (3, (ARRAY[10,11], ARRAY[12,13]));");
 
-julia> @chain db_table(db, :nt) begin 
+julia> @chain dt(db, :nt) begin 
         @unnest_wider data  
         @unnest_longer a b 
         @collect
@@ -2098,7 +2098,7 @@ julia> @chain db_table(db, :nt) begin
    6 │     3       10     12
    7 │     3       11     13
 
-julia> @chain db_table(db, :nt) begin 
+julia> @chain dt(db, :nt) begin 
         @unnest_wider data  
         @unnest_longer a:b 
         @collect

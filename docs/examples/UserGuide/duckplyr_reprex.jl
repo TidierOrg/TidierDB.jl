@@ -17,12 +17,12 @@
 # sex    = dir * "DimenLookupSex8277.csv"
 # year   = dir * "DimenLookupYear8277.csv"
 
-# data = DB.db_table(db, data);
-# age = DB.db_table(db, age);
-# area = DB.db_table(db, area);
-# ethnic = DB.db_table(db, ethnic);
-# sex = DB.db_table(db, sex);
-# year = DB.db_table(db, year);
+# data = DB.dt(db, data);
+# age = DB.dt(db, age);
+# area = DB.dt(db, area);
+# ethnic = DB.dt(db, ethnic);
+# sex = DB.dt(db, sex);
+# year = DB.dt(db, year);
 # ```
 # ## Exploration
 # While this long chain could be broken up into multiple smaller chains, lets reproduce the duckplyr code from example and demonstrate how TidierDB also supports multiple joins after filtering, mutating, etc the joining tables. 6 different tables are being joined together through sequential inner joins.
@@ -56,7 +56,7 @@
 #   DB.@create_view(joined_up)
 # end
 
-# @chain DB.db_table(db, "joined_up") begin 
+# @chain DB.dt(db, "joined_up") begin 
 #   DB.@filter begin
 #     age_ >= 20
 #     age_ <= 40

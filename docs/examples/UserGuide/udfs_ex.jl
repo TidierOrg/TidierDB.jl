@@ -3,7 +3,7 @@
 using TidierDB # DuckDB is reexported by TidierDB
 db = connect(duckdb());
 df = DataFrame(a = [1, 2, 3], b = [1, 2, 3]);
-dfv = db_table(db, df, "df_view");
+dfv = dt(db, df, "df_view");
 # ## UDFs in DuckDB
 # Once created, UDFs can immediately be used in with `@mutate` or `@transmute`
 # A more in depth disccusion of UDFs in DuckDB.jl can be found [here](https://discourse.julialang.org/t/is-it-hard-to-support-julia-udfs-in-duckdb/118509/24?u=true). 
@@ -41,19 +41,19 @@ dfv = db_table(db, df, "df_view");
 # ##  DuckDB function chaining
 # In DuckDB, functions can be chained together with `.`. TidierDB lets you leverage this.
 mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv";
-mtcars = db_table(db, mtcars_path);
+mtcars = dt(db, mtcars_path);
 @chain t(mtcars) begin 
     @mutate(model2 = model.upper().string_split(" ").list_aggr("string_agg",".").concat("."))
     @select model model2
     @head() 
-     @collect
+    @collect
  end
 
 # ## `rowid` and pseudocolumns
 # When a table is not being read directly from a file, `rowid` is avaialable for use. In general, TidierDB should support all pseudocolumns.
 # ```
 # copy_to(db, mtcars_path, "mtcars"); # copying table in for demostration purposes 
-# @chain db_table(db, :mtcars) begin
+# @chain dt(db, :mtcars) begin
 #       @filter(rowid == 4)
 #       @select(model:hp)
 #       @collect

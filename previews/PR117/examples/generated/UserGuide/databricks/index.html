@@ -354,11 +354,32 @@
   
   
     <li class="md-nav__item">
+      <a href="../udfs_ex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../from_queryex/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing Queries (and Views)
     
   </span>
   
@@ -380,6 +401,27 @@
   
   <span class="md-ellipsis">
     Joining Tables
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unnesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
     
   </span>
   
@@ -708,14 +750,14 @@
 <li>Schema Name</li>
 <li>warehouse_id</li>
 </ul>
-<p>One thing to note, Since each time <code>db_table</code> runs, it runs a query to pull the metadata, you may choose to use run <code>db_table</code> and save the results, and use these results with <code>from_query()</code>. This will reduce the number of queries to your database and is illustrated below.</p>
+<p>One thing to note, Since each time <code>dt</code> runs, it runs a query to pull the metadata, you may choose to use run <code>dt</code> and save the results, and use these results with <code>from_query()</code>. This will reduce the number of queries to your database and is illustrated below.</p>
 <div class="highlight"><pre><span></span><code><span class="n">set_sql_mode</span><span class="p">(</span><span class="n">databricks</span><span class="p">())</span>
 <span class="n">instance_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;string_id&quot;</span>
 <span class="n">token</span><span class="w"> </span><span class="s">&quot;string_token&quot;</span>
 <span class="n">warehouse_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;e673cd4f387f964a&quot;</span>
 <span class="n">con</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:databricks</span><span class="p">,</span><span class="w"> </span><span class="n">instance_id</span><span class="p">,</span><span class="w"> </span><span class="n">token</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;DEMODB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PUBLIC&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">warehouse_id</span><span class="p">)</span>
 <span class="c"># After connection is established, a you may begin querying.</span>
-<span class="n">stable_table_metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mtcars&quot;</span><span class="p">)</span>
+<span class="n">stable_table_metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mtcars&quot;</span><span class="p">)</span>
 <span class="nd">@chain</span><span class="w"> </span><span class="n">from_query</span><span class="p">(</span><span class="n">stable_table_metadata</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">   </span><span class="nd">@select</span><span class="p">(</span><span class="n">wt</span><span class="p">)</span>
 <span class="w">   </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wt</span><span class="w"> </span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>

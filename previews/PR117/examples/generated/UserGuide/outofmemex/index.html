@@ -349,11 +349,32 @@
   
   
     <li class="md-nav__item">
+      <a href="../udfs_ex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../from_queryex/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing Queries (and Views)
     
   </span>
   
@@ -375,6 +396,27 @@
   
   <span class="md-ellipsis">
     Joining Tables
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unnesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
     
   </span>
   
@@ -645,8 +687,8 @@
 <span class="n">urls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;https://huggingface.co/datasets/blog_authorship_corpus/resolve/refs</span><span class="si">%2F</span><span class="s">convert</span><span class="si">%2F</span><span class="s">parquet/blog_authorship_corpus/train/0000.parquet&quot;</span><span class="p">,</span>
 <span class="w"> </span><span class="s">&quot;https://huggingface.co/datasets/blog_authorship_corpus/resolve/refs</span><span class="si">%2F</span><span class="s">convert</span><span class="si">%2F</span><span class="s">parquet/blog_authorship_corpus/train/0001.parquet&quot;</span><span class="p">];</span>
 </code></pre></div>
-<p>Here, we pass the vector of URLs to <code>db_table</code>, which will not copy them into memory. Since these datasets are so large, we will also set <code>stream = true</code> in <code>@collect</code> to stream the results. If we wanted to read all the files in the folder we could have replace the <code>0000</code> with <code>*</code> (wildcard) <code>db_table(db, "Path/to/folder/*.parquet")</code> Of note, reading these files from URLs is not as rapid as reading them from local files.</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">urls</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<p>Here, we pass the vector of URLs to <code>dt</code>, which will not copy them into memory. Since these datasets are so large, we will also set <code>stream = true</code> in <code>@collect</code> to stream the results. If we wanted to read all the files in the folder we could have replace the <code>0000</code> with <code>*</code> (wildcard) <code>dt(db, "Path/to/folder/*.parquet")</code> Of note, reading these files from URLs is not as rapid as reading them from local files.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">urls</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">horoscope</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@summarise</span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">(),</span><span class="w"> </span><span class="n">avg_blog_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">text</span><span class="p">)))</span>
 <span class="w">    </span><span class="nd">@arrange</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>

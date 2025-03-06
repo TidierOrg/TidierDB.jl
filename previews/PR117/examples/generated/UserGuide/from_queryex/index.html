@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="../agg_window/">
+        <link rel="prev" href="../udfs_ex/">
       
       
         <link rel="next" href="../ex_joining/">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Reusing a Query (and Views) - TidierDB.jl</title>
+        <title>Reusing Queries (and Views) - TidierDB.jl</title>
       
     
     
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Reusing a Query (and Views)
+              Reusing Queries (and Views)
             
           </span>
         </div>
@@ -351,6 +351,27 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../udfs_ex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -365,7 +386,7 @@
           
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing Queries (and Views)
     
   </span>
   
@@ -377,7 +398,7 @@
         
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing Queries (and Views)
     
   </span>
   
@@ -453,6 +474,27 @@
   
   <span class="md-ellipsis">
     Joining Tables
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unnesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
     
   </span>
   
@@ -748,7 +790,7 @@
 
 
 
-  <h1>Reusing a Query (and Views)</h1>
+  <h1>Reusing Queries (and Views)</h1>
 
 <p>While using TidierDB, you may need to generate part of a query and reuse it multiple times. There are two ways to do this</p>
 <ol>
@@ -761,7 +803,7 @@
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="n">TidierDB</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">DB</span>
 <span class="n">con</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">duckdb</span><span class="p">())</span>
 <span class="n">mtcars_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span>
-<span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="n">mtcars_path</span><span class="p">);</span>
+<span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">dt</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="n">mtcars_path</span><span class="p">);</span>
 </code></pre></div>
 <p>Start a query to analyze fuel efficiency by number of cylinders. However, to further build on this query later, end the chain without using <code>@show_query</code> or <code>@collect</code></p>
 <div class="highlight"><pre><span></span><code><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
@@ -912,7 +954,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../agg_window/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Aggregate and Window Functions">
+          <a href="../udfs_ex/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Flexible Syntax and UDFs">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -922,7 +964,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Aggregate and Window Functions
+                Flexible Syntax and UDFs
               </div>
             </div>
           </a>

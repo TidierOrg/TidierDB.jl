@@ -13,6 +13,10 @@
       
       
       
+        <link rel="prev" href="../ex_joining/">
+      
+      
+        <link rel="next" href="../s3viaduckdb/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -20,7 +24,7 @@
     
     
       
-        <title>Unnesting - TidierDB.jl</title>
+        <title>Unnesting Columns - TidierDB.jl</title>
       
     
     
@@ -111,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Unnesting
+              Unnesting Columns
             
           </span>
         </div>
@@ -350,11 +354,32 @@
   
   
     <li class="md-nav__item">
+      <a href="../udfs_ex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../from_queryex/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing Queries (and Views)
     
   </span>
   
@@ -381,6 +406,82 @@
   
 
       </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unnest_wider" class="md-nav__link">
+    <span class="md-ellipsis">
+      @unnest_wider
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unnest_longer" class="md-nav__link">
+    <span class="md-ellipsis">
+      @unnest_longer
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -653,7 +754,7 @@
 
 
 
-  <h1>Unnesting</h1>
+  <h1>Unnesting Columns</h1>
 
 <blockquote>
 <p>[Note] unnesting is an experimental feature for TidierDB</p>
@@ -678,7 +779,7 @@
 <p><a id='@unnest_wider-1'></a></p>
 <h2 id="unnest_wider"><code>@unnest_wider</code><a class="headerlink" href="#unnest_wider" title="Permanent link">¤</a></h2>
 <p><code>@unnest_wider</code> at this time only supports unnesting</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nested_table&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nested_table&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@unnest_wider</span><span class="p">(</span><span class="n">coord</span><span class="o">:</span><span class="n">info</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@collect</span>
 <span class="k">end</span>
@@ -687,7 +788,7 @@
 <div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th><th style = "text-align: left;">lat</th><th style = "text-align: left;">lon</th><th style = "text-align: left;">city</th><th style = "text-align: left;">country</th><th style = "text-align: left;">continent</th><th style = "text-align: left;">climate</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Int32" style = "text-align: left;">Int32</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: right;">1</td><td style = "text-align: right;">40.7128</td><td style = "text-align: right;">-74.006</td><td style = "text-align: left;">New York</td><td style = "text-align: left;">USA</td><td style = "text-align: left;">North America</td><td style = "text-align: left;">Temperate</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: right;">2</td><td style = "text-align: right;">48.8566</td><td style = "text-align: right;">2.3522</td><td style = "text-align: left;">Paris</td><td style = "text-align: left;">France</td><td style = "text-align: left;">Europe</td><td style = "text-align: left;">Temperate</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: right;">3</td><td style = "text-align: right;">35.6895</td><td style = "text-align: right;">139.692</td><td style = "text-align: left;">Tokyo</td><td style = "text-align: left;">Japan</td><td style = "text-align: left;">Asia</td><td style = "text-align: left;">Humid Subtropical</td></tr></tbody></table></div>
 
 <p>Single elements can be extracted a new column like so, or using any of exisiting backend fucntion as well.</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nested_table&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nested_table&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">city</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">loc</span><span class="o">.</span><span class="n">city</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@collect</span>
 <span class="k">end</span>
@@ -707,7 +808,7 @@
 <p><a id='@unnest_longer-1'></a></p>
 <h2 id="unnest_longer"><code>@unnest_longer</code><a class="headerlink" href="#unnest_longer" title="Permanent link">¤</a></h2>
 <p>In this example, we will first <code>@unnest_wider</code> data column into 2 columns <code>a</code> and <code>b</code>, before flattening the arrays within them with <code>@unnest_longer</code></p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nt&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nt&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@unnest_wider</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@unnest_longer</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@collect</span>
@@ -748,6 +849,44 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../ex_joining/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Joining Tables">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Joining Tables
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../s3viaduckdb/" class="md-footer__link md-footer__link--next" aria-label="Next: S3 + DuckDB + TidierDB">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                S3 + DuckDB + TidierDB
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">

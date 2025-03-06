@@ -13,6 +13,10 @@
       
       
       
+        <link rel="prev" href="../agg_window/">
+      
+      
+        <link rel="next" href="../from_queryex/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -20,7 +24,7 @@
     
     
       
-        <title>Udfs ex - TidierDB.jl</title>
+        <title>Flexible Syntax and UDFs - TidierDB.jl</title>
       
     
     
@@ -111,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Udfs ex
+              Flexible Syntax and UDFs
             
           </span>
         </div>
@@ -347,6 +351,91 @@
       
   
   
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#udfs-in-duckdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      UDFs in DuckDB
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duckdb-function-chaining" class="md-nav__link">
+    <span class="md-ellipsis">
+      DuckDB function chaining
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rowid-and-pseudocolumns" class="md-nav__link">
+    <span class="md-ellipsis">
+      rowid and pseudocolumns
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
   
   
     <li class="md-nav__item">
@@ -354,7 +443,7 @@
         
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing Queries (and Views)
     
   </span>
   
@@ -376,6 +465,27 @@
   
   <span class="md-ellipsis">
     Joining Tables
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unnesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
     
   </span>
   
@@ -662,7 +772,7 @@
 
 
 
-  <h1>Udfs ex</h1>
+  <h1>Flexible Syntax and UDFs</h1>
 
 <p>TidierDB is unique in its statement parsing flexiblility.  This means that in addition to using any built in SQL database functions, user defined functions (or UDFS) are readily avaialable in TidierDB.</p>
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span><span class="w"> </span><span class="c"># DuckDB is reexported by TidierDB</span>
@@ -679,26 +789,16 @@
 <span class="n">DuckDB</span><span class="o">.</span><span class="n">register_scalar_function</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">fun</span><span class="p">)</span>
 <span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bino</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">))</span><span class="w"> </span><span class="nd">@collect</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>3×3 DataFrame
- Row │ a      b      c
-     │ Int64  Int64  Int64
-─────┼─────────────────────
-   1 │     1      1      4
-   2 │     2      2     16
-   3 │     3      3     36
-</code></pre></div>
+<div><div style = "float: left;"><span>3×3 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">a</th><th style = "text-align: left;">b</th><th style = "text-align: left;">c</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: right;">1</td><td style = "text-align: right;">1</td><td style = "text-align: right;">4</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: right;">2</td><td style = "text-align: right;">2</td><td style = "text-align: right;">16</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: right;">3</td><td style = "text-align: right;">3</td><td style = "text-align: right;">36</td></tr></tbody></table></div>
+
 <p>Notably, when the function is redefined (with the same arguments) in julia, the DuckDB UDF representation will change as well.</p>
 <div class="highlight"><pre><span></span><code><span class="n">bino</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
 <span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bino</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">))</span><span class="w"> </span><span class="nd">@collect</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>3×3 DataFrame
- Row │ a      b      c
-     │ Int64  Int64  Int64
-─────┼─────────────────────
-   1 │     1      1      0
-   2 │     2      2      0
-   3 │     3      3      0
-</code></pre></div>
+<div><div style = "float: left;"><span>3×3 DataFrame</span></div><div style = "clear: both;"></div></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">a</th><th style = "text-align: left;">b</th><th style = "text-align: left;">c</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: right;">1</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: right;">2</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: right;">3</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0</td></tr></tbody></table></div>
+
 <p><a id='DuckDB-function-chaining'></a></p>
 <p><a id='DuckDB-function-chaining-1'></a></p>
 <h2 id="duckdb-function-chaining">DuckDB function chaining<a class="headerlink" href="#duckdb-function-chaining" title="Permanent link">¤</a></h2>
@@ -709,8 +809,8 @@
 <span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">model2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">string_split</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">list_aggr</span><span class="p">(</span><span class="s">&quot;string_agg&quot;</span><span class="p">,</span><span class="s">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">))</span>
 <span class="w">    </span><span class="nd">@select</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="n">model2</span>
 <span class="w">    </span><span class="nd">@head</span><span class="p">()</span>
-<span class="w">     </span><span class="nd">@collect</span>
-<span class="w"> </span><span class="k">end</span>
+<span class="w">    </span><span class="nd">@collect</span>
+<span class="k">end</span>
 </code></pre></div>
 <div><div style = "float: left;"><span>6×2 DataFrame</span></div><div style = "clear: both;"></div></div>
 <div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">model</th><th style = "text-align: left;">model2</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">Mazda RX4</td><td style = "text-align: left;">MAZDA.RX4.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">Mazda RX4 Wag</td><td style = "text-align: left;">MAZDA.RX4.WAG.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">Datsun 710</td><td style = "text-align: left;">DATSUN.710.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">Hornet 4 Drive</td><td style = "text-align: left;">HORNET.4.DRIVE.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">Hornet Sportabout</td><td style = "text-align: left;">HORNET.SPORTABOUT.</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">Valiant</td><td style = "text-align: left;">VALIANT.</td></tr></tbody></table></div>
@@ -763,6 +863,44 @@ end
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../agg_window/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Aggregate and Window Functions">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Aggregate and Window Functions
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../from_queryex/" class="md-footer__link md-footer__link--next" aria-label="Next: Reusing Queries (and Views)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Reusing Queries (and Views)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">

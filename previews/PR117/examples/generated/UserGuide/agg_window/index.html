@@ -16,7 +16,7 @@
         <link rel="prev" href="../getting_started/">
       
       
-        <link rel="next" href="../from_queryex/">
+        <link rel="next" href="../udfs_ex/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -427,11 +427,32 @@
   
   
     <li class="md-nav__item">
+      <a href="../udfs_ex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../from_queryex/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing Queries (and Views)
     
   </span>
   
@@ -453,6 +474,27 @@
   
   <span class="md-ellipsis">
     Joining Tables
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unnesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
     
   </span>
   
@@ -758,7 +800,7 @@
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span>
 <span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">());</span>
 <span class="n">mtcars_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span><span class="p">;</span>
-<span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">mtcars_path</span><span class="p">);</span>
+<span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">mtcars_path</span><span class="p">);</span>
 </code></pre></div>
 <p><a id='Aggregate-Functions-in-@summarize'></a></p>
 <p><a id='Aggregate-Functions-in-@summarize-1'></a></p>
@@ -889,13 +931,13 @@
         
         
           
-          <a href="../from_queryex/" class="md-footer__link md-footer__link--next" aria-label="Next: Reusing a Query (and Views)">
+          <a href="../udfs_ex/" class="md-footer__link md-footer__link--next" aria-label="Next: Flexible Syntax and UDFs">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Reusing a Query (and Views)
+                Flexible Syntax and UDFs
               </div>
             </div>
             <div class="md-footer__button md-icon">

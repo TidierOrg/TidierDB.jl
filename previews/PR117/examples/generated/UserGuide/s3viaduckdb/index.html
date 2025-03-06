@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="../ex_joining/">
+        <link rel="prev" href="../unnesting/">
       
       
         <link rel="next" href="../athena/">
@@ -349,11 +349,32 @@
   
   
     <li class="md-nav__item">
+      <a href="../udfs_ex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../from_queryex/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing Queries (and Views)
     
   </span>
   
@@ -375,6 +396,27 @@
   
   <span class="md-ellipsis">
     Joining Tables
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unnesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
     
   </span>
   
@@ -650,7 +692,7 @@
 <span class="w">                                </span><span class="n">aws_region</span><span class="o">=</span><span class="s">&quot;us-east-1&quot;</span><span class="p">)</span>
 <span class="n">s3_csv_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;s3://path/to_data.csv&quot;</span>
 
-<span class="nd">@chain</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">aws_db</span><span class="p">,</span><span class="w"> </span><span class="n">s3_csv_path</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">aws_db</span><span class="p">,</span><span class="w"> </span><span class="n">s3_csv_path</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@filter</span><span class="p">(</span><span class="o">!</span><span class="n">starts_with</span><span class="p">(</span><span class="n">column1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;M&quot;</span><span class="p">))</span>
 <span class="w">    </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">))</span>
@@ -709,7 +751,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../ex_joining/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Joining Tables">
+          <a href="../unnesting/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Unnesting Columns">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -719,7 +761,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Joining Tables
+                Unnesting Columns
               </div>
             </div>
           </a>

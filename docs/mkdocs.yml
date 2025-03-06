@@ -119,7 +119,7 @@ nav:
   - "Key Differences from TidierData.jl" : "examples/generated/UserGuide/key_differences.md"
   - "Getting Started" : "examples/generated/UserGuide/getting_started.md"
   - "Aggregate and Window Functions": "examples/generated/UserGuide/agg_window.md"
-  #- "Flexible Syntax and UDFs" : "examples/generated/UserGuide/udfs_ex.md"
+  - "Flexible Syntax and UDFs" : "examples/generated/UserGuide/udfs_ex.md"
   - "Reusing a Query (and Views)" : "examples/generated/UserGuide/from_queryex.md"
   - "Joining Tables" : "examples/generated/UserGuide/ex_joining.md"
   - "Dates" : "examples/generated/UserGuide/dates.md"

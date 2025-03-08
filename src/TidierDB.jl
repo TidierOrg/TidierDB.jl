@@ -15,13 +15,15 @@ using Crayons
 @reexport using Chain
 @reexport using DuckDB
 
- export db_table, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
- @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
- @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, @transmute,
- @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,  @head, 
+ export @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
+        @distinct, @left_join, @right_join, @inner_join, @count, @slice_max,  @union,
+        @slice_min, @slice_sample, @rename, @relocate, @union_all, @setdiff, @intersect, 
+        @semi_join, @full_join, @transmute,  @anti_join, @head,  @unnest_wider, @unnest_longer
+        
+ export db_table, set_sql_mode, connect, from_query, @interpolate, add_interp_parameter!, update_con,  
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, 
- t, @union, @create_view, drop_view, @compute, warnings, @relocate, @union_all, @setdiff, @intersect, ghseet_connect,
- @unnest_wider, @unnest_longer, dt
+ t, @create_view, drop_view, @compute, warnings, ghseet_connect, copy_to, duckdb_open, duckdb_connect, dt,
+ @show_query, @collect, @window_order, @window_frame
 
  abstract type SQLBackend end
 
@@ -227,7 +229,8 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             end
         end
      elseif startswith(table_name, "read") 
-         "$table_name"  
+        alias = alias == "" ? "data" : alias
+         table_name * " AS $alias"
      elseif alias != ""
         table_name * " AS $alias"
      else 

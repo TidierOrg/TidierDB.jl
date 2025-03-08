@@ -2,11 +2,10 @@
 ## v0.8.0 - 2025-02-12
 - adds `@transmute`
 - adds `@unnest_wider` and `@unnest_longer`
-- bug fixes around dates 
-- fixes duckdb compat issue for windows users 
-    - keeps active `duck12` branch active for users who want to use DuckDB 1.2
-- bumps DataFrames.jl compat to 1.5
 - adds more ergonomic `dt` alias for `db_table`
+- bug fixes and [docs](https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/dates) around dates 
+- bumps DataFrames.jl compat to 1.7
+
 
 ## v0.7.1 - 2025-02-04
 - Prints queries in color by default (optional)

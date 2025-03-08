@@ -197,7 +197,7 @@
         # testing as_string, as_float, as_integer
         TDF_13 = @chain test_df @mutate(value = as_string(value)) @mutate(value2 = as_float(value), value3 = as_integer(value)) @filter(value2 > 4 && value3 < 10)
         TDB_13 = @chain DB.t(test_db) DB.@mutate(value = as_string(value)) DB.@mutate(value2 = as_float(value), value3 = as_integer(value)) DB.@filter(value2 > 4 && value3 < 10) DB.@collect
-        TDB_14 = @chain DB.db_table(db, "test_df") DB.@filter(value > 1) DB.@transmute( cum_sum = cumsum(value), _by = groups,  _order =  percent) DB.@arrange(groups, cum_sum) DB.@collect()
+        TDB_14 = @chain DB.dt(db, "test_df") DB.@filter(value > 1) DB.@transmute( cum_sum = cumsum(value), _by = groups,  _order =  percent) DB.@arrange(groups, cum_sum) DB.@collect()
         TDF_14 = @chain test_df @filter(value > 1) @group_by(groups) @arrange(percent) @transmute(cum_sum = cumsum(value)) @arrange(groups, cum_sum) @ungroup
         
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
@@ -317,17 +317,6 @@
         @test all(isequal.(Array(TDB_3), Array(TDB_3_)))
     end
 
-    @testset "Code coverage misc" begin 
-        @test !isempty(@chain DB.t(test_db) begin 
-        DB.@mutate(aa = MAP(ARRAY["value", "percent"], ARRAY[value, percent]))
-        DB.@mutate(aaa = aa[percent])
-        DB.@head(6)
-       # @aside DB.@show_query _
-        DB.@collect
-        end)
-        @test (@chain test_df @group_by(groups) @summarize(n=n()) @select(n))== (@chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(n=n()) DB.@select(n) DB.@collect())
-    end
-
     @testset "Unnesting" begin 
         DB.DuckDB.query(db, "
         CREATE OR REPLACE TABLE df3 (
@@ -349,15 +338,31 @@
                 (1, (ARRAY[1,2], ARRAY[3,4])),
                 (2, (ARRAY[5,6], ARRAY[7,8])),
                 (3, (ARRAY[10,11], ARRAY[12,13]));");
-        df = DB.@collect DB.db_table(db, "df3")
-        dft = DB.@collect DB.db_table(db, "nt2")
 
-        df_u = @unnest_wider(df, pos:new2)
-        db_u = @chain DB.db_table(db, "df3") DB.@unnest_wider(pos:new2) DB.@collect
+        df = DB.@collect DB.dt(db, "df3")
+        dft = DB.@collect DB.dt(db, "nt2")
 
-        df_u2 = @chain dft @unnest_wider(data) @unnest_longer(a:b)
-        db_u2 = @chain DB.db_table(db, "nt2") DB.@unnest_wider(data) DB.@unnest_longer(a:b) DB.@collect
+        TDF_1= @unnest_wider(df, pos:new2)
+        TDB_1 = @chain DB.dt(db, "df3") DB.@unnest_wider(pos:new2) DB.@collect
+
+        TDF_2 = @chain dft @unnest_wider(data) @unnest_longer(a:b)
+        TDB_2 = @chain DB.dt(db, "nt2") DB.@unnest_wider(data) DB.@unnest_longer(a:b) DB.@collect
         
-        @test all(isequal.(Array(df_u), Array(db_u)))
-        @test all(isequal.(Array(df_u2), Array(db_u2)))
+        TDF_3 = @chain dft @unnest_wider(data) @unnest_longer(a:b) @mutate(aa = (b*5) + 5) @filter(aa > 12)
+        TDB_3 = @chain DB.dt(db, "nt2") DB.@unnest_wider(data) DB.@unnest_longer(a:b) DB.@mutate(aa = (b*5) + 5) DB.@filter(aa > 12) DB.@collect() 
+      
+        @test all(isequal.(Array(TDF_1), Array(TDB_1)))
+        @test all(isequal.(Array(TDF_2), Array(TDB_2)))
+        @test all(isequal.(Array(TDF_3), Array(TDB_3)))
+    end
+
+    @testset "Code coverage misc" begin 
+        @test !isempty(@chain DB.t(test_db) begin 
+        DB.@mutate(aa = MAP(ARRAY["value", "percent"], ARRAY[value, percent]))
+        DB.@mutate(aaa = aa[percent])
+        DB.@head(6)
+       # @aside DB.@show_query _
+        DB.@collect
+        end)
+        @test (@chain test_df @group_by(groups) @summarize(n=n()) @select(n))== (@chain DB.t(test_db) DB.@group_by(groups) DB.@summarize(n=n()) DB.@select(n) DB.@collect())
     end

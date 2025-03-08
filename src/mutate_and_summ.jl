@@ -120,7 +120,7 @@ macro mutate(sqlquery, mutations...)
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
 
-            if sq.post_aggregation #|| sq.post_join 
+            if sq.post_aggregation || sq.post_unnest #|| sq.post_join 
                 if sq.post_aggregation
                     for row in eachrow(sq.metadata)
                         if row[:current_selxn] == 2
@@ -382,7 +382,7 @@ macro transmute(sqlquery, mutations...)
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
 
-            if sq.post_aggregation #|| sq.post_join 
+            if sq.post_aggregation || sq.post_unnest #|| sq.post_join 
                 if sq.post_aggregation
                     for row in eachrow(sq.metadata)
                         if row[:current_selxn] == 2

@@ -99,17 +99,29 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
                 return """ CASE WHEN $column_str IS NULL THEN NULL ELSE COALESCE(  LIST_EXTRACT( CASE  WHEN '$key_str' IS NULL THEN NULL ELSE ELEMENT_AT($column_str, '$key_str') END, 1 ), NULL) END ***"""
             end
         elseif @capture(x, year(a_))
-            return "EXTRACT(YEAR FROM " * string(a) * ")"
+            return "(__( EXTRACT(YEAR FROM " * string(a) * ") ***"
         elseif @capture(x, month(a_))
-            return "EXTRACT(MONTH FROM " * string(a) * ")"
+            return "(__( EXTRACT(MONTH FROM " * string(a) * ") ***"
         elseif @capture(x, day(a_))
-            return "EXTRACT(DAY FROM " * string(a) * ")"
+            return "(__( EXTRACT(DAY FROM " * string(a) * ") ***"
         elseif @capture(x, hour(a_))
-            return "EXTRACT(HOUR FROM " * string(a) * ")"
+            return "(__( EXTRACT(HOUR FROM " * string(a) * ") ***"
         elseif @capture(x, minute(a_))
-            return "EXTRACT(MINUTE FROM " * string(a) * ")"
+            return "(__( EXTRACT(MINUTE FROM " * string(a) * ") ***"
         elseif @capture(x, second(a_))
-            return "EXTRACT(SECOND FROM " * string(a) * ")"
+            return "(__( EXTRACT(SECOND FROM " * string(a) * ") ***"
+        elseif @capture(x, Year(a_))
+            return "(__( INTERVAL $(string(a)) Year )__("
+        elseif @capture(x, Month(a_))
+            return "(__( INTERVAL $(string(a)) Month )__("
+        elseif @capture(x, Day(a_))
+            return "(__( INTERVAL $(string(a)) Day )__("
+        elseif @capture(x, Hour(a_))
+            return "(__( INTERVAL $(string(a)) Hour )__("
+        elseif @capture(x, Minute(a_))
+            return "(__( INTERVAL $(string(a)) Minute )__("
+        elseif @capture(x, Second(a_))
+            return "(__( INTERVAL $(string(a)) Second )__("
         elseif @capture(x, floordate(time_column_, unit_))
             return :(DATE_TRUNC($unit, $time_column))
         elseif @capture(x, difftime(endtime_, starttime_, unit_))

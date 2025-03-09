@@ -13,6 +13,10 @@
       
       
       
+        <link rel="prev" href="../dates/">
+      
+      
+        <link rel="next" href="../s3viaduckdb/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -20,7 +24,7 @@
     
     
       
-        <title>Unnesting - TidierDB.jl</title>
+        <title>Unnesting Columns - TidierDB.jl</title>
       
     
     
@@ -111,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Unnesting
+              Unnesting Columns
             
           </span>
         </div>
@@ -431,6 +435,91 @@
       
   
   
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unnest_wider" class="md-nav__link">
+    <span class="md-ellipsis">
+      @unnest_wider
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unnest_longer" class="md-nav__link">
+    <span class="md-ellipsis">
+      @unnest_longer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exploded-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exploded JSON
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
   
   
     <li class="md-nav__item">
@@ -704,7 +793,7 @@
 
 
 
-  <h1>Unnesting</h1>
+  <h1>Unnesting Columns</h1>
 
 <blockquote>
 <p>[Note] unnesting is an experimental feature for TidierDB</p>
@@ -770,7 +859,7 @@
 <p><a id='Exploded-JSON'></a></p>
 <p><a id='Exploded-JSON-1'></a></p>
 <h2 id="exploded-json">Exploded JSON<a class="headerlink" href="#exploded-json" title="Permanent link">¤</a></h2>
-<p>Users may come across table columns that do not unnest with <code>@unnest_wider</code> and <code>@unnest_longer</code>. TidierDB now has an experimental method to enable using DuckDB's <code>UNNEST</code> function with transmute to explode such a column and drop other columns.</p>
+<p>Users may come across table columns that do not unnest with <code>@unnest_wider</code> and <code>@unnest_longer</code>. TidierDB now has an experimental method to enable using DuckDB's <code>UNNEST</code> function with transmute to explode such a column and drop all other columns.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;read_json(&#39;https://environment.data.gov.uk/flood-monitoring/id/measures&#39;)&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">alias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;meas&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@transmute</span><span class="p">(</span><span class="n">unnest</span><span class="p">(</span><span class="n">items</span><span class="p">))</span>
 <span class="w">    </span><span class="nd">@head</span><span class="w"> </span><span class="mi">3</span>
@@ -778,7 +867,7 @@
 <span class="k">end</span>
 </code></pre></div>
 <div><div style = "float: left;"><span>3×14 DataFrame</span></div><div style = "clear: both;"></div></div>
-<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">@id</th><th style = "text-align: left;">datumType</th><th style = "text-align: left;">label</th><th style = "text-align: left;">latestReading</th><th style = "text-align: left;">notation</th><th style = "text-align: left;">parameter</th><th style = "text-align: left;">parameterName</th><th style = "text-align: left;">period</th><th style = "text-align: left;">qualifier</th><th style = "text-align: left;">station</th><th style = "text-align: left;">stationReference</th><th style = "text-align: left;">unit</th><th style = "text-align: left;">unitName</th><th style = "text-align: left;">valueType</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Union{Missing, NamedTuple{(Symbol(&amp;quot;@id&amp;quot;), :date, :dateTime, :measure, :value)}}" style = "text-align: left;">NamedTup…?</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/id/measures/1029TH-level-downstage-i-15_min-mASD</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/def/core/datumASD</td><td style = "text-align: left;">RIVER DIKLER AT BOURTON ON THE WATER - level-downstage-i-15_min-mASD</td><td style = "text-align: left;">(var&quot;@id&quot; = &quot;http://environment.data.gov.uk/flood-monitoring/data/readings/1029TH-level-downstage-i-15_min-mASD/2025-03-09T14-45-00Z&quot;, date = Date(&quot;2025-03-09&quot;), dateTime = DateTime(&quot;2025-03-09T14:45:00&quot;), measure = &quot;http://environment.data.gov.uk/flood-monitoring/id/measures/1029TH-level-downstage-i-15_min-mASD&quot;, value = -0.166)</td><td style = "text-align: left;">1029TH-level-downstage-i-15_min-mASD</td><td style = "text-align: left;">level</td><td style = "text-align: left;">Water Level</td><td style = "text-align: right;">900</td><td style = "text-align: left;">Downstream Stage</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/id/stations/1029TH</td><td style = "text-align: left;">1029TH</td><td style = "text-align: left;">http://qudt.org/1.1/vocab/unit#Meter</td><td style = "text-align: left;">mASD</td><td style = "text-align: left;">instantaneous</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/id/measures/1029TH-level-stage-i-15_min-mASD</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/def/core/datumASD</td><td style = "text-align: left;">RIVER DIKLER AT BOURTON ON THE WATER - level-stage-i-15_min-mASD</td><td style = "text-align: left;">(var&quot;@id&quot; = &quot;http://environment.data.gov.uk/flood-monitoring/data/readings/1029TH-level-stage-i-15_min-mASD/2025-03-09T14-45-00Z&quot;, date = Date(&quot;2025-03-09&quot;), dateTime = DateTime(&quot;2025-03-09T14:45:00&quot;), measure = &quot;http://environment.data.gov.uk/flood-monitoring/id/measures/1029TH-level-stage-i-15_min-mASD&quot;, value = 0.273)</td><td style = "text-align: left;">1029TH-level-stage-i-15_min-mASD</td><td style = "text-align: left;">level</td><td style = "text-align: left;">Water Level</td><td style = "text-align: right;">900</td><td style = "text-align: left;">Stage</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/id/stations/1029TH</td><td style = "text-align: left;">1029TH</td><td style = "text-align: left;">http://qudt.org/1.1/vocab/unit#Meter</td><td style = "text-align: left;">mASD</td><td style = "text-align: left;">instantaneous</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/id/measures/E2043-level-stage-i-15_min-mASD</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/def/core/datumASD</td><td style = "text-align: left;">SURFLEET SLUICE WITS - level-stage-i-15_min-mASD</td><td style = "text-align: left;">(var&quot;@id&quot; = &quot;http://environment.data.gov.uk/flood-monitoring/data/readings/E2043-level-stage-i-15_min-mASD/2025-03-09T14-45-00Z&quot;, date = Date(&quot;2025-03-09&quot;), dateTime = DateTime(&quot;2025-03-09T14:45:00&quot;), measure = &quot;http://environment.data.gov.uk/flood-monitoring/id/measures/E2043-level-stage-i-15_min-mASD&quot;, value = 0.5)</td><td style = "text-align: left;">E2043-level-stage-i-15_min-mASD</td><td style = "text-align: left;">level</td><td style = "text-align: left;">Water Level</td><td style = "text-align: right;">900</td><td style = "text-align: left;">Stage</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/id/stations/E2043</td><td style = "text-align: left;">E2043</td><td style = "text-align: left;">http://qudt.org/1.1/vocab/unit#Meter</td><td style = "text-align: left;">mASD</td><td style = "text-align: left;">instantaneous</td></tr></tbody></table></div>
+<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">@id</th><th style = "text-align: left;">datumType</th><th style = "text-align: left;">label</th><th style = "text-align: left;">latestReading</th><th style = "text-align: left;">notation</th><th style = "text-align: left;">parameter</th><th style = "text-align: left;">parameterName</th><th style = "text-align: left;">period</th><th style = "text-align: left;">qualifier</th><th style = "text-align: left;">station</th><th style = "text-align: left;">stationReference</th><th style = "text-align: left;">unit</th><th style = "text-align: left;">unitName</th><th style = "text-align: left;">valueType</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Union{Missing, NamedTuple{(Symbol(&amp;quot;@id&amp;quot;), :date, :dateTime, :measure, :value)}}" style = "text-align: left;">NamedTup…?</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/id/measures/1029TH-level-downstage-i-15_min-mASD</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/def/core/datumASD</td><td style = "text-align: left;">RIVER DIKLER AT BOURTON ON THE WATER - level-downstage-i-15_min-mASD</td><td style = "text-align: left;">(var&quot;@id&quot; = &quot;http://environment.data.gov.uk/flood-monitoring/data/readings/1029TH-level-downstage-i-15_min-mASD/2025-03-09T15-45-00Z&quot;, date = Date(&quot;2025-03-09&quot;), dateTime = DateTime(&quot;2025-03-09T15:45:00&quot;), measure = &quot;http://environment.data.gov.uk/flood-monitoring/id/measures/1029TH-level-downstage-i-15_min-mASD&quot;, value = -0.168)</td><td style = "text-align: left;">1029TH-level-downstage-i-15_min-mASD</td><td style = "text-align: left;">level</td><td style = "text-align: left;">Water Level</td><td style = "text-align: right;">900</td><td style = "text-align: left;">Downstream Stage</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/id/stations/1029TH</td><td style = "text-align: left;">1029TH</td><td style = "text-align: left;">http://qudt.org/1.1/vocab/unit#Meter</td><td style = "text-align: left;">mASD</td><td style = "text-align: left;">instantaneous</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/id/measures/1029TH-level-stage-i-15_min-mASD</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/def/core/datumASD</td><td style = "text-align: left;">RIVER DIKLER AT BOURTON ON THE WATER - level-stage-i-15_min-mASD</td><td style = "text-align: left;">(var&quot;@id&quot; = &quot;http://environment.data.gov.uk/flood-monitoring/data/readings/1029TH-level-stage-i-15_min-mASD/2025-03-09T15-45-00Z&quot;, date = Date(&quot;2025-03-09&quot;), dateTime = DateTime(&quot;2025-03-09T15:45:00&quot;), measure = &quot;http://environment.data.gov.uk/flood-monitoring/id/measures/1029TH-level-stage-i-15_min-mASD&quot;, value = 0.273)</td><td style = "text-align: left;">1029TH-level-stage-i-15_min-mASD</td><td style = "text-align: left;">level</td><td style = "text-align: left;">Water Level</td><td style = "text-align: right;">900</td><td style = "text-align: left;">Stage</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/id/stations/1029TH</td><td style = "text-align: left;">1029TH</td><td style = "text-align: left;">http://qudt.org/1.1/vocab/unit#Meter</td><td style = "text-align: left;">mASD</td><td style = "text-align: left;">instantaneous</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/id/measures/E2043-level-stage-i-15_min-mASD</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/def/core/datumASD</td><td style = "text-align: left;">SURFLEET SLUICE WITS - level-stage-i-15_min-mASD</td><td style = "text-align: left;">(var&quot;@id&quot; = &quot;http://environment.data.gov.uk/flood-monitoring/data/readings/E2043-level-stage-i-15_min-mASD/2025-03-09T15-45-00Z&quot;, date = Date(&quot;2025-03-09&quot;), dateTime = DateTime(&quot;2025-03-09T15:45:00&quot;), measure = &quot;http://environment.data.gov.uk/flood-monitoring/id/measures/E2043-level-stage-i-15_min-mASD&quot;, value = 0.497)</td><td style = "text-align: left;">E2043-level-stage-i-15_min-mASD</td><td style = "text-align: left;">level</td><td style = "text-align: left;">Water Level</td><td style = "text-align: right;">900</td><td style = "text-align: left;">Stage</td><td style = "text-align: left;">http://environment.data.gov.uk/flood-monitoring/id/stations/E2043</td><td style = "text-align: left;">E2043</td><td style = "text-align: left;">http://qudt.org/1.1/vocab/unit#Meter</td><td style = "text-align: left;">mASD</td><td style = "text-align: left;">instantaneous</td></tr></tbody></table></div>
 
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
@@ -812,6 +901,44 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../dates/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Dates">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Dates
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../s3viaduckdb/" class="md-footer__link md-footer__link--next" aria-label="Next: S3 + DuckDB + TidierDB">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                S3 + DuckDB + TidierDB
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">

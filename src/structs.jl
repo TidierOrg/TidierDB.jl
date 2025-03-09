@@ -198,18 +198,14 @@ function finalize_query(sqlquery::SQLQuery)
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", 
      r"var\"(.*?)\"" => s"\1", r"\"\\\$" => "\"\$",  "WHERE \"" => "WHERE ", "WHERE \"NOT" => "WHERE NOT", "%')\"" =>"%\")", "NULL)\"" => "NULL)",
     "NULL))\"" => "NULL))", r"(?i)INTERVAL(\d+)([a-zA-Z]+)" => s"INTERVAL \1 \2", "SELECT SUMMARIZE " =>  "SUMMARIZE ", "\"(__(" => "(", ")__(\"" => ")"
-     , "***\"" => " ", "***" => " ", "WHERE WHERE " => "WHERE ", "WHERE  WHERE " => "WHERE " , ")__)" => "" )
+     , "***\"" => " ", "***" => " ", "WHERE WHERE " => "WHERE ", "WHERE  WHERE " => "WHERE ", "(__(" => "", ")__(" => "")
      complete_query = replace(complete_query, ", AS " => " AS ", "OR  \"" => "OR ")
-
     if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end
-    complete_query = replace(complete_query, r"(\s|.)(@[\w]+)(\s|,|\))" => s"\1\"\2\"\3")
     
-    complete_query = current_sql_mode[] == postgres() ?  replace(complete_query, r"INTERVAL (\d+) ([a-zA-Z]+)" => s"INTERVAL '\1 \2'") : complete_query
-    # Replace the matched substring with itself plus an extra ")"
-    complete_query = replace(complete_query, r"(?s)(\(SELECT\s+UNNEST.*?FROM\s+.*?\))" => s -> string(s) * ")")
-
+        complete_query = current_sql_mode[] == postgres() ?  replace(complete_query, r"INTERVAL (\d+) ([a-zA-Z]+)" => s"INTERVAL '\1 \2'") : complete_query
+    
 
     return complete_query
 end

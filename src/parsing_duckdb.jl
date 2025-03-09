@@ -64,14 +64,11 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
                 window_clause = construct_window_clause(sq, )
                 return  "STDDEV_SAMP($(string(a))) $(window_clause)"
             end
-        elseif @capture(x, unnest(a_)) 
-        #    if from_transmute
-             return  " u.* FROM (SELECT UNNEST($a) AS u "
-          #  end
+
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :agg
             args = x.args[2:end]       # Capture all arguments to agg
             if from_summarize
-                return error("agg is only needed with aggregate functions in @mutate") # COV_EXCL_LINE
+                return error("agg is only needed with aggregate functions in @mutate")
             else
                 window_clause = construct_window_clause(sq)
                 # Create the SQL string representation of the agg function call
@@ -97,7 +94,7 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
             column_str = string(column)
             key_str = string(key)
             if uppercase(column_str) == "ARRAY"
-                return x # COV_EXCL_LINE
+                return x
             else
                 return """ CASE WHEN $column_str IS NULL THEN NULL ELSE COALESCE(  LIST_EXTRACT( CASE  WHEN '$key_str' IS NULL THEN NULL ELSE ELEMENT_AT($column_str, '$key_str') END, 1 ), NULL) END ***"""
             end

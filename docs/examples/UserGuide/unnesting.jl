@@ -54,8 +54,8 @@ end
 # TidierDB now has an experimental method to enable using DuckDB's `UNNEST` function with transmute to explode such a column 
 # and drop other columns. 
 
-@chain DB.dt(db, "read_json('https://environment.data.gov.uk/flood-monitoring/id/measures')", alias = "meas") begin
-    DB.@transmute(unnest(items))
-    DB.@head 3
-    DB.@collect
+@chain dt(db, "read_json('https://environment.data.gov.uk/flood-monitoring/id/measures')", alias = "meas") begin
+    @transmute(unnest(items))
+    @head 3
+    @collect
 end

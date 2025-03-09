@@ -383,9 +383,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#db_table" class="md-nav__link">
+  <a href="#db_table-and-dt" class="md-nav__link">
     <span class="md-ellipsis">
-      db_table
+      db_table and dt
     </span>
   </a>
   
@@ -504,6 +504,27 @@
   
   <span class="md-ellipsis">
     Dates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unnesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
     
   </span>
   
@@ -775,9 +796,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#db_table" class="md-nav__link">
+  <a href="#db_table-and-dt" class="md-nav__link">
     <span class="md-ellipsis">
-      db_table
+      db_table and dt
     </span>
   </a>
   
@@ -848,34 +869,34 @@
 <li>Google BigQuery: <code>using GoogleCloud</code></li>
 <li>Google Sheets via DuckDB: run the following with your db <code>ghseet_connect(db)</code>, copy key and paste back in terminal. Then paste the entire google sheets link as your table name in <code>db_table</code></li>
 </ul>
-<p><a id='db_table'></a></p>
-<p><a id='db_table-1'></a></p>
-<h2 id="db_table"><code>db_table</code><a class="headerlink" href="#db_table" title="Permanent link">¤</a></h2>
-<p>What does <code>db_table</code> do?</p>
-<p><code>db_table</code> starts the underlying SQL query struct, in addition to pulling the table metadata and storing it there. Storing metadata is what enables a lazy interface that also supports tidy selection.</p>
+<p><a id='db_table-and-dt'></a></p>
+<p><a id='db_table-and-dt-1'></a></p>
+<h2 id="db_table-and-dt"><code>db_table</code> and <code>dt</code><a class="headerlink" href="#db_table-and-dt" title="Permanent link">¤</a></h2>
+<p>What does <code>dt</code> do? (<code>dt</code> is an alias for <code>db_table</code>)</p>
+<p><code>dt</code> starts the underlying SQL query struct, in addition to pulling the table metadata and storing it there. Storing metadata is what enables a lazy interface that also supports tidy selection.</p>
 <ul>
-<li><code>db_table</code> has two required arguments: <code>connection</code> and <code>table</code></li>
+<li><code>dt</code> has two required arguments: <code>connection</code> and <code>table</code></li>
 <li>
 <p><code>table</code> can be a table name on a database or a path/url to file to read.  When passing <code>db_table</code> a path or url, the table is not copied into memory.</p>
 <ul>
-<li>Of note, <code>db_table</code> only support direct file paths to a table. It does not support database file paths such as <code>dbname.duckdb</code> or <code>dbname.sqlite</code>. Such files must be used with <code>connect</code> first.</li>
+<li>Of note, <code>dt</code> only support direct file paths to a table. It does not support database file paths such as <code>dbname.duckdb</code> or <code>dbname.sqlite</code>. Such files must be used with <code>connect</code> first.</li>
 <li>With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use <code>*</code> read in all files matching the pattern, with an optional <code>alias</code> argument for what the data should be referred to.</li>
 <li>For example, the below would read all files that end in <code>.csv</code> in the given folder.</li>
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre><span></span><code>db_table(db, &quot;folder/path/*.csv&quot;)
+<div class="highlight"><pre><span></span><code>dt(db, &quot;folder/path/*.csv&quot;)
 </code></pre></div>
-<p><code>db_table</code> also supports iceberg, delta, and S3 file paths via DuckDB.</p>
+<p><code>databricks</code> also supports iceberg, delta, and S3 file paths via DuckDB.</p>
 <p><a id='Minimizing-Compute-Costs-and-Keystrokes'></a></p>
 <p><a id='Minimizing-Compute-Costs-and-Keystrokes-1'></a></p>
 <h2 id="minimizing-compute-costs-and-keystrokes">Minimizing Compute Costs and Keystrokes<a class="headerlink" href="#minimizing-compute-costs-and-keystrokes" title="Permanent link">¤</a></h2>
-<p>If you are working with a backend where compute cost is important, it will be important to minimize using <code>db_table</code> as this will requery for metadata each time. Compute costs are relevant to backends such as AWS, databricks and Snowflake.</p>
-<p>To do this, save the results of <code>db_table</code> and use them with <code>t</code>. Using <code>t</code> pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time</p>
+<p>If you are working with a backend where compute cost is important, it will be important to minimize using <code>dt</code> as this will requery for metadata each time. Compute costs are relevant to backends such as AWS, databricks and Snowflake.</p>
+<p>To do this, save the results of <code>dt</code> and use them with <code>t</code>. Using <code>t</code> pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time</p>
 <blockquote>
-<p>!Tip: <code>t()</code> is an alias for <code>from_query</code> This means after saving the results of <code>db_table</code>, use <code>t(table)</code> to refer to the table or prior query</p>
+<p>!Tip: <code>t()</code> is an alias for <code>from_query</code> This means after saving the results of <code>dt</code>, use <code>t(table)</code> to refer to the table or prior query</p>
 </blockquote>
-<div class="highlight"><pre><span></span><code><span class="n">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;path&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">dt</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;path&quot;</span><span class="p">)</span>
 <span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="c">## data wrangling here</span>
 <span class="k">end</span>

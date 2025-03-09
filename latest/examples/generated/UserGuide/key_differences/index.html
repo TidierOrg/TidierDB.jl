@@ -520,6 +520,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../unnesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../s3viaduckdb/" class="md-nav__link">
         
   
@@ -824,7 +845,7 @@
 
 <span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">());</span>
 
-<span class="n">dfv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dfv&quot;</span><span class="p">);</span><span class="w"> </span><span class="c"># create a view (not a copy) of the dataframe on a in-memory database</span>
+<span class="n">dfv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dfv&quot;</span><span class="p">);</span><span class="w"> </span><span class="c"># create a view (not a copy) of the dataframe on a in-memory database</span>
 </code></pre></div>
 <p><a id='Row-ordering'></a></p>
 <p><a id='Row-ordering-1'></a></p>
@@ -833,7 +854,7 @@
 <p><a id='Starting-a-chain'></a></p>
 <p><a id='Starting-a-chain-1'></a></p>
 <h2 id="starting-a-chain">Starting a chain<a class="headerlink" href="#starting-a-chain" title="Permanent link">¤</a></h2>
-<p>When using TidierDB, <code>db_table(connection, :table_name)</code> is used to start a chain.</p>
+<p>When using TidierDB, <code>dt(connection, "table_name")</code> is used to start a chain.</p>
 <p><a id='Grouped-mutation'></a></p>
 <p><a id='Grouped-mutation-1'></a></p>
 <h2 id="grouped-mutation">Grouped mutation<a class="headerlink" href="#grouped-mutation" title="Permanent link">¤</a></h2>

@@ -545,6 +545,27 @@
   
   
     <li class="md-nav__item">
+      <a href="examples/generated/UserGuide/unnesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="examples/generated/UserGuide/s3viaduckdb/" class="md-nav__link">
         
   
@@ -971,10 +992,14 @@
 <td style="text-align: right;"><strong>Window Functions</strong></td>
 <td style="text-align: right;"><code>lead</code>, <code>lag</code>, <code>dense_rank</code>, <code>nth_value</code>, <code>ntile</code>, <code>rank_dense</code>, <code>row_number</code>, <code>first_value</code>, <code>last_value</code>, <code>cume_dist</code>, <code>@window_order</code>, <code>@window_frame</code>, or <code>_by</code>, <code>_order</code>, and <code>_frame</code> within <code>@mutate</code></td>
 </tr>
+<tr>
+<td style="text-align: right;"><strong>Unnesting</strong></td>
+<td style="text-align: right;"><code>unnest_wider</code> and <code>unnest_longer</code></td>
+</tr>
 </tbody>
 </table>
 <p><code>@summarize</code> supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.    <code>@mutate</code> supports all builtin SQL functions as well.                                                                                                 </p>
-<p>When using the DuckDB backend, if <code>db_table</code> recieves a file path ( <code>.parquet</code>, <code>.json</code>, <code>.csv</code>, <code>iceberg</code> or <code>delta</code>), it does not copy it into memory. This allows for queries on files too big for memory. <code>db_table</code> also supports S3 bucket locations and Google Sheets via DuckDB.</p>
+<p>When using the DuckDB backend, if <code>db_table</code>, aka <code>dt</code>, recieves a file path ( <code>.parquet</code>, <code>.json</code>, <code>.csv</code>, <code>iceberg</code> or <code>delta</code>), it does not copy it into memory. This allows for queries on files too big for memory. <code>db_table</code> also supports S3 bucket locations and Google Sheets via DuckDB.</p>
 <p><a id='What-is-the-recommended-way-to-use-TidierDB?'></a></p>
 <p><a id='What-is-the-recommended-way-to-use-TidierDB?-1'></a></p>
 <h2 id="what-is-the-recommended-way-to-use-tidierdb">What is the recommended way to use TidierDB?<a class="headerlink" href="#what-is-the-recommended-way-to-use-tidierdb" title="Permanent link">¤</a></h2>
@@ -988,7 +1013,7 @@
 <span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">duckdb</span><span class="p">());</span>
 <span class="n">path_or_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span>
 
-<span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">path_or_name</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">path_or_name</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@filter</span><span class="p">(</span><span class="o">!</span><span class="n">starts_with</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;M&quot;</span><span class="p">))</span>
 <span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
 <span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">))</span>
@@ -1049,7 +1074,7 @@
 <p><a id='What-SQL-query-does-TidierDB-generate-for-a-given-piece-of-Julia-code?-1'></a></p>
 <h2 id="what-sql-query-does-tidierdb-generate-for-a-given-piece-of-julia-code">What SQL query does TidierDB generate for a given piece of Julia code?<a class="headerlink" href="#what-sql-query-does-tidierdb-generate-for-a-given-piece-of-julia-code" title="Permanent link">¤</a></h2>
 <p>We can replace <code>DB.collect()</code> with <code>DB.@show_query</code> to reveal the underlying SQL query being generated by TidierDB. To handle complex queries, TidierDB makes heavy use of Common Table Expressions (CTE), which are a useful tool to organize long queries.</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">path_or_name</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">path_or_name</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@filter</span><span class="p">(</span><span class="o">!</span><span class="n">starts_with</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;M&quot;</span><span class="p">))</span>
 <span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
 <span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">))</span>
@@ -1086,7 +1111,7 @@ SELECT *
 <p><a id='TidierDB-is-already-quite-fully-featured,-supporting-advanced-TidierData-functions-like-across()-for-multi-column-selection.'></a></p>
 <p><a id='TidierDB-is-already-quite-fully-featured,-supporting-advanced-TidierData-functions-like-across()-for-multi-column-selection.-1'></a></p>
 <h2 id="tidierdb-is-already-quite-fully-featured-supporting-advanced-tidierdata-functions-like-across-for-multi-column-selection">TidierDB is already quite fully-featured, supporting advanced TidierData functions like <code>across()</code> for multi-column selection.<a class="headerlink" href="#tidierdb-is-already-quite-fully-featured-supporting-advanced-tidierdata-functions-like-across-for-multi-column-selection" title="Permanent link">¤</a></h2>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">path_or_name</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">path_or_name</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
 <span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@summarize</span><span class="p">(</span><span class="n">across</span><span class="p">((</span><span class="n">starts_with</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">ends_with</span><span class="p">(</span><span class="s">&quot;s&quot;</span><span class="p">)),</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">)))</span>
 <span class="w">    </span><span class="n">DB</span><span class="o">.</span><span class="nd">@collect</span>

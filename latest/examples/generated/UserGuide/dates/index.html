@@ -16,7 +16,7 @@
         <link rel="prev" href="../ex_joining/">
       
       
-        <link rel="next" href="../s3viaduckdb/">
+        <link rel="next" href="../unnesting/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -441,6 +441,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../unnesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../s3viaduckdb/" class="md-nav__link">
         
   
@@ -682,7 +703,7 @@
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span>
 <span class="n">dates_df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">date_strings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;2024-01-01&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;2025-02-01&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;2023-03-01&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;2022-04-01&quot;</span><span class="p">]);</span>
 <span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">());</span>
-<span class="n">dates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">dates_df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dates_df&quot;</span><span class="p">);</span>
+<span class="n">dates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">dates_df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dates_df&quot;</span><span class="p">);</span>
 </code></pre></div>
 <p>TidierDB supports <code>ymd</code>, <code>dmy</code> and and <code>mdy</code> to convert strings in that format to dates. To extract a date part use the name of that date part with in lower case. For example, <code>year(date_col)</code> To add date intervals, similar to Dates.jl, use the date part but with a capital start. For example, <code>+ Year(4)</code></p>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
@@ -753,13 +774,13 @@
         
         
           
-          <a href="../s3viaduckdb/" class="md-footer__link md-footer__link--next" aria-label="Next: S3 + DuckDB + TidierDB">
+          <a href="../unnesting/" class="md-footer__link md-footer__link--next" aria-label="Next: Unnesting Columns">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                S3 + DuckDB + TidierDB
+                Unnesting Columns
               </div>
             </div>
             <div class="md-footer__button md-icon">

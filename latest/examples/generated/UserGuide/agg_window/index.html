@@ -511,6 +511,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../unnesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../s3viaduckdb/" class="md-nav__link">
         
   
@@ -800,7 +821,7 @@
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span>
 <span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">());</span>
 <span class="n">mtcars_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span><span class="p">;</span>
-<span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">mtcars_path</span><span class="p">);</span>
+<span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">mtcars_path</span><span class="p">);</span>
 </code></pre></div>
 <p><a id='Aggregate-Functions-in-@summarize'></a></p>
 <p><a id='Aggregate-Functions-in-@summarize-1'></a></p>

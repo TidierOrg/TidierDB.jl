@@ -502,6 +502,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../unnesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Unnesting Columns
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../s3viaduckdb/" class="md-nav__link">
         
   
@@ -778,7 +799,7 @@
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">TidierDB</span><span class="w"> </span><span class="c"># DuckDB is reexported by TidierDB</span>
 <span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">());</span>
 <span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DataFrame</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]);</span>
-<span class="n">dfv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_view&quot;</span><span class="p">);</span>
+<span class="n">dfv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;df_view&quot;</span><span class="p">);</span>
 </code></pre></div>
 <p><a id='UDFs-in-DuckDB'></a></p>
 <p><a id='UDFs-in-DuckDB-1'></a></p>
@@ -804,7 +825,7 @@
 <h2 id="duckdb-function-chaining">DuckDB function chaining<a class="headerlink" href="#duckdb-function-chaining" title="Permanent link">¤</a></h2>
 <p>In DuckDB, functions can be chained together with <code>.</code>. TidierDB lets you leverage this.</p>
 <div class="highlight"><pre><span></span><code><span class="n">mtcars_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span><span class="p">;</span>
-<span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_table</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">mtcars_path</span><span class="p">);</span>
+<span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">mtcars_path</span><span class="p">);</span>
 <span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">model2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">string_split</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">list_aggr</span><span class="p">(</span><span class="s">&quot;string_agg&quot;</span><span class="p">,</span><span class="s">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">))</span>
 <span class="w">    </span><span class="nd">@select</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="n">model2</span>

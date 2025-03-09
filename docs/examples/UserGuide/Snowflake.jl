@@ -10,9 +10,9 @@
 
 # Two things to note: 
 # - Your OAuth Token may frequently expire, which may require you to rerun your connection line.
-# - Since each time `dt` runs, it runs a query to pull the metadata, you may choose to use run `db_table` and save the results, and use these results with`from_query()`
+# - Since each time `dt` runs, it runs a query to pull the metadata, you may choose to use run `dt` and save the results, and use these results with`from_query()`
 #   - This will reduce the number of queries to your database
-#   - Allow you to build a a SQL query and `@show_query` even if the OAuth_token has expired. To `@collect` you will have to reconnect and rerun db_table if your OAuth token has expired
+#   - Allow you to build a a SQL query and `@show_query` even if the OAuth_token has expired. To `@collect` you will have to reconnect and rerun `dt` if your OAuth token has expired
 
 # ```julia
 # set_sql_mode(snowflake())

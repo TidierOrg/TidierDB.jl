@@ -21,7 +21,7 @@ dfv = dt(db, df, "dfv"); # create a view (not a copy) of the dataframe on a in-m
 
 # ## Starting a chain
 
-# When using TidierDB, `db_table(connection, :table_name)` is used to start a chain.
+# When using TidierDB, `dt(connection, "table_name")` is used to start a chain.
 
 # ## Grouped mutation
 

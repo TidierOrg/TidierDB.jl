@@ -3,7 +3,7 @@
 using TidierDB
 dates_df = DataFrame(date_strings = ["2024-01-01", "2025-02-01", "2023-03-01", "2022-04-01"]);
 db = connect(duckdb());
-dates = db_table(db, dates_df, "dates_df");
+dates = dt(db, dates_df, "dates_df");
 
 # TidierDB supports `ymd`, `dmy` and and `mdy` to convert strings in that format to dates.
 # To extract a date part use the name of that date part with in lower case. For example, `year(date_col)`

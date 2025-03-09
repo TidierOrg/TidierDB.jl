@@ -205,7 +205,7 @@ function finalize_query(sqlquery::SQLQuery)
     end
     
         complete_query = current_sql_mode[] == postgres() ?  replace(complete_query, r"INTERVAL (\d+) ([a-zA-Z]+)" => s"INTERVAL '\1 \2'") : complete_query
-    
-
+        complete_query = replace(complete_query, r"(?s)(\(SELECT\s+UNNEST.*?FROM\s+.*?\))" => s -> string(s) * ")")
+        
     return complete_query
 end

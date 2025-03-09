@@ -58,8 +58,7 @@ end;
 query2 = @chain t(mtcars) @filter(mpg>20) @mutate(mpg = mpg *4); 
 @chain t(query) begin
     @left_join(t(query2), cyl == cyl)
-    @group_by(efficiency)
-    @summarize(avg_mean = mean(mpg))
+    @summarize(avg_mean = mean(mpg), _by = efficiency)
     @mutate(mean = avg_mean / 4 )
     @collect
 end
@@ -69,7 +68,7 @@ end
 # To connect to a table in a different schema, prefix it with a dot. For example, "schema_name.table_name".
 # In this query, we are also filtering out cars that contain "M" in the name from the `mt2` table before joining. 
 # ```julia
-# other_db = @chain db_table(db, "ducks_db.mt2") @filter(!str_detect(car, "M"))
+# other_db = @chain dt(db, "ducks_db.mt2") @filter(!str_detect(car, "M"))
 # @chain t(mtcars) begin
 #     @left_join(t(other_db), model == car)
 #     @select(model, fuel_efficiency)
@@ -127,18 +126,17 @@ end
     @create_view(viewer)
 end;
 
-@chain db_table(db, "viewer") begin # access the view like any other table
+@chain dt(db, "viewer") begin # access the view like any other table
     @left_join(t(query2), cyl == cyl)
-    @group_by(efficiency)
-    @summarize(avg_mean = mean(mpg))
+    @summarize(avg_mean = mean(mpg), _by = efficiency)
     @mutate(mean = avg_mean / 4 )
     @collect
 end
 
 # ## AsOf/Rolling join
 # This example reproduces an example in the [DuckDB Docs](https://duckdb.org/docs/guides/sql_features/asof_join.html#what-is-an-asof-join)
-prices = db_table(db, "https://duckdb.org/data/prices.csv", "prices");
-holdings = db_table(db, "https://duckdb.org/data/holdings.csv", "holdings");
+prices = dt(db, "https://duckdb.org/data/prices.csv", "prices");
+holdings = dt(db, "https://duckdb.org/data/holdings.csv", "holdings");
 @chain t(holdings) begin
     @inner_join(t(prices), ticker = ticker, closest(when >= when))
     @select(holdings.ticker, holdings.when) 

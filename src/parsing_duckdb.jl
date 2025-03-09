@@ -132,6 +132,8 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
             return :(STRPTIME($time, "%m-%d-%Y"))
         elseif @capture(x, dmy(time_))
             return :(STRPTIME($time, "%d-%m-%Y"))
+        elseif @capture(x, unnest(a_)) 
+                 return  " u.* FROM (SELECT UNNEST($a) AS u "
         elseif @capture(x, replacemissing(column_, replacement_value_))
             return :(COALESCE($column, $replacement_value))
         elseif @capture(x, missingif(column_, value_to_replace_))

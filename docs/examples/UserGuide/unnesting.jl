@@ -18,19 +18,19 @@ DuckDB.query(db, "
             (3, ROW(35.6895, 139.6917), ROW('Tokyo', 'Japan'), ROW('Asia', 'Humid Subtropical'));");
 
 # ## `@unnest_wider`
-# `@unnest_wider` at this time only supports unnesting 
+# `@unnest_wider` at this time only supports unnesting columns of type STRUCT
 @chain dt(db, "nested_table") begin
     @unnest_wider(coord:info)
     @collect
 end
 
-# Single elements can be extracted a new column like so, or using any of exisiting backend fucntion as well.
+# Single elements can be extracted a new column like so, or with any of existing LIST backend function as well.
 @chain dt(db, "nested_table") begin
     @mutate(city = loc.city)
     @collect
 end
 
-
+# Create a new table for with columns of arrays for the following example with `@unnest_longer`
 DuckDB.query(db, "
     CREATE TABLE nt (
         id INTEGER,

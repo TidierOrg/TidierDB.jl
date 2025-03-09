@@ -6,8 +6,10 @@ db = connect(duckdb());
 dates = dt(db, dates_df, "dates_df");
 
 # TidierDB supports `ymd`, `dmy` and and `mdy` to convert strings in that format to dates.
-# To extract a date part use the name of that date part with in lower case. For example, `year(date_col)`
-# To add date intervals, similar to Dates.jl, use the date part but with a capital start. For example, `+ Year(4)`
+# - To extract a date part use the name of that date part with in lower case. 
+#   - `year(date_col)`
+# - To add date intervals, similar to Dates.jl, use the date part but with a capital first letter.
+#   - `+ Year(4)`
 @chain t(dates) begin 
     @mutate(dates2 = ymd(date_strings) + Month(4) + Year(1) - Day(10))
     @mutate begin 

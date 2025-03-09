@@ -50,7 +50,7 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
             end
         elseif @capture(x, cumsum(a_))
             if from_summarize
-                error("cumsum is only available through a windowed @mutate")
+                error("cumsum is only available through a windowed @mutate") # COV_EXCL_LINE
             else
                # sq.windowFrame = "ROWS UNBOUNDED PRECEDING "
                window_clause = construct_window_clause(sq, from_cumsum = true)
@@ -68,7 +68,7 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :agg
             args = x.args[2:end]       # Capture all arguments to agg
             if from_summarize
-                return error("agg is only needed with aggregate functions in @mutate")
+                return error("agg is only needed with aggregate functions in @mutate") # COV_EXCL_LINE
             else
                 window_clause = construct_window_clause(sq)
                 # Create the SQL string representation of the agg function call
@@ -132,6 +132,8 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
             return :(STRPTIME($time, "%m-%d-%Y"))
         elseif @capture(x, dmy(time_))
             return :(STRPTIME($time, "%d-%m-%Y"))
+        elseif @capture(x, unnest(a_)) 
+                 return  " u.* FROM (SELECT UNNEST($a) AS u "
         elseif @capture(x, replacemissing(column_, replacement_value_))
             return :(COALESCE($column, $replacement_value))
         elseif @capture(x, missingif(column_, value_to_replace_))

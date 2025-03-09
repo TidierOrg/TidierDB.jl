@@ -7,7 +7,7 @@
 # import TidierDB as DB
 # con = DB.connect(DB.duckdb())
 # mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv"
-# mtcars = DB.db_table(con, mtcars_path);
+# mtcars = DB.dt(con, mtcars_path);
 # ```
 
 # Start a query to analyze fuel efficiency by number of cylinders. However, to further build on this query later, end the chain without using `@show_query` or `@collect`
@@ -66,7 +66,7 @@
 #        end;
 #
 #
-# DB.@chain DB.db_table(con, "viewer") begin
+# DB.@chain DB.dt(con, "viewer") begin
 #            DB.@left_join(DB.t(query2), cyl == cyl)
 #            DB.@summarize(avg_mean = mean(mpg), _by = efficiency)
 #            DB.@mutate(mean = avg_mean / 4 )
@@ -89,7 +89,7 @@
 # import ClickHouse;
 # conn = conn = DB.connect(DB.clickhouse(); host="localhost", port=19000, database="default", user="default", password="")
 # path = "https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet"
-# DB.@chain DB.db_table(conn, path) begin
+# DB.@chain DB.dt(conn, path) begin
 #    DB.@count(artists)
 #    @aside println(DB.@chain DB.from_query(_) DB.@head(5) DB.@collect)
 #    DB.@arrange(desc(count))

@@ -9,7 +9,7 @@
 # - warehouse_id
 
 # One thing to note,
-# Since each time `db_table` runs, it runs a query to pull the metadata, you may choose to use run `db_table` and save the results, and use these results with `from_query()`. This will reduce the number of queries to your database and is illustrated below.
+# Since each time `dt` runs, it runs a query to pull the metadata, you may choose to use run `dt` and save the results, and use these results with `from_query()`. This will reduce the number of queries to your database and is illustrated below.
 
 # ```julia
 # set_sql_mode(databricks())
@@ -18,7 +18,7 @@
 # warehouse_id = "e673cd4f387f964a"
 # con = connect(:databricks, instance_id, token, "DEMODB", "PUBLIC", warehouse_id)
 # # After connection is established, a you may begin querying.
-# stable_table_metadata = db_table(con, "mtcars")
+# stable_table_metadata = dt(con, "mtcars")
 # @chain from_query(stable_table_metadata) begin
 #    @select(wt)
 #    @mutate(test = wt *2)

@@ -16,7 +16,7 @@
 #                                 aws_region="us-east-1")
 # s3_csv_path = "s3://path/to_data.csv"
 #
-# @chain db_table(aws_db, s3_csv_path) begin
+# @chain dt(aws_db, s3_csv_path) begin
 #     @filter(!starts_with(column1, "M"))
 #     @group_by(cyl)
 #     @summarize(mpg = mean(mpg))

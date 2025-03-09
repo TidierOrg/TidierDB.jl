@@ -35,16 +35,16 @@
 # )
 # ```
 
-# ## `db_table` differences
-# There are two differences for `db_table` which are seen in the query below
+# ## `dt` differences
+# There are two differences for `dt` which are seen in the query below
 # 1. The table needs to be passed as a string in the format database.table, ie `"demodb.table_name`
-# 2. `db_table` requires a third argument: the athena_params from above.
+# 2. `dt` requires a third argument: the athena_params from above.
 
 # ## Leveraging `from_query` with Athena to reduce number of queries 
-# Throughout TidierDB, each time `db_table` is called, it queries the databases to get the metadata. Consider how AWS Athena logs queries, a user may want to reduce the number of queries. This can be done saving the results of `db_table`, and then using from_query with those results for furthe queries as shown below.
+# Throughout TidierDB, each time `dt` is called, it queries the databases to get the metadata. Consider how AWS Athena logs queries, a user may want to reduce the number of queries. This can be done saving the results of `dt`, and then using from_query with those results for furthe queries as shown below.
 
 # ```julia
-# mtcars = db_table(AWS_GLOBAL_CONFIG[], "demodb.mtcars", athena_params)
+# mtcars = dt(AWS_GLOBAL_CONFIG[], "demodb.mtcars", athena_params)
 # @chain from_query(mtcars) begin
 #     @filter(cyl > 4)
 #     @group_by(cyl)

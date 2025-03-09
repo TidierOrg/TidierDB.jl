@@ -123,6 +123,7 @@ nav:
   - "Reusing a Query (and Views)" : "examples/generated/UserGuide/from_queryex.md"
   - "Joining Tables" : "examples/generated/UserGuide/ex_joining.md"
   - "Dates" : "examples/generated/UserGuide/dates.md"
+  - "Unnesting Columns" : "examples/generated/UserGuide/unnesting.md"
   - "S3 + DuckDB + TidierDB" : "examples/generated/UserGuide/s3viaduckdb.md"
   - "Using Athena" : "examples/generated/UserGuide/athena.md"
   - "Using Snowflake" : "examples/generated/UserGuide/Snowflake.md"

@@ -9,7 +9,7 @@ df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 db = connect(duckdb());
 
-dfv = db_table(db, df, "dfv");
+dfv = dt(db, df, "dfv");
 
 # ## DuckDB's SUMMARIZE
 # DuckDB has a feature tosummarize tables that gives information about the table, such as mean, std, q25, q75 etc.

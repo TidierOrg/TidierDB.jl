@@ -11,12 +11,12 @@
 #  "https://huggingface.co/datasets/blog_authorship_corpus/resolve/refs%2Fconvert%2Fparquet/blog_authorship_corpus/train/0001.parquet"];
 # ```
 
-# Here, we pass the vector of URLs to `db_table`, which will not copy them into memory. Since these datasets are so large, we will also set `stream = true` in `@collect` to stream the results.
+# Here, we pass the vector of URLs to `dt`, which will not copy them into memory. Since these datasets are so large, we will also set `stream = true` in `@collect` to stream the results.
 # If we wanted to read all the files in the folder we could have replace the `0000` with `*` (wildcard)
-# `db_table(db, "Path/to/folder/*.parquet")`
+# `dt(db, "Path/to/folder/*.parquet")`
 # Of note, reading these files from URLs is not as rapid as reading them from local files. 
 # ```julia
-# @chain db_table(db, urls) begin
+# @chain dt(db, urls) begin
 #     @group_by(horoscope)
 #     @summarise(count = n(), avg_blog_length = mean(length(text)))
 #     @arrange(desc(count))

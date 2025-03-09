@@ -211,7 +211,6 @@ function do_join(
             jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
             sq.metadata = vcat(sq.metadata, jq.metadata)
             join_table_name = jq.from
-
         else
             # === handle `jq` if it is just a string/table-name ===
             join_table_name = string(jq)
@@ -235,7 +234,6 @@ function do_join(
        # matching_indices_sq = findall(vq.metadata.name == rhs)
         jq = jq isa String ? db_table(sq.db, jq) : jq
         jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
-
         join_sql = " " *
                    process_and_generate_columns( oq_metadata, jq, lhs_col_str, rhs_col_str,
                                                 most_recent_source, join_table_name, operators) *
@@ -306,9 +304,9 @@ function do_join(
             sq.select = process_and_generate_columns(oq_metadata, jq, lhs_col_str, rhs_col_str,
                                                     sq.from, join_table_name, operators)
         end
-
+        from = occursin(" AS ", sq.from) ? split(sq.from, " AS ")[end] : sq.from
         join_clause = as_of * " " * join_type * " JOIN " * join_table_name * " ON " *
-                      sql_join_on(sq.from, join_table_name,
+                      sql_join_on(from, join_table_name,
                                   lhs_col_str, rhs_col_str, operators)
 
         sq.from *= join_clause

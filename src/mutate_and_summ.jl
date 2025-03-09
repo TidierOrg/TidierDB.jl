@@ -46,7 +46,7 @@ function symbol_to_string(s)
     if isa(s, Symbol)
         return string(s)
     elseif isa(s, String)
-        return s
+        return s # COV_EXCL_LINE
     elseif isa(s, QuoteNode) && isa(s.value, Symbol)
         return string(s.value)
     else
@@ -54,13 +54,13 @@ function symbol_to_string(s)
     end
 end
 
-function process_mutate_expression(expr, sq, select_expressions, cte_name)
+function process_mutate_expression(expr, sq, select_expressions, cte_name; from_transmute::Bool = false)
 
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
         # Extract column name and convert to string
         col_name = string(expr.args[1])
         if current_sql_mode[] == snowflake()
-            col_name = uppercase(col_name)
+            col_name = uppercase(col_name) # COV_EXCL_LINE
         end
         
         # Convert the expression to a SQL expression
@@ -91,6 +91,18 @@ function process_mutate_expression(expr, sq, select_expressions, cte_name)
             # Update metadata to include this new column
             push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => cte_name))
         end
+    # COV_EXCL_START
+    elseif from_transmute
+        col_expr = expr_to_sql(expr, sq)
+        push!(select_expressions, col_expr)
+        meta = DataFrame(DBInterface.execute(sq.db,"""
+          DESCRIBE  SELECT  u.* FROM (SELECT UNNEST(items) AS u FROM $(sq.from))"""))
+      #  println( "HERE",  meta.column_name, meta.column_type)
+        for n in 1:nrow(meta)
+            push!(sq.metadata, Dict("name" => meta.column_name[n], "type" => meta.column_type[n] , "current_selxn" => 1, "table_name" => cte_name))
+        end
+
+     # COV_EXCL_END
     else
         throw("Unsupported expression format in @mutate: $(expr)") # COV_EXCL_LINE
     end
@@ -108,7 +120,7 @@ macro mutate(sqlquery, mutations...)
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
 
-            if sq.post_aggregation #|| sq.post_join 
+            if sq.post_aggregation || sq.post_unnest #|| sq.post_join 
                 if sq.post_aggregation
                     for row in eachrow(sq.metadata)
                         if row[:current_selxn] == 2
@@ -370,7 +382,7 @@ macro transmute(sqlquery, mutations...)
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
 
-            if sq.post_aggregation #|| sq.post_join 
+            if sq.post_aggregation || sq.post_unnest #|| sq.post_join 
                 if sq.post_aggregation
                     for row in eachrow(sq.metadata)
                         if row[:current_selxn] == 2
@@ -466,10 +478,10 @@ macro transmute(sqlquery, mutations...)
                 end
                 if isa(expr, Expr) && expr.head == :tuple
                     for subexpr in expr.args
-                        process_mutate_expression(subexpr, sq, select_expressions, cte_name)
+                        process_mutate_expression(subexpr, sq, select_expressions, cte_name, from_transmute = true)
                     end
                 else
-                    process_mutate_expression(expr, sq, select_expressions, cte_name)
+                    process_mutate_expression(expr, sq, select_expressions, cte_name, from_transmute = true)
                 end
             end
             sq.post_join = false

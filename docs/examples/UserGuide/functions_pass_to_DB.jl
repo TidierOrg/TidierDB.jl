@@ -10,7 +10,7 @@ df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
                         value = repeat(1:5, 2), 
                         percent = 0.1:0.1:1.0);
 
-dfv = db_table(db,  df, "dfm");
+dfv = dt(db,  df, "dfm");
 
 # ## Interpolation
 # Variables are interpoated using `@eval` and `$`. Place `@eval` before you begin the chain or call a TidierDb macro

@@ -1,9 +1,10 @@
 # TidierDB.jl updates
 ## v0.8.0 - 2025-02-12
 - adds `@transmute`
-- changes DuckDB compat to avoid precompilation issues 
-- bump DataFrames to 1.7
-- DuckDB 1.2 is still available in dev branch to leverage UDFs
+- adds `@unnest_wider` + `@unnest_longer` and [docs](https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/unnesting) 
+- adds more ergonomic `dt` alias for `db_table`
+- bug fixes and [docs](https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/dates) around dates 
+- bumps DataFrames.jl compat to 1.7
 
 ## v0.7.1 - 2025-02-04
 - Prints queries in color by default (optional)
@@ -19,6 +20,7 @@
 ghseet_connect(db)
 DB.db_table(db, "https://docs.google.com/spreadsheets/d/rest/of/link")
 ```
+
 ## v0.7.0 - 2025-01-26
 - `db_table` now supports viewing a dataframe directly - `db_table(db, df, "name4db")`
 - `copy_to` will copy a table to the DuckDB db, instead of creating a view

@@ -15,12 +15,15 @@ using Crayons
 @reexport using Chain
 @reexport using DuckDB
 
- export db_table, set_sql_mode, @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
- @distinct, @left_join, @right_join, @inner_join, @count, @window_order, @window_frame, @show_query, @collect, @slice_max, 
- @slice_min, @slice_sample, @rename, copy_to, duckdb_open, duckdb_connect, @semi_join, @full_join, @transmute,
- @anti_join, connect, from_query, @interpolate, add_interp_parameter!, update_con,  @head, 
+ export @arrange, @group_by, @filter, @select, @mutate, @summarize, @summarise, 
+        @distinct, @left_join, @right_join, @inner_join, @count, @slice_max,  @union,
+        @slice_min, @slice_sample, @rename, @relocate, @union_all, @setdiff, @intersect, 
+        @semi_join, @full_join, @transmute,  @anti_join, @head,  @unnest_wider, @unnest_longer
+        
+ export db_table, set_sql_mode, connect, from_query, @interpolate, add_interp_parameter!, update_con,  
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, 
- t, @union, @create_view, drop_view, @compute, warnings, @relocate, @union_all, @setdiff, @intersect, ghseet_connect
+ t, @create_view, drop_view, @compute, warnings, ghseet_connect, copy_to, duckdb_open, duckdb_connect, dt,
+ @show_query, @collect, @window_order, @window_frame
 
  abstract type SQLBackend end
 
@@ -40,7 +43,6 @@ using Crayons
  const window_agg_fxns = [:lead, :lag, :dense_rank, :nth_value, :ntile, :rank_dense, :row_number, :first_value, :last_value, :cume_dist]
  current_sql_mode = Ref{SQLBackend}(duckdb())
  const color = Ref{Bool}(true)
-
  function set_sql_mode(mode::SQLBackend) current_sql_mode[] = mode end
  
 
@@ -66,6 +68,7 @@ include("windows.jl")
 include("view_compute.jl")
 include("relocate.jl")
 include("union_intersect_setdiff.jl")
+include("unnest.jl")
 
 
 # Unified expr_to_sql function to use right mode
@@ -105,101 +108,11 @@ $docstring_warnings
 function warnings(flag::Bool) _warning_[] = flag end
 # COV_EXCL_STOP
 
-function finalize_ctes(ctes::Vector{CTE})
-    if isempty(ctes)
-        return ""
-    end
-  
-    cte_strings = String[]
-    for cte in ctes
-     
-        if startswith(cte.name, "jcte_")
-            cte.select = replace(cte.select, r"FROM cte_" => "FROM jcte_")
-            cte.from = replace(cte.from, r"^cte_" => "jcte_")
-        elseif startswith(cte.name, r"j\d+cte")
-            match_result = match(r"(j\d+cte_)", cte.name)
-            if match_result !== nothing
-                replacement = match_result.match
-                cte.select = replace(cte.select, r"FROM cte_" => "FROM $replacement")
-                cte.from = replace(cte.from, r"^cte_" => replacement)
-            end
-        end
-    
-        cte_str = string(
-            cte.name, " AS (SELECT ", cte.select, 
-            occursin(" FROM ", cte.select) ? "" : " FROM " * cte.from, 
-            (!isempty(cte.where) ? " WHERE " * cte.where : ""), 
-            (!isempty(cte.groupBy) ? " GROUP BY " * cte.groupBy : ""), 
-            (!isempty(cte.having) ? " HAVING " * cte.having : ""), 
-            ")"
-        )
-        push!(cte_strings, cte_str)
-    end
-
-    return "WITH " * join(cte_strings, ", ") * " "
-end
-
-function finalize_query(sqlquery::SQLQuery)
-    cte_part = finalize_ctes(sqlquery.ctes)
-
-    select_already_present = occursin(r"^SELECT\s+", uppercase(sqlquery.select))
-    select_part = if sqlquery.distinct && !select_already_present
-        "SELECT DISTINCT " * (isempty(sqlquery.select) ? "*" : sqlquery.select)
-    elseif !select_already_present
-        "SELECT " * (isempty(sqlquery.select) ? "*" : sqlquery.select)
-    else
-        sqlquery.select
-    end
-
-    # Initialize query_parts with the CTE part
-    query_parts = [cte_part]
-
-    # Since sq.from has been updated to reference a CTE, adjust the FROM clause accordingly
-    if !isempty(sqlquery.ctes)
-        # If CTEs are defined, FROM clause should reference the latest CTE (already updated in sq.from)
-        push!(query_parts, select_part, "FROM " * sqlquery.from)
-    else
-        # If no CTEs are defined, use the original table name in sq.from
-        push!(query_parts, select_part, "FROM " * sqlquery.from)
-    end
-
-    # Append other clauses if present
-    if !isempty(sqlquery.where) push!(query_parts, " " * sqlquery.where) end
-    if !isempty(sqlquery.groupBy) push!(query_parts, "" * sqlquery.groupBy) end
-    if !isempty(sqlquery.having) push!(query_parts, " " * sqlquery.having) end
-    if !isempty(sqlquery.orderBy) push!(query_parts, " " * sqlquery.orderBy) end
-    if !isempty(sqlquery.limit) push!(query_parts, " LIMIT " * sqlquery.limit) end
-    
-    complete_query = join(filter(!isempty, query_parts), " ")
-
-    if !isempty(sqlquery.ch_settings) && current_sql_mode[] == clickhouse()
-        complete_query = complete_query * " \n " * string(sqlquery.ch_settings)
-    end
-    complete_query = replace(complete_query, "&&" => " AND ", "||" => " OR ",
-     "FROM )" => ")" ,  "SELECT SELECT " => "SELECT ", "SELECT  SELECT " => "SELECT ", "DISTINCT SELECT " => "DISTINCT ", 
-     "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", 
-     r"var\"(.*?)\"" => s"\1", r"\"\\\$" => "\"\$",  "WHERE \"" => "WHERE ", "WHERE \"NOT" => "WHERE NOT", "%')\"" =>"%\")", "NULL)\"" => "NULL)",
-    "NULL))\"" => "NULL))", r"(?i)INTERVAL(\d+)([a-zA-Z]+)" => s"INTERVAL \1 \2", "SELECT SUMMARIZE " =>  "SUMMARIZE ", "\"(__(" => "(", ")__(\"" => ")"
-     , "***\"" => " ", "***" => " ", "WHERE WHERE " => "WHERE ", "WHERE  WHERE " => "WHERE ", "(__(" => "", ")__(" => "")
-     complete_query = replace(complete_query, ", AS " => " AS ", "OR  \"" => "OR ")
-    if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
-        complete_query = replace(complete_query, "\"" => "'", "==" => "=")
-    end
-    
-        complete_query = current_sql_mode[] == postgres() ?  replace(complete_query, r"INTERVAL (\d+) ([a-zA-Z]+)" => s"INTERVAL '\1 \2'") : complete_query
-    
-
-    return complete_query
-end
-
 # DuckDB
 function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_name::String; alias::String="")
     set_sql_mode(duckdb());
     if endswith(table_name, ".geoparquet'")
-    query = 
-        """
-        DESCRIBE SELECT * FROM read_parquet($(table_name)) LIMIT 0
-        """
+        query = """ DESCRIBE SELECT * FROM read_parquet($(table_name)) LIMIT 0 """ # COV_EXCL_LINE
     else
         query = 
         """
@@ -267,10 +180,10 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             if current_sql_mode[] == duckdb()
                 metadata = get_table_metadata(db, table_name2; alias = alias)
             else
-                metadata = get_table_metadata(db, table_name2)
+                metadata = get_table_metadata(db, table_name2;)
             end
         else
-            metadata = get_table_metadata(db, table_name)
+            metadata = get_table_metadata(db, table_name; alias = alias)
         end
     elseif current_sql_mode[] == athena()
         metadata = get_table_metadata(db, table_name; athena_params)
@@ -312,8 +225,11 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             end
         end
      elseif startswith(table_name, "read") 
-         "$table_name"  
-    else
+        alias = alias == "" ? "data" : alias
+         table_name * " AS $alias"
+     elseif alias != ""
+        table_name * " AS $alias"
+     else 
         table_name
     end
 
@@ -376,7 +292,7 @@ function db_table(db, table::DataFrame, alias::String)
     metadata = get_table_metadata(db, alias)
     return SQLQuery(from = alias, metadata=metadata, db=db)
 end
-
+const dt = db_table # COV_EXCL_LINE
 # COV_EXCL_STOP
 
 """

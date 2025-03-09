@@ -6,7 +6,6 @@
 - bug fixes and [docs](https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/dates) around dates 
 - bumps DataFrames.jl compat to 1.7
 
-
 ## v0.7.1 - 2025-02-04
 - Prints queries in color by default (optional)
 - fixes bug when using `agg()` with window ordering and framing

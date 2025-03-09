@@ -108,7 +108,6 @@ $docstring_warnings
 function warnings(flag::Bool) _warning_[] = flag end
 # COV_EXCL_STOP
 
-
 # DuckDB
 function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_name::String; alias::String="")
     set_sql_mode(duckdb());

@@ -137,7 +137,6 @@ end
 
 # ## AsOf/Rolling join
 # This example reproduces an example in the [DuckDB Docs](https://duckdb.org/docs/guides/sql_features/asof_join.html#what-is-an-asof-join)
-
 prices = db_table(db, "https://duckdb.org/data/prices.csv", "prices");
 holdings = db_table(db, "https://duckdb.org/data/holdings.csv", "holdings");
 @chain t(holdings) begin

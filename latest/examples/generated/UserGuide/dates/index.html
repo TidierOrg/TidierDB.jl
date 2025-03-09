@@ -705,7 +705,21 @@
 <span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">());</span>
 <span class="n">dates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">dates_df</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dates_df&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p>TidierDB supports <code>ymd</code>, <code>dmy</code> and and <code>mdy</code> to convert strings in that format to dates. To extract a date part use the name of that date part with in lower case. For example, <code>year(date_col)</code> To add date intervals, similar to Dates.jl, use the date part but with a capital start. For example, <code>+ Year(4)</code></p>
+<p>TidierDB supports <code>ymd</code>, <code>dmy</code> and and <code>mdy</code> to convert strings in that format to dates.</p>
+<ul>
+<li>
+<p>To extract a date part use the name of that date part with in lower case.</p>
+<ul>
+<li><code>year(date_col)</code></li>
+<li>
+<p>To add date intervals, similar to Dates.jl, use the date part but with a capital first letter.</p>
+</li>
+<li>
+<p><code>+ Year(4)</code></p>
+</li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">dates2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ymd</span><span class="p">(</span><span class="n">date_strings</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Month</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Year</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Day</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
 <span class="w">    </span><span class="nd">@mutate</span><span class="w"> </span><span class="k">begin</span>

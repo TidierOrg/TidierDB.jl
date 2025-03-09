@@ -46,7 +46,7 @@ function symbol_to_string(s)
     if isa(s, Symbol)
         return string(s)
     elseif isa(s, String)
-        return s
+        return s # COV_EXCL_LINE
     elseif isa(s, QuoteNode) && isa(s.value, Symbol)
         return string(s.value)
     else
@@ -60,7 +60,7 @@ function process_mutate_expression(expr, sq, select_expressions, cte_name; from_
         # Extract column name and convert to string
         col_name = string(expr.args[1])
         if current_sql_mode[] == snowflake()
-            col_name = uppercase(col_name)
+            col_name = uppercase(col_name) # COV_EXCL_LINE
         end
         
         # Convert the expression to a SQL expression

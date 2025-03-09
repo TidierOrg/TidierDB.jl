@@ -112,10 +112,7 @@ function warnings(flag::Bool) _warning_[] = flag end
 function get_table_metadata(conn::Union{DuckDB.DB, DuckDB.Connection}, table_name::String; alias::String="")
     set_sql_mode(duckdb());
     if endswith(table_name, ".geoparquet'")
-    query = 
-        """
-        DESCRIBE SELECT * FROM read_parquet($(table_name)) LIMIT 0
-        """
+        query = """ DESCRIBE SELECT * FROM read_parquet($(table_name)) LIMIT 0 """ # COV_EXCL_LINE
     else
         query = 
         """

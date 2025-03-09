@@ -52,7 +52,7 @@ end
 # ## Exploded JSON 
 # Users may come across table columns that do not unnest with `@unnest_wider` and `@unnest_longer`. 
 # TidierDB now has an experimental method to enable using DuckDB's `UNNEST` function with transmute to explode such a column 
-# and drop other columns. 
+# and drop all other columns. 
 
 @chain dt(db, "read_json('https://environment.data.gov.uk/flood-monitoring/id/measures')", alias = "meas") begin
     @transmute(unnest(items))

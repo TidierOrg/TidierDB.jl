@@ -1366,6 +1366,7 @@ DuckDB.DB(":memory:")
 const docstring_db_table =
 """
     db_table(database, table_name, athena_params, delta = false, iceberg = false, alias = "", df_name)
+    dt(database, table_name, athena_params, delta = false, iceberg = false, alias = "", df_name)
 
 `db_table` starts the underlying SQL query struct, adding the metadata and table. If paths are passed directly to `db_table` instead of a 
 name it will not copy it to memory, but rather read directly from the file. `db_table`  only supports direct file paths to a table. DataFrames 
@@ -1402,6 +1403,8 @@ julia> db = connect(duckdb());
 julia> dt(db, df, "df_mem");
 
 julia> db_table(db, "main.df_mem");
+
+julia> dt(db, "df_mem" , alias = "my_table");
 ```
 """
 

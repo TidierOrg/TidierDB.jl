@@ -379,7 +379,7 @@
         
   
   <span class="md-ellipsis">
-    Reusing Queries (and Views)
+    Reusing a Query (and Views)
     
   </span>
   
@@ -417,11 +417,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../unnesting/" class="md-nav__link">
+      <a href="../dates/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Unnesting Columns
+    Dates
     
   </span>
   
@@ -754,10 +754,10 @@
 <ul>
 <li>Your OAuth Token may frequently expire, which may require you to rerun your connection line.</li>
 <li>
-<p>Since each time <code>dt</code> runs, it runs a query to pull the metadata, you may choose to use run <code>db_table</code> and save the results, and use these results with<code>from_query()</code></p>
+<p>Since each time <code>dt</code> runs, it runs a query to pull the metadata, you may choose to use run <code>dt</code> and save the results, and use these results with<code>from_query()</code></p>
 <ul>
 <li>This will reduce the number of queries to your database</li>
-<li>Allow you to build a a SQL query and <code>@show_query</code> even if the OAuth<em>token has expired. To <code>@collect</code> you will have to reconnect and rerun db</em>table if your OAuth token has expired</li>
+<li>Allow you to build a a SQL query and <code>@show_query</code> even if the OAuth_token has expired. To <code>@collect</code> you will have to reconnect and rerun <code>dt</code> if your OAuth token has expired</li>
 </ul>
 </li>
 </ul>

@@ -461,7 +461,7 @@
         
   
   <span class="md-ellipsis">
-    Reusing Queries (and Views)
+    Reusing a Query (and Views)
     
   </span>
   
@@ -499,11 +499,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../unnesting/" class="md-nav__link">
+      <a href="../dates/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Unnesting Columns
+    Dates
     
   </span>
   
@@ -870,10 +870,10 @@
 <p><a id='Minimizing-Compute-Costs-and-Keystrokes'></a></p>
 <p><a id='Minimizing-Compute-Costs-and-Keystrokes-1'></a></p>
 <h2 id="minimizing-compute-costs-and-keystrokes">Minimizing Compute Costs and Keystrokes<a class="headerlink" href="#minimizing-compute-costs-and-keystrokes" title="Permanent link">¤</a></h2>
-<p>If you are working with a backend where compute cost is important, it will be important to minimize using <code>db_table</code> as this will requery for metadata each time. Compute costs are relevant to backends such as AWS, databricks and Snowflake.</p>
+<p>If you are working with a backend where compute cost is important, it will be important to minimize using <code>dt</code> as this will requery for metadata each time. Compute costs are relevant to backends such as AWS, databricks and Snowflake.</p>
 <p>To do this, save the results of <code>dt</code> and use them with <code>t</code>. Using <code>t</code> pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time</p>
 <blockquote>
-<p>!Tip: <code>t()</code> is an alias for <code>from_query</code> This means after saving the results of <code>db_table</code>, use <code>t(table)</code> to refer to the table or prior query</p>
+<p>!Tip: <code>t()</code> is an alias for <code>from_query</code> This means after saving the results of <code>dt</code>, use <code>t(table)</code> to refer to the table or prior query</p>
 </blockquote>
 <div class="highlight"><pre><span></span><code><span class="n">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">dt</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;path&quot;</span><span class="p">)</span>
 <span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>

@@ -24,7 +24,7 @@
     
     
       
-        <title>Reusing Queries (and Views) - TidierDB.jl</title>
+        <title>Reusing a Query (and Views) - TidierDB.jl</title>
       
     
     
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Reusing Queries (and Views)
+              Reusing a Query (and Views)
             
           </span>
         </div>
@@ -386,7 +386,7 @@
           
   
   <span class="md-ellipsis">
-    Reusing Queries (and Views)
+    Reusing a Query (and Views)
     
   </span>
   
@@ -398,7 +398,7 @@
         
   
   <span class="md-ellipsis">
-    Reusing Queries (and Views)
+    Reusing a Query (and Views)
     
   </span>
   
@@ -490,11 +490,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../unnesting/" class="md-nav__link">
+      <a href="../dates/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Unnesting Columns
+    Dates
     
   </span>
   
@@ -790,7 +790,7 @@
 
 
 
-  <h1>Reusing Queries (and Views)</h1>
+  <h1>Reusing a Query (and Views)</h1>
 
 <p>While using TidierDB, you may need to generate part of a query and reuse it multiple times. There are two ways to do this</p>
 <ol>
@@ -859,7 +859,7 @@
 <span class="w">       </span><span class="k">end</span><span class="p">;</span>
 
 
-<span class="n">DB</span><span class="o">.</span><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;viewer&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="n">DB</span><span class="o">.</span><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">dt</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;viewer&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">           </span><span class="n">DB</span><span class="o">.</span><span class="nd">@left_join</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">query2</span><span class="p">),</span><span class="w"> </span><span class="n">cyl</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cyl</span><span class="p">)</span>
 <span class="w">           </span><span class="n">DB</span><span class="o">.</span><span class="nd">@summarize</span><span class="p">(</span><span class="n">avg_mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">),</span><span class="w"> </span><span class="n">_by</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">efficiency</span><span class="p">)</span>
 <span class="w">           </span><span class="n">DB</span><span class="o">.</span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">avg_mean</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">)</span>
@@ -880,7 +880,7 @@
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="n">ClickHouse</span><span class="p">;</span>
 <span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">clickhouse</span><span class="p">();</span><span class="w"> </span><span class="n">host</span><span class="o">=</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">port</span><span class="o">=</span><span class="mi">19000</span><span class="p">,</span><span class="w"> </span><span class="n">database</span><span class="o">=</span><span class="s">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="s">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">)</span>
 <span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset/resolve/refs</span><span class="si">%2F</span><span class="s">convert</span><span class="si">%2F</span><span class="s">parquet/default/train/0000.parquet&quot;</span>
-<span class="n">DB</span><span class="o">.</span><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">db_table</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="n">DB</span><span class="o">.</span><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">dt</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">   </span><span class="n">DB</span><span class="o">.</span><span class="nd">@count</span><span class="p">(</span><span class="n">artists</span><span class="p">)</span>
 <span class="w">   </span><span class="nd">@aside</span><span class="w"> </span><span class="n">println</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">from_query</span><span class="p">(</span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="nd">@head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="nd">@collect</span><span class="p">)</span>
 <span class="w">   </span><span class="n">DB</span><span class="o">.</span><span class="nd">@arrange</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>

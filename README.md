@@ -48,6 +48,7 @@ TidierDB.jl currently supports the following top-level macros:
 | **Aggregate Functions**          | `mean`, `minimum`, `maximum`, `std`, `sum`, `cumsum`, and nearly all aggregate sql fxns supported |
 | **Window Functions**             | `lead`, `lag`, `dense_rank`, `nth_value`, `ntile`, `rank_dense`, `row_number`, `first_value`, `last_value`, `cume_dist`, `@window_order`, `@window_frame`, or `_by`, `_order`, and `_frame` within `@mutate`                                                                                                          |
 |**Unnesting**             | `unnest_wider` and `unnest_longer` |
+
 `@summarize` supports any SQL aggregate function in addition to the list above. Simply write the function as written in SQL syntax and it will work.
 `@mutate` supports all builtin SQL functions as well.
 

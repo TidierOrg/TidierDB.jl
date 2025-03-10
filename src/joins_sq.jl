@@ -319,14 +319,17 @@ end
 """
 $docstring_left_join
 """
-macro left_join(sqlquery, join_table, expr... )
+macro left_join(sqlquery, args...)
+    join_table = args[1]
+    exprs = args[2:end]
+
     lhs_col_str = String[]
     rhs_col_str = String[]
     operators   = String[]
     closest_expr = String[]
     as_of = ""
 
-    parsed = parse_join_expression.(expr)
+    parsed = parse_join_expression.(exprs)
 
     lhs_col_str  = vcat([p[1] for p in parsed]...)
     rhs_col_str  = vcat([p[2] for p in parsed]...)
@@ -352,17 +355,21 @@ end
 
 
 
+
 """
 $docstring_right_join
 """
-macro right_join(sqlquery, join_table, expr... )
+macro right_join(sqlquery, args...)
+    join_table = args[1]
+    exprs = args[2:end]
+
     lhs_col_str = String[]
     rhs_col_str = String[]
     operators   = String[]
     closest_expr = String[]
     as_of = ""
 
-    parsed = parse_join_expression.(expr)
+    parsed = parse_join_expression.(exprs)
 
     lhs_col_str  = vcat([p[1] for p in parsed]...)
     rhs_col_str  = vcat([p[2] for p in parsed]...)
@@ -390,14 +397,17 @@ end
 """
 $docstring_inner_join
 """
-macro inner_join(sqlquery, join_table, expr... )
+macro inner_join(sqlquery, args...)
+    join_table = args[1]
+    exprs = args[2:end]
+
     lhs_col_str = String[]
     rhs_col_str = String[]
     operators   = String[]
     closest_expr = String[]
     as_of = ""
 
-    parsed = parse_join_expression.(expr)
+    parsed = parse_join_expression.(exprs)
 
     lhs_col_str  = vcat([p[1] for p in parsed]...)
     rhs_col_str  = vcat([p[2] for p in parsed]...)
@@ -427,14 +437,17 @@ end
 """
 $docstring_full_join
 """
-macro full_join(sqlquery, join_table, expr... )
+macro full_join(sqlquery, args...)
+    join_table = args[1]
+    exprs = args[2:end]
+
     lhs_col_str = String[]
     rhs_col_str = String[]
     operators   = String[]
     closest_expr = String[]
     as_of = ""
 
-    parsed = parse_join_expression.(expr)
+    parsed = parse_join_expression.(exprs)
 
     lhs_col_str  = vcat([p[1] for p in parsed]...)
     rhs_col_str  = vcat([p[2] for p in parsed]...)
@@ -462,14 +475,17 @@ end
 """
 $docstring_semi_join
 """
-macro semi_join(sqlquery, join_table, expr... )
+macro semi_join(sqlquery, args...)
+    join_table = args[1]
+    exprs = args[2:end]
+
     lhs_col_str = String[]
     rhs_col_str = String[]
     operators   = String[]
     closest_expr = String[]
     as_of = ""
 
-    parsed = parse_join_expression.(expr)
+    parsed = parse_join_expression.(exprs)
 
     lhs_col_str  = vcat([p[1] for p in parsed]...)
     rhs_col_str  = vcat([p[2] for p in parsed]...)
@@ -498,14 +514,17 @@ end
 """
 $docstring_anti_join
 """
-macro anti_join(sqlquery, join_table, expr... )
+macro anti_join(sqlquery, args...)
+    join_table = args[1]
+    exprs = args[2:end]
+
     lhs_col_str = String[]
     rhs_col_str = String[]
     operators   = String[]
     closest_expr = String[]
     as_of = ""
 
-    parsed = parse_join_expression.(expr)
+    parsed = parse_join_expression.(exprs)
 
     lhs_col_str  = vcat([p[1] for p in parsed]...)
     rhs_col_str  = vcat([p[2] for p in parsed]...)

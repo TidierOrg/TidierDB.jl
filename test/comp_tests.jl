@@ -359,6 +359,18 @@
         @test all(isequal.(Array(TDF_3), Array(TDB_3)))
     end
 
+    @testset "Separate and Unite" begin 
+        df = DataFrame( b = ["1", "2", "3"], c = ["1", "2", "3"], d = [missing, missing, "3"], cc = [1,2,3]);
+        TDF_1 = @unite(df, new_col, (b, c, d), "-")
+        TDB_1 = @chain DB.dt(db, df, "df") DB.@unite(new_col, (b, c, d), "-") DB.@collect
+        @test all(isequal.(Array(TDF_1), Array(TDB_1)))
+
+        df = DataFrame(a = ["1-1", "2-2", "3-3-3"]);
+        TDF_1 = @separate(df, a, (b, c, d), "-")
+        TDB_1 = @chain DB.dt(db, df, "df") DB.@separate( a, [b, c, d], "-") DB.@collect
+        @test all(isequal.(Array(TDF_1), Array(TDB_1)))
+    end
+
     @testset "Code coverage misc" begin 
         @test !isempty(@chain DB.t(test_db) begin 
         DB.@mutate(aa = MAP(ARRAY["value", "percent"], ARRAY[value, percent]))

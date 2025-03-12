@@ -1823,7 +1823,7 @@ Creates a remote table on database memory from a SQL query. Currently supports D
 
 
 # Arguments
-- `sql_query`: The SQL query to create a table from.
+- `sql_query`: The SQL query
 - `name`: The name of the table to create.
 - `replace`: defaults to false if table should be replaced if it already exists.
 
@@ -1870,7 +1870,7 @@ const docstring_relocate =
 Rearranges the columns in the queried table. This function allows for moving specified columns to a new position within the table, either before or after a given target column. The `columns`, `before`, and `after` arguments all accept tidy selection functions. Only one of `before` or `after` should be specified. If neither are specified, the selected columns will be moved to the beginning of the table.
 
 # Arguments
-- `sql_query`: The SQL query to create a table from.
+- `sql_query`: The SQL query 
 - `columns`: Column or columns to to be moved.
 - `before`: (Optional) Column or columns before which the specified columns will be moved. If not provided or `nothing`, this argument is ignored.
 - `after`: (Optional) Column or columns after which the specified columns will be moved. If not provided or `nothing`, this argument is ignored. 
@@ -2029,8 +2029,8 @@ const docstring_unnest_wider =
 Unnests a nested column into wider format. This function takes a column containing nested structures (e.g., rows or arrays) and expands it into separate columns.
 
 # Arguments
+- `sql_query`: The SQL query
 - `column`: The column containing nested structures to be unnested.
-- `sql_query`: The SQL query to create a table from.
 
 # Examples
 ```jldoctest
@@ -2057,6 +2057,17 @@ julia> @chain dt(db, :df3) begin
    1 │     1     10.1     30.3
    2 │     2     10.2     30.2
    3 │     3     10.3     30.1 
+julia> @chain dt(db, :df3) begin
+            @unnest_wider(pos, names_sep = "_")
+            @collect
+       end
+3×3 DataFrame
+ Row │ id     pos_lat  pos_lon 
+     │ Int32  Float64  Float64 
+─────┼─────────────────────────
+   1 │     1     10.1     30.3
+   2 │     2     10.2     30.2
+   3 │     3     10.3     30.1
 ```
 """
 
@@ -2067,7 +2078,7 @@ const docstring_unnest_longer =
 Unnests specified columns into longer format. This function takes multiple columns containing arrays or other nested structures and expands them into a longer format, where each element of the arrays becomes a separate row.
 
 # Arguments
-- `sql_query`: The SQL query to create a table from.
+- `sql_query`: The SQL query 
 - `columns...`: One or more columns containing arrays or other nested structures to be unnested.
 
 # Examples
@@ -2117,5 +2128,72 @@ julia> @chain dt(db, :nt) begin
    5 │     2  missing      9
    6 │     3       10     12
    7 │     3       11     13
+```
+"""
+
+const docstring_unite =
+"""
+      @unite(sql_query, new_cols, from_cols, sep, remove = true)
+
+Separate a multiple columns into one new columns using a specific delimter
+
+# Arguments
+- `sql_query`: The SQL query
+- `new_col`: New column that will recieve the combination
+- `from_cols`: Column names that it will combine, supports [] or ()
+- `sep`: the string or character that will separate the values in the new column
+
+# Examples
+```jldoctest
+julia> db = connect(duckdb());
+
+julia> df = DataFrame( b = ["1", "2", "3"], c = ["1", "2", "3"], d = [missing, missing, "3"]);
+
+julia> @chain dt(db, df, "df") @unite(new_col, (b, c, d), "-") @collect
+3×1 DataFrame
+ Row │ new_col 
+     │ String  
+─────┼─────────
+   1 │ 1-1
+   2 │ 2-2
+   3 │ 3-3-3
+```
+"""
+
+const docstring_separate =
+"""
+      @separae(sql_query, from_col, into_cols, sep)
+
+Separate a string column into mulitiple new columns based on a specified delimter 
+
+# Arguments
+- `sql_query`: The SQL query
+- `from_col`: Column that will be split
+- `into_cols`: New column names, supports [] or ()
+- `sep`: the string or character on which to split
+
+# Examples
+```jldoctest
+julia> db = connect(duckdb());
+
+julia> df = DataFrame(a = ["1-1", "2-2", "3-3-3"]); 
+
+julia> @chain dt(db, df, "df") @separate(a, [b, c, d], "-") @collect
+3×3 DataFrame
+ Row │ b       c       d       
+     │ String  String  String? 
+─────┼─────────────────────────
+   1 │ 1       1       missing 
+   2 │ 2       2       missing 
+   3 │ 3       3       3
+
+julia> @chain dt(db, df, "df") @separate( a, [c, d], "-") @collect
+3×2 DataFrame
+ Row │ c       d      
+     │ String  String 
+─────┼────────────────
+   1 │ 1       1
+   2 │ 2       2
+   3 │ 3       3-3
 ```
 """

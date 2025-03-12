@@ -1,4 +1,4 @@
-function unne(db, col)
+function unne(db, col; names_sep=nothing)
     try
         cleaned_string = replace.(db.metadata.type[db.metadata.name .== col], "STRUCT(" => "", ")" => "")
         
@@ -11,12 +11,13 @@ function unne(db, col)
         
         for field in fields
             # Split each field into name and type
-            name_type = split.(field, " ")
+            name_type = split(field, " ")
             push!(names, name_type[1])  # First part is the name
             push!(types, name_type[2])  # Second part is the type
         end
         names = replace.(names, "\""=> "")
-        names_new = "$col" .* "." .* names .* " AS " .* names 
+        names2 = names_sep === nothing ? names : "$col" .* names_sep .* names
+        names_new = "$col" .* "." .* names .* " AS " .* names2 
         for (name, type) in zip(names, types)
             push!(db.metadata, Dict("name" => name, "type" => type, "current_selxn" => 0, "table_name" => last(db.metadata.table_name)))
         end
@@ -27,12 +28,23 @@ function unne(db, col)
     end
 end
 
+
 """
 $docstring_unnest_wider
 """
 macro unnest_wider(sqlquery, cols...)
+    # Initialize an expression for names_sep (default is nothing)
+    names_sep_expr = nothing
+    # If the last argument is a keyword assignment for names_sep, extract it.
+    if length(cols) > 0 && isa(cols[end], Expr) &&
+       cols[end].head == :(=) && cols[end].args[1] == :names_sep
+        names_sep_expr = cols[end].args[2]
+        cols = cols[1:end-1]  # Remove the keyword arg from cols
+    end
+
     # Convert each provided column into its literal string form.
     col_names = [string(c) for c in cols]
+    
     return quote
         # Evaluate the SQLQuery object.
         sq = $(esc(sqlquery))
@@ -41,7 +53,7 @@ macro unnest_wider(sqlquery, cols...)
         unnest_cols = filter_columns_by_expr($col_names, sq.metadata)
         for col in unnest_cols
             # Generate the unnest SQL string and list of new names for this column.
-            unnest_str, names = unne(sq, col)
+            unnest_str, names = unne(sq, col; names_sep=$(esc(names_sep_expr)))
             # If the current SELECT clause contains "*" then expand it from metadata.
             if occursin("", sq.select)
                 # Build a list of column names from the metadata for which current_selxn == 1.

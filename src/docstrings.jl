@@ -1386,6 +1386,7 @@ to allow `db_table` to read the db tables.
      - DuckDB and ClickHouse support vectors of paths and URLs. 
      - DuckDB and ClickHouse also support use of `*` wildcards to read all files of a type in a location such as:
         - `db_table(db, "Path/to/testing_files/*.parquet")`
+     - Use any DuckDB reader "read_csv('file_path', additional arguments allowed)" . 
 - `delta`: must be true to read delta files
 - `iceberg`: must be true to read iceberg finalize_ctes
 - `alias`: optional argument when using a `*` wildcard in a file path, that allows user to determine an alias for the data being read in. If empty, it will refer to table as `data`.

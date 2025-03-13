@@ -11,6 +11,7 @@ mutable struct CTE
 end
 
 mutable struct SQLQuery
+    post_first::Bool
     select::String
     from::String
     where::String
@@ -32,17 +33,18 @@ mutable struct SQLQuery
     ch_settings::String
     join_count::Int
     post_unnest::Bool
-    function SQLQuery(;select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
+    function SQLQuery(;post_first = true, select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
         window_order::String="", windowFrame::String="", is_aggregated::Bool=false, post_aggregation::Bool=false, post_join::Bool=false, metadata::DataFrame=DataFrame(), 
         distinct::Bool=false, db::Any=nothing, ctes::Vector{CTE}=Vector{CTE}(), cte_count::Int=0, athena_params::Any=nothing, limit::String="", 
         ch_settings::String="", join_count::Int = 0, post_unnest::Bool = false)
-        new(select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, 
+        new(post_first, select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, 
         post_aggregation, post_join, metadata, distinct, db, ctes, cte_count, athena_params, limit, ch_settings, join_count, post_unnest)
     end
 end
 
 function from_query(query::TidierDB.SQLQuery)
     # Custom copy method for TidierDB.CTE
+    #println("HEEEREEEE")
     function copy(cte::TidierDB.CTE)
         return TidierDB.CTE(name=cte.name, select=cte.select, from=cte.from, where=cte.where, groupBy=cte.groupBy, having=cte.having)
     end
@@ -70,7 +72,8 @@ function from_query(query::TidierDB.SQLQuery)
         limit = query.limit,
         ch_settings = query.ch_settings,
         join_count = query.join_count,
-        post_unnest = query.post_unnest
+        post_unnest = query.post_unnest,
+        post_first = false
     )
     return new_query
 end

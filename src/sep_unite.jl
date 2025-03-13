@@ -25,7 +25,7 @@ function separate(db, col, new_cols, sep)
         return join(separate_exprs, ", "), new_cols
     catch e
         matching_indices = findall(==(col), db.metadata.name)
-        throw("@separate only supports separating columns of type STRING at this time. $col is of type $(db.metadata.type[matching_indices[1]])")
+        throw("@separate only supports separating columns of type STRING at this time. $col is of type $(db.metadata.type[matching_indices[1]])") # COV_EXCL_LINE
     end
 end
 
@@ -33,20 +33,19 @@ end
 $docstring_separate
 """
 macro separate(sqlquery, col, new_cols, sep)
-    # Convert the target column name to a literal string.
     col_name = string(col)
-    # Extract the new column names from the vector literal (convert each to string).
     new_cols_names = [string(x) for x in new_cols.args]
 
     return quote
-        # Evaluate the SQLQuery object.
         sq = $(esc(sqlquery))
-        sq.post_unnest ? build_cte!($(esc(sqlquery))) : nothing
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        
+        sq.post_unnest ? build_cte!(sq) : nothing
         names = replace.($new_cols_names, ":" => "")
         separate_str, names = separate(sq, $((QuoteNode(col_name))), names, $(esc(sep)))
 
         if occursin("", sq.select)
-            # Expand SELECT clause from metadata if it contains "*".
             cols_from_meta = [
                 string(row[:name])
                 for row in eachrow(sq.metadata) if row[:current_selxn] == 1
@@ -56,10 +55,8 @@ macro separate(sqlquery, col, new_cols, sep)
             sq.select = startswith(sq.select, "SELECT") ? replace(sq.select, Regex("\\b" * $(QuoteNode(col_name)) * "\\b") => separate_str) :
                 "SELECT " * expanded_select
         else
-            # Otherwise, directly substitute in the defined SELECT clause.
             sq.select = replace(sq.select, Regex("\\b" * $(QuoteNode(col_name)) * "\\b") => separate_str)
         end
-        # Mark the newly added separate columns as selected in metadata.
         length_names = length(names)
         for i in 1:length_names
             sq.metadata.current_selxn[end - i + 1] = 1
@@ -88,9 +85,8 @@ function unite(sq, new_col, col_names, sep; remove=true)
                                  "type" => "VARCHAR",
                                  "current_selxn" => 1,
                                  "table_name" => last(sq.metadata.table_name)))
-        #return sql_snippet, col_names, remove
     catch e
-        throw("@unite error: " * string(e))
+        throw("@unite error: " * string(e)) # COV_EXCL_LINE
     end
 end
 
@@ -98,19 +94,18 @@ end
 $docstring_unite
 """
 macro unite(sqlquery, new_col, col_tuple, sep, args...)
-    # Set default value for `remove` to true.
     remove_expr = :(true)
-    if length(args) > 0 && isa(args[end], Expr) && args[end].head == :(=) && args[end].args[1] == :remove
-        remove_expr = args[end].args[2]
-        args = args[1:end-1]  # Remove the keyword assignment from args.
-    end
-
-    # Convert the new column and tuple of columns into literal strings.
+  #  if length(args) > 0 && isa(args[end], Expr) && args[end].head == :(=) && args[end].args[1] == :remove
+  #      remove_expr = args[end].args[2]
+  #      args = args[1:end-1]  # Remove the keyword assignment from args.
+  #  end
     new_col_str = string(new_col)
     col_names = [string(x) for x in col_tuple.args]
     return quote
-        # Evaluate the SQLQuery object.
         sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+
         cols = filter_columns_by_expr($col_names, sq.metadata)
         unite(sq, $(QuoteNode(new_col_str)), cols, $(esc(sep)); remove=$(esc(remove_expr)))
         sq.post_unnest = true

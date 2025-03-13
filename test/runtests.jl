@@ -45,4 +45,4 @@ join_db3 = DB.db_table(db, df4, "df_join3");
    include("comp_tests.jl")
 end
 
-DB.DBInterface.close(db)
+#DB.DBInterface.close(db)

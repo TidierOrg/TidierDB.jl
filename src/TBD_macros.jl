@@ -2,37 +2,40 @@
 $docstring_select
 """
 macro select(sqlquery, exprs...)
+
     exprs = parse_blocks(exprs...)
 
     return quote
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
-
-        build_cte!($(esc(sqlquery)))
-        let columns = parse_tidy_db(exprs_str, $(esc(sqlquery)).metadata)
+        sq = $(esc(sqlquery))
+        sq = sq.post_first ? (t($(esc(sqlquery)))) : sq
+        sq.post_first = false; 
+        build_cte!(sq)
+        let columns = parse_tidy_db(exprs_str, sq.metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
-            $(esc(sqlquery)).select = columns_str
-            $(esc(sqlquery)).metadata.current_selxn .= 0
+            sq.select = columns_str
+            sq.metadata.current_selxn .= 0
             for col in columns
                 if occursin(".", col)
                     table_col_split = split(col, ".")
                     table_name, col_name = table_col_split[1], table_col_split[2]
 
                     # Iterate and update current_selxn based on matches
-                    for idx in eachindex($(esc(sqlquery)).metadata.current_selxn)
-                        if $(esc(sqlquery)).metadata.table_name[idx] == table_name && 
-                           $(esc(sqlquery)).metadata.name[idx] == col_name
-                            $(esc(sqlquery)).metadata.current_selxn[idx] = 2
+                    for idx in eachindex(sq.metadata.current_selxn)
+                        if sq.metadata.table_name[idx] == table_name && 
+                           sq.metadata.name[idx] == col_name
+                            sq.metadata.current_selxn[idx] = 2
                         end
                     end
                 else
                     # Direct matching for columns without 'table.' prefix
-                    matching_indices = findall($(esc(sqlquery)).metadata.name .== col)
-                    $(esc(sqlquery)).metadata.current_selxn[matching_indices] .= 1
+                    matching_indices = findall(sq.metadata.name .== col)
+                    sq.metadata.current_selxn[matching_indices] .= 1
                 end
             end
         end
         
-        $(esc(sqlquery))
+        sq
     end
 end
 
@@ -44,6 +47,9 @@ macro filter(sqlquery, conditions...)
 
     return quote
         sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+
         if isa(sq, SQLQuery)
             # Early handling for non-aggregated context
             if !sq.is_aggregated
@@ -179,12 +185,11 @@ macro arrange(sqlquery, columns...)
     order_clause = join(order_specs, ", ")
 
     return quote
-        if $(esc(sqlquery)) isa SQLQuery
-            $(esc(sqlquery)).orderBy = " ORDER BY " * $order_clause
-        else
-            error("Expected sqlquery to be an instance of SQLQuery")
-        end
-        $(esc(sqlquery))
+        sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+            sq.orderBy = " ORDER BY " * $order_clause
+        sq
     end
 end
 
@@ -198,6 +203,8 @@ macro group_by(sqlquery, columns...)
     return quote
         columns_str = map(col -> isa(col, Symbol) ? string(col) : col, $columns)
         sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
         if isa(sq, SQLQuery)
 
             let group_columns = parse_tidy_db(columns_str, sq.metadata)
@@ -233,35 +240,33 @@ $docstring_distinct
 macro distinct(sqlquery, distinct_columns...)
     return quote
         sq = $(esc(sqlquery))
-        if isa(sq, SQLQuery)
-            # Convert expressions to strings for parsing
-            exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $(distinct_columns))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false;
+
+        exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $(distinct_columns))
+        
+        # Use parse_tidy_db to determine the columns involved, based on metadata
+        let columns = parse_tidy_db(exprs_str, sq.metadata)
+            # Generate the SELECT part of the CTE based on the distinct columns
+            distinct_cols_str = join([string(column) for column in columns], ", ")
+            # Always increment cte_count to ensure a unique CTE name
+            sq.cte_count += 1
+            cte_name = "cte_" * string(sq.cte_count)
             
-            # Use parse_tidy_db to determine the columns involved, based on metadata
-            let columns = parse_tidy_db(exprs_str, sq.metadata)
-                # Generate the SELECT part of the CTE based on the distinct columns
-                distinct_cols_str = join([string(column) for column in columns], ", ")
-                # Always increment cte_count to ensure a unique CTE name
-                sq.cte_count += 1
-                cte_name = "cte_" * string(sq.cte_count)
-                
-                # Construct the SELECT part of the CTE using distinct columns or all columns if none are specified
-                cte_select = !isempty(distinct_cols_str) ? " DISTINCT " * distinct_cols_str : " DISTINCT *"
-                cte_select *= " FROM " * sq.from
-                
-                # Create the CTE instance
-                cte = CTE(name=cte_name, select=cte_select)
-                # Add the CTE to the SQLQuery's CTEs vector
-                push!(sq.ctes, cte)
-                
-                # Adjust the main query to select from the newly created CTE
-                sq.from = cte_name
-                
-                # Reset sq.select to ensure the final SELECT * operates correctly
-                sq.select = "*"
-            end
-        else
-            error("Expected sqlquery to be an instance of SQLQuery")
+            # Construct the SELECT part of the CTE using distinct columns or all columns if none are specified
+            cte_select = !isempty(distinct_cols_str) ? " DISTINCT " * distinct_cols_str : " DISTINCT *"
+            cte_select *= " FROM " * sq.from
+            
+            # Create the CTE instance
+            cte = CTE(name=cte_name, select=cte_select)
+            # Add the CTE to the SQLQuery's CTEs vector
+            push!(sq.ctes, cte)
+            
+            # Adjust the main query to select from the newly created CTE
+            sq.from = cte_name
+            
+            # Reset sq.select to ensure the final SELECT * operates correctly
+            sq.select = "*"
         end
         sq
     end
@@ -279,13 +284,16 @@ macro count(sqlquery, group_by_columns...)
     return quote
 
         sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        
         if isa(sq, SQLQuery)
             # Interpolate `group_clause` directly into the quoted code to avoid scope issues
             if !isempty($group_clause)
                 for col in $group_by_cols_str
-                    $(esc(sqlquery)).metadata.current_selxn .= 0
-                    matching_indices = findall($(esc(sqlquery)).metadata.name .== col)
-                    $(esc(sqlquery)).metadata.current_selxn[matching_indices] .= 1
+                    sq.metadata.current_selxn .= 0
+                    matching_indices = findall(sq.metadata.name .== col)
+                    sq.metadata.current_selxn[matching_indices] .= 1
                  end
                 sq.select = "SELECT " * $group_clause * ", COUNT(*) AS count"
                 sq.groupBy = "GROUP BY " * $group_clause
@@ -293,7 +301,7 @@ macro count(sqlquery, group_by_columns...)
 
             else
                 # If no grouping columns are specified, just count all records
-                $(esc(sqlquery)).metadata.current_selxn .= 0
+                sq.metadata.current_selxn .= 0
                 sq.select = "SELECT COUNT(*) AS count"
                 push!(sq.metadata, Dict("name" => "count", "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => sq.from))
 
@@ -326,6 +334,9 @@ macro rename(sqlquery, renamings...)
         end
 
         sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        
         if isa(sq, SQLQuery)
             # Generate a new CTE name
             new_cte_name = "cte_" * string(sq.cte_count + 1)
@@ -503,6 +514,7 @@ $docstring_collect
 """
 macro collect(sqlquery, stream = false)
     return quote
+        
         backend = current_sql_mode[]
         if backend == duckdb()
             if $stream
@@ -547,6 +559,9 @@ macro head(sqlquery, value = 6)
     value = string(value)
     return quote
         sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        
         if $value != ""
         sq.limit = $value
         end

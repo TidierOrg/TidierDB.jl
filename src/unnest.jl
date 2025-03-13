@@ -24,7 +24,7 @@ function unne(db, col; names_sep=nothing)
         return join(names_new, ", "), names
     catch e
         matching_indices = findall(==(col), db.metadata.name)
-        throw("@unnest only supports unnesting columns of type STRUCT at this time. $col is of type $(db.metadata.type[matching_indices[1]])")
+        throw("@unnest only supports unnesting columns of type STRUCT at this time. $col is of type $(db.metadata.type[matching_indices[1]])") # COV_EXCL_LINE
     end
 end
 
@@ -48,7 +48,10 @@ macro unnest_wider(sqlquery, cols...)
     return quote
         # Evaluate the SQLQuery object.
         sq = $(esc(sqlquery))
-        sq.post_unnest ? build_cte!($(esc(sqlquery))) : nothing
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        
+        sq.post_unnest ? build_cte!(sq) : nothing
 
         unnest_cols = filter_columns_by_expr($col_names, sq.metadata)
         for col in unnest_cols
@@ -92,7 +95,10 @@ macro unnest_longer(sqlquery, cols...)
     return quote
         # Evaluate the SQLQuery object.
         sq = $(esc(sqlquery))
-        sq.post_unnest ? build_cte!($(esc(sqlquery))) : nothing
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+
+        sq.post_unnest ? build_cte!(sq) : nothing
         # Embed the list of column names as a literal vector.
         unnest_cols = filter_columns_by_expr($col_names, sq.metadata)
         for col in unnest_cols

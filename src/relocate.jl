@@ -52,7 +52,10 @@ macro relocate(sqlquery, exprs...)
     cols, before_col, after_col = parse_relocate_args(exprs)
 
     return quote
-        meta = $(esc(sqlquery)).metadata
+        sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        meta = sq.metadata
 
         # Identify currently selected columns (current_selxn > 0)
         selected_indices = findall(x -> x > 0, meta.current_selxn)
@@ -61,7 +64,7 @@ macro relocate(sqlquery, exprs...)
         # Columns to move
         move_str = []
 
-        to_move_str = filter_columns_by_expr($cols, $(esc(sqlquery)).metadata)
+        to_move_str = filter_columns_by_expr($cols, sq.metadata)
 
         before_str = isnothing($before_col) ? nothing : string($before_col)
         after_str  = isnothing($after_col)  ? nothing : string($after_col)
@@ -121,10 +124,10 @@ macro relocate(sqlquery, exprs...)
 
 
         columns_str = join(["SELECT ", join(qualified_cols, ", ")])
-        $(esc(sqlquery)).select = columns_str
-        $(esc(sqlquery)).metadata = meta
+        sq.select = columns_str
+        sq.metadata = meta
 
-        $(esc(sqlquery))
+        sq
     end
 end
 

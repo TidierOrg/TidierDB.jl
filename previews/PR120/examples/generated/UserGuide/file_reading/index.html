@@ -13,14 +13,18 @@
       
       
       
+        <link rel="prev" href="../getting_started/">
+      
+      
+        <link rel="next" href="../ex_joining/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.8">
     
     
       
-        <title>File reading - TidierDB.jl</title>
+        <title>File Reading - TidierDB.jl</title>
       
     
     
@@ -75,11 +79,6 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#db_table-and-dt" class="md-skip">
-          Skip to content
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -111,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              File reading
+              File Reading
             
           </span>
         </div>
@@ -326,6 +325,56 @@
       
   
   
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    File Reading
+    
+  </span>
+  
+
+      </a>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ex_joining/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Joining Tables
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
   
   
     <li class="md-nav__item">
@@ -376,27 +425,6 @@
   
   <span class="md-ellipsis">
     Reusing a Query (and Views)
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../ex_joining/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Joining Tables
     
   </span>
   
@@ -676,32 +704,6 @@
   
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#db_table-and-dt" class="md-nav__link">
-    <span class="md-ellipsis">
-      db_table and dt
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#minimizing-compute-costs-and-keystrokes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Minimizing Compute Costs and Keystrokes
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -716,46 +718,25 @@
 
 
 
-  <h1>File reading</h1>
+  <h1>File Reading</h1>
 
-<p>Leveraging DuckDB, TidierDB works with multiple file types.</p>
-<ul>
-<li></li>
-<li></li>
-<li></li>
-</ul>
-<p><a id='db_table-and-dt'></a></p>
-<p><a id='db_table-and-dt-1'></a></p>
-<h2 id="db_table-and-dt"><code>db_table</code> and <code>dt</code><a class="headerlink" href="#db_table-and-dt" title="Permanent link">¤</a></h2>
-<p>What does <code>dt</code> do? (<code>dt</code> is an alias for <code>db_table</code>)</p>
-<p><code>dt</code> starts the underlying SQL query struct, in addition to pulling the table metadata and storing it there. Storing metadata is what enables a lazy interface that also supports tidy selection.</p>
-<ul>
-<li><code>dt</code> has two required arguments: <code>connection</code> and <code>table</code></li>
-<li>
-<p><code>table</code> can be a table name on a database or a path/url to file to read.  When passing <code>db_table</code> a path or url, the table is not copied into memory.</p>
-<ul>
-<li>Of note, <code>dt</code> only support direct file paths to a table. It does not support database file paths such as <code>dbname.duckdb</code> or <code>dbname.sqlite</code>. Such files must be used with <code>connect</code> first.</li>
-<li>With DuckDB and ClickHouse, if you have a folder of multiple files to read, you can use <code>*</code> read in all files matching the pattern, with an optional <code>alias</code> argument for what the data should be referred to.</li>
-<li>For example, the below would read all files that end in <code>.csv</code> in the given folder.</li>
-</ul>
-</li>
-</ul>
-<div class="highlight"><pre><span></span><code>dt(db, &quot;folder/path/*.csv&quot;)
-</code></pre></div>
-<p><code>databricks</code> also supports iceberg, delta, and S3 file paths via DuckDB.</p>
-<p><a id='Minimizing-Compute-Costs-and-Keystrokes'></a></p>
-<p><a id='Minimizing-Compute-Costs-and-Keystrokes-1'></a></p>
-<h2 id="minimizing-compute-costs-and-keystrokes">Minimizing Compute Costs and Keystrokes<a class="headerlink" href="#minimizing-compute-costs-and-keystrokes" title="Permanent link">¤</a></h2>
-<p>If you are working with a backend where compute cost is important, it will be important to minimize using <code>dt</code> as this will requery for metadata each time. Compute costs are relevant to backends such as AWS, databricks and Snowflake.</p>
-<p>To do this, save the results of <code>dt</code> and use them with <code>t</code>. Using <code>t</code> pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time</p>
+<p>Leveraging DuckDB, TidierDB works with multiple file types. In most cases, <code>dt</code> (or <code>db_table</code>) will automatically detect the file type to read in the table metadata.</p>
 <blockquote>
-<p>!Tip: <code>t()</code> is an alias for <code>from_query</code> This means after saving the results of <code>dt</code>, use <code>t(table)</code> to refer to the table or prior query</p>
+<p>[!NOTE] <code>dt</code> does <em>not</em> copy anything into memory beyond the table metadata.</p>
 </blockquote>
-<div class="highlight"><pre><span></span><code><span class="n">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">dt</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;path&quot;</span><span class="p">)</span>
-<span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">    </span><span class="c">## data wrangling here</span>
-<span class="k">end</span>
-</code></pre></div>
+<p>A non exhaustive list of file types include:</p>
+<ul>
+<li>csv, tsv, txt:  <code>dt(db, "https://file/path/to.csv")</code></li>
+<li>parquet: <code>dt(db, "or/a/local/file/path/to.parquet")</code></li>
+<li>json: <code>dt(db, "any/file/path/to.json")</code></li>
+<li>S3 buckets</li>
+<li>iceberg and delta - require additional args <code>delta</code> or <code>iceberg</code> to be set to <code>true</code></li>
+<li>Google Sheets (first run <code>connect(db, :gsheets)</code>)</li>
+</ul>
+<p><code>dt</code> allso supports directly using any DuckDB file reading function. This allows for easily reading in compressed files When reading in a compresssed path, adding an <code>alias</code> is recommended.</p>
+<ul>
+<li>dt(db, "read<em>csv('/Volumes/Untitled/phd</em>*<em>genlab.txt', ignore</em>errors=true)", alias = "genlab")</li>
+</ul>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>
 
@@ -788,6 +769,44 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../getting_started/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting Started">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Getting Started
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../ex_joining/" class="md-footer__link md-footer__link--next" aria-label="Next: Joining Tables">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Joining Tables
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">

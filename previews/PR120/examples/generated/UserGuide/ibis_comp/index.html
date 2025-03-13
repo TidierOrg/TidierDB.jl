@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.8">
     
     
       
@@ -333,6 +333,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../file_reading/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    File Reading
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ex_joining/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Joining Tables
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../agg_window/" class="md-nav__link">
         
   
@@ -380,27 +422,6 @@
   
   <span class="md-ellipsis">
     Reusing a Query (and Views)
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../ex_joining/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Joining Tables
     
   </span>
   
@@ -957,7 +978,7 @@
 └───────────────────┴─────────┴───────┴─────────┴───────┴─────────┴─────────┴─────────┴───────┴───────┴───────┴───────┘
 </code></pre></div>
 <p>TidierDB</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="nd">@head</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="nd">@collect</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="nd">@head</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="nd">@collect</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>6×12 DataFrame
  Row │ model              mpg       cyl     disp      hp      drat      wt        qsec      vs      am      gear    carb
@@ -990,7 +1011,7 @@
 └────────────────┴─────────┴───────┴─────────┴───────┴─────────┴─────────┴─────────┴───────┴───────┴───────┴───────┘
 </code></pre></div>
 <p>TidierDB</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">       </span><span class="nd">@filter</span><span class="p">((</span><span class="n">mpg</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">22</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">drat</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">hp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">113</span><span class="p">)</span>
 <span class="w">       </span><span class="nd">@collect</span>
 <span class="k">end</span>
@@ -1036,7 +1057,7 @@
 └───────────────────┴─────────┘
 </code></pre></div>
 <p>TidierDB</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">       </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">kpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpg</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1.61</span><span class="p">)</span>
 <span class="w">       </span><span class="nd">@select</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">kpg</span><span class="p">)</span>
 <span class="w">       </span><span class="nd">@collect</span>
@@ -1088,7 +1109,7 @@
 </code></pre></div>
 <p>While TidierDB uses <code>@arrange</code> like TidierData.jl</p>
 <p>TidierDB</p>
-<div class="highlight"><pre><span></span><code>@chain t(mtcars) @arrange(mpg) @collect
+<div class="highlight"><pre><span></span><code>@chain mtcars @arrange(mpg) @collect
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>32×12 DataFrame
  Row │ model                mpg       cyl     disp      hp      drat      wt        qsec      vs      am      gear    carb
@@ -1136,7 +1157,7 @@
 </code></pre></div>
 <p>TidierDB does not require names to be prefixed and, like TidierData, tidy column selection with <code>starts_with</code>, <code>ends_with</code>, and <code>contains</code> is supported at base. TidierDB also supports providing column names as strings, although this would only be needed in the setting of renaming a column with a space in it.</p>
 <p>TidierDB</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="nd">@select</span><span class="p">(</span><span class="n">starts_with</span><span class="p">(</span><span class="s">&quot;m&quot;</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;drat&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">wt</span><span class="p">)</span><span class="w"> </span><span class="nd">@collect</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="nd">@select</span><span class="p">(</span><span class="n">starts_with</span><span class="p">(</span><span class="s">&quot;m&quot;</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;drat&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">wt</span><span class="p">)</span><span class="w"> </span><span class="nd">@collect</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>32×4 DataFrame
  Row │ model              mpg       drat      wt
@@ -1177,7 +1198,7 @@
 </code></pre></div>
 <p>In TidierDB, <code>@filter</code> will automatically determine whether the criteria belong in a <code>WHERE</code> or <code>HAVING</code> SQL clause.</p>
 <p>TidierDB</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">total_hp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sum</span><span class="p">(</span><span class="n">hp</span><span class="p">),</span>
 <span class="w">               </span><span class="n">avg_hp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">avg</span><span class="p">(</span><span class="n">hp</span><span class="p">))</span>
@@ -1218,7 +1239,7 @@
 └───────────────────┘
 </code></pre></div>
 <p>TidierDB</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="nd">@rename</span><span class="p">(</span><span class="n">model_make</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="p">)</span><span class="w"> </span><span class="nd">@select</span><span class="p">(</span><span class="n">model_make</span><span class="p">)</span><span class="w"> </span><span class="nd">@collect</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="nd">@rename</span><span class="p">(</span><span class="n">model_make</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="p">)</span><span class="w"> </span><span class="nd">@select</span><span class="p">(</span><span class="n">model_make</span><span class="p">)</span><span class="w"> </span><span class="nd">@collect</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>32×1 DataFrame
  Row │ model_make

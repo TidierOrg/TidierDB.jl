@@ -13,14 +13,14 @@
       
       
       
-        <link rel="prev" href="../from_queryex/">
+        <link rel="prev" href="../file_reading/">
       
       
-        <link rel="next" href="../dates/">
+        <link rel="next" href="../agg_window/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.8">
     
     
       
@@ -333,53 +333,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../agg_window/" class="md-nav__link">
+      <a href="../file_reading/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Aggregate and Window Functions
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../udfs_ex/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Flexible Syntax and UDFs
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../from_queryex/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    File Reading
     
   </span>
   
@@ -533,6 +491,69 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agg_window/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Aggregate and Window Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../udfs_ex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flexible Syntax and UDFs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../from_queryex/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reusing a Query (and Views)
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -957,7 +978,7 @@
 </ul>
 <p>When the joining table is already availabe on the database, a string of the table name used as shown above. However, the joining table can also be a TidierDB query, in which case, the query is written as follows</p>
 <ul>
-<li><code>@left_join(t(table), t(query), key)</code></li>
+<li><code>@left_join(t(table),query, key)</code></li>
 </ul>
 <p><a id='Examples'></a></p>
 <p><a id='Examples-1'></a></p>
@@ -997,7 +1018,7 @@
 <p><a id='Wrangle-tables-and-self-join'></a></p>
 <p><a id='Wrangle-tables-and-self-join-1'></a></p>
 <h2 id="wrangle-tables-and-self-join">Wrangle tables and self join<a class="headerlink" href="#wrangle-tables-and-self-join" title="Permanent link">¤</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@group_by</span><span class="w"> </span><span class="n">cyl</span>
 <span class="w">    </span><span class="nd">@summarize</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">        </span><span class="n">across</span><span class="p">(</span><span class="n">mpg</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="p">,</span><span class="w"> </span><span class="n">minimum</span><span class="p">,</span><span class="w"> </span><span class="n">maximum</span><span class="p">))</span>
@@ -1010,8 +1031,10 @@
 <span class="w">            </span><span class="s">&quot;Low&quot;</span><span class="w"> </span><span class="p">)</span>
 <span class="w">      </span><span class="k">end</span>
 <span class="k">end</span><span class="p">;</span>
-<span class="n">query2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="nd">@filter</span><span class="p">(</span><span class="n">mpg</span><span class="o">&gt;</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpg</span><span class="w"> </span><span class="o">*</span><span class="mi">4</span><span class="p">);</span>
-<span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+
+<span class="n">query2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="nd">@filter</span><span class="p">(</span><span class="n">mpg</span><span class="o">&gt;</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpg</span><span class="w"> </span><span class="o">*</span><span class="mi">4</span><span class="p">);</span>
+
+<span class="nd">@chain</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">query2</span><span class="p">),</span><span class="w"> </span><span class="n">cyl</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cyl</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">avg_mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">),</span><span class="w"> </span><span class="n">_by</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">efficiency</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">avg_mean</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">)</span>
@@ -1026,7 +1049,7 @@
 <h2 id="different-schemas">Different schemas<a class="headerlink" href="#different-schemas" title="Permanent link">¤</a></h2>
 <p>To connect to a table in a different schema, prefix it with a dot. For example, "schema<em>name.table</em>name". In this query, we are also filtering out cars that contain "M" in the name from the <code>mt2</code> table before joining.</p>
 <div class="highlight"><pre><span></span><code><span class="n">other_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ducks_db.mt2&quot;</span><span class="p">)</span><span class="w"> </span><span class="nd">@filter</span><span class="p">(</span><span class="o">!</span><span class="n">str_detect</span><span class="p">(</span><span class="n">car</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;M&quot;</span><span class="p">))</span>
-<span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">other_db</span><span class="p">),</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">car</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">fuel_efficiency</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
@@ -1044,7 +1067,7 @@
    5 │ Duster 360                      14
 </code></pre></div>
 <p>To join directly to the table, you can use the <code>@left_join</code> macro with the table name as a string.</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@left_join</span><span class="p">(</span><span class="s">&quot;ducks_db.mt2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">car</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">fuel_efficiency</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
@@ -1065,7 +1088,7 @@
 <p><a id='Using-a-View-1'></a></p>
 <h2 id="using-a-view">Using a View<a class="headerlink" href="#using-a-view" title="Permanent link">¤</a></h2>
 <p>You can also use <code>@create_view</code> to create views and then join them. This is an alternate reuse complex queries.</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@group_by</span><span class="w"> </span><span class="n">cyl</span>
 <span class="w">    </span><span class="nd">@summarize</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">        </span><span class="n">across</span><span class="p">(</span><span class="n">mpg</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">mean</span><span class="p">,</span><span class="w"> </span><span class="n">minimum</span><span class="p">,</span><span class="w"> </span><span class="n">maximum</span><span class="p">))</span>
@@ -1096,7 +1119,7 @@
 <p>This example reproduces an example in the <a href="https://duckdb.org/docs/guides/sql_features/asof_join.html#what-is-an-asof-join">DuckDB Docs</a></p>
 <div class="highlight"><pre><span></span><code><span class="n">prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://duckdb.org/data/prices.csv&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;prices&quot;</span><span class="p">);</span>
 <span class="n">holdings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://duckdb.org/data/holdings.csv&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;holdings&quot;</span><span class="p">);</span>
-<span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">holdings</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">holdings</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@inner_join</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">prices</span><span class="p">),</span><span class="w"> </span><span class="n">ticker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticker</span><span class="p">,</span><span class="w"> </span><span class="n">closest</span><span class="p">(</span><span class="n">when</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">when</span><span class="p">))</span>
 <span class="w">    </span><span class="nd">@select</span><span class="p">(</span><span class="n">holdings</span><span class="o">.</span><span class="n">ticker</span><span class="p">,</span><span class="w"> </span><span class="n">holdings</span><span class="o">.</span><span class="n">when</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">shares</span><span class="p">)</span>
@@ -1143,7 +1166,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../from_queryex/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Reusing a Query (and Views)">
+          <a href="../file_reading/" class="md-footer__link md-footer__link--prev" aria-label="Previous: File Reading">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1153,20 +1176,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Reusing a Query (and Views)
+                File Reading
               </div>
             </div>
           </a>
         
         
           
-          <a href="../dates/" class="md-footer__link md-footer__link--next" aria-label="Next: Dates">
+          <a href="../agg_window/" class="md-footer__link md-footer__link--next" aria-label="Next: Aggregate and Window Functions">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Dates
+                Aggregate and Window Functions
               </div>
             </div>
             <div class="md-footer__button md-icon">

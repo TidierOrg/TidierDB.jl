@@ -21,7 +21,7 @@
 
 # When the joining table is already availabe on the database, a string of the table name used as shown above. 
 # However, the joining table can also be a TidierDB query, in which case, the query is written as follows
-#   - `@left_join(t(table), t(query), key)`
+#   - `@left_join(t(table),query, key)`
 
 # ## Examples
 # Examples below will cover how to join tables with different schemas in different databases, 
@@ -42,7 +42,7 @@ mtcars = dt(db, "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b7
 # ```
 # 
 # ## Wrangle tables and self join
-query = @chain t(mtcars) begin
+query = @chainmtcars begin
     @group_by cyl
     @summarize begin
         across(mpg, (mean, minimum, maximum))
@@ -55,8 +55,8 @@ query = @chain t(mtcars) begin
             "Low" )
       end
 end;
-query2 = @chain t(mtcars) @filter(mpg>20) @mutate(mpg = mpg *4); 
-@chain t(query) begin
+query2 = @chain mtcars @filter(mpg>20) @mutate(mpg = mpg *4); 
+@chain query begin
     @left_join(t(query2), cyl == cyl)
     @summarize(avg_mean = mean(mpg), _by = efficiency)
     @mutate(mean = avg_mean / 4 )
@@ -69,7 +69,7 @@ end
 # In this query, we are also filtering out cars that contain "M" in the name from the `mt2` table before joining. 
 # ```julia
 # other_db = @chain dt(db, "ducks_db.mt2") @filter(!str_detect(car, "M"))
-# @chain t(mtcars) begin
+# @chain mtcars begin
 #     @left_join(t(other_db), model == car)
 #     @select(model, fuel_efficiency)
 #     @head(5)
@@ -90,7 +90,7 @@ end
 
 # To join directly to the table, you can use the `@left_join` macro with the table name as a string.
 # ```julia
-# @chain t(mtcars) begin
+# @chain mtcars begin
 #     @left_join("ducks_db.mt2", model == car)
 #     @select(model, fuel_efficiency)
 #     @head(5)
@@ -111,7 +111,7 @@ end
 
 # ## Using a View
 # You can also use `@create_view` to create views and then join them. This is an alternate reuse complex queries.
-@chain t(mtcars) begin
+@chain mtcars begin
     @group_by cyl
     @summarize begin
         across(mpg, (mean, minimum, maximum))
@@ -137,7 +137,7 @@ end
 # This example reproduces an example in the [DuckDB Docs](https://duckdb.org/docs/guides/sql_features/asof_join.html#what-is-an-asof-join)
 prices = dt(db, "https://duckdb.org/data/prices.csv", "prices");
 holdings = dt(db, "https://duckdb.org/data/holdings.csv", "holdings");
-@chain t(holdings) begin
+@chain holdings begin
     @inner_join(t(prices), ticker = ticker, closest(when >= when))
     @select(holdings.ticker, holdings.when) 
     @mutate(value = price * shares)

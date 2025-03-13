@@ -43,13 +43,10 @@ mutable struct SQLQuery
 end
 
 function from_query(query::TidierDB.SQLQuery)
-    # Custom copy method for TidierDB.CTE
-    #println("HEEEREEEE")
     function copy(cte::TidierDB.CTE)
         return TidierDB.CTE(name=cte.name, select=cte.select, from=cte.from, where=cte.where, groupBy=cte.groupBy, having=cte.having)
     end
     
-    # Create a new SQLQuery object with the same field values
     new_query = TidierDB.SQLQuery(
         select=query.select,
         from=query.from,

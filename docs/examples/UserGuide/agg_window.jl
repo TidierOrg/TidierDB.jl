@@ -9,7 +9,7 @@ mtcars = dt(db, mtcars_path);
 
 # ## Aggregate Functions in `@summarize`
 # Lets use the DuckDB `kurtosis` aggregate function 
-@chain t(mtcars) begin
+@chain mtcars begin
      @group_by cyl 
      @summarize(kurt = kurtosis(mpg))
      @collect 
@@ -19,7 +19,7 @@ end
 # By default, `@mutate`/`@transmute` supports (however, you can easily expand this list)
 # - `maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`
 # To use aggregate sql functions that are built in to any database backend, but exist outside of the TidierDB parser list above, simply wrap the function call in `agg()`
-@chain t(mtcars) begin 
+@chain mtcars begin 
      @group_by(cyl)
      @mutate(kurt = agg(kurtosis(mpg)))
      @select cyl mpg kurt
@@ -29,7 +29,7 @@ end
 
 # Alternatively , if you anticipate regularly using specific aggregate functions, you can update the underlying parser avoid using `agg` all together 
 push!(TidierDB.window_agg_fxns, :kurtosis);
-@chain t(mtcars) begin 
+@chain mtcars begin 
      @group_by(cyl)
      @mutate(kurt = kurtosis(mpg))
      @select cyl mpg kurt
@@ -43,7 +43,7 @@ end
 # 
 # When ordering a window function, `@arrange` should _not_ be used. Rather, use `@window_order` or, preferably, `_order` and `_frame` in `@mutate`.
 
-@chain t(mtcars) begin
+@chain mtcars begin
     @mutate(row_id = row_number(), 
         _by = cyl, 
         _order = mpg # _frame is not used in this example 
@@ -52,7 +52,7 @@ end
 end 
 
 # The above query could have alternatively been written as 
-@chain t(mtcars) begin
+@chain mtcars begin
     @group_by cyl
     @window_order mpg
     @mutate(row_id = row_number())

@@ -86,7 +86,7 @@
         @test all(Array(TDF_1 .== TDB_1))
     end
     @testset "Joins, Unions, Post Wrangle Joins" begin
-        TDF_1 = @chain test_df @left_join( df2, id = id2) @arrange(id)
+        TDF_1 = @chain test_df @left_join(df2, id = id2) @arrange(id)
         TDB_1 = @chain test_db DB.@left_join("main.df_join", id == id2) DB.@collect() @arrange(id)
         TDB_1_1 = @chain test_db DB.@left_join("df_join", id == id2) DB.@collect() @arrange(id)
         query = DB.@chain join_db DB.@filter(score > 85)

@@ -42,7 +42,7 @@ mtcars = dt(db, "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b7
 # ```
 # 
 # ## Wrangle tables and self join
-query = @chainmtcars begin
+query = @chain mtcars begin
     @group_by cyl
     @summarize begin
         across(mpg, (mean, minimum, maximum))
@@ -55,7 +55,9 @@ query = @chainmtcars begin
             "Low" )
       end
 end;
+
 query2 = @chain mtcars @filter(mpg>20) @mutate(mpg = mpg *4); 
+
 @chain query begin
     @left_join(t(query2), cyl == cyl)
     @summarize(avg_mean = mean(mpg), _by = efficiency)

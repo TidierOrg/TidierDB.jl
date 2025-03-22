@@ -4,7 +4,9 @@ function gbq_join_parse(input)
     if current_sql_mode[] == gbq() && length(parts) >=2
         return parts[end]
     elseif occursin(".", input)
-            if  occursin(r"[:/]", input)
+            if occursin(" AS ", input)
+                return split(input, "AS ")[end]
+            elseif  occursin(r"[:/]", input)
                 return split(basename(input), '.')[1]
             else
                 return split(input, '.')[end]

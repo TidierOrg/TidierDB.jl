@@ -71,23 +71,17 @@ macro compute(sqlquery, name, replace = false)
     end
 end
 
-
-macro write(sqlquery, path, replace = false)
-
-    return quote
-       # prin
-       path = $path
-        backend = current_sql_mode[]
-        sq = $(esc(sqlquery))
-        if backend == duckdb()
-            final_query = finalize_query(sq)
-            final_query = "copy($final_query) to '$path' (format gsheet)"
-            DBInterface.execute(sq.db, final_query)
-         else
-             backend = current_sql_mode[]
-             print("$backend not yet supported")
-        end
-        
+"""
+$docstring_write_file
+"""
+function write_file(sqlquery, path::String=""; replace::Bool = false)
+    backend = current_sql_mode[]
+    sq = sqlquery
+    if backend == duckdb()
+        final_query = finalize_query(sq)
+        final_query = "copy($final_query) to '$path'"
+        DBInterface.execute(sq.db, final_query)
+    else
+        print("$backend not yet supported")
     end
 end
-export @write

@@ -2146,7 +2146,7 @@ julia> @chain dt(db, df, "df") @unite(new_col, (b, c, d), "-") @collect
 
 const docstring_separate =
 """
-      @separae(sql_query, from_col, into_cols, sep)
+      @separate(sql_query, from_col, into_cols, sep)
 
 Separate a string column into mulitiple new columns based on a specified delimter 
 
@@ -2180,4 +2180,24 @@ julia> @chain dt(db, df, "df") @separate( a, [c, d], "-") @collect
    2 │ 2       2
    3 │ 3       3-3
 ```
+"""
+
+
+const docstring_write_file =
+"""
+     write_file(sql_query, path)
+
+Write a local file to from sql_query. Only supports DuckDB at this time.
+
+# Arguments
+- `sql_query`: The SQL query
+-  `path`: file path with file type suffix ie (path.csv, path.parquet, etc) 
+# Examples
+```jldoctest
+julia> db = connect(duckdb());
+
+julia> df = DataFrame(a = ["1-1", "2-2", "3-3-3"]); 
+
+julia> @chain dt(db, df, "df") @filter(a == "2-2") write_file("test.parquet")
+(Count = [1],)
 """

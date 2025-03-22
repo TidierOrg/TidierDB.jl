@@ -24,7 +24,7 @@ using Crayons
  export db_table, set_sql_mode, connect, from_query, @interpolate, add_interp_parameter!, update_con,  
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, 
  t, @create_view, drop_view, @compute, warnings, ghseet_connect, copy_to, duckdb_open, duckdb_connect, dt,
- @show_query, @collect, @window_order, @window_frame
+ @show_query, @collect, @window_order, @window_frame, write_file
 
  abstract type SQLBackend end
 
@@ -414,7 +414,7 @@ end
 function connect(db, GS)
     if GS == :gsheets
         DuckDB.query(db, "INSTALL gsheets FROM community; LOAD gsheets;")
-        DuckDB.query(db, "CREATE SECRET (TYPE gsheet);")
+        DuckDB.query(db, "CREATE or REPLACE SECRET (TYPE gsheet);")
     end
 end
 # COV_EXCL_STOP

@@ -276,44 +276,54 @@ end
 $docstring_count
 """
 macro count(sqlquery, group_by_columns...)
-    # Convert the group_by_columns to a string representation
+    # Set default sort expression to true.
+    sort_expr = :(true)
+    # Check if the last argument is a keyword assignment for sort.
+    if length(group_by_columns) > 0 &&
+       isa(group_by_columns[end], Expr) &&
+       group_by_columns[end].head == :(=) &&
+       group_by_columns[end].args[1] == :sort
+        sort_expr = group_by_columns[end].args[2]
+        group_by_columns = group_by_columns[1:end-1]  # Remove the sort keyword argument.
+    end
 
+    # Convert the grouping columns to string representations.
     group_by_cols_str = [string(col) for col in group_by_columns]
     group_clause = join(group_by_cols_str, ", ")
 
     return quote
-
         sq = $(esc(sqlquery))
         sq = sq.post_first ? t($(esc(sqlquery))) : sq
         sq.post_first = false; 
         
         if isa(sq, SQLQuery)
-            # Interpolate `group_clause` directly into the quoted code to avoid scope issues
+            # If grouping columns are specified.
             if !isempty($group_clause)
                 for col in $group_by_cols_str
                     sq.metadata.current_selxn .= 0
                     matching_indices = findall(sq.metadata.name .== col)
                     sq.metadata.current_selxn[matching_indices] .= 1
-                 end
+                end
                 sq.select = "SELECT " * $group_clause * ", COUNT(*) AS count"
                 sq.groupBy = "GROUP BY " * $group_clause
                 push!(sq.metadata, Dict("name" => "count", "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => sq.from))
-
             else
-                # If no grouping columns are specified, just count all records
+                # If no grouping columns, simply count all records.
                 sq.metadata.current_selxn .= 0
                 sq.select = "SELECT COUNT(*) AS count"
                 push!(sq.metadata, Dict("name" => "count", "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => sq.from))
-
             end
-            
-            # Adjustments for previously set GROUP BY or ORDER BY clauses might be needed here
+
+            if !isempty($group_clause) && $(esc(sort_expr))
+                sq.orderBy = "ORDER BY count DESC"
+            end
         else
             error("Expected sqlquery to be an instance of SQLQuery")
         end
         sq
     end
 end
+
 
 """
 $docstring_rename

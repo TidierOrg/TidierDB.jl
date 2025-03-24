@@ -28,7 +28,7 @@ macro create_view(sqlquery, name, replace = false)
            final_compute($(esc(sqlquery)), mysql, $sql_cr_or_replace)
         else
             backend = current_sql_mode[]
-            print("$backend not yet supported")
+            print("$backend not yet supported") # COV_EXCL_LINE
         end
     end
 end
@@ -65,23 +65,24 @@ macro compute(sqlquery, name, replace = false)
             final_compute($(esc(sqlquery)), mysql, $sql_cr_or_replace)
          else
              backend = current_sql_mode[]
-             print("$backend not yet supported")
+             print("$backend not yet supported") # COV_EXCL_LINE
         end
         
     end
 end
 
+# COV_EXCL_START
 """
 $docstring_write_file
 """
-function write_file(sqlquery, path::String=""; replace::Bool = false)
+function write_file(sqlquery, path::String="")
     backend = current_sql_mode[]
-    sq = sqlquery
     if backend == duckdb()
-        final_query = finalize_query(sq)
+        final_query = finalize_query(sqlquery)
         final_query = "copy($final_query) to '$path'"
-        DBInterface.execute(sq.db, final_query)
+        DBInterface.execute(sqlquery.db, final_query)
     else
-        print("$backend not yet supported")
+        print("$backend not yet supported") # COV_EXCL_LINE
     end
 end
+# COV_EXCL_END

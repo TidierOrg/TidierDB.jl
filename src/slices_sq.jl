@@ -196,19 +196,15 @@ macro slice_sample(sqlquery, n=1)
             # Define the sampling clause using RANDOM() for ordering
             sample_clause = "ROW_NUMBER() OVER (" * partition_by_clause * " ORDER BY RANDOM()) AS row_num"
 
-            # Construct the select clause for the sampling CTE
             #select_clause_for_sample = !isempty(sq.select) && sq.select != "*" ? sq.select * ", " * sample_clause : "*," * sample_clause
             select_clause_for_sample = !isempty(sq.select) && sq.select != "*" ?  " " * sample_clause : "*, " * sample_clause
 
-            # Create the sampling CTE
             sample_cte = CTE(name=sample_cte_name, select=select_clause_for_sample, from=sq.from)
             push!(sq.ctes, sample_cte)
 
-            # Construct the final query selecting from the sampling CTE where row numbers are within the sample size
             sq.from = sample_cte_name
             sq.where = "WHERE row_num <= " * string($n)
 
-            # Reset sq.select to select everything from the final CTE
             sq.select = "*"
         else
             error("Expected sqlquery to be an instance of SQLQuery") # COV_EXCL_LINE

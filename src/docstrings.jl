@@ -2191,7 +2191,8 @@ Write a local file to from sql_query. Only supports DuckDB at this time.
 
 # Arguments
 - `sql_query`: The SQL query
--  `path`: file path with file type suffix ie (path.csv, path.parquet, etc) 
+- `path`: file path with file type suffix ie "path.csv", "path.parquet", etc 
+
 # Examples
 ```jldoctest
 julia> db = connect(duckdb());

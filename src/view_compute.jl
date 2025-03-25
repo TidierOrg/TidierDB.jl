@@ -75,7 +75,7 @@ end
 """
 $docstring_write_file
 """
-function write_file(sqlquery, path::String="")
+function write_file(sqlquery::SQLQuery, path::String="")
     backend = current_sql_mode[]
     if backend == duckdb()
         final_query = finalize_query(sqlquery)

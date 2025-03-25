@@ -1,11 +1,12 @@
 # TidierDB.jl updates
-## v0.8.0 - 2025-02-12
+## v0.8.0 - 2025-03-24
 - adds `@transmute`
 - adds `@separate` and `@unite`
 - adds `@unnest_wider` + `@unnest_longer` and [docs](https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/unnesting) 
 - adds more ergonomic `dt` alias for `db_table`
 - bug fixes and [docs](https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/dates) around dates 
-- bumps DataFrames.jl compat to 1.7
+- change Google Sheets connection to `connect(db, :gsheets)`
+
 
 ## v0.7.1 - 2025-02-04
 - Prints queries in color by default (optional)

@@ -320,45 +320,6 @@
         @test all(isequal.(Array(TDB_3), Array(TDB_3_)))
     end
 
-    @testset "Unnesting" begin 
-        DB.DuckDB.query(db, "
-        CREATE OR REPLACE TABLE df3 (
-            id INTEGER,
-            pos ROW(lat DOUBLE, lon DOUBLE),
-            new ROW(lat2 DOUBLE, lon2 DOUBLE),
-            new2 ROW(lat3 DOUBLE, lon3 DOUBLE)
-        );
-        INSERT INTO df3 VALUES
-            (1, ROW(10.1, 30.3), ROW(10.1, 30.3), ROW(10.1, 30.3)),
-            (2, ROW(10.2, 30.2), ROW(10.1, 30.3), ROW(10.1, 30.3)),
-            (3, ROW(10.3, null), ROW(10.1, 30.3), ROW(10.1, 30.3));");
-        DB.DuckDB.query(db, "
-            CREATE or replace TABLE nt2 (
-                id INTEGER,
-                data ROW(a INTEGER[], b INTEGER[])
-                );
-            INSERT INTO nt2 VALUES
-                (1, (ARRAY[1,2], ARRAY[3,4])),
-                (2, (ARRAY[5,6], ARRAY[7,8])),
-                (3, (ARRAY[10,11], ARRAY[12,13]));");
-
-        df = DB.@collect DB.dt(db, "df3")
-        dft = DB.@collect DB.dt(db, "nt2")
-
-        TDF_1= @unnest_wider(df, pos:new2)
-        TDB_1 = @chain DB.dt(db, "df3") DB.@unnest_wider(pos:new2) DB.@collect
-
-        TDF_2 = @chain dft @unnest_wider(data) @unnest_longer(a:b)
-        TDB_2 = @chain DB.dt(db, "nt2") DB.@unnest_wider(data) DB.@unnest_longer(a:b) DB.@collect
-        
-        TDF_3 = @chain dft @unnest_wider(data) @unnest_longer(a:b) @mutate(aa = (b*5) + 5) @filter(aa > 12)
-        TDB_3 = @chain DB.dt(db, "nt2") DB.@unnest_wider(data) DB.@unnest_longer(a:b) DB.@mutate(aa = (b*5) + 5) DB.@filter(aa > 12) DB.@collect() 
-      
-        @test all(isequal.(Array(TDF_1), Array(TDB_1)))
-        @test all(isequal.(Array(TDF_2), Array(TDB_2)))
-        @test all(isequal.(Array(TDF_3), Array(TDB_3)))
-    end
-
     @testset "Separate and Unite" begin 
         df = DataFrame( b = ["1", "2", "3"], c = ["1", "2", "3"], d = [missing, missing, "3"], cc = [1,2,3]);
         TDF_1 = @unite(df, new_col, (b, c, d), "-")

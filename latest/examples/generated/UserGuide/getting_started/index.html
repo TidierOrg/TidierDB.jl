@@ -16,11 +16,11 @@
         <link rel="prev" href="../key_differences/">
       
       
-        <link rel="next" href="../agg_window/">
+        <link rel="next" href="../file_reading/">
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8608ea7d.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.4af4bdda.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -415,6 +415,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../file_reading/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    File Reading
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ex_joining/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Joining Tables
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../agg_window/" class="md-nav__link">
         
   
@@ -462,27 +504,6 @@
   
   <span class="md-ellipsis">
     Reusing a Query (and Views)
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../ex_joining/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Joining Tables
     
   </span>
   
@@ -897,7 +918,7 @@
 <p>!Tip: <code>t()</code> is an alias for <code>from_query</code> This means after saving the results of <code>dt</code>, use <code>t(table)</code> to refer to the table or prior query</p>
 </blockquote>
 <div class="highlight"><pre><span></span><code><span class="n">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">dt</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;path&quot;</span><span class="p">)</span>
-<span class="nd">@chain</span><span class="w"> </span><span class="n">DB</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="c">## data wrangling here</span>
 <span class="k">end</span>
 </code></pre></div>
@@ -955,13 +976,13 @@
         
         
           
-          <a href="../agg_window/" class="md-footer__link md-footer__link--next" aria-label="Next: Aggregate and Window Functions">
+          <a href="../file_reading/" class="md-footer__link md-footer__link--next" aria-label="Next: File Reading">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Aggregate and Window Functions
+                File Reading
               </div>
             </div>
             <div class="md-footer__button md-icon">

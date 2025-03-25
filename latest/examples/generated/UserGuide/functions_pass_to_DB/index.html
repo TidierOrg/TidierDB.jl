@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8608ea7d.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.4af4bdda.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -333,6 +333,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../file_reading/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    File Reading
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ex_joining/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Joining Tables
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../agg_window/" class="md-nav__link">
         
   
@@ -380,27 +422,6 @@
   
   <span class="md-ellipsis">
     Reusing a Query (and Views)
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../ex_joining/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Joining Tables
     
   </span>
   
@@ -831,7 +852,7 @@
 <p>Variables are interpoated using <code>@eval</code> and <code>$</code>. Place <code>@eval</code> before you begin the chain or call a TidierDb macro Why Use @eval? In Julia, macros like @filter are expanded at parse time, before runtime variables like vals are available. By using @eval, we force the expression to be evaluated at runtime, allowing us to interpolate the variable into the macro.</p>
 <div class="highlight"><pre><span></span><code><span class="n">num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
 <span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:id</span><span class="p">;</span>
-<span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">dfv</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">        </span><span class="nd">@filter</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">$</span><span class="n">num</span><span class="p">)</span>
 <span class="w">        </span><span class="nd">@select</span><span class="p">(</span><span class="o">$</span><span class="n">column</span><span class="p">)</span>
 <span class="w">        </span><span class="nd">@collect</span>
@@ -845,7 +866,7 @@
 <h2 id="function-set-up">Function set up<a class="headerlink" href="#function-set-up" title="Permanent link">¤</a></h2>
 <p>Begin by defining your function as your normally would, but before <code>@chain</code> you need to use <code>@eval</code>. For the variables to be interpolated in need to be started with <code>$</code></p>
 <div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="n">test</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span><span class="w"> </span><span class="n">cols</span><span class="p">)</span>
-<span class="w">    </span><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">dfv</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">        </span><span class="nd">@filter</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">$</span><span class="n">vals</span><span class="p">)</span>
 <span class="w">        </span><span class="nd">@select</span><span class="p">(</span><span class="o">$</span><span class="n">cols</span><span class="p">)</span>
 <span class="w">        </span><span class="nd">@collect</span>
@@ -868,7 +889,7 @@
 
 <p>Defineing a new function</p>
 <div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="n">gs</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span><span class="w"> </span><span class="n">aggs</span><span class="p">,</span><span class="w"> </span><span class="n">new_name</span><span class="p">,</span><span class="w"> </span><span class="n">threshold</span><span class="p">)</span>
-<span class="w">    </span><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">dfv</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">        </span><span class="nd">@group_by</span><span class="p">(</span><span class="o">$</span><span class="n">groups</span><span class="p">)</span>
 <span class="w">        </span><span class="nd">@summarize</span><span class="p">(</span><span class="o">$</span><span class="n">new_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="o">$</span><span class="n">aggs</span><span class="p">))</span>
 <span class="w">        </span><span class="nd">@filter</span><span class="p">(</span><span class="o">$</span><span class="n">new_name</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">$</span><span class="n">threshold</span><span class="p">)</span>
@@ -901,7 +922,7 @@
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">qry</span>
 <span class="k">end</span><span class="p">;</span>
 
-<span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">dfv</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="n">moving_aggs</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">:groups</span><span class="p">,</span><span class="w"> </span><span class="ss">:percent</span><span class="p">,</span><span class="w"> </span><span class="ss">:value</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@filter</span><span class="w"> </span><span class="n">value_mean</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">2.75</span>
 <span class="w">    </span><span class="nd">@aside</span><span class="w"> </span><span class="nd">@show_query</span><span class="w"> </span><span class="n">_</span>
@@ -912,7 +933,7 @@
 <div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th><th style = "text-align: left;">value_minimum</th><th style = "text-align: left;">value_maximum</th><th style = "text-align: left;">value_mean</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">AB</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.2</td><td style = "text-align: right;">2</td><td style = "text-align: right;">4</td><td style = "text-align: right;">3.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">AH</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.8</td><td style = "text-align: right;">1</td><td style = "text-align: right;">5</td><td style = "text-align: right;">3.25</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">AJ</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">5</td><td style = "text-align: right;">1.0</td><td style = "text-align: right;">1</td><td style = "text-align: right;">5</td><td style = "text-align: right;">3.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">AC</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.3</td><td style = "text-align: right;">1</td><td style = "text-align: right;">5</td><td style = "text-align: right;">3.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">AG</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.7</td><td style = "text-align: right;">2</td><td style = "text-align: right;">5</td><td style = "text-align: right;">3.5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">AI</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.9</td><td style = "text-align: right;">2</td><td style = "text-align: right;">5</td><td style = "text-align: right;">3.66667</td></tr></tbody></table></div>
 
 <p>Filtering before the window functions</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">dfv</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@filter</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">&gt;=</span><span class="mi">2</span><span class="w"> </span><span class="p">)</span>
 <span class="w">    </span><span class="n">moving_aggs</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">:groups</span><span class="p">,</span><span class="w"> </span><span class="ss">:percent</span><span class="p">,</span><span class="w"> </span><span class="ss">:value</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@aside</span><span class="w"> </span><span class="nd">@show_query</span><span class="w"> </span><span class="n">_</span>
@@ -926,11 +947,11 @@
 <p><a id='Interpolating-Queries-1'></a></p>
 <h2 id="interpolating-queries">Interpolating Queries<a class="headerlink" href="#interpolating-queries" title="Permanent link">¤</a></h2>
 <p>To use a prior, uncollected TidierDB query in other TidierDB macros, interpolate the needed query without showing or collecting it</p>
-<div class="highlight"><pre><span></span><code><span class="n">ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
+<div class="highlight"><pre><span></span><code><span class="n">ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">dfv</span><span class="w"> </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
 </code></pre></div>
 <p>The mean value represented in SQL from the above is 3</p>
 <p>With <code>@filter</code></p>
-<div class="highlight"><pre><span></span><code><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">dfv</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@filter</span><span class="p">(</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">$</span><span class="n">ok</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@collect</span>
 <span class="k">end</span>
@@ -939,7 +960,7 @@
 <div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">AD</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.4</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">AE</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">5</td><td style = "text-align: right;">0.5</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">AI</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.9</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">AJ</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">5</td><td style = "text-align: right;">1.0</td></tr></tbody></table></div>
 
 <p>With <code>@mutate</code></p>
-<div class="highlight"><pre><span></span><code><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">dfv</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">value2</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">$</span><span class="n">ok</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@collect</span>
 <span class="k">end</span>
@@ -948,7 +969,7 @@
 <div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">id</th><th style = "text-align: left;">groups</th><th style = "text-align: left;">value</th><th style = "text-align: left;">percent</th><th style = "text-align: left;">value2</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">AA</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.1</td><td style = "text-align: right;">4.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">AB</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.2</td><td style = "text-align: right;">5.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">AC</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.3</td><td style = "text-align: right;">6.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">AD</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.4</td><td style = "text-align: right;">7.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">AE</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">5</td><td style = "text-align: right;">0.5</td><td style = "text-align: right;">8.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">AF</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">1</td><td style = "text-align: right;">0.6</td><td style = "text-align: right;">4.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">7</td><td style = "text-align: left;">AG</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">2</td><td style = "text-align: right;">0.7</td><td style = "text-align: right;">5.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">8</td><td style = "text-align: left;">AH</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">3</td><td style = "text-align: right;">0.8</td><td style = "text-align: right;">6.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">9</td><td style = "text-align: left;">AI</td><td style = "text-align: left;">bb</td><td style = "text-align: right;">4</td><td style = "text-align: right;">0.9</td><td style = "text-align: right;">7.0</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">10</td><td style = "text-align: left;">AJ</td><td style = "text-align: left;">aa</td><td style = "text-align: right;">5</td><td style = "text-align: right;">1.0</td><td style = "text-align: right;">8.0</td></tr></tbody></table></div>
 
 <p>With <code>@summarize</code></p>
-<div class="highlight"><pre><span></span><code><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">dfv</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@eval</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">dfv</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">mean</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">$</span><span class="n">ok</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@collect</span>
 <span class="k">end</span>

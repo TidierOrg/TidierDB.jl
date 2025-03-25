@@ -5,6 +5,9 @@ macro window_order(sqlquery, order_by_expr...)
 
     return quote
         sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+
         if isa(sq, SQLQuery)
             # Convert order_by_expr to SQL order by string
             order_specs = String[]
@@ -94,8 +97,9 @@ macro window_frame(sqlquery, args...)
 
     # Now generate the code that computes the frame clauses at runtime
     return quote
-        #sq = $sqlquery_expr
         sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
 
         if isa(sq, SQLQuery)
             # Evaluate frame_from_value and frame_to_value

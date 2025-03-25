@@ -645,7 +645,18 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
                     else
                         error("Invalid function expression: $elem")
                     end
-                # Check if the string contains a colon for range specification
+                   elseif startswith(elem, ":") 
+                        col = replace(elem, ":" => "")
+                        local_cols = all_columns
+                        if current_sql_mode[] == snowflake()
+                            col = uppercase(col)
+                            local_cols = uppercase.(local_cols)
+                        end
+                        idx = findfirst(==(col), local_cols)
+                        if isnothing(idx)
+                            error("Column not found: $col")
+                        end
+                        push!(final_columns, local_cols[idx])
                     elseif occursin(":", elem)
                         parts = split(elem, ":")
                         start_col, end_col = parts[1], parts[2]

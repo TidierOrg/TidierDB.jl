@@ -4,7 +4,9 @@ function gbq_join_parse(input)
     if current_sql_mode[] == gbq() && length(parts) >=2
         return parts[end]
     elseif occursin(".", input)
-            if  occursin(r"[:/]", input)
+            if occursin(" AS ", input)
+                return split(input, "AS ")[end]
+            elseif  occursin(r"[:/]", input)
                 return split(basename(input), '.')[1]
             else
                 return split(input, '.')[end]
@@ -336,7 +338,12 @@ macro left_join(sqlquery, join_table, expr... )
 
     return quote
         sq = $(esc(sqlquery))
-        jq = $(esc(join_table))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+
+        jq = isa($(esc(join_table)), SQLQuery) ? t($(esc(join_table))) : $(esc(join_table)) 
+
+ 
         do_join(
             "LEFT",
             sq,
@@ -372,8 +379,12 @@ macro right_join(sqlquery, join_table, expr... )
 
     return quote
         sq = $(esc(sqlquery))
-        jq = $(esc(join_table))
-        do_join(
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        
+        jq = isa($(esc(join_table)), SQLQuery) ? t($(esc(join_table))) : $(esc(join_table)) 
+
+         do_join(
             "RIGHT",
             sq,
             jq,
@@ -407,8 +418,12 @@ macro inner_join(sqlquery, join_table, expr... )
 
     return quote
         sq = $(esc(sqlquery))
-        jq = $(esc(join_table))
-        do_join(
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+
+        jq = isa($(esc(join_table)), SQLQuery) ? t($(esc(join_table))) : $(esc(join_table)) 
+
+         do_join(
             "INNER",
             sq,
             jq,
@@ -444,7 +459,12 @@ macro full_join(sqlquery, join_table, expr... )
 
     return quote
         sq = $(esc(sqlquery))
-        jq = $(esc(join_table))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        
+        jq = isa($(esc(join_table)), SQLQuery) ? t($(esc(join_table))) : $(esc(join_table)) 
+
+         
         do_join(
             "FULL",
             sq,
@@ -479,7 +499,12 @@ macro semi_join(sqlquery, join_table, expr... )
 
     return quote
         sq = $(esc(sqlquery))
-        jq = $(esc(join_table))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+
+        jq = isa($(esc(join_table)), SQLQuery) ? t($(esc(join_table))) : $(esc(join_table)) 
+
+         
         do_join(
             "SEMI",
             sq,
@@ -515,8 +540,12 @@ macro anti_join(sqlquery, join_table, expr... )
 
     return quote
         sq = $(esc(sqlquery))
-        jq = $(esc(join_table))
-        do_join(
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+
+        jq = isa($(esc(join_table)), SQLQuery) ? t($(esc(join_table))) : $(esc(join_table)) 
+       
+          do_join(
             "ANTI",
             sq,
             jq,

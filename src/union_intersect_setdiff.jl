@@ -93,9 +93,14 @@ macro union(sqlquery, union_query, args...)
         end
     end
     return quote
+        sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        uq = isa($(esc(union_query)), String) ? $(esc(union_query)) : t($(esc(union_query))) 
+ 
         perform_set_operation(
-            $(esc(sqlquery)),
-            $(esc(union_query)),
+            sq,
+            uq,
             "UNION";
             all = $(all_flag)
         )
@@ -107,9 +112,14 @@ $docstring_union_all
 """
 macro union_all(sqlquery, union_query)
     return quote
+        sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        uq = isa($(esc(union_query)), String) ? $(esc(union_query)) : t($(esc(union_query))) 
+ 
         perform_set_operation(
-            $(esc(sqlquery)),
-            $(esc(union_query)),
+            sq,
+            uq,
             "UNION";  # We'll let the function append " ALL"
             all = true
         )
@@ -131,9 +141,14 @@ macro intersect(sqlquery, union_query, args...)
     end
 
     return quote
+        sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        uq = isa($(esc(union_query)), String) ? $(esc(union_query)) : t($(esc(union_query))) 
+ 
         perform_set_operation(
-            $(esc(sqlquery)),
-            $(esc(union_query)),
+            sq,
+            uq,
             "INTERSECT";
             all = $(all_flag)
         )
@@ -155,9 +170,15 @@ macro setdiff(sqlquery, union_query, args...)
     end
 
     return quote
+        sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        uq = isa($(esc(union_query)), String) ? $(esc(union_query)) : t($(esc(union_query))) 
+ 
+        
         perform_set_operation(
-            $(esc(sqlquery)),
-            $(esc(union_query)),
+            sq,
+            uq,
             "EXCEPT";
             all = $(all_flag)
         )

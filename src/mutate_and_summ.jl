@@ -117,6 +117,9 @@ macro mutate(sqlquery, mutations...)
 
     return quote
         sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
 
@@ -290,6 +293,8 @@ macro summarize(sqlquery, expressions...)
 
     return quote
         sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
         if isa(sq, SQLQuery)
             summary_str = String[]
             sq.metadata.current_selxn .= 0
@@ -379,6 +384,8 @@ macro transmute(sqlquery, mutations...)
 
     return quote
         sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
 

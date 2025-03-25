@@ -16,7 +16,8 @@
 # `dt(db, "Path/to/folder/*.parquet")`
 # Of note, reading these files from URLs is not as rapid as reading them from local files. 
 # ```julia
-# @chain dt(db, urls) begin
+# astro = dt(db, urls)
+# @chain astro begin
 #     @group_by(horoscope)
 #     @summarise(count = n(), avg_blog_length = mean(length(text)))
 #     @arrange(desc(count))

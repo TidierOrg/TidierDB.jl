@@ -10,7 +10,7 @@ dates = dt(db, dates_df, "dates_df");
 #   - `year(date_col)`
 # - To add date intervals, similar to Dates.jl, use the date part but with a capital first letter.
 #   - `+ Year(4)`
-@chain t(dates) begin 
+@chain dates begin 
     @mutate(dates2 = ymd(date_strings) + Month(4) + Year(1) - Day(10))
     @mutate begin 
         months = month(dates2)

@@ -65,7 +65,7 @@
 # > `t()` is an alias for `from_query` This means after saving the results of `dt`, use `t(table)` to refer to the table or prior query 
 # ```julia
 # table = DB.dt(con, "path")
-# @chain DB.t(table) begin
+# @chain table begin
 #     ## data wrangling here 
 # end 
 # ```

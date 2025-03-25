@@ -52,7 +52,7 @@
 # ```
 # TidierDB
 # ```julia
-# @chain t(mtcars) @head(6) @collect
+# @chain mtcars @head(6) @collect
 # ```
 # ```
 # 6×12 DataFrame
@@ -89,7 +89,7 @@
 # ```
 # TidierDB
 # ```julia
-# @chain t(mtcars) begin
+# @chain mtcars begin
 #        @filter((mpg > 22 && drat > 4) || hp == 113)
 #        @collect
 # end
@@ -139,7 +139,7 @@
 # ```
 # TidierDB
 # ```julia
-# @chain t(mtcars) begin 
+# @chain mtcars begin 
 #        @mutate(kpg = mpg * 1.61)
 #        @select(model, kpg)
 #        @collect
@@ -196,7 +196,7 @@
 
 # TidierDB
 # ```
-# @chain t(mtcars) @arrange(mpg) @collect
+# @chain mtcars @arrange(mpg) @collect
 # ```
 # ```
 # 32×12 DataFrame
@@ -249,7 +249,7 @@
 
 # TidierDB
 # ```julia
-# @chain t(mtcars) @select(starts_with("m"), "drat", wt) @collect
+# @chain mtcars @select(starts_with("m"), "drat", wt) @collect
 # ```
 # ```
 # 32×4 DataFrame
@@ -295,7 +295,7 @@
 
 # TidierDB
 # ```julia
-# @chain t(mtcars) begin
+# @chain mtcars begin
 #     @group_by(cyl)
 #     @summarize(total_hp = sum(hp),
 #                avg_hp = avg(hp))
@@ -340,7 +340,7 @@
 # ```
 # TidierDB
 # ```julia
-# @chain t(mtcars) @rename(model_make = model) @select(model_make) @collect
+# @chain mtcars @rename(model_make = model) @select(model_make) @collect
 # ```
 # ```
 # 32×1 DataFrame

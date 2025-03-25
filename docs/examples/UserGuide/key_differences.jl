@@ -27,7 +27,7 @@ dfv = dt(db, df, "dfv"); # create a view (not a copy) of the dataframe on a in-m
 
 # In TidierDB, when performing `@group_by` then `@mutate`, the table will be ungrouped after applying all of the mutations in the clause to the grouped data. To perform subsequent grouped operations, the user would have to regroup the data. This is demonstrated below.
 
-@chain t(dfv) begin
+@chain dfv begin
     @group_by(groups)
     @mutate(mean_percent = mean(percent))
     @collect
@@ -35,7 +35,7 @@ dfv = dt(db, df, "dfv"); # create a view (not a copy) of the dataframe on a in-m
 
 # Regrouping following `@mutate`
 
-@chain t(dfv) begin
+@chain dfv begin
     @group_by(groups)
     @mutate(max = maximum(percent), min = minimum(percent))
     @group_by(groups)
@@ -45,7 +45,7 @@ end
 
 # TidierDB also supports `_by` for grouping directly within a mutate clause (a feature coming to TidierData in the the future)
 
-@chain t(dfv) begin
+@chain dfv begin
     @mutate(mean_percent = mean(percent),
         _by = groups)
     @collect
@@ -56,7 +56,7 @@ end
 # In TidierDB, after the clause is completed, the result for the new column should is separated by a comma `,`
 # in contrast to TidierData.jl, where the result for the new column is separated by a `=>` .
 
-@chain t(dfv) begin
+@chain dfv begin
     @mutate(new_col = case_when(percent > .5, "Pass",  # in TidierData, percent > .5 => "Pass", 
                                 percent <= .5, "Try Again", # percent <= .5 => "Try Again"
                                 true, "middle"))

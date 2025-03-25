@@ -11,17 +11,17 @@ dfv = dt(db, df, "df_view");
 bino = (a, b) -> (a + b) * (a + b)
 fun = DuckDB.@create_scalar_function bino(a::Int, b::Int)::Int
 DuckDB.register_scalar_function(db, fun)
-@chain t(dfv) @mutate(c = bino(a, b)) @collect
+@chain dfv @mutate(c = bino(a, b)) @collect
 
 # Notably, when the function is redefined (with the same arguments) in julia, the DuckDB UDF representation will change as well.
 bino = (a, b) -> (a + b) * (a - b)
-@chain t(dfv) @mutate(c = bino(a, b)) @collect
+@chain dfv @mutate(c = bino(a, b)) @collect
 
 # ##  DuckDB function chaining
 # In DuckDB, functions can be chained together with `.`. TidierDB lets you leverage this.
 mtcars_path = "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv";
 mtcars = dt(db, mtcars_path);
-@chain t(mtcars) begin 
+@chain mtcars begin 
     @mutate(model2 = model.upper().string_split(" ").list_aggr("string_agg",".").concat("."))
     @select model model2
     @head() 

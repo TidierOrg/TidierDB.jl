@@ -24,7 +24,7 @@ julia> db = connect(duckdb());
 
 julia> df_mem = dt(db, df, "df_view");
 
-julia> @chain t(df_mem) begin
+julia> @chain df_mem begin
          @select(groups:percent)
          @collect
        end
@@ -43,7 +43,7 @@ julia> @chain t(df_mem) begin
    9 │ bb          4      0.9
   10 │ aa          5      1.0
 
-julia> @chain t(df_mem) begin
+julia> @chain df_mem begin
          @select(contains("e"))
          @collect
        end
@@ -826,7 +826,7 @@ need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query::SQLQuery`: The primary SQL query to operate on.
-- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table.
+- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table. Table that exist on the database already should be written as a string of the name
 - `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
 - `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
@@ -844,7 +844,7 @@ julia> db = connect(duckdb());
 
 julia> dfm = dt(db, df, "df_mem"); dfj = dt(db, df2, "df_join");
 
-julia> @chain t(dfm) begin
+julia> @chain dfm begin
          @left_join(t(dfj), id == id2 )
          @collect
        end
@@ -867,7 +867,7 @@ julia> query = @chain dt(db, "df_join") begin
                   @filter(score > 85) # only show scores above 85 in joining table
                 end;
 
-julia> @chain t(dfm) begin
+julia> @chain dfm begin
          @left_join(t(query), id == id2)
          @collect
        end
@@ -886,14 +886,14 @@ julia> @chain t(dfm) begin
    9 │ AH      aa          3      0.8  missing   missing 
   10 │ AJ      aa          5      1.0  missing   missing 
 
-julia>  @chain t(dfm) begin
+julia>  @chain dfm begin
          @mutate(test = percent * 100)
          @left_join(t(dfj), test <= score, id = id2)
          @collect
        end;
 
 
-julia>  @chain t(dfm) begin
+julia>  @chain dfm begin
          @mutate(test = percent * 200)
          @left_join(t(dfj), closest(test >= score)) # asof join
          @collect
@@ -914,7 +914,7 @@ need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
-- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table.
+- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table. Table that exist on the database already should be written as a string of the name
 - `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
 - `new_table_col`: Column from the new table that matches for join.  Accepts columnss as bare column names or strings
 
@@ -950,7 +950,7 @@ julia> @chain dt(db, df, "df_view") begin
    6 │ AK      missing  missing  missing    Y            68
    7 │ AM      missing  missing  missing    X            74
 
-julia> query = @chain t(dfj) begin
+julia> query = @chain dfj begin
                   @filter(score >= 74) # only show scores above 85 in joining table
                 end;
 
@@ -984,7 +984,7 @@ need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
-- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table.
+- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table. Table that exist on the database already should be written as a string of the name
 - `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
 - `new_table_col`: Column from the new table that matches for join.  Accepts columns as bare column names or strings
 # Examples
@@ -1031,7 +1031,7 @@ need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
-- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table.
+- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table. Table that exist on the database already should be written as a string of the name
 - `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
 - `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
@@ -1085,7 +1085,7 @@ need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
-- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table.
+- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table. Table that exist on the database already should be written as a string of the name
 - `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
 - `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
@@ -1133,7 +1133,7 @@ need to be separated by commas, ie `closest(key >= key2), key3 == key3`
 
 # Arguments
 - `sql_query`: The primary SQL query to operate on.
-- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table.
+- `join_table::{SQLQuery, String}`: The secondary SQL table to join with the primary query table. Table that exist on the database already should be written as a string of the name
 - `orignal_table_col`: Column from the original table that matches for join.  Accepts cols as bare column names or strings 
 - `new_table_col`: Column from the new table that matches for join.  Accepts cols as bare column names or strings
 # Examples
@@ -1286,21 +1286,21 @@ julia> db = connect(duckdb());
 
 julia> df_mem = dt(db, df, "df_view");
 
-julia> @chain t(df_mem) begin
+julia> @chain df_mem begin
         @group_by groups
         @window_frame(3)
         @mutate(avg = mean(percent))
         #@show_query
        end;
 
-julia> @chain t(df_mem) begin
+julia> @chain df_mem begin
         @group_by groups
         @window_frame(-3, 3)
         @mutate(avg = mean(percent))
         #@show_query
        end;
 
-julia> @chain t(df_mem) begin
+julia> @chain df_mem begin
         @group_by groups
         @window_frame(to = -3)
         @mutate(avg = mean(percent))
@@ -1308,7 +1308,7 @@ julia> @chain t(df_mem) begin
         @collect
        end;
 
-julia> @chain t(df_mem) begin
+julia> @chain df_mem begin
         @group_by groups
         @window_frame(from = -3)
         @mutate(avg = mean(percent))
@@ -1386,6 +1386,7 @@ to allow `db_table` to read the db tables.
      - DuckDB and ClickHouse support vectors of paths and URLs. 
      - DuckDB and ClickHouse also support use of `*` wildcards to read all files of a type in a location such as:
         - `db_table(db, "Path/to/testing_files/*.parquet")`
+     - Use any DuckDB reader "read_csv('file_path', additional arguments allowed)" . 
 - `delta`: must be true to read delta files
 - `iceberg`: must be true to read iceberg finalize_ctes
 - `alias`: optional argument when using a `*` wildcard in a file path, that allows user to determine an alias for the data being read in. If empty, it will refer to table as `data`.
@@ -1517,24 +1518,7 @@ julia> db = connect(duckdb());
 
 julia> dfm = dt(db, df, "df");
 
-
-julia> @chain t(dfm) @collect
-10×4 DataFrame
- Row │ id      groups  value  percent 
-     │ String  String  Int64  Float64 
-─────┼────────────────────────────────
-   1 │ AA      bb          1      0.1
-   2 │ AB      aa          2      0.2
-   3 │ AC      bb          3      0.3
-   4 │ AD      aa          4      0.4
-   5 │ AE      bb          5      0.5
-   6 │ AF      aa          1      0.6
-   7 │ AG      bb          2      0.7
-   8 │ AH      aa          3      0.8
-   9 │ AI      bb          4      0.9
-  10 │ AJ      aa          5      1.0
-
-julia> query_part =  @chain t(df_mem) @select groups:percent; 
+julia> query_part =  @chain df_mem @select groups:percent; 
 
 julia> @chain t(query_part) @filter(value == 4) @collect
 2×3 DataFrame
@@ -1582,7 +1566,7 @@ julia> df1_table = dt(db, df1, "df1");
 
 julia> df2_table = dt(db, df2, "df2");
 
-julia> @chain t(df1_table) @union(df2_table) @collect
+julia> @chain df1_table @union(df2_table) @collect
 6×2 DataFrame
  Row │ id     value 
      │ Int64  Int64 
@@ -1594,7 +1578,7 @@ julia> @chain t(df1_table) @union(df2_table) @collect
    5 │     5     50
    6 │     6     60
 
-julia> @chain t(df1_table) begin 
+julia> @chain df1_table begin 
         @union("df1", all = false)
         @collect
        end
@@ -1606,7 +1590,7 @@ julia> @chain t(df1_table) begin
    2 │     2     20
    3 │     3     30
 
-julia> @chain t(df1_table) begin 
+julia> @chain df1_table begin 
         @union("df1", all = true) 
         @collect
        end
@@ -1621,9 +1605,9 @@ julia> @chain t(df1_table) begin
    5 │     2     20
    6 │     3     30
 
-julia> query = @chain t(df2_table) @filter(value == 50);
+julia> query = @chain df2_table @filter(value == 50);
 
-julia> @chain t(df1_table) begin 
+julia> @chain df1_table begin 
         @mutate(id = id + 5)
         @filter(id > 6)
         @union(t(query))
@@ -1660,7 +1644,7 @@ julia> df1 = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
 julia> df1_table = dt(db, df1, "df1");
 
-julia> @chain t(df1_table) @union_all(df1_table) @collect
+julia> @chain df1_table @union_all(df1_table) @collect
 6×2 DataFrame
  Row │ id     value 
      │ Int64  Int64 
@@ -1702,7 +1686,7 @@ julia> df1_table = dt(db, df1, "df1");
 
 julia> df2_table = dt(db, df2, "df2"); 
 
-julia> @chain t(df1_table) @intersect(df2_table) @collect
+julia> @chain df1_table @intersect(df2_table) @collect
 2×2 DataFrame
  Row │ id     name    
      │ Int64  String  
@@ -1710,7 +1694,7 @@ julia> @chain t(df1_table) @intersect(df2_table) @collect
    1 │     2  Bob
    2 │     3  Charlie
 
-julia> @chain t(df1_table) @intersect(df2_table, all = true) @arrange(desc(id)) @collect
+julia> @chain df1_table @intersect(df2_table, all = true) @arrange(desc(id)) @collect
 3×2 DataFrame
  Row │ id     name    
      │ Int64  String  
@@ -1749,7 +1733,7 @@ julia> df1_table = dt(db, df1, "df1");
 
 julia> df2_table = dt(db, df2, "df2");
 
-julia> @chain t(df1_table) @setdiff(df2_table) @collect
+julia> @chain df1_table @setdiff(df2_table) @collect
 2×2 DataFrame
  Row │ id     name   
      │ Int64  String 
@@ -1757,7 +1741,7 @@ julia> @chain t(df1_table) @setdiff(df2_table) @collect
    1 │     1  Alice
    2 │     4  David
 
-julia> @chain t(df1_table) @setdiff(df2_table, all = true) @collect
+julia> @chain df1_table @setdiff(df2_table, all = true) @collect
 3×2 DataFrame
  Row │ id     name   
      │ Int64  String 
@@ -1823,7 +1807,7 @@ Creates a remote table on database memory from a SQL query. Currently supports D
 
 
 # Arguments
-- `sql_query`: The SQL query to create a table from.
+- `sql_query`: The SQL query
 - `name`: The name of the table to create.
 - `replace`: defaults to false if table should be replaced if it already exists.
 
@@ -1870,7 +1854,7 @@ const docstring_relocate =
 Rearranges the columns in the queried table. This function allows for moving specified columns to a new position within the table, either before or after a given target column. The `columns`, `before`, and `after` arguments all accept tidy selection functions. Only one of `before` or `after` should be specified. If neither are specified, the selected columns will be moved to the beginning of the table.
 
 # Arguments
-- `sql_query`: The SQL query to create a table from.
+- `sql_query`: The SQL query 
 - `columns`: Column or columns to to be moved.
 - `before`: (Optional) Column or columns before which the specified columns will be moved. If not provided or `nothing`, this argument is ignored.
 - `after`: (Optional) Column or columns after which the specified columns will be moved. If not provided or `nothing`, this argument is ignored. 
@@ -2029,8 +2013,8 @@ const docstring_unnest_wider =
 Unnests a nested column into wider format. This function takes a column containing nested structures (e.g., rows or arrays) and expands it into separate columns.
 
 # Arguments
+- `sql_query`: The SQL query
 - `column`: The column containing nested structures to be unnested.
-- `sql_query`: The SQL query to create a table from.
 
 # Examples
 ```jldoctest
@@ -2057,6 +2041,17 @@ julia> @chain dt(db, :df3) begin
    1 │     1     10.1     30.3
    2 │     2     10.2     30.2
    3 │     3     10.3     30.1 
+julia> @chain dt(db, :df3) begin
+            @unnest_wider(pos, names_sep = "_")
+            @collect
+       end
+3×3 DataFrame
+ Row │ id     pos_lat  pos_lon 
+     │ Int32  Float64  Float64 
+─────┼─────────────────────────
+   1 │     1     10.1     30.3
+   2 │     2     10.2     30.2
+   3 │     3     10.3     30.1
 ```
 """
 
@@ -2067,7 +2062,7 @@ const docstring_unnest_longer =
 Unnests specified columns into longer format. This function takes multiple columns containing arrays or other nested structures and expands them into a longer format, where each element of the arrays becomes a separate row.
 
 # Arguments
-- `sql_query`: The SQL query to create a table from.
+- `sql_query`: The SQL query 
 - `columns...`: One or more columns containing arrays or other nested structures to be unnested.
 
 # Examples
@@ -2118,4 +2113,92 @@ julia> @chain dt(db, :nt) begin
    6 │     3       10     12
    7 │     3       11     13
 ```
+"""
+
+const docstring_unite =
+"""
+      @unite(sql_query, new_cols, from_cols, sep, remove = true)
+
+Separate a multiple columns into one new columns using a specific delimter
+
+# Arguments
+- `sql_query`: The SQL query
+- `new_col`: New column that will recieve the combination
+- `from_cols`: Column names that it will combine, supports [] or ()
+- `sep`: the string or character that will separate the values in the new column
+
+# Examples
+```jldoctest
+julia> db = connect(duckdb());
+
+julia> df = DataFrame( b = ["1", "2", "3"], c = ["1", "2", "3"], d = [missing, missing, "3"]);
+
+julia> @chain dt(db, df, "df") @unite(new_col, (b, c, d), "-") @collect
+3×1 DataFrame
+ Row │ new_col 
+     │ String  
+─────┼─────────
+   1 │ 1-1
+   2 │ 2-2
+   3 │ 3-3-3
+```
+"""
+
+const docstring_separate =
+"""
+      @separate(sql_query, from_col, into_cols, sep)
+
+Separate a string column into mulitiple new columns based on a specified delimter 
+
+# Arguments
+- `sql_query`: The SQL query
+- `from_col`: Column that will be split
+- `into_cols`: New column names, supports [] or ()
+- `sep`: the string or character on which to split
+
+# Examples
+```jldoctest
+julia> db = connect(duckdb());
+
+julia> df = DataFrame(a = ["1-1", "2-2", "3-3-3"]); 
+
+julia> @chain dt(db, df, "df") @separate(a, [b, c, d], "-") @collect
+3×3 DataFrame
+ Row │ b       c       d       
+     │ String  String  String? 
+─────┼─────────────────────────
+   1 │ 1       1       missing 
+   2 │ 2       2       missing 
+   3 │ 3       3       3
+
+julia> @chain dt(db, df, "df") @separate( a, [c, d], "-") @collect
+3×2 DataFrame
+ Row │ c       d      
+     │ String  String 
+─────┼────────────────
+   1 │ 1       1
+   2 │ 2       2
+   3 │ 3       3-3
+```
+"""
+
+
+const docstring_write_file =
+"""
+     write_file(sql_query, path)
+
+Write a local file to from sql_query. Only supports DuckDB at this time.
+
+# Arguments
+- `sql_query`: The SQL query
+- `path`: file path with file type suffix ie "path.csv", "path.parquet", etc 
+
+# Examples
+```jldoctest
+julia> db = connect(duckdb());
+
+julia> df = DataFrame(a = ["1-1", "2-2", "3-3-3"]); 
+
+julia> @chain dt(db, df, "df") @filter(a == "2-2") write_file("test.parquet")
+(Count = [1],)
 """

@@ -11,6 +11,7 @@ mutable struct CTE
 end
 
 mutable struct SQLQuery
+    post_first::Bool
     select::String
     from::String
     where::String
@@ -32,22 +33,20 @@ mutable struct SQLQuery
     ch_settings::String
     join_count::Int
     post_unnest::Bool
-    function SQLQuery(;select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
+    function SQLQuery(;post_first = true, select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
         window_order::String="", windowFrame::String="", is_aggregated::Bool=false, post_aggregation::Bool=false, post_join::Bool=false, metadata::DataFrame=DataFrame(), 
         distinct::Bool=false, db::Any=nothing, ctes::Vector{CTE}=Vector{CTE}(), cte_count::Int=0, athena_params::Any=nothing, limit::String="", 
         ch_settings::String="", join_count::Int = 0, post_unnest::Bool = false)
-        new(select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, 
+        new(post_first, select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, 
         post_aggregation, post_join, metadata, distinct, db, ctes, cte_count, athena_params, limit, ch_settings, join_count, post_unnest)
     end
 end
 
 function from_query(query::TidierDB.SQLQuery)
-    # Custom copy method for TidierDB.CTE
     function copy(cte::TidierDB.CTE)
         return TidierDB.CTE(name=cte.name, select=cte.select, from=cte.from, where=cte.where, groupBy=cte.groupBy, having=cte.having)
     end
     
-    # Create a new SQLQuery object with the same field values
     new_query = TidierDB.SQLQuery(
         select=query.select,
         from=query.from,
@@ -70,7 +69,8 @@ function from_query(query::TidierDB.SQLQuery)
         limit = query.limit,
         ch_settings = query.ch_settings,
         join_count = query.join_count,
-        post_unnest = query.post_unnest
+        post_unnest = query.post_unnest,
+        post_first = false
     )
     return new_query
 end
@@ -198,7 +198,7 @@ function finalize_query(sqlquery::SQLQuery)
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", 
      r"var\"(.*?)\"" => s"\1", r"\"\\\$" => "\"\$",  "WHERE \"" => "WHERE ", "WHERE \"NOT" => "WHERE NOT", "%')\"" =>"%\")", "NULL)\"" => "NULL)",
     "NULL))\"" => "NULL))", r"(?i)INTERVAL(\d+)([a-zA-Z]+)" => s"INTERVAL \1 \2", "SELECT SUMMARIZE " =>  "SUMMARIZE ", "\"(__(" => "(", ")__(\"" => ")"
-     , "***\"" => " ", "***" => " ", "WHERE WHERE " => "WHERE ", "WHERE  WHERE " => "WHERE ", "(__(" => "", ")__(" => "")
+     , "***\"" => " ", "***" => " ", "WHERE WHERE " => "WHERE ", "WHERE  WHERE " => "WHERE ", "(__(" => "", ")__(" => "", "SELECT , CONCAT_WS" => "SELECT CONCAT_WS")
      complete_query = replace(complete_query, ", AS " => " AS ", "OR  \"" => "OR ")
     if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")

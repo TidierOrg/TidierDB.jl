@@ -21,9 +21,9 @@ using Crayons
         @semi_join, @full_join, @transmute,  @anti_join, @head,  @unnest_wider, @unnest_longer,
         @separate, @unite
         
- export db_table, set_sql_mode, connect, from_query, @interpolate, add_interp_parameter!, update_con,  
+ export db_table, set_sql_mode, connect, from_query, update_con,  
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, 
- t, @create_view, drop_view, @compute, warnings, ghseet_connect, copy_to, duckdb_open, duckdb_connect, dt,
+ t, @create_view, drop_view, @compute, warnings, copy_to, dt,
  @show_query, @collect, @window_order, @window_frame, write_file
 
  abstract type SQLBackend end
@@ -50,7 +50,7 @@ using Crayons
 include("docstrings.jl")
 include("structs.jl")
 include("db_parsing.jl")
-include("TBD_macros.jl")
+include("TidierDB_macros.jl")
 include("mutate_and_summ.jl")
 include("parsing_sqlite.jl")
 include("parsing_duckdb.jl")

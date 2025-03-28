@@ -79,6 +79,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#file-writing" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -335,6 +340,18 @@
       
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    File Reading
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -345,6 +362,32 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#file-writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      File Writing
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -704,6 +747,23 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#file-writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      File Writing
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -735,7 +795,14 @@
 </ul>
 <p><code>dt</code> allso supports directly using any DuckDB file reading function. This allows for easily reading in compressed files When reading in a compresssed path, adding an <code>alias</code> is recommended.</p>
 <ul>
-<li>dt(db, "read<em>csv('/Volumes/Untitled/phd</em>*<em>genlab.txt', ignore</em>errors=true)", alias = "genlab")</li>
+<li><code>dt(db, "read_csv('/Volumes/Untitled/phd_*_genlab.txt', ignore_errors=true)", alias = "genlab")</code></li>
+</ul>
+<p><a id='File-Writing'></a></p>
+<p><a id='File-Writing-1'></a></p>
+<h2 id="file-writing">File Writing<a class="headerlink" href="#file-writing" title="Permanent link">¤</a></h2>
+<p>TidierDB also supports writing querys to local files via the DuckDB backend with <code>write_file</code>, which simply accepts a path with the file type ending</p>
+<ul>
+<li><code>write_file(sql_query, "path/to/lcal/file.parquet")</code></li>
 </ul>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>

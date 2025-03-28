@@ -991,7 +991,7 @@
 </tr>
 <tr>
 <td style="text-align: right;"><strong>Utility</strong></td>
-<td style="text-align: right;"><code>@show_query</code>, <code>@collect</code>, <code>@head</code>, <code>@count</code>, <code>show_tables</code>, <code>@create_view</code> , <code>drop_view</code></td>
+<td style="text-align: right;"><code>@show_query</code>, <code>@collect</code>, <code>@head</code>, <code>@count</code>, <code>@drop_missing</code>, <code>show_tables</code>, <code>@create_view</code> , <code>drop_view</code></td>
 </tr>
 <tr>
 <td style="text-align: right;"><strong>Helper Functions</strong></td>
@@ -1146,7 +1146,6 @@ SELECT *
    2 │      6  0.428571  0.571429        3        4
    3 │      8  0.142857  0.0             2        0
 </code></pre></div>
-<p>Bang bang <code>!!</code> interpolation for columns and values is also supported.</p>
 <p>There are a few subtle but important differences from Tidier.jl outlined <a href="https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/key_differences/">here</a>.</p>
 <p><a id='Missing-a-function-or-backend?'></a></p>
 <p><a id='Missing-a-function-or-backend?-1'></a></p>

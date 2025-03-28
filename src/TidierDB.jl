@@ -19,10 +19,11 @@ using Crayons
         @distinct, @left_join, @right_join, @inner_join, @count, @slice_max,  @union,
         @slice_min, @slice_sample, @rename, @relocate, @union_all, @setdiff, @intersect, 
         @semi_join, @full_join, @transmute,  @anti_join, @head,  @unnest_wider, @unnest_longer,
-        @separate, @unite
+        @separate, @unite, @drop_missing
         
  export db_table, set_sql_mode, connect, from_query, update_con,  
- clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, oracle, databricks, SQLQuery, show_tables, 
+ clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, 
+ oracle, databricks, SQLQuery, show_tables, 
  t, @create_view, drop_view, @compute, warnings, copy_to, dt,
  @show_query, @collect, @window_order, @window_frame, write_file
 

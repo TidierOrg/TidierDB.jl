@@ -13,4 +13,8 @@
 
 # `dt` allso supports directly using any DuckDB file reading function. This allows for easily reading in compressed files
 # When reading in a compresssed path, adding an `alias` is recommended. 
-# - dt(db, "read_csv('/Volumes/Untitled/phd_*_genlab.txt', ignore_errors=true)", alias = "genlab")
+# - `dt(db, "read_csv('/Volumes/Untitled/phd_*_genlab.txt', ignore_errors=true)", alias = "genlab")`
+
+# ## File Writing
+# TidierDB also supports writing querys to local files via the DuckDB backend with `write_file`, which simply accepts a path with the file type ending
+# - `write_file(sql_query, "path/to/lcal/file.parquet")`

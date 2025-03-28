@@ -586,3 +586,83 @@ function show_tables(con::Union{DuckDB.DB, DuckDB.Connection})
     return DataFrame(DBInterface.execute(con, "SHOW ALL TABLES"))
 end
 
+"""
+$docstring_drop_missing
+"""
+macro drop_missing(sqlquery, columns...)
+    if isempty(columns)
+        return quote
+            # Get the SQLQuery instance.
+            sq = $(esc(sqlquery))
+            sq = sq.post_first ? (t($(esc(sqlquery)))) : sq
+            sq.post_first = false; 
+            if isa(sq, SQLQuery)
+                # Determine columns to process: use those with metadata.current_selxn >= 1.
+                selected_cols = String[]
+                for i in eachindex(sq.metadata.current_selxn)
+                    if sq.metadata.current_selxn[i] >= 1
+                        push!(selected_cols, sq.metadata.name[i])
+                    end
+                end
+
+                # Build the combined SQL condition: each column must be NOT NULL.
+                condition_parts = String[]
+                for col in selected_cols
+                    push!(condition_parts, string(col) * " IS NOT NULL")
+                end
+                combined_condition_str = join(condition_parts, " AND ")
+
+                # Create a new CTE.
+                cte_name = "cte_" * string(sq.cte_count + 1)
+                new_cte = CTE(name=cte_name,
+                              select="*",
+                              from=(isempty(sq.ctes) ? sq.from : last(sq.ctes).name),
+                              where=combined_condition_str)
+                up_cte_name(sq, cte_name)
+                push!(sq.ctes, new_cte)
+                sq.where = " WHERE " * combined_condition_str
+                sq.from = cte_name
+                sq.cte_count += 1
+                sq.where = ""
+            else
+                error("Expected sqlquery to be an instance of SQLQuery")
+            end
+            sq
+        end
+    else
+        # When columns are provided, convert them (at macro expansion) to a literal vector of strings.
+        local cols_literal = [string(col) for col in columns]
+        
+        return quote
+            sq = $(esc(sqlquery))
+            if isa(sq, SQLQuery)
+                sq = sq.post_first ? (t($(esc(sqlquery)))) : sq
+                sq.post_first = false; 
+                selected_cols = filter_columns_by_expr($cols_literal, sq.metadata)
+
+              #  selected_cols = $(QuoteNode(cols_literal))
+                condition_parts = String[]
+                for col in selected_cols
+                    push!(condition_parts, string(col) * " IS NOT NULL")
+                end
+                combined_condition_str = join(condition_parts, " AND ")
+
+                # Create a new CTE.
+                cte_name = "cte_" * string(sq.cte_count + 1)
+                new_cte = CTE(name=cte_name,
+                              select="*",
+                              from=(isempty(sq.ctes) ? sq.from : last(sq.ctes).name),
+                              where=combined_condition_str)
+                up_cte_name(sq, cte_name)
+                push!(sq.ctes, new_cte)
+                sq.where = " WHERE " * combined_condition_str
+                sq.from = cte_name
+                sq.cte_count += 1
+                sq.where = ""
+            else
+                error("Expected sqlquery to be an instance of SQLQuery")
+            end
+            sq
+        end
+    end
+end

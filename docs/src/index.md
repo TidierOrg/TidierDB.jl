@@ -36,7 +36,7 @@ TidierDB.jl currently supports:
 | **Data Manipulation**     | `@arrange`, `@group_by`, `@filter`, `@select`, `@mutate` (supports `across`), `@summarize`/`@summarise` (supports `across`), `@distinct`, `@relocate`, `@transmute`                                |
 | **Joining/Setting**                  | `@left_join`, `@right_join`, `@inner_join`, `@anti_join`, `@full_join`, `@semi_join`, `@union`, `@union_all`, `@intersect`, `@setdiff`                                         |
 | **Slice and Order**       | `@slice_min`, `@slice_max`, `@slice_sample`, `@order`, `@window_order`, `@window_frame`                                                                                                |
-| **Utility**               | `@show_query`, `@collect`, `@head`, `@count`, `show_tables`, `@create_view` , `drop_view`                                                                                                                                          |
+| **Utility**               | `@show_query`, `@collect`, `@head`, `@count`, `@drop_missing`, `show_tables`, `@create_view` , `drop_view`                                                                                                                                          |
 | **Helper Functions**             | `across`, `desc`, `if_else`, `case_when`, `n`, `starts_with`, `ends_with`, `contains`, `as_float`, `as_integer`, `as_string`, `is_missing`, `missing_if`, `replace_missing` |
 | **TidierStrings.jl Functions** | `str_detect`, `str_replace`, `str_replace_all`, `str_remove_all`, `str_remove`                                                                                               |
 | **TidierDates.jl Functions**   | `year`, `month`, `day`, `hour`, `min`, `second`, `floor_date`, `difftime`, `mdy`, `ymd`, `dmy`                                                                                                    |
@@ -193,8 +193,6 @@ end
    2 │      6  0.428571  0.571429        3        4
    3 │      8  0.142857  0.0             2        0
 ```
-
-Bang bang `!!` interpolation for columns and values is also supported.
 
 There are a few subtle but important differences from Tidier.jl outlined [here](https://tidierorg.github.io/TidierDB.jl/latest/examples/generated/UserGuide/key_differences/).
 

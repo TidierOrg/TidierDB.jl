@@ -72,6 +72,7 @@ include("relocate.jl")
 include("union_intersect_setdiff.jl")
 include("unnest.jl")
 include("sep_unite.jl")
+include("pivots.jl")
 
 
 # Unified expr_to_sql function to use right mode

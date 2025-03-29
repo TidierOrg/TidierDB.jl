@@ -112,8 +112,18 @@ macro filter(sqlquery, conditions...)
             end
             if !isempty(non_aggregated_conditions)
                 combined_conditions = join(non_aggregated_conditions, " AND ")
+                cte_name = "cte_" * string(sq.cte_count + 1)
+                new_cte = CTE(name=cte_name, select=sq.select, from=(isempty(sq.ctes) ? sq.from : last(sq.ctes).name), groupBy = sq.groupBy, having=sq.having)
+                up_cte_name(sq, cte_name)
+                
+                push!(sq.ctes, new_cte)
+                sq.select = "*"
+                sq.groupBy = ""
+                sq.having = ""
+                
                 sq.where = "WHERE " * join(non_aggregated_conditions, " AND ")
-                build_cte!(sq)
+                sq.from = cte_name
+                sq.cte_count += 1
             end
         end
 
@@ -388,6 +398,7 @@ macro show_query(sqlquery)
         formatted_query = replace(formatted_query, " OUTER JOIN " => "\n\tOUTER JOIN ")
         formatted_query = replace(formatted_query, " ASOF " => "\n\tASOF ")
         formatted_query = replace(formatted_query, " LIMIT " => "\n\tLIMIT ")
+        formatted_query = replace(formatted_query, " ANY_VALUE" => "\n\tANY_VALUE")
         
         pattern = r"\b(cte_\w+|WITH|FROM|SELECT|AS|LEFT|JOIN|RIGHT|OUTER|UNION|INNER|ASOF|GROUP\s+BY|CASE|WHEN|THEN|ELSE|END|WHERE|HAVING|ORDER\s+BY|PARTITION|ASC|DESC|INNER)\b"
         # COV_EXCL_START

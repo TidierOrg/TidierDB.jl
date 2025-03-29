@@ -10,7 +10,8 @@ macro select(sqlquery, exprs...)
         sq = $(esc(sqlquery))
         sq = sq.post_first ? (t($(esc(sqlquery)))) : sq
         sq.post_first = false; 
-        build_cte!(sq)
+
+        if sq.select != "" build_cte!(sq)  end
         let columns = parse_tidy_db(exprs_str, sq.metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
             sq.select = columns_str
@@ -51,7 +52,6 @@ macro filter(sqlquery, conditions...)
         sq.post_first = false; 
 
         if isa(sq, SQLQuery)
-            # Early handling for non-aggregated context
             if !sq.is_aggregated
                 if sq.post_join
                     combined_conditions = String[]
@@ -61,6 +61,7 @@ macro filter(sqlquery, conditions...)
                         push!(combined_conditions, condition_str)
                     end
                     combined_condition_str = join(combined_conditions, " AND ")
+
                     sq.where = " WHERE " * combined_condition_str
                   #  sq.post_join = false
                 else
@@ -72,23 +73,16 @@ macro filter(sqlquery, conditions...)
                     push!(combined_conditions, condition_str)
                 end
                 combined_condition_str = join(combined_conditions, " AND ")
-                new_cte = CTE(name=cte_name, select="*", from=(isempty(sq.ctes) ? sq.from : last(sq.ctes).name), where=combined_condition_str)
-                up_cte_name(sq, cte_name)
-                
-                push!(sq.ctes, new_cte)
-                sq.from = cte_name
-                sq.cte_count += 1
-         #      matching_indices = findall(sq.metadata.name .== 2)
-         #       sq.metadata.current_selxn[matching_indices] .= 1
+
+                sq.where = combined_condition_str
+                build_cte!(sq)
             end
             else
             aggregated_columns = Set{String}()
             
-            # Check SELECT clause of the main query and all CTEs for aggregation functions
             if !isempty(sq.select)
                 for part in split(sq.select, ", ")
                     if occursin(" AS ", part)
-                        # Extract the alias used after 'AS' which represents an aggregated column
                         aggregated_column = strip(split(part, " AS ")[2])
                         push!(aggregated_columns, aggregated_column)
                     end
@@ -118,20 +112,8 @@ macro filter(sqlquery, conditions...)
             end
             if !isempty(non_aggregated_conditions)
                 combined_conditions = join(non_aggregated_conditions, " AND ")
-                cte_name = "cte_" * string(sq.cte_count + 1)
-                new_cte = CTE(name=cte_name, select=sq.select, from=(isempty(sq.ctes) ? sq.from : last(sq.ctes).name), groupBy = sq.groupBy, having=sq.having)
-                up_cte_name(sq, cte_name)
-                
-                push!(sq.ctes, new_cte)
-                sq.select = "*"
-                sq.groupBy = ""
-                sq.having = ""
-                
                 sq.where = "WHERE " * join(non_aggregated_conditions, " AND ")
-                sq.from = cte_name
-                sq.cte_count += 1
-             #   matching_indices = findall(sq.metadata.name .== 2)
-            #    sq.metadata.current_selxn[matching_indices] .= 1
+                build_cte!(sq)
             end
         end
 
@@ -146,13 +128,9 @@ end
 
 
 function _colref_to_string(col)
-    # If it's already a bare Symbol, just convert to string
     if isa(col, Symbol)
         return string(col)
-    # If it's an expression using the dot operator, e.g. `sales.id`
     elseif isa(col, Expr) && col.head === :.
-        # col.args[1] = the "parent" (could be another dotted expr)
-        # col.args[2] = the field name (usually a Symbol)
         parent_str = _colref_to_string(col.args[1])
         field_str  = string(col.args[2].value)
         return parent_str * "." * field_str
@@ -212,16 +190,6 @@ macro group_by(sqlquery, columns...)
                 
                 sq.groupBy = group_clause
 
-               # if isempty(sq.select) || sq.select == "SELECT "
-               #     sq.select = "SELECT " * join(group_columns, ", ")
-               # else
-               #     for col in group_columns
-               #         if !contains(sq.select, col)
-               #             sq.select = sq.select * ", " * col
-               #         end
-               #     end
-               # end
-
                 current_group_columns = group_columns
                 summarized_columns = split(sq.select, ", ")[2:end]  # Exclude the initial SELECT
                 all_columns = unique(vcat(current_group_columns, summarized_columns))
@@ -257,15 +225,9 @@ macro distinct(sqlquery, distinct_columns...)
             cte_select = !isempty(distinct_cols_str) ? " DISTINCT " * distinct_cols_str : " DISTINCT *"
             cte_select *= " FROM " * sq.from
             
-            # Create the CTE instance
             cte = CTE(name=cte_name, select=cte_select)
-            # Add the CTE to the SQLQuery's CTEs vector
             push!(sq.ctes, cte)
-            
-            # Adjust the main query to select from the newly created CTE
             sq.from = cte_name
-            
-            # Reset sq.select to ensure the final SELECT * operates correctly
             sq.select = "*"
         end
         sq
@@ -278,7 +240,7 @@ $docstring_count
 macro count(sqlquery, group_by_columns...)
     # Set default sort expression to true.
     sort_expr = :(true)
-    # Check if the last argument is a keyword assignment for sort.
+
     if length(group_by_columns) > 0 &&
        isa(group_by_columns[end], Expr) &&
        group_by_columns[end].head == :(=) &&

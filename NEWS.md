@@ -1,4 +1,8 @@
 # TidierDB.jl updates
+## v.8.3 - 
+- adds `@drop_missing`
+- read .sas7bdat, .xpt, .sav, .zsav, .por, .dta files with DuckDB
+
 ## v0.8.0 - 2025-03-24
 - adds `@transmute`
 - adds `@separate` and `@unite`

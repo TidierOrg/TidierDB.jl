@@ -2206,14 +2206,14 @@ julia> @chain dt(db, df, "df") @filter(a == "2-2") write_file("test.parquet")
 
 const docstring_drop_missing =
 """
-    @drop_missing(df, [cols...])
+    @drop_missing(sql_query, [cols...])
 
 Drop all rows with missing values.
 
 When called without arguments, `@drop_missing()` drops all rows with missing values in any column. If columns are provided as an optional argument, only missing values from named columns are considered when dropping rows.
 
 # Arguments
-- `df`: A DataFrame or GroupedDataFrame.
+- `sql_query`: The SQL query
 - `cols...`: An optional column, or multiple columns separated by commas or specified using selection helpers.
 
 # Examples

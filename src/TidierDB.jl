@@ -173,7 +173,11 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
            # println(table_name2)
             alias == "" ? alias = "gsheet" : alias = alias
             metadata = get_table_metadata(db, table_name2, alias = alias)
-        elseif startswith(table_name, "read") 
+        elseif any(endswith(table_name, ext) for ext in [".sas7bdat", ".xpt", ".sav", ".zsav", ".por", ".dta"])
+            DuckDB.query(db, "install read_stat from community; load read_stat")
+            table_name2 = "read_stat('$table_name')"
+            metadata = get_table_metadata(db, table_name2)
+        elseif startswith(table_name, "read")
             table_name2 = "$table_name"
             alias = alias == "" ? "data" : alias
            # println(table_name2)

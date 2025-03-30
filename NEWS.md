@@ -1,7 +1,9 @@
 # TidierDB.jl updates
 ## v.8.3 - 
 - adds `@drop_missing`
-- read .sas7bdat, .xpt, .sav, .zsav, .por, .dta files with DuckDB
+- adds `@pivot_wider`
+- `db_table` or `dt` accepts paths to .sas7bdat, .xpt, .sav, .zsav, .por, .dta files with DuckDB
+- Improvements to CTE generation 
 
 ## v0.8.0 - 2025-03-24
 - adds `@transmute`

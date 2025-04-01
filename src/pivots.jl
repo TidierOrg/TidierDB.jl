@@ -96,7 +96,6 @@ macro pivot_wider(sqlquery, args...)
         values_from = Expr(:vect, new_vals...)
     end
 
-
     return quote
        sq = $(esc(sqlquery))
        sq = sq.post_first ? t($(esc(sqlquery))) : sq

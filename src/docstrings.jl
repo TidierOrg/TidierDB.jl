@@ -2275,6 +2275,9 @@ const docstring_pivot_wider =
 
 Reshapes the SQL_query to make it wider, increasing the number of columns and reducing the number of rows.
 
+`@pivot_wider` requires some eagerness to pul the disticnt values in the `names_from` columns. It will take the 
+query until the point of the `@pivot_wider`, and run a query to pull the disinct values in the `names_from` column
+
 # Arguments
 - `sql_query`: The SQL query
 - `names_from`: The name of the column to get the name of the output columns from.

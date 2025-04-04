@@ -94,6 +94,8 @@ macro pivot_wider(sqlquery, args...)
             end
         end
         values_from = Expr(:vect, new_vals...)
+    else 
+        values_from = QuoteNode(values_from)
     end
 
     return quote
@@ -104,11 +106,16 @@ macro pivot_wider(sqlquery, args...)
        local pivot_names = Any[]
        push!(pivot_names, $(esc(names_from)))
        local _values_from = $(esc(values_from))
+
        if isa(_values_from, AbstractArray)
            for v in _values_from
                push!(pivot_names, v)
            end
-       else
+        elseif isa(_values_from, Expr)
+            for v in filter_columns_by_expr([string(_values_from)], sq.metadata)
+                push!(pivot_names, v)
+            end
+        else
            push!(pivot_names, _values_from)
        end
        pivot_names = string.(pivot_names)
@@ -120,11 +127,10 @@ macro pivot_wider(sqlquery, args...)
            end
        end
 
-       # Ensure values_from is a vector of strings.
        local values_cols_vector = if isa(_values_from, AbstractArray)
            string.(collect(_values_from))
        else
-           [string(_values_from)]
+          filter_columns_by_expr( [string(_values_from)], sq.metadata)
        end
 
        # Generate the pivot SELECT clause.

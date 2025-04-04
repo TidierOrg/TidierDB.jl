@@ -9,9 +9,11 @@
 # - S3 buckets
 # - iceberg and delta - require additional args `delta` or `iceberg` to be set to `true`
 # - Google Sheets (first run `connect(db, :gsheets)`)
+# - .sas7bdat, .xpt, .sav, .zsav, .por, .dta : `dt(db, "any/file/path/to.sav")`
 #
 
-# `dt` allso supports directly using any DuckDB file reading function. This allows for easily reading in compressed files
+# `dt` also supports directly using DuckDB file reading function. This enables easily reading in compressed files
+
 # When reading in a compresssed path, adding an `alias` is recommended. 
 # - `dt(db, "read_csv('/Volumes/Untitled/phd_*_genlab.txt', ignore_errors=true)", alias = "genlab")`
 

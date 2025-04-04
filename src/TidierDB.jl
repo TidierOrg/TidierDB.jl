@@ -19,7 +19,7 @@ using Crayons
         @distinct, @left_join, @right_join, @inner_join, @count, @slice_max,  @union,
         @slice_min, @slice_sample, @rename, @relocate, @union_all, @setdiff, @intersect, 
         @semi_join, @full_join, @transmute,  @anti_join, @head,  @unnest_wider, @unnest_longer,
-        @separate, @unite, @drop_missing
+        @separate, @unite, @drop_missing, @pivot_wider
         
  export db_table, set_sql_mode, connect, from_query, update_con,  
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, 
@@ -72,6 +72,7 @@ include("relocate.jl")
 include("union_intersect_setdiff.jl")
 include("unnest.jl")
 include("sep_unite.jl")
+include("pivots.jl")
 
 
 # Unified expr_to_sql function to use right mode
@@ -173,7 +174,11 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
            # println(table_name2)
             alias == "" ? alias = "gsheet" : alias = alias
             metadata = get_table_metadata(db, table_name2, alias = alias)
-        elseif startswith(table_name, "read") 
+        elseif any(endswith(table_name, ext) for ext in [".sas7bdat", ".xpt", ".sav", ".zsav", ".por", ".dta"])
+            DuckDB.query(db, "install read_stat from community; load read_stat")
+            table_name2 = "read_stat('$table_name')"
+            metadata = get_table_metadata(db, table_name2)
+        elseif startswith(table_name, "read")
             table_name2 = "$table_name"
             alias = alias == "" ? "data" : alias
            # println(table_name2)

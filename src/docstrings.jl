@@ -2298,5 +2298,15 @@ julia> @collect @pivot_wider(dbdf, names_from = variable, values_from = value)
 ─────┼───────────────────────
    1 │     1       1       2
    2 │     2       3       4
+
+julia> future_col_names = (:variable, [:A, :B]); 
+
+julia> @eval @collect @pivot_wider(dbdf, names_from = \$future_col_names, values_from = value)
+2×3 DataFrame
+ Row │ id     A      B     
+     │ Int64  Int64  Int64 
+─────┼─────────────────────
+   1 │     1      1      2
+   2 │     2      3      4
 ```
 """

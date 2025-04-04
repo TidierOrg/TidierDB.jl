@@ -385,11 +385,12 @@
     @testset "Pivoting" begin 
         df_long = DataFrame(id = [1, 1, 2, 2], variable = ["A", "B", "A", "B"], value = [1, 2, 3, 4])
         dbdf = DB.dt(db, df_long, "df");
-       
         TDF_1 = @pivot_wider(df_long, names_from = variable, values_from = value)
         TDB_1 = DB.@collect DB.@pivot_wider(dbdf, names_from = variable, values_from = value)
-      
+        TDB_1_1 = DB.@collect DB.@pivot_wider(dbdf, names_from = (:variable, [:A, :B]), values_from = value)
+
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
+        @test all(isequal.(Array(TDF_1), Array(TDB_1_1)))
     end
     
     @testset "Code coverage misc" begin 

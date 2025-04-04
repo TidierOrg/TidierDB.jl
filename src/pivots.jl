@@ -6,18 +6,22 @@ function get_distinct_values2(sq, names_col::String)
     return pivot_values
 end
 
-function pivot_wider_sql(sq::SQLQuery, names_col::String, values_cols::Vector{String})
+function pivot_wider_sql(sq::SQLQuery, names_col, values_cols::Vector{String})
     cte_name = "cte_" * string(sq.cte_count + 1)
     build_cte!(sq)
-
-    pivot_values = get_distinct_values2(sq, names_col)
-
+    if names_col isa Tuple 
+        pivot_values = names_col[2]
+        names_col = string(names_col[1])
+    else
+      pivot_values = get_distinct_values2(sq, names_col)
+    end
     for pv in pivot_values
+        spv = string(pv)  # Ensure pv is a string.
         for vc in values_cols
             new_col = if length(values_cols) > 1    
-                    pv * "_" * vc
+                    spv * "_" * vc
                else 
-                    pv
+                    spv
                end
             push!(sq.metadata, Dict("name" => new_col,
                                     "type" => "UNKNOWN",
@@ -42,13 +46,10 @@ function pivot_wider_sql(sq::SQLQuery, names_col::String, values_cols::Vector{St
 
     select_list = []
     for pv in pivot_values
+        spv = string(pv)
         for vc in values_cols
-            if length(values_cols) > 1    
-             alias = pv * "_" * vc
-            else 
-                alias = pv
-            end
-            seg = "ANY_VALUE(" * vc * ") FILTER(WHERE " * names_col * " = '" * pv * "') AS " * alias
+            alias = length(values_cols) > 1 ? spv * "_" * vc : spv
+            seg = "ANY_VALUE(" * vc * ") FILTER(WHERE " * names_col * " = '" * spv * "') AS " * alias
             push!(select_list, seg)
         end
     end
@@ -104,7 +105,11 @@ macro pivot_wider(sqlquery, args...)
        sq.post_first = false
 
        local pivot_names = Any[]
-       push!(pivot_names, $(esc(names_from)))
+       if $(esc(names_from)) isa Tuple
+         push!(pivot_names, $(esc(names_from))[1])
+       else
+         push!(pivot_names, $(esc(names_from)))
+       end
        local _values_from = $(esc(values_from))
 
        if isa(_values_from, AbstractArray)
@@ -134,7 +139,11 @@ macro pivot_wider(sqlquery, args...)
        end
 
        # Generate the pivot SELECT clause.
-       local pivot_select = pivot_wider_sql(sq, string($(esc(names_from))), values_cols_vector)
+       if $(esc(names_from)) isa Tuple
+         local pivot_select = pivot_wider_sql(sq, $(esc(names_from)), values_cols_vector)
+       else
+         local pivot_select = pivot_wider_sql(sq, string($(esc(names_from))), values_cols_vector)
+       end
        # Update GROUP BY clause to use the non-pivot columns.
        sq.groupBy = join(selected_cols, ", ")
 

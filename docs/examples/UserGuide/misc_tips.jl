@@ -25,7 +25,7 @@ sqc(qry) = @chain qry begin
 
 # Call this function at the end of a chain similar the `@show_query` or`@collect` macros
 # _printed query is not seen here as it prints to the REPL_
-@chain dfv @summarize() sqc()
+#@chain dfv @summarize() sqc()
 
 # ## Color Printing
 # Queries print with some code words in color to the REPL. To turn off this feature, run one of the following.

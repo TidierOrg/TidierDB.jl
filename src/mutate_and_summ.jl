@@ -346,8 +346,8 @@ macro summarize(sqlquery, expressions...)
             existing_select = sq.select
             if startswith(existing_select, "SELECT")
                 sq.select = existing_select * ", " * summary_clause
-            elseif isempty(summary_clause)
-                sq.select = "SUMMARIZE"
+#            elseif isempty(summary_clause)
+#                sq.select = "SUMMARIZE"
             else
                 if $(esc(grouping_var)) != nothing
                     sq.select = "SELECT " * replace(sq.groupBy, "GROUP BY " => "") * ", " * summary_clause

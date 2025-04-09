@@ -75,6 +75,7 @@ macro filter(sqlquery, conditions...)
                 combined_condition_str = join(combined_conditions, " AND ")
 
                 sq.where = combined_condition_str
+            #    println(sq.from)
                 build_cte!(sq)
             end
             else
@@ -112,18 +113,9 @@ macro filter(sqlquery, conditions...)
             end
             if !isempty(non_aggregated_conditions)
                 combined_conditions = join(non_aggregated_conditions, " AND ")
-                cte_name = "cte_" * string(sq.cte_count + 1)
-                new_cte = CTE(name=cte_name, select=sq.select, from=(isempty(sq.ctes) ? sq.from : last(sq.ctes).name), groupBy = sq.groupBy, having=sq.having)
-                up_cte_name(sq, cte_name)
-                
-                push!(sq.ctes, new_cte)
+                build_cte!(sq)
                 sq.select = "*"
-                sq.groupBy = ""
-                sq.having = ""
-                
                 sq.where = "WHERE " * join(non_aggregated_conditions, " AND ")
-                sq.from = cte_name
-                sq.cte_count += 1
             end
         end
 

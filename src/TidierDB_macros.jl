@@ -10,8 +10,7 @@ macro select(sqlquery, exprs...)
         sq = $(esc(sqlquery))
         sq = sq.post_first ? (t($(esc(sqlquery)))) : sq
         sq.post_first = false; 
-
-        if sq.select != "" build_cte!(sq)  end
+        if sq.select != "" build_cte!(sq); sq.select == ""; end
         let columns = parse_tidy_db(exprs_str, sq.metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
             sq.select = columns_str
@@ -77,6 +76,7 @@ macro filter(sqlquery, conditions...)
                 sq.where = combined_condition_str
             #    println(sq.from)
                 build_cte!(sq)
+                sq.select = " * "
             end
             else
             aggregated_columns = Set{String}()

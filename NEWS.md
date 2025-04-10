@@ -4,6 +4,7 @@
 - adds `@pivot_wider`
 - `db_table` or `dt` accepts paths to .sas7bdat, .xpt, .sav, .zsav, .por, .dta files with DuckDB
 - Improvements to CTE generation 
+- add kwarg `overwrite = false` to `copy_to` to default table copying to not replace exisiting tables with the name.
 
 ## v0.8.0 - 2025-03-24
 - adds `@transmute`

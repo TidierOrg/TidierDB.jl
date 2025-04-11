@@ -529,3 +529,25 @@ macro transmute(sqlquery, mutations...)
         sq
     end
 end
+
+"""
+$docstring_summary
+"""
+macro summary(sqlquery)
+    return quote
+        sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        if isa(sq, SQLQuery)
+            if (sq.cte_count > 0 || sq.select != "")
+                throw("@summary can only be used on tables un")
+            else
+                sq.from
+            end
+            sq.select = "SUMMARIZE"
+        else
+            error("Expected sqlquery to be an instance of SQLQuery") # COV_EXCL_LINE
+        end
+        sq
+    end
+end

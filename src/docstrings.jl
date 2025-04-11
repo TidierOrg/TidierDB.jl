@@ -2316,7 +2316,7 @@ const docstring_summary =
 """
        @summary(sql_query)
 
-Get summary stastics on a table or a file when using DuckDB.
+Get summary stastics on a table or a file when using DuckDB (max, min, q1, q2, q3, avg, std, count, unique)
 
 # Arguments
 - `sql_query`: The SQL table or file to summarize

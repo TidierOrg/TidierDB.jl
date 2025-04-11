@@ -13,8 +13,8 @@ dfv = dt(db, df, "dfv");
 
 # ## DuckDB's SUMMARIZE
 # DuckDB has a feature tosummarize tables that gives information about the table, such as mean, std, q25, q75 etc.
-# To use this feature with TidierDB, simply call an empty `@summarize`. 
-@chain dfv @summarize() @collect
+# To use this feature with TidierDB, simply call an `@summary` on any table or file before querying it.
+@chain dfv @summary() @collect
 
 # ## show_query/collect
 # If you find yourself frequently showing a query while collecting, you can define the following function 

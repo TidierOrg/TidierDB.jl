@@ -26,21 +26,11 @@
 # ## Examples
 # Examples below will cover how to join tables with different schemas in different databases, 
 # and how to write queries on tables and then join them together, and how to do this by levaraging views. Some examples 
-# <!--
+
 using TidierDB
 db = connect(duckdb())
 mtcars = dt(db, "https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv")
-# -->
 
-# ## Setup
-# ```julia
-# using TidierDB
-# db = connect(duckdb(), "md:")
-# 
-# mtcars = dt(db, "my_db.mtcars")
-# mt2 = dt(db, "ducks_db.mt2")
-# ```
-# 
 # ## Wrangle tables and self join
 query = @chain mtcars begin
     @group_by cyl
@@ -70,6 +60,7 @@ end
 # To connect to a table in a different schema, prefix it with a dot. For example, "schema_name.table_name".
 # In this query, we are also filtering out cars that contain "M" in the name from the `mt2` table before joining. 
 # ```julia
+# mt2 = dt(db, "ducks_db.mt2")
 # other_db = @chain dt(db, "ducks_db.mt2") @filter(!str_detect(car, "M"))
 # @chain mtcars begin
 #     @left_join(t(other_db), model == car)

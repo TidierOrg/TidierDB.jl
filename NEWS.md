@@ -1,4 +1,12 @@
 # TidierDB.jl updates
+## v.8.3 - 2025-04-11
+- adds `@drop_missing`
+- adds `@pivot_wider`
+- `db_table` or `dt` accept paths to .sas7bdat, .xpt, .sav, .zsav, .por, .dta files with DuckDB
+- Improvements to CTE generation 
+- add kwarg `overwrite = false` to `copy_to` to default table copying to not replace exisiting tables with the name.
+- separate `@summary` into its own macro for collecting summary statistics (max, min, q1, q2, q3, avg, std, count, unique) from a table or file 
+
 ## v0.8.0 - 2025-03-24
 - adds `@transmute`
 - adds `@separate` and `@unite`

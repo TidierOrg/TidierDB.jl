@@ -19,7 +19,7 @@ using Crayons
         @distinct, @left_join, @right_join, @inner_join, @count, @slice_max,  @union,
         @slice_min, @slice_sample, @rename, @relocate, @union_all, @setdiff, @intersect, 
         @semi_join, @full_join, @transmute,  @anti_join, @head,  @unnest_wider, @unnest_longer,
-        @separate, @unite, @drop_missing
+        @separate, @unite, @drop_missing, @pivot_wider, @summary
         
  export db_table, set_sql_mode, connect, from_query, update_con,  
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, 
@@ -72,6 +72,7 @@ include("relocate.jl")
 include("union_intersect_setdiff.jl")
 include("unnest.jl")
 include("sep_unite.jl")
+include("pivots.jl")
 
 
 # Unified expr_to_sql function to use right mode
@@ -173,7 +174,11 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
            # println(table_name2)
             alias == "" ? alias = "gsheet" : alias = alias
             metadata = get_table_metadata(db, table_name2, alias = alias)
-        elseif startswith(table_name, "read") 
+        elseif any(endswith(table_name, ext) for ext in [".sas7bdat", ".xpt", ".sav", ".zsav", ".por", ".dta"])
+            DuckDB.query(db, "install read_stat from community; load read_stat")
+            table_name2 = "read_stat('$table_name')"
+            metadata = get_table_metadata(db, table_name2)
+        elseif startswith(table_name, "read")
             table_name2 = "$table_name"
             alias = alias == "" ? "data" : alias
            # println(table_name2)
@@ -291,24 +296,41 @@ function db_table(db, table::Vector{String}, athena_params::Any=nothing)
 end
 
 function db_table(db, table::DataFrame, alias::String) 
+    if any(any(lowercase(string(name)) == word for word in sql_words) for name in names(table))
+        found_words = [word for word in sql_words if any(lowercase(string(name)) == word for name in names(table))]
+        @warn "Column names containing SQL keywords detected: $(join(found_words, ", ")). 
+         These may cause issues as they are reserved SQL keywords. 
+         Consider renaming the columns before scanning to DuckDB."
+    end
+    # COV_EXCL_STOP
     DuckDB.register_data_frame(db, table, alias)
     metadata = get_table_metadata(db, alias)
     return SQLQuery(from = alias, metadata=metadata, db=db)
 end
 const dt = db_table # COV_EXCL_LINE
-# COV_EXCL_STOP
+
+
+sql_words = ["group", "select", "from", "where", "having", "order", "by", "join", "union", "case", "when", "then", "else", "end", "limit", "right", "left"] # COV_EXCL_LINE
 
 """
 $docstring_copy_to
 """
-function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::String)
+function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::String; overwrite::Bool=false)
     # Check if the input is a DataFrame
+    rep = overwrite ? "OR REPLACE" : ""
     if isa(df_or_path, DataFrame)
         if current_sql_mode[] == duckdb()
             name_view = name * "view"
             DuckDB.register_data_frame(conn, df_or_path, name_view)
-            DBInterface.execute(conn, "CREATE OR REPLACE TABLE $name AS SELECT * FROM $name_view")
+            DBInterface.execute(conn, "CREATE $rep TABLE $name AS SELECT * FROM $name_view")
             DBInterface.execute(conn, "DROP VIEW $name_view ")
+        # Check for 'group' in column names and warn if found
+            if any(any(lowercase(string(name)) == word for word in sql_words) for name in names(df_or_path))
+                    found_words = [word for word in sql_words if any(lowercase(string(name)) == word for name in names(df_or_path))]
+                @warn "Column names containing SQL keywords detected: $(join(found_words, ", ")). 
+                These may cause issues as they are reserved SQL keywords. 
+                Consider renaming the columns before copying to DuckDB."
+            end
         end
     # COV_EXCL_START
     elseif isa(df_or_path, AbstractString)
@@ -323,11 +345,11 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
         end
         if occursin(r"\.csv$", df_or_path)
             # Construct and execute a SQL command for loading a CSV file
-            sql_command = "CREATE TABLE $name AS SELECT * FROM '$df_or_path';"
+            sql_command = "CREATE $rep TABLE $name AS SELECT * FROM '$df_or_path';"
             DuckDB.execute(conn, sql_command)
         elseif occursin(r"\.parquet$", df_or_path)
             # Construct and execute a SQL command for loading a Parquet file
-            sql_command = "CREATE TABLE $name AS SELECT * FROM '$df_or_path';"
+            sql_command = "CREATE $rep TABLE $name AS SELECT * FROM '$df_or_path';"
             DuckDB.execute(conn, sql_command)
         elseif occursin(r"\.arrow$", df_or_path)
             # Construct and execute a SQL command for loading a CSV file
@@ -335,12 +357,12 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
             DuckDB.register_table(conn, arrow_table, name)
         elseif occursin(r"\.json$", df_or_path)
             # For Arrow files, read the file into a DataFrame and then insert
-            sql_command = "CREATE TABLE $name AS SELECT * FROM read_json('$df_or_path');"
+            sql_command = "CREATE $rep TABLE $name AS SELECT * FROM read_json('$df_or_path');"
             DuckDB.execute(conn, "INSTALL json;")
             DuckDB.execute(conn, "LOAD json;")
             DuckDB.execute(conn, sql_command)
         elseif startswith(df_or_path, "read")
-             DuckDB.execute(conn, "CREATE TABLE $name AS SELECT * FROM $df_or_path;")
+             DuckDB.execute(conn, "CREATE $rep TABLE $name AS SELECT * FROM $df_or_path;")
         else
             error("Unsupported file type for: $df_or_path")
         end

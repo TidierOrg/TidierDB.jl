@@ -346,8 +346,8 @@ macro summarize(sqlquery, expressions...)
             existing_select = sq.select
             if startswith(existing_select, "SELECT")
                 sq.select = existing_select * ", " * summary_clause
-            elseif isempty(summary_clause)
-                sq.select = "SUMMARIZE"
+#            elseif isempty(summary_clause)
+#                sq.select = "SUMMARIZE"
             else
                 if $(esc(grouping_var)) != nothing
                     sq.select = "SELECT " * replace(sq.groupBy, "GROUP BY " => "") * ", " * summary_clause
@@ -525,6 +525,28 @@ macro transmute(sqlquery, mutations...)
             sq.window_order = ""
         else
             error("Expected sqlquery to be an instance of SQLQuery")
+        end
+        sq
+    end
+end
+
+"""
+$docstring_summary
+"""
+macro summary(sqlquery)
+    return quote
+        sq = $(esc(sqlquery))
+        sq = sq.post_first ? t($(esc(sqlquery))) : sq
+        sq.post_first = false; 
+        if isa(sq, SQLQuery)
+            if (sq.cte_count > 0 || sq.select != "")
+                throw("@summary can only be used on tables un")
+            else
+                sq.from
+            end
+            sq.select = "SUMMARIZE"
+        else
+            error("Expected sqlquery to be an instance of SQLQuery") # COV_EXCL_LINE
         end
         sq
     end

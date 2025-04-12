@@ -1212,13 +1212,14 @@ julia> @chain dt(db, df, "df_view") begin
 
 const docstring_copy_to =
 """
-       copy_to(conn, df_or_path, "name")
+       copy_to(conn, df_or_path, "name"; overwrite = false )
 Allows user to copy a df to the database connection. Currently supports DuckDB, SQLite, MySql
 
 # Arguments
 - `conn`: the database connection
 - `df`: dataframe to be copied or path to serve as source. With DuckDB, path supports .csv, .json, .parquet
 - `name`: name as string for the database to be used
+- `overwrite`: whether or not table with chosen name should be overwritten if it exists, defaults to `false`
 # Examples
 ```jldoctest
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
@@ -2206,14 +2207,14 @@ julia> @chain dt(db, df, "df") @filter(a == "2-2") write_file("test.parquet")
 
 const docstring_drop_missing =
 """
-    @drop_missing(df, [cols...])
+    @drop_missing(sql_query, [cols...])
 
 Drop all rows with missing values.
 
 When called without arguments, `@drop_missing()` drops all rows with missing values in any column. If columns are provided as an optional argument, only missing values from named columns are considered when dropping rows.
 
 # Arguments
-- `df`: A DataFrame or GroupedDataFrame.
+- `sql_query`: The SQL query
 - `cols...`: An optional column, or multiple columns separated by commas or specified using selection helpers.
 
 # Examples
@@ -2266,5 +2267,71 @@ julia> @chain dbdf @drop_missing(starts_with("a")) @collect
    1 │     1        1
    2 │     2  missing 
    3 │     4        4
+```
+"""
+
+const docstring_pivot_wider =
+"""
+   @pivot_wider(df, names_from, values_from)
+
+Reshapes the SQL_query to make it wider, increasing the number of columns and reducing the number of rows.
+
+`@pivot_wider` requires some eagerness to pul the disticnt values in the `names_from` columns. It will take the 
+query until the point of the `@pivot_wider`, and run a query to pull the disinct values in the `names_from` column
+
+# Arguments
+- `sql_query`: The SQL query
+- `names_from`: The name of the column to get the name of the output columns from.
+- `values_from`: The name of the column to get the cell values from.
+
+# Examples
+```jldoctest
+julia> df_long = DataFrame(id = [1, 1, 2, 2],
+                           variable = ["A", "B", "A", "B"],
+                           value = [1, 2, 3, 4]);
+
+julia> db = connect(duckdb()); dbdf = dt(db, df_long, "df");
+
+julia> @collect @pivot_wider(dbdf, names_from = variable, values_from = value)
+2×3 DataFrame
+ Row │ id     A       B      
+     │ Int64  Int64?  Int64?
+─────┼───────────────────────
+   1 │     1       1       2
+   2 │     2       3       4
+
+julia> future_col_names = (:variable, [:A, :B]); 
+
+julia> @eval @collect @pivot_wider(dbdf, names_from = \$future_col_names, values_from = value)
+2×3 DataFrame
+ Row │ id     A      B     
+     │ Int64  Int64  Int64 
+─────┼─────────────────────
+   1 │     1      1      2
+   2 │     2      3      4
+```
+"""
+
+const docstring_summary =
+"""
+       @summary(sql_query)
+
+Get summary stastics on a table or a file when using DuckDB (max, min, q1, q2, q3, avg, std, count, unique)
+
+# Arguments
+- `sql_query`: The SQL table or file to summarize
+# Examples 
+```jldoctest
+julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                        value = repeat(1:5, 2), 
+                        percent = 0.1:0.1:1.0);
+
+julia> db = connect(duckdb());
+
+julia> @chain dt(db, df, "df_view") begin
+        @summary
+        @collect
+       end;
 ```
 """

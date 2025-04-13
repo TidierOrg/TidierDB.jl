@@ -33,12 +33,13 @@ mutable struct SQLQuery
     ch_settings::String
     join_count::Int
     post_unnest::Bool
+    post_mutate::Bool
     function SQLQuery(;post_first = true, select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
         window_order::String="", windowFrame::String="", is_aggregated::Bool=false, post_aggregation::Bool=false, post_join::Bool=false, metadata::DataFrame=DataFrame(), 
         distinct::Bool=false, db::Any=nothing, ctes::Vector{CTE}=Vector{CTE}(), cte_count::Int=0, athena_params::Any=nothing, limit::String="", 
-        ch_settings::String="", join_count::Int = 0, post_unnest::Bool = false)
+        ch_settings::String="", join_count::Int = 0, post_unnest::Bool = false, post_mutate::Bool = false)
         new(post_first, select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, 
-        post_aggregation, post_join, metadata, distinct, db, ctes, cte_count, athena_params, limit, ch_settings, join_count, post_unnest)
+        post_aggregation, post_join, metadata, distinct, db, ctes, cte_count, athena_params, limit, ch_settings, join_count, post_unnest, post_mutate)
     end
 end
 

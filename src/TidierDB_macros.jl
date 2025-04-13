@@ -52,7 +52,7 @@ macro filter(sqlquery, conditions...)
 
         if isa(sq, SQLQuery)
             if !sq.is_aggregated
-                if sq.post_join
+                if sq.post_join || sq.post_mutate 
                     combined_conditions = String[]
                     for condition in $(esc(conditions))
                         condition_str = string(expr_to_sql(condition, sq))
@@ -76,7 +76,7 @@ macro filter(sqlquery, conditions...)
                 sq.where = combined_condition_str
             #    println(sq.from)
                 build_cte!(sq)
-                sq.select = " * "
+                #sq.select = " * "
             end
             else
             aggregated_columns = Set{String}()
@@ -386,7 +386,7 @@ macro show_query(sqlquery)
         final_query = finalize_query($(esc(sqlquery)))  
         formatted_query = format_sql_query(final_query)
        
-        DBQuery(formatted_query)
+        display(DBQuery(formatted_query))
         # $(esc(sqlquery));
     end
     
@@ -504,7 +504,6 @@ $docstring_collect
 """
 macro collect(sqlquery, stream = false)
     return quote
-        
         backend = current_sql_mode[]
         if backend == duckdb()
             if $stream

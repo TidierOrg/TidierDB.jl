@@ -9,15 +9,8 @@ function perform_set_operation(sq::SQLQuery, uq_or_table, op::String; all::Bool=
     # 1) Possibly create a new CTE for the left query (sq)
     needs_new_cte_sq = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
     if needs_new_cte_sq
-        sq.cte_count += 1
-        cte_name_sq = "cte_" * string(sq.cte_count)
-        most_recent_source_sq = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
-        select_sql_sq = "SELECT * FROM " * most_recent_source_sq
-        new_cte_sq = CTE(name=cte_name_sq, select=select_sql_sq)
-        up_cte_name(sq, cte_name_sq)
-        
-        push!(sq.ctes, new_cte_sq)
-        sq.from = cte_name_sq
+        build_cte!(sq) 
+       # sq.from = cte_name_sq
     end
 
     local op_clause
@@ -45,6 +38,7 @@ function perform_set_operation(sq::SQLQuery, uq_or_table, op::String; all::Bool=
             new_cte_uq = CTE(name=cte_name_uq, select=select_sql_uq)
             push!(uq.ctes, new_cte_uq)
             uq.from = cte_name_uq
+           # uq.where = ""
         end
 
         # Combine

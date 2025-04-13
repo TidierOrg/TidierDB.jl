@@ -52,7 +52,7 @@ macro filter(sqlquery, conditions...)
 
         if isa(sq, SQLQuery)
             if !sq.is_aggregated
-                if sq.post_join
+                if sq.post_join || sq.post_mutate 
                     combined_conditions = String[]
                     for condition in $(esc(conditions))
                         condition_str = string(expr_to_sql(condition, sq))
@@ -76,7 +76,7 @@ macro filter(sqlquery, conditions...)
                 sq.where = combined_condition_str
             #    println(sq.from)
                 build_cte!(sq)
-                sq.select = " * "
+                #sq.select = " * "
             end
             else
             aggregated_columns = Set{String}()
@@ -168,7 +168,8 @@ macro arrange(sqlquery, columns...)
         sq = $(esc(sqlquery))
         sq = sq.post_first ? t($(esc(sqlquery))) : sq
         sq.post_first = false; 
-            sq.orderBy = " ORDER BY " * $order_clause
+        
+        sq.orderBy = " ORDER BY " * $order_clause
         sq
     end
 end
@@ -360,6 +361,7 @@ macro rename(sqlquery, renamings...)
 end
 
 # COV_EXCL_START
+# will delete
 cyan_crayon       = Crayon(foreground = :cyan, bold = true)         # for FROM and SELECT
 blue_crayon       = Crayon(foreground = :blue, bold = true)         # for JOINs
 yellow_crayon     = Crayon(foreground = :yellow, bold = true)       # for GROUP BY
@@ -371,64 +373,77 @@ light_gray        = Crayon(foreground = :red, bold = true)
 green             = Crayon(foreground = :green, bold = false)
 # COV_EXCL_STOP
 
+mutable struct DBQuery
+    val::String
+end
+
+function Base.show(io::IO, ::MIME"text/plain", mytype::DBQuery)
+    print(io, mytype.val)
+end
 
 macro show_query(sqlquery)
     return quote
-        final_query = finalize_query($(esc(sqlquery)))
-        
-        formatted_query = replace(final_query, r"(?<=\)), " => ",\n")
-        formatted_query = replace(formatted_query, "SELECT " => "\nSELECT ")
-        formatted_query = replace(formatted_query, "AS (SELECT " => "AS ( \n\tSELECT ")
-        formatted_query = replace(formatted_query, " FROM " => "\n\tFROM ")
-        formatted_query = replace(formatted_query, " WHERE " => "\n\tWHERE ")
-        formatted_query = replace(formatted_query, " GROUP BY " => "\n\tGROUP BY ")
-        formatted_query = replace(formatted_query, " ORDER BY " => "\n\tORDER BY ")
-        formatted_query = replace(formatted_query, " HAVING " => "\n\tHAVING ")
-        formatted_query = replace(formatted_query, " LEFT JOIN " => "\n\tLEFT JOIN ")
-        formatted_query = replace(formatted_query, " RIGHT JOIN " => "\n\tRIGHT JOIN ")
-        formatted_query = replace(formatted_query, " INNER JOIN " => "\n\tINNER JOIN ")
-        formatted_query = replace(formatted_query, " OUTER JOIN " => "\n\tOUTER JOIN ")
-        formatted_query = replace(formatted_query, " ASOF " => "\n\tASOF ")
-        formatted_query = replace(formatted_query, " LIMIT " => "\n\tLIMIT ")
-        formatted_query = replace(formatted_query, " ANY_VALUE" => "\n\tANY_VALUE")
-        
-        pattern = r"\b(cte_\w+|WITH|FROM|SELECT|AS|LEFT|JOIN|RIGHT|OUTER|UNION|INNER|ASOF|GROUP\s+BY|CASE|WHEN|THEN|ELSE|END|WHERE|HAVING|ORDER\s+BY|PARTITION|ASC|DESC|INNER)\b"
-        # COV_EXCL_START
-        if TidierDB.color[]
-            formatted_query = replace(formatted_query, pattern => s -> begin
-                token = String(s)  
-                token_upper = uppercase(strip(token))
-                
-                if token_upper in ["FROM", "SELECT", "WITH"]
-                    return $cyan_crayon(token)
-                elseif token_upper in ["AS"]
-                    return $green(token)
-                elseif token_upper in ["ASOF", "RIGHT", "LEFT", "OUTER", "SEMI", "JOIN", "INNER"]
-                    return $blue_crayon(token)
-                elseif occursin(r"^GROUP\s+BY$", token_upper)
-                    return $yellow_crayon(token)
-                elseif token_upper in ["CASE", "WHEN", "THEN", "ELSE", "END"]
-                    return $orange_crayon(token)
-                elseif token_upper in ["WHERE", "HAVING"]
-                    return $lightblue_crayon(token)
-                elseif occursin(r"^ORDER\s+BY$", token_upper)
-                    return $pink_crayon(token)
-                elseif token_upper in ["ASC", "DESC", "PARTITION"]
-                    return $pink_crayon(token)
-             #   elseif occursin(r"^CTE_\w+$", token_upper)
-              #      return $light_magenta(token)                
-                else
-                    return token  
-                end
-            end)
-        end
-        # COV_EXCL_STOP
-        println(formatted_query)
+        final_query = finalize_query($(esc(sqlquery)))  
+        formatted_query = format_sql_query(final_query)
+       
+        display(DBQuery(formatted_query))
+        # $(esc(sqlquery));
     end
+    
 end
 
-
-
+# COV_EXCL_START
+function format_sql_query(final_query::String)
+    # Format basic SQL structure with newlines and indentation
+    formatted_query = replace(final_query, r"(?<=\)), " => ",\n")
+    formatted_query = replace(formatted_query, "SELECT " => "\nSELECT ")
+    formatted_query = replace(formatted_query, "AS (SELECT " => "AS ( \n\tSELECT ")
+    formatted_query = replace(formatted_query, " FROM " => "\n\tFROM ")
+    formatted_query = replace(formatted_query, " WHERE " => "\n\tWHERE ")
+    formatted_query = replace(formatted_query, " GROUP BY " => "\n\tGROUP BY ")
+    formatted_query = replace(formatted_query, " ORDER BY " => "\n\tORDER BY ")
+    formatted_query = replace(formatted_query, " HAVING " => "\n\tHAVING ")
+    formatted_query = replace(formatted_query, " LEFT JOIN " => "\n\tLEFT JOIN ")
+    formatted_query = replace(formatted_query, " RIGHT JOIN " => "\n\tRIGHT JOIN ")
+    formatted_query = replace(formatted_query, " INNER JOIN " => "\n\tINNER JOIN ")
+    formatted_query = replace(formatted_query, " OUTER JOIN " => "\n\tOUTER JOIN ")
+    formatted_query = replace(formatted_query, " ASOF " => "\n\tASOF ")
+    formatted_query = replace(formatted_query, " LIMIT " => "\n\tLIMIT ")
+    formatted_query = replace(formatted_query, " ANY_VALUE" => "\n\tANY_VALUE")
+    
+    # pattern for SQL keywords
+    pattern = r"\b(cte_\w+|WITH|FROM|SELECT|AS|LEFT|JOIN|RIGHT|OUTER|UNION|INNER|ASOF|GROUP\s+BY|CASE|WHEN|THEN|ELSE|END|WHERE|HAVING|ORDER\s+BY|PARTITION|ASC|DESC|INNER)\b"
+    
+    if TidierDB.color[]
+        formatted_query = replace(formatted_query, pattern => s -> begin
+            token = String(s)  
+            token_upper = uppercase(strip(token))
+            
+            if token_upper in ["FROM", "SELECT", "WITH"]
+                "\e[36m$(token)\e[0m"  # Cyan
+            elseif token_upper in ["AS"]
+                "\e[32m$(token)\e[0m"  # Green
+            elseif token_upper in ["ASOF", "RIGHT", "LEFT", "OUTER", "SEMI", "JOIN", "INNER"]
+                "\e[34m$(token)\e[0m"  # Blue
+            elseif occursin(r"^GROUP\s+BY$", token_upper)
+                "\e[33m$(token)\e[0m"  # Yellow
+            elseif token_upper in ["CASE", "WHEN", "THEN", "ELSE", "END"]
+                "\e[38;5;208m$(token)\e[0m"  # Orange
+            elseif token_upper in ["WHERE", "HAVING"]
+                "\e[94m$(token)\e[0m"  # Light Blue
+            elseif occursin(r"^ORDER\s+BY$", token_upper)
+                "\e[35m$(token)\e[0m"  # Pink
+            elseif token_upper in ["ASC", "DESC", "PARTITION"]
+                "\e[35m$(token)\e[0m"  # Pink
+            else
+                token
+            end
+        end)
+    end
+    
+    return formatted_query
+end
+# COV_EXCL_STOP
 
 function final_collect(sqlquery::SQLQuery, ::Type{<:duckdb})
     final_query = finalize_query(sqlquery)
@@ -489,7 +504,6 @@ $docstring_collect
 """
 macro collect(sqlquery, stream = false)
     return quote
-        
         backend = current_sql_mode[]
         if backend == duckdb()
             if $stream

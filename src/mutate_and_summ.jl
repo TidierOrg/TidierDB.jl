@@ -119,7 +119,7 @@ macro mutate(sqlquery, mutations...)
         sq = $(esc(sqlquery))
         sq = sq.post_first ? t($(esc(sqlquery))) : sq
         sq.post_first = false; 
-
+        sq.post_mutate = true
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
 

@@ -325,6 +325,7 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
             DBInterface.execute(conn, "CREATE $rep TABLE $name AS SELECT * FROM $name_view")
             DBInterface.execute(conn, "DROP VIEW $name_view ")
         # Check for 'group' in column names and warn if found
+            # COV_EXCL_START
             if any(any(lowercase(string(name)) == word for word in sql_words) for name in names(df_or_path))
                     found_words = [word for word in sql_words if any(lowercase(string(name)) == word for name in names(df_or_path))]
                 @warn "Column names containing SQL keywords detected: $(join(found_words, ", ")). 
@@ -332,7 +333,7 @@ function copy_to(conn, df_or_path::Union{DataFrame, AbstractString}, name::Strin
                 Consider renaming the columns before copying to DuckDB."
             end
         end
-    # COV_EXCL_START
+
     elseif isa(df_or_path, AbstractString)
         if current_sql_mode[] != duckdb()
             error("Direct file loading is only supported for DuckDB in this implementation.")

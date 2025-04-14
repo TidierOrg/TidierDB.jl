@@ -747,7 +747,7 @@ julia> @chain dt(db, df, "df_view") begin
          @collect
        end
 2×2 DataFrame
- Row │ groups  count 
+ Row │ groups  n     
      │ String  Int64 
 ─────┼───────────────
    1 │ aa          5

@@ -123,7 +123,7 @@ macro mutate(sqlquery, mutations...)
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
 
-            if sq.post_aggregation || sq.post_unnest #|| sq.post_join 
+            if sq.post_aggregation || sq.post_unnest || sq.post_count#|| sq.post_join 
                 if sq.post_aggregation
                     for row in eachrow(sq.metadata)
                         if row[:current_selxn] == 2
@@ -133,29 +133,8 @@ macro mutate(sqlquery, mutations...)
                 end
                 sq.post_aggregation = false
                
-                select_expressions = !isempty(sq.select) ? [sq.select] : ["*"]
-
-                cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
-                if sq.is_aggregated && !isempty(sq.groupBy)
-                    cte_sql *= " " * sq.groupBy
-                    sq.groupBy = ""
-                end
-                if !isempty(sq.where)
-                    cte_sql *= " WHERE " * sq.where
-                    sq.where = ""
-                end
-                if !isempty(sq.having)
-                    cte_sql *= "  " * sq.having
-                    sq.having = ""
-                end
-
-                # Create and add the new CTE
-                new_cte = CTE(name=string(cte_name), select=cte_sql)
-                up_cte_name(sq, string(cte_name))
-                
-                push!(sq.ctes, new_cte)
-                sq.cte_count += 1
-                sq.from = string(cte_name)
+             
+                build_cte!(sq)
                 
             else
               #  sq.cte_count += 1
@@ -210,26 +189,7 @@ macro mutate(sqlquery, mutations...)
             end
             sq.post_join = false
 
-            if $(esc(grouping_var)) != nothing
-                sq.groupBy = ""
-            end
-                # Construct CTE SQL, handling aggregated queries differently
-            cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
-            if sq.is_aggregated
-                cte_sql *= " " * sq.groupBy
-                sq.is_aggregated = false
-            end
-            if !isempty(sq.where)
-                cte_sql *= " WHERE " * sq.where
-                sq.where = ""
-            end
-
-            new_cte = CTE(name=string(cte_name), select=cte_sql)
-            up_cte_name(sq, cte_name)
-            push!(sq.ctes, new_cte)
-
-
-            sq.from = string(cte_name)
+            build_cte!(sq)
 
             sq.select = "*"
             if _warning_[]

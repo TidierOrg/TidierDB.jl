@@ -48,6 +48,7 @@ end
         _by = cyl, 
         _order = mpg # _frame is not used in this example 
         )
+    @head()
     @collect
 end 
 
@@ -56,5 +57,6 @@ end
     @group_by cyl
     @window_order mpg
     @mutate(row_id = row_number())
+    @head()
     @collect
 end 

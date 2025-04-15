@@ -1135,7 +1135,7 @@
 <span class="k">end</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>WITH cte_1 AS (
-SELECT *
+SELECT  *
         FROM &#39;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&#39; AS mtcars 
         WHERE NOT (starts_with(model, &#39;M&#39;))),
 cte_2 AS (
@@ -1144,13 +1144,10 @@ SELECT cyl, AVG(mpg) AS mpg
         GROUP BY cyl),
 cte_3 AS (
 SELECT  cyl, mpg, POWER(mpg, 2) AS mpg_squared, ROUND(mpg) AS mpg_rounded, CASE WHEN mpg &gt;= POWER(cyl, 2) THEN &#39;efficient&#39; WHEN mpg &lt; 15.2 THEN &#39;inefficient&#39; ELSE &#39;moderate&#39; END AS mpg_efficiency
-        FROM cte_2 ),
-cte_4 AS (
+        FROM cte_2 )  
 SELECT *
-        FROM cte_3
-        WHERE mpg_efficiency in (&#39;moderate&#39;, &#39;efficient&#39;))  
-SELECT *
-        FROM cte_4  
+        FROM cte_3  
+        WHERE mpg_efficiency in (&#39;moderate&#39;, &#39;efficient&#39;)  
         ORDER BY mpg_rounded DESC
 </code></pre></div>
 <p><a id='TidierDB-is-already-quite-fully-featured,-supporting-advanced-TidierData-functions-like-across()-for-multi-column-selection.'></a></p>

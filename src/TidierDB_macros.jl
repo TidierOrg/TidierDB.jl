@@ -8,8 +8,9 @@ macro select(sqlquery, exprs...)
     return quote
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? (t($(esc(sqlquery)))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
         if sq.select != "" build_cte!(sq); sq.select == ""; end
         let columns = parse_tidy_db(exprs_str, sq.metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
@@ -47,9 +48,9 @@ macro filter(sqlquery, conditions...)
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
-
+        sq.fresh = false;
         if isa(sq, SQLQuery)
             if !sq.is_aggregated
                 if sq.post_join || sq.post_mutate 
@@ -166,8 +167,9 @@ macro arrange(sqlquery, columns...)
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
         
         sq.orderBy = " ORDER BY " * $order_clause
         sq
@@ -184,8 +186,9 @@ macro group_by(sqlquery, columns...)
     return quote
         columns_str = map(col -> isa(col, Symbol) ? string(col) : col, $columns)
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
         if isa(sq, SQLQuery)
 
             let group_columns = parse_tidy_db(columns_str, sq.metadata)
@@ -211,8 +214,9 @@ $docstring_distinct
 macro distinct(sqlquery, distinct_columns...)
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false;
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
+        sq.reuse_table = false; 
+        sq.fresh = false;
 
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $(distinct_columns))
         
@@ -258,8 +262,9 @@ macro count(sqlquery, group_by_columns...)
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
         sq.post_count = true
         sq.is_aggregated = true
         if isa(sq, SQLQuery)
@@ -310,8 +315,10 @@ macro rename(sqlquery, renamings...)
         end
 
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
         
         if isa(sq, SQLQuery)
             # Generate a new CTE name
@@ -549,8 +556,10 @@ macro head(sqlquery, value = 6)
     value = string(value)
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
         
         if $value != ""
         sq.limit = $value

@@ -338,8 +338,10 @@ macro left_join(sqlquery, join_table, expr... )
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
 
         jq = isa($(esc(join_table)), SQLQuery) ? t($(esc(join_table))) : $(esc(join_table)) 
 
@@ -379,8 +381,10 @@ macro right_join(sqlquery, join_table, expr... )
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
         
         jq = isa($(esc(join_table)), SQLQuery) ? t($(esc(join_table))) : $(esc(join_table)) 
 
@@ -418,8 +422,10 @@ macro inner_join(sqlquery, join_table, expr... )
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
 
         jq = isa($(esc(join_table)), SQLQuery) ? t($(esc(join_table))) : $(esc(join_table)) 
 
@@ -459,8 +465,10 @@ macro full_join(sqlquery, join_table, expr... )
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
         
         jq = isa($(esc(join_table)), SQLQuery) ? t($(esc(join_table))) : $(esc(join_table)) 
 
@@ -499,8 +507,10 @@ macro semi_join(sqlquery, join_table, expr... )
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
 
         jq = isa($(esc(join_table)), SQLQuery) ? t($(esc(join_table))) : $(esc(join_table)) 
 
@@ -540,8 +550,10 @@ macro anti_join(sqlquery, join_table, expr... )
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
 
         jq = isa($(esc(join_table)), SQLQuery) ? t($(esc(join_table))) : $(esc(join_table)) 
        

@@ -4,8 +4,10 @@ $docstring_slice_min
 macro slice_min(sqlquery, column, n=1)
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
 
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
@@ -79,8 +81,10 @@ $docstring_slice_max
 macro slice_max(sqlquery, column, n=1)
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
         
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
@@ -156,8 +160,10 @@ $docstring_slice_sample
 macro slice_sample(sqlquery, n=1)
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
 
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)

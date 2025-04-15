@@ -12,6 +12,7 @@ end
 
 mutable struct SQLQuery
     reuse_table::Bool
+    fresh::Bool
     select::String
     from::String
     where::String
@@ -35,11 +36,12 @@ mutable struct SQLQuery
     post_unnest::Bool
     post_mutate::Bool
     post_count::Bool
-    function SQLQuery(;reuse_table = true, select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
+
+    function SQLQuery(;reuse_table = true,fresh = true, select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
         window_order::String="", windowFrame::String="", is_aggregated::Bool=false, post_aggregation::Bool=false, post_join::Bool=false, metadata::DataFrame=DataFrame(), 
         distinct::Bool=false, db::Any=nothing, ctes::Vector{CTE}=Vector{CTE}(), cte_count::Int=0, athena_params::Any=nothing, limit::String="", 
-        ch_settings::String="", join_count::Int = 0, post_unnest::Bool = false, post_mutate::Bool = false,  post_count::Bool = false)
-        new(reuse_table, select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, 
+        ch_settings::String="", join_count::Int = 0, post_unnest::Bool = false, post_mutate::Bool = false, post_count::Bool = false)
+        new(reuse_table, fresh, select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, 
         post_aggregation, post_join, metadata, distinct, db, ctes, cte_count, athena_params, limit, ch_settings, join_count, post_unnest, post_mutate, post_count)
     end
 end
@@ -48,7 +50,6 @@ function from_query(query::TidierDB.SQLQuery)
     function copy(cte::TidierDB.CTE)
         return TidierDB.CTE(name=cte.name, select=cte.select, from=cte.from, where=cte.where, groupBy=cte.groupBy, having=cte.having)
     end
-    
     new_query = TidierDB.SQLQuery(
         select=query.select,
         from=query.from,

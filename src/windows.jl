@@ -5,8 +5,10 @@ macro window_order(sqlquery, order_by_expr...)
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
 
         if isa(sq, SQLQuery)
             # Convert order_by_expr to SQL order by string
@@ -98,8 +100,10 @@ macro window_frame(sqlquery, args...)
     # Now generate the code that computes the frame clauses at runtime
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq = (sq.reuse_table || !sq.fresh) ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
+        sq.fresh = false;
+        
 
         if isa(sq, SQLQuery)
             # Evaluate frame_from_value and frame_to_value

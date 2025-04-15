@@ -101,8 +101,8 @@ macro pivot_wider(sqlquery, args...)
 
     return quote
        sq = $(esc(sqlquery))
-       sq = sq.post_first ? t($(esc(sqlquery))) : sq
-       sq.post_first = false
+       sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+       sq.reuse_table = false
 
        local pivot_names = Any[]
        if $(esc(names_from)) isa Tuple

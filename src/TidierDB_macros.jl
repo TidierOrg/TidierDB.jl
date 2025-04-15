@@ -8,8 +8,8 @@ macro select(sqlquery, exprs...)
     return quote
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
         sq = $(esc(sqlquery))
-        sq = sq.post_first ? (t($(esc(sqlquery)))) : sq
-        sq.post_first = false; 
+        sq = sq.reuse_table ? (t($(esc(sqlquery)))) : sq
+        sq.reuse_table = false; 
         if sq.select != "" build_cte!(sq); sq.select == ""; end
         let columns = parse_tidy_db(exprs_str, sq.metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
@@ -47,8 +47,8 @@ macro filter(sqlquery, conditions...)
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.post_first ? t($(esc(sqlquery))) : sq
-        sq.post_first = false; 
+        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq.reuse_table = false; 
 
         if isa(sq, SQLQuery)
             if !sq.is_aggregated
@@ -166,8 +166,8 @@ macro arrange(sqlquery, columns...)
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.post_first ? t($(esc(sqlquery))) : sq
-        sq.post_first = false; 
+        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq.reuse_table = false; 
         
         sq.orderBy = " ORDER BY " * $order_clause
         sq
@@ -184,8 +184,8 @@ macro group_by(sqlquery, columns...)
     return quote
         columns_str = map(col -> isa(col, Symbol) ? string(col) : col, $columns)
         sq = $(esc(sqlquery))
-        sq = sq.post_first ? t($(esc(sqlquery))) : sq
-        sq.post_first = false; 
+        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq.reuse_table = false; 
         if isa(sq, SQLQuery)
 
             let group_columns = parse_tidy_db(columns_str, sq.metadata)
@@ -211,8 +211,8 @@ $docstring_distinct
 macro distinct(sqlquery, distinct_columns...)
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.post_first ? t($(esc(sqlquery))) : sq
-        sq.post_first = false;
+        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq.reuse_table = false;
 
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $(distinct_columns))
         
@@ -258,8 +258,8 @@ macro count(sqlquery, group_by_columns...)
 
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.post_first ? t($(esc(sqlquery))) : sq
-        sq.post_first = false; 
+        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq.reuse_table = false; 
         sq.post_count = true
         sq.is_aggregated = true
         if isa(sq, SQLQuery)
@@ -310,8 +310,8 @@ macro rename(sqlquery, renamings...)
         end
 
         sq = $(esc(sqlquery))
-        sq = sq.post_first ? t($(esc(sqlquery))) : sq
-        sq.post_first = false; 
+        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq.reuse_table = false; 
         
         if isa(sq, SQLQuery)
             # Generate a new CTE name
@@ -549,8 +549,8 @@ macro head(sqlquery, value = 6)
     value = string(value)
     return quote
         sq = $(esc(sqlquery))
-        sq = sq.post_first ? t($(esc(sqlquery))) : sq
-        sq.post_first = false; 
+        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
+        sq.reuse_table = false; 
         
         if $value != ""
         sq.limit = $value
@@ -574,8 +574,8 @@ macro drop_missing(sqlquery, columns...)
         return quote
             # Get the SQLQuery instance.
             sq = $(esc(sqlquery))
-            sq = sq.post_first ? (t($(esc(sqlquery)))) : sq
-            sq.post_first = false; 
+            sq = sq.reuse_table ? (t($(esc(sqlquery)))) : sq
+            sq.reuse_table = false; 
             if isa(sq, SQLQuery)
                 # Determine columns to process: use those with metadata.current_selxn >= 1.
                 selected_cols = String[]
@@ -616,8 +616,8 @@ macro drop_missing(sqlquery, columns...)
         return quote
             sq = $(esc(sqlquery))
             if isa(sq, SQLQuery)
-                sq = sq.post_first ? (t($(esc(sqlquery)))) : sq
-                sq.post_first = false; 
+                sq = sq.reuse_table ? (t($(esc(sqlquery)))) : sq
+                sq.reuse_table = false; 
                 selected_cols = filter_columns_by_expr($cols_literal, sq.metadata)
 
               #  selected_cols = $(QuoteNode(cols_literal))

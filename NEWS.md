@@ -2,10 +2,14 @@
 ## v.8.3 - 2025-04-11
 - adds `@drop_missing`
 - adds `@pivot_wider`
-- `db_table` or `dt` accept paths to .sas7bdat, .xpt, .sav, .zsav, .por, .dta files with DuckDB
+- `db_table` accepts paths to .sas7bdat, .xpt, .sav, .zsav, .por, .dta files with DuckDB
 - Improvements to CTE generation 
+- `db_table` warns when column name table contains protected SQL words
 - add kwarg `overwrite = false` to `copy_to` to default table copying to not replace exisiting tables with the name.
 - separate `@summary` into its own macro for collecting summary statistics (max, min, q1, q2, q3, avg, std, count, unique) from a table or file 
+- `@count` now produces column `n` not `count`
+- using sum in such a way will no longer break the SQL query: `@mutate(total = n / sum(n), _by = group_vars)` 
+
 
 ## v0.8.0 - 2025-03-24
 - adds `@transmute`

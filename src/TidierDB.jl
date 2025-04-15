@@ -310,7 +310,7 @@ end
 const dt = db_table # COV_EXCL_LINE
 
 
-sql_words = ["group", "select", "from", "where", "having", "order", "by", "join", "union", "case", "when", "then", "else", "end", "limit", "right", "left"] # COV_EXCL_LINE
+sql_words = ["group", "select", "from", "where", "having", "order", "by", "join", "union", "case", "when", "then", "else", "end", "limit", "right", "left", "count"] # COV_EXCL_LINE
 
 """
 $docstring_copy_to

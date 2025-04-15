@@ -30,16 +30,10 @@ end
 
 # ## `rowid` and pseudocolumns
 # When a table is not being read directly from a file, `rowid` is avaialable for use. In general, TidierDB should support all pseudocolumns.
-# ```
-# copy_to(db, mtcars_path, "mtcars"); # copying table in for demostration purposes 
-# @chain db_table(db, :mtcars) begin
-#       @filter(rowid == 4)
-#       @select(model:hp)
-#       @collect
-# end
-# 1×5 DataFrame
-#  Row │ model              mpg       cyl     disp      hp     
-#      │ String?            Float64?  Int64?  Float64?  Int64? 
-# ─────┼───────────────────────────────────────────────────────
-#    1 │ Hornet Sportabout      18.7       8     360.0     175
-# ```
+
+copy_to(db, mtcars_path, "mtcars"); # copying table in for demostration purposes 
+@chain dt(db, "mtcars") begin
+      @filter(rowid == 4)
+      @select(model:hp)
+      @collect
+ end

@@ -23,21 +23,21 @@ function expr_to_sql_trino(expr, sq; from_summarize::Bool)
                 return :(AVG($a))
             else
                 window_clause = construct_window_clause(sq)
-                return  "AVG($(string(a))) $(window_clause)"
+                return  "***AVG($(string(a))) $(window_clause)***"
             end
         elseif @capture(x, minimum(a_))
             if from_summarize
                 return :(MIN($a))
             else
                 window_clause = construct_window_clause(sq)
-                return  "MIN($(string(a))) $(window_clause)"
+                return  "***MIN($(string(a))) $(window_clause)***"
             end
         elseif @capture(x, maximum(a_))
             if from_summarize
                 return :(MAX($a))
             else
                 window_clause = construct_window_clause(sq)
-                return  "MAX($(string(a))) $(window_clause)"
+                return  "***MAX($(string(a))) $(window_clause)***"
             end
         elseif @capture(x, sum(a_))
             if from_summarize

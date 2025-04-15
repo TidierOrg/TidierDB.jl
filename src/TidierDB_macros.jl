@@ -260,7 +260,8 @@ macro count(sqlquery, group_by_columns...)
         sq = $(esc(sqlquery))
         sq = sq.post_first ? t($(esc(sqlquery))) : sq
         sq.post_first = false; 
-        
+        sq.post_count = true
+        sq.is_aggregated = true
         if isa(sq, SQLQuery)
             # If grouping columns are specified.
             if !isempty($group_clause)
@@ -269,18 +270,18 @@ macro count(sqlquery, group_by_columns...)
                     matching_indices = findall(sq.metadata.name .== col)
                     sq.metadata.current_selxn[matching_indices] .= 1
                 end
-                sq.select = "SELECT " * $group_clause * ", COUNT(*) AS count"
+                sq.select = "SELECT " * $group_clause * ", COUNT(*) AS n"
                 sq.groupBy = "GROUP BY " * $group_clause
-                push!(sq.metadata, Dict("name" => "count", "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => sq.from))
+                push!(sq.metadata, Dict("name" => "n", "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => sq.from))
             else
                 # If no grouping columns, simply count all records.
                 sq.metadata.current_selxn .= 0
-                sq.select = "SELECT COUNT(*) AS count"
-                push!(sq.metadata, Dict("name" => "count", "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => sq.from))
+                sq.select = "SELECT COUNT(*) AS n"
+                push!(sq.metadata, Dict("name" => "n", "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => sq.from))
             end
 
             if !isempty($group_clause) && $(esc(sort_expr))
-                sq.orderBy = "ORDER BY count DESC"
+                sq.orderBy = "ORDER BY n DESC"
             end
         else
             error("Expected sqlquery to be an instance of SQLQuery")

@@ -123,7 +123,7 @@ macro mutate(sqlquery, mutations...)
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
 
-            if sq.post_aggregation || sq.post_unnest #|| sq.post_join 
+            if sq.post_aggregation || sq.post_unnest || sq.post_count#|| sq.post_join 
                 if sq.post_aggregation
                     for row in eachrow(sq.metadata)
                         if row[:current_selxn] == 2
@@ -156,6 +156,7 @@ macro mutate(sqlquery, mutations...)
                 push!(sq.ctes, new_cte)
                 sq.cte_count += 1
                 sq.from = string(cte_name)
+                sq.post_count = false
                 
             else
               #  sq.cte_count += 1

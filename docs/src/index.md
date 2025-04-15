@@ -155,7 +155,7 @@ end
 
 ```
 WITH cte_1 AS (
-SELECT *
+SELECT  *
         FROM 'https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv' AS mtcars 
         WHERE NOT (starts_with(model, 'M'))),
 cte_2 AS (
@@ -164,13 +164,10 @@ SELECT cyl, AVG(mpg) AS mpg
         GROUP BY cyl),
 cte_3 AS (
 SELECT  cyl, mpg, POWER(mpg, 2) AS mpg_squared, ROUND(mpg) AS mpg_rounded, CASE WHEN mpg >= POWER(cyl, 2) THEN 'efficient' WHEN mpg < 15.2 THEN 'inefficient' ELSE 'moderate' END AS mpg_efficiency
-        FROM cte_2 ),
-cte_4 AS (
+        FROM cte_2 )  
 SELECT *
-        FROM cte_3
-        WHERE mpg_efficiency in ('moderate', 'efficient'))  
-SELECT *
-        FROM cte_4  
+        FROM cte_3  
+        WHERE mpg_efficiency in ('moderate', 'efficient')  
         ORDER BY mpg_rounded DESC
 ```
 

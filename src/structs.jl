@@ -34,12 +34,13 @@ mutable struct SQLQuery
     join_count::Int
     post_unnest::Bool
     post_mutate::Bool
+    post_count::Bool
     function SQLQuery(;post_first = true, select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
         window_order::String="", windowFrame::String="", is_aggregated::Bool=false, post_aggregation::Bool=false, post_join::Bool=false, metadata::DataFrame=DataFrame(), 
         distinct::Bool=false, db::Any=nothing, ctes::Vector{CTE}=Vector{CTE}(), cte_count::Int=0, athena_params::Any=nothing, limit::String="", 
-        ch_settings::String="", join_count::Int = 0, post_unnest::Bool = false, post_mutate::Bool = false)
+        ch_settings::String="", join_count::Int = 0, post_unnest::Bool = false, post_mutate::Bool = false,  post_count::Bool = false)
         new(post_first, select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, 
-        post_aggregation, post_join, metadata, distinct, db, ctes, cte_count, athena_params, limit, ch_settings, join_count, post_unnest, post_mutate)
+        post_aggregation, post_join, metadata, distinct, db, ctes, cte_count, athena_params, limit, ch_settings, join_count, post_unnest, post_mutate, post_count)
     end
 end
 
@@ -71,7 +72,9 @@ function from_query(query::TidierDB.SQLQuery)
         ch_settings = query.ch_settings,
         join_count = query.join_count,
         post_unnest = query.post_unnest,
-        post_first = false
+        post_first = false,
+        post_mutate = query.post_mutate,
+        post_count = query.post_count,
     )
     return new_query
 end
@@ -119,7 +122,7 @@ function build_cte!(sq)
         push!(sq.ctes, new_cte)
         sq.cte_count += 1
         sq.from = cte_name
-
+        sq.post_count = false
 
     return sq
 end
@@ -199,7 +202,7 @@ function finalize_query(sqlquery::SQLQuery)
      "SELECT SELECT SELECT " => "SELECT ", "PARTITION BY GROUP BY" => "PARTITION BY", "GROUP BY GROUP BY" => "GROUP BY", "HAVING HAVING" => "HAVING", 
      r"var\"(.*?)\"" => s"\1", r"\"\\\$" => "\"\$",  "WHERE \"" => "WHERE ", "WHERE \"NOT" => "WHERE NOT", "%')\"" =>"%\")", "NULL)\"" => "NULL)",
     "NULL))\"" => "NULL))", r"(?i)INTERVAL(\d+)([a-zA-Z]+)" => s"INTERVAL \1 \2", "SELECT SUMMARIZE " =>  "SUMMARIZE ", "\"(__(" => "(", ")__(\"" => ")"
-     , "***\"" => " ", "***" => " ", "WHERE WHERE " => "WHERE ", "WHERE  WHERE " => "WHERE ", "(__(" => "", ")__(" => "", "SELECT , CONCAT_WS" => "SELECT CONCAT_WS")
+     , "***\"" => " ", "\"***" => " ", "***" => " ", "WHERE WHERE " => "WHERE ", "WHERE  WHERE " => "WHERE ", "(__(" => "", ")__(" => "", "SELECT , CONCAT_WS" => "SELECT CONCAT_WS")
      complete_query = replace(complete_query, ", AS " => " AS ", "OR  \"" => "OR ")
     if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")

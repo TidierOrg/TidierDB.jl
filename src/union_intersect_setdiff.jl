@@ -87,9 +87,7 @@ macro union(sqlquery, union_query, args...)
         end
     end
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         uq = isa($(esc(union_query)), String) ? $(esc(union_query)) : t($(esc(union_query))) 
  
         perform_set_operation(
@@ -106,9 +104,7 @@ $docstring_union_all
 """
 macro union_all(sqlquery, union_query)
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         uq = isa($(esc(union_query)), String) ? $(esc(union_query)) : t($(esc(union_query))) 
  
         perform_set_operation(
@@ -135,9 +131,7 @@ macro intersect(sqlquery, union_query, args...)
     end
 
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         uq = isa($(esc(union_query)), String) ? $(esc(union_query)) : t($(esc(union_query))) 
  
         perform_set_operation(
@@ -164,9 +158,7 @@ macro setdiff(sqlquery, union_query, args...)
     end
 
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         uq = isa($(esc(union_query)), String) ? $(esc(union_query)) : t($(esc(union_query))) 
  
         

@@ -7,9 +7,7 @@ macro select(sqlquery, exprs...)
 
     return quote
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? (t($(esc(sqlquery)))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         if sq.select != "" build_cte!(sq); sq.select == ""; end
         let columns = parse_tidy_db(exprs_str, sq.metadata)
             columns_str = join(["SELECT ", join([string(column) for column in columns], ", ")])
@@ -46,9 +44,7 @@ macro filter(sqlquery, conditions...)
     conditions = parse_blocks(conditions...)
 
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
 
         if isa(sq, SQLQuery)
             if !sq.is_aggregated
@@ -62,7 +58,6 @@ macro filter(sqlquery, conditions...)
                     combined_condition_str = join(combined_conditions, " AND ")
 
                     sq.where = " WHERE " * combined_condition_str
-                  #  sq.post_join = false
                 else
                 cte_name = "cte_" * string(sq.cte_count + 1)
                 combined_conditions = String[]
@@ -76,7 +71,7 @@ macro filter(sqlquery, conditions...)
                 sq.where = combined_condition_str
             #    println(sq.from)
                 build_cte!(sq)
-                #sq.select = " * "
+                sq.select = " * "
             end
             else
             aggregated_columns = Set{String}()
@@ -113,9 +108,20 @@ macro filter(sqlquery, conditions...)
             end
             if !isempty(non_aggregated_conditions)
                 combined_conditions = join(non_aggregated_conditions, " AND ")
-                build_cte!(sq)
+                cte_name = "cte_" * string(sq.cte_count + 1)
+                select_expressions = !isempty(sq.select) ? [sq.select] : ["*"]
+                cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
+                new_cte = CTE(name=cte_name, select=cte_sql, groupBy = sq.groupBy, having=sq.having)
+                up_cte_name(sq, cte_name)
+                
+                push!(sq.ctes, new_cte)
                 sq.select = "*"
+                sq.groupBy = ""
+                sq.having = ""
+                
                 sq.where = "WHERE " * join(non_aggregated_conditions, " AND ")
+                sq.from = cte_name
+                sq.cte_count += 1
             end
         end
 
@@ -165,9 +171,7 @@ macro arrange(sqlquery, columns...)
     order_clause = join(order_specs, ", ")
 
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         
         sq.orderBy = " ORDER BY " * $order_clause
         sq
@@ -183,9 +187,7 @@ macro group_by(sqlquery, columns...)
 
     return quote
         columns_str = map(col -> isa(col, Symbol) ? string(col) : col, $columns)
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         if isa(sq, SQLQuery)
 
             let group_columns = parse_tidy_db(columns_str, sq.metadata)
@@ -210,9 +212,7 @@ $docstring_distinct
 """
 macro distinct(sqlquery, distinct_columns...)
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false;
+        sq = t($(esc(sqlquery)))
 
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $(distinct_columns))
         
@@ -257,9 +257,7 @@ macro count(sqlquery, group_by_columns...)
     group_clause = join(group_by_cols_str, ", ")
 
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         sq.post_count = true
         sq.is_aggregated = true
         if isa(sq, SQLQuery)
@@ -309,9 +307,7 @@ macro rename(sqlquery, renamings...)
             end
         end
 
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         
         if isa(sq, SQLQuery)
             # Generate a new CTE name
@@ -548,9 +544,7 @@ $docstring_head
 macro head(sqlquery, value = 6)
     value = string(value)
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         
         if $value != ""
         sq.limit = $value
@@ -572,10 +566,7 @@ $docstring_drop_missing
 macro drop_missing(sqlquery, columns...)
     if isempty(columns)
         return quote
-            # Get the SQLQuery instance.
-            sq = $(esc(sqlquery))
-            sq = sq.reuse_table ? (t($(esc(sqlquery)))) : sq
-            sq.reuse_table = false; 
+            sq = t($(esc(sqlquery)))
             if isa(sq, SQLQuery)
                 # Determine columns to process: use those with metadata.current_selxn >= 1.
                 selected_cols = String[]
@@ -616,8 +607,7 @@ macro drop_missing(sqlquery, columns...)
         return quote
             sq = $(esc(sqlquery))
             if isa(sq, SQLQuery)
-                sq = sq.reuse_table ? (t($(esc(sqlquery)))) : sq
-                sq.reuse_table = false; 
+                sq = t($(esc(sqlquery)))
                 selected_cols = filter_columns_by_expr($cols_literal, sq.metadata)
 
               #  selected_cols = $(QuoteNode(cols_literal))

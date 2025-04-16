@@ -175,27 +175,67 @@ macro arrange(sqlquery, columns...)
 end
 
 
+function groupby_exp(expr, sq)
+    if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
+        # Extract column alias name as string
+        col_name = string(expr.args[1])
+        if current_sql_mode[] == snowflake()
+            col_name = uppercase(col_name)  # COV_EXCL_LINE
+        end
+        push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => "table"))
+        # Convert the right-hand side expression to a SQL expression
+        col_expr = expr_to_sql(expr.args[2], sq)
+        col_expr = string(col_expr)
+        # Return the alias and the SQL snippet (wrapped in parentheses to be safe)
+        return col_name, "(" * col_expr * ") AS " * col_name
+    else
+        error("Unsupported expression in @group_by: $(expr)")
+    end
+end
+
 """
 $docstring_group_by
 """
 macro group_by(sqlquery, columns...)
     columns = parse_blocks(columns...)
-
     return quote
+        # Attempt the standard processing first.
         columns_str = map(col -> isa(col, Symbol) ? string(col) : col, $columns)
         sq = $(esc(sqlquery))
         sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
         sq.reuse_table = false; 
         if isa(sq, SQLQuery)
+            try
+                let group_columns = parse_tidy_db(columns_str, sq.metadata)
+                    group_clause = "GROUP BY " * join(group_columns, ", ")
+                    sq.groupBy = group_clause
 
-            let group_columns = parse_tidy_db(columns_str, sq.metadata)
-                group_clause = "GROUP BY " * join(group_columns, ", ")
-                
-                sq.groupBy = group_clause
+                    current_group_columns = group_columns
+                    summarized_columns = split(sq.select, ", ")[2:end]  # Exclude the initial SELECT
+                    all_columns = unique(vcat(current_group_columns, summarized_columns))
+                    sq.select = "SELECT " * join(all_columns, ", ")
+                end
+            catch
+                # If standard parsing fails (e.g. due to assignment expressions), process each column manually.
+                local group_expressions = String[]
+                local group_aliases = String[]
+                for col in $columns
+                    alias, group_sql = groupby_exp(col, sq)
+                    push!(group_expressions, group_sql)
+                    push!(group_aliases, alias)
+                end
+                # Build the GROUP BY clause using the collected aliases.
+                sq.groupBy = "GROUP BY " * join(group_aliases, ", ")
 
-                current_group_columns = group_columns
-                summarized_columns = split(sq.select, ", ")[2:end]  # Exclude the initial SELECT
-                all_columns = unique(vcat(current_group_columns, summarized_columns))
+                # Split the original SELECT clause and remove any empty strings.
+                local original_select_columns = filter(x -> !isempty(strip(x)),
+                                                      split(sq.select, ", "))
+                if !isempty(original_select_columns) && startswith(original_select_columns[1], "SELECT ")
+                    original_select_columns[1] = replace(original_select_columns[1], "SELECT " => "")
+                end
+
+                # Combine group expressions and original columns.
+                local all_columns = vcat(group_expressions, original_select_columns)
                 sq.select = "SELECT " * join(all_columns, ", ")
             end
         else

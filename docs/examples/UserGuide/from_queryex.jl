@@ -1,5 +1,5 @@
 # While using TidierDB, you may need to generate part of a query and reuse it multiple times. There are two ways to do this 
-# 1. `from_query(query)` or its alias `t(query)`
+# 1. saving the query 
 # 2. `@create_view(name)`
 
 # ## Setup
@@ -23,8 +23,6 @@ query = @chain mtcars begin
     end
 end;
 
-# ## `from_query()` or `t(query)`
-# `from_query`, or `t()` a convienece wrapper, will allow you to reuse the query to calculate the average horsepower for each efficiency category
 @chain query begin
    @left_join(mtcars, cyl)
    @group_by(efficiency)
@@ -32,8 +30,12 @@ end;
    @collect
 end
 
+@chain query begin 
+    @summarize(avg_hp = mean(hp))
+end
+
 # ## @create_view
-# Queries can also be reused as views. 
+# Queries can also be reused as views. This can be especially helpful when joining complex queries together, however, it is not necessary.
 query2 = @chain mtcars @filter(mpg>20) @mutate(mpg = mpg *4); 
 @chain mtcars begin
     @group_by cyl
@@ -58,7 +60,7 @@ end;
 end
 
 # ## Preview or save an intermediate table
-# While querying a dataset, you may wish to see an intermediate table, or even save it. You can use `@aside` and `from_query(_)`, illustrated below, to do just that. 
+# While querying a dataset, you may wish to see an intermediate table, or even save it. You can use `@aside` and `_`, illustrated below, to do just that. 
 # While we opted to print the results in this simple example below, we could have saved them by using `name = @chain...`
 
 # ```julia
@@ -67,7 +69,7 @@ end
 # path = "https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet"
 # @chain dt(conn, path) begin
 #    @count(artists)
-#    @aside println(@chain from_query(_) @head(5) @collect)
+#    @aside println(@chain _ @head(5) @collect)
 #    @arrange(desc(count))
 #    @collect
 # end

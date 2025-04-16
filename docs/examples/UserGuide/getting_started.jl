@@ -58,14 +58,4 @@
 
 # ## Minimizing Compute Costs and Keystrokes
 # If you are working with a backend where compute cost is important, it will be important to minimize using `dt` as this will requery for metadata each time. 
-# Compute costs are relevant to backends such as AWS, databricks and Snowflake. 
-
-# To do this, save the results of `dt` and use them with `t`. Using `t` pulls the relevant information (metadata, con, etc) from the mutable SQLquery struct, allowing you to repeatedly query and collect the table without requerying for the metadata each time
-# > !Tip: 
-# > `t()` is an alias for `from_query` This means after saving the results of `dt`, use `t(table)` to refer to the table or prior query 
-# ```julia
-# table = DB.dt(con, "path")
-# @chain table begin
-#     ## data wrangling here 
-# end 
-# ```
+# Compute costs are relevant to backends such as AWS, databricks and Snowflake. It is best practice to save the results of `dt` or `db_table` and work w that object

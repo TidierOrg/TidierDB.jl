@@ -357,19 +357,6 @@ macro rename(sqlquery, renamings...)
     end
 end
 
-# COV_EXCL_START
-# will delete
-cyan_crayon       = Crayon(foreground = :cyan, bold = true)         # for FROM and SELECT
-blue_crayon       = Crayon(foreground = :blue, bold = true)         # for JOINs
-yellow_crayon     = Crayon(foreground = :yellow, bold = true)       # for GROUP BY
-orange_crayon     = Crayon(foreground = 208, bold = true)           # for CASE, WHEN, THEN, ELSE, END (208 is a common orange color)
-lightblue_crayon  = Crayon(foreground = :light_blue, bold = true)      # for WHERE
-pink_crayon       = Crayon(foreground = :magenta, bold = true)
-cyan_crayon       = Crayon(foreground = :cyan, bold = true)         # for FROM and SELECT
-light_gray        = Crayon(foreground = :red, bold = true)
-green             = Crayon(foreground = :green, bold = false)
-# COV_EXCL_STOP
-
 mutable struct DBQuery
     val::String
 end

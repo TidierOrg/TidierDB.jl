@@ -1,5 +1,8 @@
 # TidierDB.jl updates
-## v.8.3 - 2025-04-11
+## v.8.4 - 2025-04-16
+- Queries no longer edit underlying SQLQuery struct, but rather a copy removing the need for `t` or `from_query`
+
+## v.8.3 - 2025-04-14
 - adds `@drop_missing`
 - adds `@pivot_wider`
 - `db_table` accepts paths to .sas7bdat, .xpt, .sav, .zsav, .por, .dta files with DuckDB

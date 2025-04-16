@@ -1497,50 +1497,6 @@ julia> show_tables(db);
 ```
 """
 
-const docstring_from_query =
-"""
-    from_query(query)
-
-This is an alias for `t()`. Refer to SQL query without changing the underlying struct. This is an alternate and convenient way to refer to an exisiting DB table
-
-# Arguments
-- `query`: The SQL query to reference
-
-# Examples
-```jldoctest
-
-julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
-                        groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
-                        value = repeat(1:5, 2), 
-                        percent = 0.1:0.1:1.0);
-
-julia> db = connect(duckdb());
-
-
-julia> dfm = dt(db, df, "df");
-
-julia> query_part =  @chain df_mem @select groups:percent; 
-
-julia> @chain t(query_part) @filter(value == 4) @collect
-2×3 DataFrame
- Row │ groups   value   percent  
-     │ String?  Int64?  Float64? 
-─────┼───────────────────────────
-   1 │ aa            4       0.4
-   2 │ bb            4       0.9
-
-julia> from_query(df_mem)
-SQLQuery("", "df_mem", "", "", "", "", "", "", false, false, 4×4 DataFrame
- Row │ name     type     current_selxn  table_name 
-     │ String?  String?  Int64          String     
-─────┼─────────────────────────────────────────────
-   1 │ id       VARCHAR              1  df_mem
-   2 │ groups   VARCHAR              1  df_mem
-   3 │ value    BIGINT               1  df_mem
-   4 │ percent  DOUBLE               1  df_mem, false, DuckDB.DB(":memory:"), TidierDB.CTE[], 0, nothing, "", "")
-```
-"""
-
 const docstring_union = 
 """
     @union(sql_query1, sql_query2, all = false)

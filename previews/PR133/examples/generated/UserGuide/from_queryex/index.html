@@ -24,7 +24,7 @@
     
     
       
-        <title>Reusing a Query (and Views) - TidierDB.jl</title>
+        <title>Reusing a Query and Views - TidierDB.jl</title>
       
     
     
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Reusing a Query (and Views)
+              Reusing a Query and Views
             
           </span>
         </div>
@@ -439,7 +439,7 @@
   
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing a Query and Views
     
   </span>
   
@@ -452,7 +452,7 @@
   
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing a Query and Views
     
   </span>
   
@@ -476,15 +476,6 @@
   <a href="#setup" class="md-nav__link">
     <span class="md-ellipsis">
       Setup
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#from_query-or-tquery" class="md-nav__link">
-    <span class="md-ellipsis">
-      from_query() or t(query)
     </span>
   </a>
   
@@ -814,15 +805,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#from_query-or-tquery" class="md-nav__link">
-    <span class="md-ellipsis">
-      from_query() or t(query)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#create_view" class="md-nav__link">
     <span class="md-ellipsis">
       @create_view
@@ -856,11 +838,11 @@
 
 
 
-  <h1>Reusing a Query (and Views)</h1>
+  <h1>Reusing a Query and Views</h1>
 
 <p>While using TidierDB, you may need to generate part of a query and reuse it multiple times. There are two ways to do this</p>
 <ol>
-<li><code>from_query(query)</code> or its alias <code>t(query)</code></li>
+<li>saving the query</li>
 <li><code>@create_view(name)</code></li>
 </ol>
 <p><a id='Setup'></a></p>
@@ -885,25 +867,44 @@
 <span class="w">            </span><span class="s">&quot;Low&quot;</span><span class="w"> </span><span class="p">)</span>
 <span class="w">    </span><span class="k">end</span>
 <span class="k">end</span><span class="p">;</span>
-</code></pre></div>
-<p><a id='from_query()-or-t(query)'></a></p>
-<p><a id='from_query()-or-t(query)-1'></a></p>
-<h2 id="from_query-or-tquery"><code>from_query()</code> or <code>t(query)</code><a class="headerlink" href="#from_query-or-tquery" title="Permanent link">¤</a></h2>
-<p><code>from_query</code>, or <code>t()</code> a convienece wrapper, will allow you to reuse the query to calculate the average horsepower for each efficiency category</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="k">begin</span>
+
+<span class="nd">@chain</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">   </span><span class="nd">@left_join</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span><span class="w"> </span><span class="n">cyl</span><span class="p">)</span>
 <span class="w">   </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">efficiency</span><span class="p">)</span>
 <span class="w">   </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">avg_hp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">hp</span><span class="p">))</span>
 <span class="w">   </span><span class="nd">@collect</span>
 <span class="k">end</span>
-</code></pre></div>
-<div><div style = "float: left;"><span>2×2 DataFrame</span></div><div style = "clear: both;"></div></div>
-<div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">efficiency</th><th style = "text-align: left;">avg_hp</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">Moderate</td><td style = "text-align: right;">180.238</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">High</td><td style = "text-align: right;">82.6364</td></tr></tbody></table></div>
 
+<span class="nd">@chain</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">avg_hp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">hp</span><span class="p">))</span>
+<span class="k">end</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>SQLQuery(&quot;SELECT AVG(hp) AS avg_hp&quot;, &quot;cte_2&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, true, true, false, 18×4 DataFrame
+ Row │ name         type     current_selxn  table_name
+     │ String       String   Int64          SubString…
+─────┼────────────────────────────────────────────────────────────────────────
+   1 │ model        VARCHAR              0  mtcars
+   2 │ mpg          DOUBLE               0  mtcars
+   3 │ cyl          BIGINT               0  mtcars
+   4 │ disp         DOUBLE               0  mtcars
+   5 │ hp           BIGINT               0  mtcars
+   6 │ drat         DOUBLE               0  mtcars
+   7 │ wt           DOUBLE               0  mtcars
+   8 │ qsec         DOUBLE               0  mtcars
+  ⋮  │      ⋮          ⋮           ⋮                        ⋮
+  12 │ carb         BIGINT               0  mtcars
+  13 │ mpg_mean     UNKNOWN              0  &#39;https://gist.githubusercontent.…
+  14 │ mpg_minimum  UNKNOWN              0  &#39;https://gist.githubusercontent.…
+  15 │ mpg_maximum  UNKNOWN              0  &#39;https://gist.githubusercontent.…
+  16 │ num_cars     UNKNOWN              0  &#39;https://gist.githubusercontent.…
+  17 │ efficiency   UNKNOWN              0  cte_2
+  18 │ avg_hp       UNKNOWN              1  cte_2
+                                                                3 rows omitted, false, DuckDB.DB(&quot;:memory:&quot;), TidierDB.CTE[TidierDB.CTE(&quot;cte_1&quot;, &quot; SELECT cyl, AVG(mpg) AS mpg_mean, MIN(mpg) AS mpg_minimum, MAX(mpg) AS mpg_maximum, COUNT(*) AS num_cars FROM &#39;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&#39; AS mtcars  GROUP BY cyl&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;), TidierDB.CTE(&quot;cte_2&quot;, &quot; cyl, mpg_mean, mpg_minimum, mpg_maximum, num_cars, CASE WHEN mpg_mean &gt;= 25 THEN &#39;High&#39; WHEN mpg_mean &gt;= 15 THEN &#39;Moderate&#39; ELSE &#39;Low&#39; END AS efficiency FROM cte_1 &quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;)], 2, nothing, &quot;&quot;, &quot;&quot;, 0, false, true, false)
+</code></pre></div>
 <p><a id='@create_view'></a></p>
 <p><a id='@create_view-1'></a></p>
 <h2 id="create_view">@create_view<a class="headerlink" href="#create_view" title="Permanent link">¤</a></h2>
-<p>Queries can also be reused as views.</p>
+<p>Queries can also be reused as views. This can be especially helpful when joining complex queries together, however, it is not necessary.</p>
 <div class="highlight"><pre><span></span><code><span class="n">query2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="nd">@filter</span><span class="p">(</span><span class="n">mpg</span><span class="o">&gt;</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpg</span><span class="w"> </span><span class="o">*</span><span class="mi">4</span><span class="p">);</span>
 <span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">    </span><span class="nd">@group_by</span><span class="w"> </span><span class="n">cyl</span>
@@ -933,13 +934,13 @@
 <p><a id='Preview-or-save-an-intermediate-table'></a></p>
 <p><a id='Preview-or-save-an-intermediate-table-1'></a></p>
 <h2 id="preview-or-save-an-intermediate-table">Preview or save an intermediate table<a class="headerlink" href="#preview-or-save-an-intermediate-table" title="Permanent link">¤</a></h2>
-<p>While querying a dataset, you may wish to see an intermediate table, or even save it. You can use <code>@aside</code> and <code>from_query(_)</code>, illustrated below, to do just that. While we opted to print the results in this simple example below, we could have saved them by using <code>name = @chain...</code></p>
+<p>While querying a dataset, you may wish to see an intermediate table, or even save it. You can use <code>@aside</code> and <code>_</code>, illustrated below, to do just that. While we opted to print the results in this simple example below, we could have saved them by using <code>name = @chain...</code></p>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="n">ClickHouse</span><span class="p">;</span>
 <span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">clickhouse</span><span class="p">();</span><span class="w"> </span><span class="n">host</span><span class="o">=</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">port</span><span class="o">=</span><span class="mi">19000</span><span class="p">,</span><span class="w"> </span><span class="n">database</span><span class="o">=</span><span class="s">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="s">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">)</span>
 <span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset/resolve/refs</span><span class="si">%2F</span><span class="s">convert</span><span class="si">%2F</span><span class="s">parquet/default/train/0000.parquet&quot;</span>
 <span class="nd">@chain</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">   </span><span class="nd">@count</span><span class="p">(</span><span class="n">artists</span><span class="p">)</span>
-<span class="w">   </span><span class="nd">@aside</span><span class="w"> </span><span class="n">println</span><span class="p">(</span><span class="nd">@chain</span><span class="w"> </span><span class="n">from_query</span><span class="p">(</span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="nd">@head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="nd">@collect</span><span class="p">)</span>
+<span class="w">   </span><span class="nd">@aside</span><span class="w"> </span><span class="n">println</span><span class="p">(</span><span class="nd">@chain</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="nd">@head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="nd">@collect</span><span class="p">)</span>
 <span class="w">   </span><span class="nd">@arrange</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
 <span class="w">   </span><span class="nd">@collect</span>
 <span class="k">end</span>

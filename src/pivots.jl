@@ -100,9 +100,7 @@ macro pivot_wider(sqlquery, args...)
     end
 
     return quote
-       sq = $(esc(sqlquery))
-       sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-       sq.reuse_table = false
+       sq = t($(esc(sqlquery)))
 
        local pivot_names = Any[]
        if $(esc(names_from)) isa Tuple

@@ -11,7 +11,6 @@ mutable struct CTE
 end
 
 mutable struct SQLQuery
-    reuse_table::Bool
     select::String
     from::String
     where::String
@@ -36,7 +35,7 @@ mutable struct SQLQuery
     post_mutate::Bool
     post_count::Bool
     groupBy_exprs::Bool
-    function SQLQuery(;reuse_table = true, select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
+    function SQLQuery(; select::String="", from::String="", where::String="", groupBy::String="", orderBy::String="", having::String="", 
         window_order::String="", windowFrame::String="", is_aggregated::Bool=false, post_aggregation::Bool=false, post_join::Bool=false, metadata::DataFrame=DataFrame(), 
         distinct::Bool=false, db::Any=nothing, ctes::Vector{CTE}=Vector{CTE}(), cte_count::Int=0, athena_params::Any=nothing, limit::String="", 
         ch_settings::String="", join_count::Int = 0, post_unnest::Bool = false, post_mutate::Bool = false,  post_count::Bool = false, groupBy_exprs::Bool = false)
@@ -73,7 +72,6 @@ function from_query(query::TidierDB.SQLQuery)
         ch_settings = query.ch_settings,
         join_count = query.join_count,
         post_unnest = query.post_unnest,
-        reuse_table = false,
         post_mutate = query.post_mutate,
         post_count = query.post_count,
         groupBy_exprs = query.groupBy_exprs

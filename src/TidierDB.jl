@@ -9,7 +9,6 @@ using Arrow
 using HTTP
 using JSON3
 using GZip
-using Crayons
 
 @reexport using DataFrames: DataFrame
 @reexport using Chain

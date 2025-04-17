@@ -46,9 +46,7 @@ macro relocate(sqlquery, exprs...)
     cols, before_col, after_col = parse_relocate_args(exprs)
 
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         meta = sq.metadata
 
         selected_indices = findall(x -> x > 0, meta.current_selxn)

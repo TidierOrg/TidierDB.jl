@@ -40,26 +40,4 @@
 # 1. The table needs to be passed as a string in the format database.table, ie `"demodb.table_name`
 # 2. `dt` requires a third argument: the athena_params from above.
 
-# ## Leveraging `from_query` with Athena to reduce number of queries 
-# Throughout TidierDB, each time `dt` is called, it queries the databases to get the metadata. Consider how AWS Athena logs queries, a user may want to reduce the number of queries. This can be done saving the results of `dt`, and then using from_query with those results for furthe queries as shown below.
-
-# ```julia
-# mtcars = dt(AWS_GLOBAL_CONFIG[], "demodb.mtcars", athena_params)
-# @chain from_query(mtcars) begin
-#     @filter(cyl > 4)
-#     @group_by(cyl)
-#     @summarize(mpg = mean(mpg))
-#    #@show_query
-#     @collect
-# end
-# ```
-# ```
-# 2×2 DataFrame
-#  Row │ cyl    mpg     
-#      │ Int64  Float64 
-# ─────┼────────────────
-#    1 │     6  19.7429
-#    2 │     8  15.1
-# ``` 
-
 # I would like to acknowledge the work of Manu Francis and this [blog post](https://medium.com/@manuedavakandam/beginners-guide-to-aws-athena-with-julia-a0192f7f4b4a), which helped guide this process  

@@ -47,9 +47,7 @@ macro unnest_wider(sqlquery, cols...)
     
     return quote
         # Evaluate the SQLQuery object.
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         
         sq.post_unnest ? build_cte!(sq) : nothing
 
@@ -94,9 +92,7 @@ macro unnest_longer(sqlquery, cols...)
     col_names = [string(c) for c in cols]
     return quote
         # Evaluate the SQLQuery object.
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
 
         sq.post_unnest ? build_cte!(sq) : nothing
         # Embed the list of column names as a literal vector.

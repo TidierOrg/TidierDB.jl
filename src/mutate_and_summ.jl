@@ -116,9 +116,7 @@ macro mutate(sqlquery, mutations...)
     mutations = parse_blocks(mutations...)
 
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         sq.post_mutate = true
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
@@ -293,9 +291,7 @@ macro summarize(sqlquery, expressions...)
     expressions = parse_blocks(expressions...)
 
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         if isa(sq, SQLQuery)
             summary_str = String[]
             sq.metadata.current_selxn .= 0
@@ -387,9 +383,7 @@ macro transmute(sqlquery, mutations...)
     mutations = parse_blocks(mutations...)
 
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         if isa(sq, SQLQuery)
             cte_name = "cte_" * string(sq.cte_count + 1)
 
@@ -539,9 +533,7 @@ $docstring_summary
 """
 macro summary(sqlquery)
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         if isa(sq, SQLQuery)
             if (sq.cte_count > 0 || sq.select != "")
                 throw("@summary can only be used on tables un")

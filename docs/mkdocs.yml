@@ -122,7 +122,7 @@ nav:
   - "Joining Tables" : "examples/generated/UserGuide/ex_joining.md"
   - "Aggregate and Window Functions" : "examples/generated/UserGuide/agg_window.md"
   - "Flexible Syntax and UDFs" : "examples/generated/UserGuide/udfs_ex.md"
-  - "Reusing a Query (and Views)" : "examples/generated/UserGuide/from_queryex.md"
+  - "Reusing a Query and Views" : "examples/generated/UserGuide/from_queryex.md"
   - "Dates" : "examples/generated/UserGuide/dates.md"
   - "Unnesting Columns" : "examples/generated/UserGuide/unnesting.md"
   - "S3 + DuckDB + TidierDB" : "examples/generated/UserGuide/s3viaduckdb.md"

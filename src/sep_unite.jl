@@ -37,9 +37,7 @@ macro separate(sqlquery, col, new_cols, sep)
     new_cols_names = [string(x) for x in new_cols.args]
 
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
         
         sq.post_unnest ? build_cte!(sq) : nothing
         names = replace.($new_cols_names, ":" => "")
@@ -102,9 +100,7 @@ macro unite(sqlquery, new_col, col_tuple, sep, args...)
     new_col_str = string(new_col)
     col_names = [string(x) for x in col_tuple.args]
     return quote
-        sq = $(esc(sqlquery))
-        sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq = t($(esc(sqlquery)))
 
         cols = filter_columns_by_expr($col_names, sq.metadata)
         unite(sq, $(QuoteNode(new_col_str)), cols, $(esc(sep)); remove=$(esc(remove_expr)))

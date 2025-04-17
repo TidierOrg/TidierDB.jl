@@ -205,36 +205,6 @@ macro group_by(sqlquery, columns...)
         sq.reuse_table = false
 
         if isa(sq, SQLQuery)
-            if any(col -> isa(col, Expr) && col.head == :(=), $columns)
-                # ───── forced fallback ─────
-                sq.groupBy_exprs = true
-                local group_expressions = String[]
-                local group_aliases    = String[]
-
-                for col in $columns
-                    if isa(col, Expr) && col.head == :(=)
-                        let tup = groupby_exp(col, sq)
-                            push!(group_expressions, tup[2])
-                            push!(group_aliases,    tup[1])
-                        end
-                    else
-                        # ← **changed**: only the raw column name
-                        for nm in parse_tidy_db([col], sq.metadata)
-                            push!(group_expressions, nm)
-                            push!(group_aliases,    nm)
-                        end
-                    end
-                end
-
-                sq.groupBy = "GROUP BY " * join(group_aliases, ", ")
-                local orig = filter(x->!isempty(strip(x)), split(sq.select, ", "))
-                if !isempty(orig) && startswith(orig[1], "SELECT ")
-                    orig[1] = replace(orig[1], "SELECT " => "")
-                end
-                sq.select = "SELECT " * join(vcat(group_expressions, orig), ", ")
-
-            else
-                # ───── standard path ─────
                 try
                     let group_columns = parse_tidy_db(columns_str, sq.metadata)
                         sq.groupBy = "GROUP BY " * join(group_columns, ", ")
@@ -244,7 +214,6 @@ macro group_by(sqlquery, columns...)
                         sq.select = "SELECT " * join(allcols, ", ")
                     end
                 catch
-                    # ───── catch fallback ─────
                     sq.groupBy_exprs = true
                     local group_expressions = String[]
                     local group_aliases    = String[]
@@ -256,7 +225,6 @@ macro group_by(sqlquery, columns...)
                                 push!(group_aliases,    tup[1])
                             end
                         else
-                            # ← **same change** here
                             for nm in parse_tidy_db([col], sq.metadata)
                                 push!(group_expressions, nm)
                                 push!(group_aliases,    nm)
@@ -271,8 +239,6 @@ macro group_by(sqlquery, columns...)
                     end
                     sq.select = "SELECT " * join(vcat(group_expressions, orig), ", ")
                 end
-            end
-
         else
             error("Expected sqlquery to be an instance of SQLQuery")
         end

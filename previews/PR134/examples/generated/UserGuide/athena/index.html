@@ -432,7 +432,7 @@
   
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing a Query and Views
     
   </span>
   
@@ -573,15 +573,6 @@
   <a href="#dt-differences" class="md-nav__link">
     <span class="md-ellipsis">
       dt differences
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#leveraging-from_query-with-athena-to-reduce-number-of-queries" class="md-nav__link">
-    <span class="md-ellipsis">
-      Leveraging from_query with Athena to reduce number of queries
     </span>
   </a>
   
@@ -813,15 +804,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#leveraging-from_query-with-athena-to-reduce-number-of-queries" class="md-nav__link">
-    <span class="md-ellipsis">
-      Leveraging from_query with Athena to reduce number of queries
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -883,26 +865,6 @@
 <li>The table needs to be passed as a string in the format database.table, ie <code>"demodb.table_name</code></li>
 <li><code>dt</code> requires a third argument: the athena_params from above.</li>
 </ol>
-<p><a id='Leveraging-from_query-with-Athena-to-reduce-number-of-queries'></a></p>
-<p><a id='Leveraging-from_query-with-Athena-to-reduce-number-of-queries-1'></a></p>
-<h2 id="leveraging-from_query-with-athena-to-reduce-number-of-queries">Leveraging <code>from_query</code> with Athena to reduce number of queries<a class="headerlink" href="#leveraging-from_query-with-athena-to-reduce-number-of-queries" title="Permanent link">¤</a></h2>
-<p>Throughout TidierDB, each time <code>dt</code> is called, it queries the databases to get the metadata. Consider how AWS Athena logs queries, a user may want to reduce the number of queries. This can be done saving the results of <code>dt</code>, and then using from_query with those results for furthe queries as shown below.</p>
-<div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">AWS_GLOBAL_CONFIG</span><span class="p">[],</span><span class="w"> </span><span class="s">&quot;demodb.mtcars&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">athena_params</span><span class="p">)</span>
-<span class="nd">@chain</span><span class="w"> </span><span class="n">from_query</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
-<span class="w">    </span><span class="nd">@filter</span><span class="p">(</span><span class="n">cyl</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span>
-<span class="w">    </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
-<span class="w">    </span><span class="nd">@summarize</span><span class="p">(</span><span class="n">mpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">mpg</span><span class="p">))</span>
-<span class="w">   </span><span class="c">#@show_query</span>
-<span class="w">    </span><span class="nd">@collect</span>
-<span class="k">end</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>2×2 DataFrame
- Row │ cyl    mpg
-     │ Int64  Float64
-─────┼────────────────
-   1 │     6  19.7429
-   2 │     8  15.1
-</code></pre></div>
 <p>I would like to acknowledge the work of Manu Francis and this <a href="https://medium.com/@manuedavakandam/beginners-guide-to-aws-athena-with-julia-a0192f7f4b4a">blog post</a>, which helped guide this process</p>
 <hr />
 <p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p>

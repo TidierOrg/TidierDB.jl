@@ -551,7 +551,7 @@
   
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing a Query and Views
     
   </span>
   
@@ -994,7 +994,7 @@
 <span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb</span><span class="p">())</span>
 <span class="n">mtcars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&quot;</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>SQLQuery(true, &quot;&quot;, &quot;&#39;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&#39; AS mtcars &quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, false, false, false, 12×4 DataFrame
+<div class="highlight"><pre><span></span><code>SQLQuery(&quot;&quot;, &quot;&#39;https://gist.githubusercontent.com/seankross/a412dfbd88b3db70b74b/raw/5f23f993cd87c283ce766e7ac6b329ee7cc2e1d1/mtcars.csv&#39; AS mtcars &quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, false, false, false, 12×4 DataFrame
  Row │ name    type     current_selxn  table_name
      │ String  String   Int64          SubString…
 ─────┼────────────────────────────────────────────

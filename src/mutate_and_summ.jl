@@ -349,8 +349,9 @@ macro summarize(sqlquery, expressions...)
             if startswith(existing_select, "SELECT")
                 sq.select = existing_select * ", " * summary_clause
 
-            elseif !isempty(existing_select)  
+            elseif sq.groupBy_exprs
                 sq.select *=  ", " * summary_clause
+                sq.groupBy_exprs
             else
                 if $(esc(grouping_var)) != nothing
                     sq.select = "SELECT " * replace(sq.groupBy, "GROUP BY " => "") * ", " * summary_clause

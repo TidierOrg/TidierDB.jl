@@ -199,51 +199,88 @@ $docstring_group_by
 macro group_by(sqlquery, columns...)
     columns = parse_blocks(columns...)
     return quote
-        # Attempt the standard processing first.
         columns_str = map(col -> isa(col, Symbol) ? string(col) : col, $columns)
         sq = $(esc(sqlquery))
         sq = sq.reuse_table ? t($(esc(sqlquery))) : sq
-        sq.reuse_table = false; 
+        sq.reuse_table = false
+
         if isa(sq, SQLQuery)
-            try
-                let group_columns = parse_tidy_db(columns_str, sq.metadata)
-                    group_clause = "GROUP BY " * join(group_columns, ", ")
-                    sq.groupBy = group_clause
-
-                    current_group_columns = group_columns
-                    summarized_columns = split(sq.select, ", ")[2:end]  # Exclude the initial SELECT
-                    all_columns = unique(vcat(current_group_columns, summarized_columns))
-                    sq.select = "SELECT " * join(all_columns, ", ")
-                end
-            catch
-                # If standard parsing fails (e.g. due to assignment expressions), process each column manually.
+            if any(col -> isa(col, Expr) && col.head == :(=), $columns)
+                # ───── forced fallback ─────
+                sq.groupBy_exprs = true
                 local group_expressions = String[]
-                local group_aliases = String[]
+                local group_aliases    = String[]
+
                 for col in $columns
-                    alias, group_sql = groupby_exp(col, sq)
-                    push!(group_expressions, group_sql)
-                    push!(group_aliases, alias)
+                    if isa(col, Expr) && col.head == :(=)
+                        let tup = groupby_exp(col, sq)
+                            push!(group_expressions, tup[2])
+                            push!(group_aliases,    tup[1])
+                        end
+                    else
+                        # ← **changed**: only the raw column name
+                        for nm in parse_tidy_db([col], sq.metadata)
+                            push!(group_expressions, nm)
+                            push!(group_aliases,    nm)
+                        end
+                    end
                 end
-                # Build the GROUP BY clause using the collected aliases.
+
                 sq.groupBy = "GROUP BY " * join(group_aliases, ", ")
-
-                # Split the original SELECT clause and remove any empty strings.
-                local original_select_columns = filter(x -> !isempty(strip(x)),
-                                                      split(sq.select, ", "))
-                if !isempty(original_select_columns) && startswith(original_select_columns[1], "SELECT ")
-                    original_select_columns[1] = replace(original_select_columns[1], "SELECT " => "")
+                local orig = filter(x->!isempty(strip(x)), split(sq.select, ", "))
+                if !isempty(orig) && startswith(orig[1], "SELECT ")
+                    orig[1] = replace(orig[1], "SELECT " => "")
                 end
+                sq.select = "SELECT " * join(vcat(group_expressions, orig), ", ")
 
-                # Combine group expressions and original columns.
-                local all_columns = vcat(group_expressions, original_select_columns)
-                sq.select = "SELECT " * join(all_columns, ", ")
+            else
+                # ───── standard path ─────
+                try
+                    let group_columns = parse_tidy_db(columns_str, sq.metadata)
+                        sq.groupBy = "GROUP BY " * join(group_columns, ", ")
+                        current = group_columns
+                        rest    = split(sq.select, ", ")[2:end]
+                        allcols = unique(vcat(current, rest))
+                        sq.select = "SELECT " * join(allcols, ", ")
+                    end
+                catch
+                    # ───── catch fallback ─────
+                    sq.groupBy_exprs = true
+                    local group_expressions = String[]
+                    local group_aliases    = String[]
+
+                    for col in $columns
+                        if isa(col, Expr) && col.head == :(=)
+                            let tup = groupby_exp(col, sq)
+                                push!(group_expressions, tup[2])
+                                push!(group_aliases,    tup[1])
+                            end
+                        else
+                            # ← **same change** here
+                            for nm in parse_tidy_db([col], sq.metadata)
+                                push!(group_expressions, nm)
+                                push!(group_aliases,    nm)
+                            end
+                        end
+                    end
+
+                    sq.groupBy = "GROUP BY " * join(group_aliases, ", ")
+                    local orig = filter(x->!isempty(strip(x)), split(sq.select, ", "))
+                    if !isempty(orig) && startswith(orig[1], "SELECT ")
+                        orig[1] = replace(orig[1], "SELECT " => "")
+                    end
+                    sq.select = "SELECT " * join(vcat(group_expressions, orig), ", ")
+                end
             end
+
         else
             error("Expected sqlquery to be an instance of SQLQuery")
         end
+
         sq
     end
 end
+
 
 """
 $docstring_distinct

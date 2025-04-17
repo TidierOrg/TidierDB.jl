@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.4af4bdda.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.2afb09e1.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -432,7 +432,7 @@
   
   
   <span class="md-ellipsis">
-    Reusing a Query (and Views)
+    Reusing a Query and Views
     
   </span>
   
@@ -820,7 +820,7 @@
 <ul>
 <li>Your OAuth Token may frequently expire, which may require you to rerun your connection line.</li>
 <li>
-<p>Since each time <code>dt</code> runs, it runs a query to pull the metadata, you may choose to use run <code>dt</code> and save the results, and use these results with<code>from_query()</code></p>
+<p>Since each time <code>dt</code> runs, it runs a query to pull the metadata, you may choose to use run <code>dt</code> and save the results.</p>
 <ul>
 <li>This will reduce the number of queries to your database</li>
 <li>Allow you to build a a SQL query and <code>@show_query</code> even if the OAuth_token has expired. To <code>@collect</code> you will have to reconnect and rerun <code>dt</code> if your OAuth token has expired</li>
@@ -832,8 +832,8 @@
 <span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;OAuth_token_string&quot;</span>
 <span class="n">con</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="ss">:snowflake</span><span class="p">,</span><span class="w"> </span><span class="n">ac_id</span><span class="p">,</span><span class="w"> </span><span class="n">token</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;DEMODB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PUBLIC&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;COMPUTE_WH&quot;</span><span class="p">)</span>
 <span class="c"># After connection is established, a you may begin querying.</span>
-<span class="n">stable_table_metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MTCARS&quot;</span><span class="p">)</span>
-<span class="nd">@chain</span><span class="w"> </span><span class="n">from_query</span><span class="p">(</span><span class="n">stable_table_metadata</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="n">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dt</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MTCARS&quot;</span><span class="p">)</span>
+<span class="nd">@chain</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">   </span><span class="nd">@select</span><span class="p">(</span><span class="n">WT</span><span class="p">)</span>
 <span class="w">   </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">TEST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WT</span><span class="w"> </span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
 <span class="w">   </span><span class="c">#@aside @show_query _</span>

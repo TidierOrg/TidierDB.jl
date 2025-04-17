@@ -39,7 +39,7 @@ mutable struct SQLQuery
         window_order::String="", windowFrame::String="", is_aggregated::Bool=false, post_aggregation::Bool=false, post_join::Bool=false, metadata::DataFrame=DataFrame(), 
         distinct::Bool=false, db::Any=nothing, ctes::Vector{CTE}=Vector{CTE}(), cte_count::Int=0, athena_params::Any=nothing, limit::String="", 
         ch_settings::String="", join_count::Int = 0, post_unnest::Bool = false, post_mutate::Bool = false,  post_count::Bool = false, groupBy_exprs::Bool = false)
-        new(reuse_table, select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, 
+        new(select, from, where, groupBy, orderBy, having, window_order, windowFrame, is_aggregated, 
         post_aggregation, post_join, metadata, distinct, db, ctes, cte_count, athena_params, limit, ch_settings, join_count, post_unnest, post_mutate, post_count, groupBy_exprs)
     end
 end

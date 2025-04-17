@@ -206,9 +206,6 @@ macro group_by(sqlquery, columns...)
         columns_str = map(col -> isa(col, Symbol) ? string(col) : col, $columns)
         sq = t($(esc(sqlquery)))
         if isa(sq, SQLQuery)
-
-
-        if isa(sq, SQLQuery)
                 try
                     let group_columns = parse_tidy_db(columns_str, sq.metadata)
                         sq.groupBy = "GROUP BY " * join(group_columns, ", ")

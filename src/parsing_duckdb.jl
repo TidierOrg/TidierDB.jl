@@ -164,7 +164,7 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
                     return string("regexp_matches(", column, ", '", pattern_str, "')")
                 end
             elseif x.args[1] == :n && length(x.args) == 1
-                return from_summarize ? "COUNT(*)" : "COUNT(*) $(construct_window_clause(sq))"
+                return from_summarize ? "***COUNT(*)***" : "***COUNT(*) $(construct_window_clause(sq))***"
             elseif string(x.args[1]) in String.(window_agg_fxns)
                     if from_summarize
                         return x

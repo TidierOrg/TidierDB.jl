@@ -97,7 +97,6 @@ function process_mutate_expression(expr, sq, select_expressions, cte_name; from_
         push!(select_expressions, col_expr)
         meta = DataFrame(DBInterface.execute(sq.db,"""
           DESCRIBE  SELECT  u.* FROM (SELECT UNNEST(items) AS u FROM $(sq.from))"""))
-      #  println( "HERE",  meta.column_name, meta.column_type)
         for n in 1:nrow(meta)
             push!(sq.metadata, Dict("name" => meta.column_name[n], "type" => meta.column_type[n] , "current_selxn" => 1, "table_name" => cte_name))
         end
@@ -212,8 +211,18 @@ macro mutate(sqlquery, mutations...)
             if $(esc(grouping_var)) != nothing
                 sq.groupBy = ""
             end
+     
                 # Construct CTE SQL, handling aggregated queries differently
             cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
+            if sq.groupBy_exprs
+                paren_sql, aliases = extract_paren_aliases(sq.select)
+                for (i, alias) in enumerate(aliases)
+                    pattern = Regex(", " * alias * "\\b")
+                    cte_sql = replace(cte_sql, pattern => ", " * paren_sql[i], count=1)
+                end
+                sq.groupBy_exprs = false
+            end
+            
             if sq.is_aggregated
                 cte_sql *= " " * sq.groupBy
                 sq.is_aggregated = false
@@ -546,4 +555,16 @@ macro summary(sqlquery)
         end
         sq
     end
+end
+
+function extract_paren_aliases(sel::String)
+    # drop the leading “SELECT ”
+    body = replace(sel, r"(?i)^\s*SELECT\s+" => "")
+    paren_sql = String[]
+    aliases   = String[]
+    for m in eachmatch(r"(\(.*?\)\s+AS\s+(\w+))", body)
+        push!(paren_sql, m.captures[1])
+        push!(aliases,   m.captures[2])
+    end
+    return paren_sql, aliases
 end

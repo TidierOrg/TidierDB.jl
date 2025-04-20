@@ -157,7 +157,6 @@ julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9],
 
 julia> db = connect(duckdb());
 
-
 julia> @chain dt(db, df, "df_view") begin
          @group_by(groups)
          @arrange(groups)
@@ -169,6 +168,19 @@ julia> @chain dt(db, df, "df_view") begin
 ─────┼────────
    1 │ aa
    2 │ bb
+
+julia> @chain dt(db, df, "df_view") begin
+         @group_by(big_val = if_else(value > 3, "big", "small"))
+         @summarise(n=n())
+         @arrange(big_val)
+         @collect
+       end
+2×2 DataFrame
+ Row │ big_val  n     
+     │ String   Int64 
+─────┼────────────────
+   1 │ big          4
+   2 │ small        6
 ```
 """
 

@@ -1,6 +1,7 @@
 # TidierDB.jl updates
-## v.8.4 - 2025-04-16
+## v.8.4 - 2025-04-19
 - Queries no longer edit underlying SQLQuery struct, but rather a copy removing the need for `t` or `from_query`
+- add expression support for `@group_by` 
 
 ## v.8.3 - 2025-04-14
 - adds `@drop_missing`

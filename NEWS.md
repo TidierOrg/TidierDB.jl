@@ -1,4 +1,7 @@
 # TidierDB.jl updates
+## v.8.5 - 2025-04-21
+- Fix macro hygeine `@mutate` warning with Pluto Notebooks
+
 ## v.8.4 - 2025-04-19
 - Queries no longer edit underlying SQLQuery struct, but rather a copy removing the need for `t` or `from_query`
 - add expression support for `@group_by` 

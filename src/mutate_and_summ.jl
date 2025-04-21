@@ -132,7 +132,7 @@ macro mutate(sqlquery, mutations...)
                
                 select_expressions = !isempty(sq.select) ? [sq.select] : ["*"]
 
-                cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
+                local cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
                 if sq.is_aggregated && !isempty(sq.groupBy)
                     cte_sql *= " " * sq.groupBy
                     sq.groupBy = ""
@@ -213,7 +213,7 @@ macro mutate(sqlquery, mutations...)
             end
      
                 # Construct CTE SQL, handling aggregated queries differently
-            cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
+            local cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
             if sq.groupBy_exprs
                 paren_sql, aliases = extract_paren_aliases(sq.select)
                 for (i, alias) in enumerate(aliases)
@@ -408,7 +408,7 @@ macro transmute(sqlquery, mutations...)
                
                 select_expressions = !isempty(sq.select) ? [sq.select] : ["*"]
 
-                cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
+                local cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
                 if sq.is_aggregated && !isempty(sq.groupBy)
                     cte_sql *= " " * sq.groupBy
                     sq.groupBy = ""
@@ -504,7 +504,7 @@ macro transmute(sqlquery, mutations...)
                 sq.groupBy = ""
             end
                 # Construct CTE SQL, handling aggregated queries differently
-            cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
+            local cte_sql = " " * join(select_expressions, ", ") * " FROM " * sq.from
             if sq.is_aggregated
                 cte_sql *= " " * sq.groupBy
                 sq.is_aggregated = false

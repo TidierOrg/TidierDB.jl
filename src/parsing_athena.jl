@@ -62,6 +62,10 @@ function expr_to_sql_trino(expr, sq; from_summarize::Bool)
                 window_clause = construct_window_clause(sq, )
                 return  "STDDEV_SAMP($(string(a))) $(window_clause)"
             end
+        elseif @capture(x, max(a_))
+            error("To find the maximum, please use `maximum`, not `max`")
+        elseif @capture(x, min(a_))
+            error("To find the minimum, please use `minimum`, not `min`") 
         elseif isa(x, Expr) && x.head == :call && x.args[1] == :agg
             args = x.args[2:end]       # Capture all arguments to agg
             if from_summarize

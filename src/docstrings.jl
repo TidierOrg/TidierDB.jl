@@ -2244,7 +2244,7 @@ const docstring_pivot_wider =
 
 Reshapes the SQL_query to make it wider, increasing the number of columns and reducing the number of rows.
 
-`@pivot_wider` requires some eagerness to pul the disticnt values in the `names_from` columns. It will take the 
+`@pivot_wider` requires some eagerness to pull the disticnt values in the `names_from` columns. It will take the 
 query until the point of the `@pivot_wider`, and run a query to pull the disinct values in the `names_from` column
 
 # Arguments
@@ -2262,11 +2262,11 @@ julia> db = connect(duckdb()); dbdf = dt(db, df_long, "df");
 
 julia> @collect @pivot_wider(dbdf, names_from = variable, values_from = value)
 2×3 DataFrame
- Row │ id     A       B      
-     │ Int64  Int64?  Int64?
-─────┼───────────────────────
-   1 │     1       1       2
-   2 │     2       3       4
+ Row │ id     A      B     
+     │ Int64  Int64  Int64 
+─────┼─────────────────────
+   1 │     1      1      2
+   2 │     2      3      4
 
 julia> future_col_names = (:variable, [:A, :B]); 
 
@@ -2277,6 +2277,46 @@ julia> @eval @collect @pivot_wider(dbdf, names_from = \$future_col_names, values
 ─────┼─────────────────────
    1 │     1      1      2
    2 │     2      3      4
+```
+"""
+
+const docstring_pivot_longer =
+"""
+   @pivot_longer(df, names_from, values_from)
+
+Reshapes the SQL_query to make it longer, increasing the number of rows and reducing the number of columns.
+
+# Arguments
+- `sql_query`: The SQL query
+- `cols`: Columns to pivot into longer format. Multiple columns can be selected
+- `names_from`: Optional, defaults to variable. The name of the newly created column whose values will contain the input DataFrame's column names.
+- `values_from`:  Optional, defaults to value. The name of the newly created column containing the input DataFrame's cell values.
+
+# Examples
+```jldoctest
+julia> df = DataFrame(id = [1, 2], A = [1, 3], B = [2, 4]);
+
+julia> db = connect(duckdb()); df_wide = dt(db, df, "df");
+
+julia> @collect @pivot_longer(df_wide, A:B)
+4×3 DataFrame
+ Row │ id     variable  value 
+     │ Int64  String    Int64 
+─────┼────────────────────────
+   1 │     1  A             1
+   2 │     2  A             3
+   3 │     1  B             2
+   4 │     2  B             4
+
+julia> @collect @pivot_longer(df_wide, A:B, names_to = "letter", values_to = "number")
+4×3 DataFrame
+ Row │ id     letter  number 
+     │ Int64  String  Int64  
+─────┼───────────────────────
+   1 │     1  A            1
+   2 │     2  A            3
+   3 │     1  B            2
+   4 │     2  B            4
 ```
 """
 

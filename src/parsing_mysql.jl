@@ -54,6 +54,10 @@ function expr_to_sql_mysql(expr, sq; from_summarize::Bool)
                window_clause = construct_window_clause(sq, from_cumsum = true)
                return  "SUM($(string(a))) $(window_clause)"
             end
+        elseif @capture(x, max(a_))
+            error("To find the maximum, please use `maximum`, not `max`") # COV_EXCL_LINE
+        elseif @capture(x, min(a_))
+            error("To find the minimum, please use `minimum`, not `min`") # COV_EXCL_LINE
         #stats agg
         elseif @capture(x, std(a_))
             if from_summarize

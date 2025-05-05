@@ -67,10 +67,7 @@ function expr_to_sql_lite(expr, sq; from_summarize::Bool)
                 str = "$(arg_str)"
                 return "$(str) $(window_clause)"
             end
-        elseif @capture(x, max(a_))
-            error("To find the maximum, please use `maximum`, not `max`") # COV_EXCL_LINE
-        elseif @capture(x, min(a_))
-            error("To find the minimum, please use `minimum`, not `min`") # COV_EXCL_LINE
+
     # exc_capture_bug used above to allow proper _ function name capturing
         elseif @capture(x, replacemissing(column_, replacement_value_))
             return :(COALESCE($column, $replacement_value))

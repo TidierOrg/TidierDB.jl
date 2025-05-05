@@ -304,7 +304,10 @@ macro summarize(sqlquery, expressions...)
         if isa(sq, SQLQuery)
             summary_str = String[]
             sq.metadata.current_selxn .= 0
-
+            if sq.is_aggregated 
+                build_cte!(sq)
+                sq.select = ""
+            end
             # Set the grouping variable if `by` is provided
             if $(esc(grouping_var)) != nothing
                 group_vars = $(esc(grouping_var))
@@ -320,6 +323,7 @@ macro summarize(sqlquery, expressions...)
 
             # Update metadata for grouping columns
             if !isempty(sq.groupBy)
+                
                 groupby_columns = split(replace(sq.groupBy, "GROUP BY " => ""), ", ")
                 groupby_columns = strip.(groupby_columns)
                 for groupby_column in groupby_columns

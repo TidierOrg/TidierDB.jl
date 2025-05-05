@@ -239,6 +239,7 @@ macro group_by(sqlquery, columns...)
                         orig[1] = replace(orig[1], "SELECT " => "")
                     end
                     sq.select = "SELECT " * join(vcat(group_expressions, orig), ", ")
+                    sq.select = replace(sq.select, " all," => "")
                 end
         else
             error("Expected sqlquery to be an instance of SQLQuery")

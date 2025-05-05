@@ -27,14 +27,14 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
                 window_clause = construct_window_clause(sq)
                 return  "***AVG($(string(a))) $(window_clause)***"
             end
-        elseif @capture(x, minimum(a_))
+        elseif @capture(x, minimum(a_)) || @capture(x, min(a_))
             if from_summarize
                 return :(MIN($a))
             else
                 window_clause = construct_window_clause(sq)
                 return  "***MIN($(string(a))) $(window_clause)***"
             end
-        elseif @capture(x, maximum(a_))
+        elseif @capture(x, maximum(a_)) || @capture(x, max(a_))
             if from_summarize
                 return :(MAX($a))
             else
@@ -56,10 +56,6 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
                window_clause = construct_window_clause(sq, from_cumsum = true)
                return  "***SUM($(string(a))) $(window_clause)***"
             end
-        elseif @capture(x, max(a_))
-            error("To find the maximum, please use `maximum`, not `max`") # COV_EXCL_LINE
-        elseif @capture(x, min(a_))
-            error("To find the minimum, please use `minimum`, not `min`") # COV_EXCL_LINE
         #stats agg
         elseif @capture(x, std(a_))
             if from_summarize
@@ -91,7 +87,7 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
         elseif @capture(x, strremove(str_, pattern_))
             return :(REGEXP_REPLACE($str, $pattern, ""))
         elseif @capture(x, ismissing(a_))
-            return  "($(string(a)) IS NULL)"
+            return  "***($(string(a)) IS NULL)***"
         # Date extraction functions
         elseif @capture(x, column_[key_])
             # Convert variables to strings if necessary
@@ -102,18 +98,6 @@ function expr_to_sql_duckdb(expr, sq; from_summarize::Bool)
             else
                 return """ CASE WHEN $column_str IS NULL THEN NULL ELSE COALESCE(  LIST_EXTRACT( CASE  WHEN '$key_str' IS NULL THEN NULL ELSE ELEMENT_AT($column_str, '$key_str') END, 1 ), NULL) END ***"""
             end
-        elseif @capture(x, year(a_))
-            return "(__( EXTRACT(YEAR FROM " * string(a) * ") ***"
-        elseif @capture(x, month(a_))
-            return "(__( EXTRACT(MONTH FROM " * string(a) * ") ***"
-        elseif @capture(x, day(a_))
-            return "(__( EXTRACT(DAY FROM " * string(a) * ") ***"
-        elseif @capture(x, hour(a_))
-            return "(__( EXTRACT(HOUR FROM " * string(a) * ") ***"
-        elseif @capture(x, minute(a_))
-            return "(__( EXTRACT(MINUTE FROM " * string(a) * ") ***"
-        elseif @capture(x, second(a_))
-            return "(__( EXTRACT(SECOND FROM " * string(a) * ") ***"
         elseif @capture(x, Year(a_))
             return "(__( INTERVAL $(string(a)) Year )__("
         elseif @capture(x, Month(a_))

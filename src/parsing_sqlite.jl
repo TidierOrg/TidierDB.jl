@@ -67,6 +67,7 @@ function expr_to_sql_lite(expr, sq; from_summarize::Bool)
                 str = "$(arg_str)"
                 return "$(str) $(window_clause)"
             end
+
     # exc_capture_bug used above to allow proper _ function name capturing
         elseif @capture(x, replacemissing(column_, replacement_value_))
             return :(COALESCE($column, $replacement_value))

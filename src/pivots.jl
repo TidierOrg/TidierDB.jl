@@ -59,6 +59,10 @@ function pivot_wider_sql(sq::SQLQuery, names_col, values_cols::Vector{String})
     return pivot_sql
 end
 
+
+"""
+$docstring_pivot_wider
+"""
 macro pivot_wider(sqlquery, args...)
     # Initialize parameters.
     local names_from = nothing
@@ -161,5 +165,110 @@ macro pivot_wider(sqlquery, args...)
        sq.groupBy = ""
        sq.select = ""
        sq
+    end
+end
+
+
+function pivot_longer_sql(sq::SQLQuery, pivot_cols::Vector{String},
+                          names_to::String, values_to::String,
+                          id_cols::Vector{String})
+    cte_name = "cte_" * string(sq.cte_count + 1)
+    build_cte!(sq)
+
+    push!(sq.metadata, Dict("name" => names_to,
+                            "type" => "UNKNOWN",
+                            "current_selxn" => 1,
+                            "table_name" => cte_name))
+    push!(sq.metadata, Dict("name" => values_to,
+                            "type" => "UNKNOWN",
+                            "current_selxn" => 1,
+                            "table_name" => cte_name))
+
+    for row in eachrow(sq.metadata)
+        if row[:name] in pivot_cols
+            row.current_selxn = 0
+        end
+    end
+
+    id_part = isempty(id_cols) ? "" : join(id_cols, ", ") * ", "
+    selects = String[]
+    for pc in pivot_cols
+        seg = "SELECT " * id_part * "'" * pc * "' AS " * names_to *
+              ", " * pc * " AS " * values_to * " FROM " * cte_name
+        push!(selects, seg)
+    end
+    return join(selects, " UNION ALL ")
+end
+
+
+"""
+$docstring_pivot_longer
+"""
+macro pivot_longer(sqlquery, args...)
+    local cols      = nothing          # required
+    local names_to  = "variable"       # default if omitted
+    local values_to = "value"          # default if omitted
+
+    for arg in args
+        if isa(arg, Expr) && arg.head == :(=)
+            key, val = arg.args
+            if     key == :cols       cols      = val
+            elseif key == :names_to   names_to  = val
+            elseif key == :values_to  values_to = val
+            end
+        else
+            cols === nothing && (cols = arg)   # first positional => cols
+        end
+    end
+    cols === nothing && error("@pivot_longer requires that you specify cols")
+
+    isa(names_to,  Symbol) && (names_to  = string(names_to))
+    isa(values_to, Symbol) && (values_to = string(values_to))
+
+    if isa(cols, Symbol)
+        cols = [string(cols)]
+    elseif isa(cols, Expr) && (cols.head == :vect || cols.head == :tuple)
+        newc = [isa(c, Symbol) ? string(c) : c for c in cols.args]
+        cols = Expr(:vect, newc...)
+    else
+        cols = QuoteNode(cols)
+    end
+
+    return quote
+        sq = t($(esc(sqlquery)))
+
+        _cols = $(esc(cols))
+        pivot_cols_vector = isa(_cols, AbstractArray) ?
+            string.(collect(_cols)) :
+            filter_columns_by_expr([string(_cols)], sq.metadata)
+
+        id_cols = String[]
+        for (i, col) in enumerate(sq.metadata[!, :name])
+            if sq.metadata.current_selxn[i] >= 1 && !(col in pivot_cols_vector)
+                push!(id_cols, col)
+            end
+        end
+
+        pivot_union_sql = pivot_longer_sql(sq,
+                                           pivot_cols_vector,
+                                           $(QuoteNode(names_to)),
+                                           $(QuoteNode(values_to)),
+                                           id_cols)
+
+        sq.groupBy = ""
+        sq.select  = pivot_union_sql
+
+        cte_name = "cte_" * string(sq.cte_count + 1)
+        new_cte  = CTE(name = cte_name,
+                       select = sq.select,
+                       from   = isempty(sq.ctes) ? sq.from : last(sq.ctes).name)
+        up_cte_name(sq, cte_name)
+        push!(sq.ctes, new_cte)
+
+        sq.from      = cte_name
+        sq.cte_count += 1
+        sq.where     = ""
+        sq.select    = ""
+        sq
     end
 end

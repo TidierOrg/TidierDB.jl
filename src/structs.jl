@@ -207,9 +207,10 @@ function finalize_query(sqlquery::SQLQuery)
     if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end
-    
         complete_query = current_sql_mode[] == postgres() ?  replace(complete_query, r"INTERVAL (\d+) ([a-zA-Z]+)" => s"INTERVAL '\1 \2'") : complete_query
-        complete_query = replace(complete_query, r"(?s)(\(SELECT\s+UNNEST.*?FROM\s+.*?\))" => s -> string(s) * ")")
+        complete_query = replace(complete_query, r"(?s)(\(SELECT\s+UNNEST.*?FROM\s+.*?\))" => s -> string(s) * ")",  "IS NULL) )'  AND" => "IS NULL) )  AND")
         
     return complete_query
 end
+
+

@@ -54,6 +54,7 @@ function expr_to_sql_postgres(expr, sq; from_summarize::Bool)
                window_clause = construct_window_clause(sq, from_cumsum = true)
                return  "SUM($(string(a))) $(window_clause)"
             end
+
         #stats agg
         elseif @capture(x, std(a_))
             if from_summarize

@@ -18,7 +18,7 @@ using GZip
         @distinct, @left_join, @right_join, @inner_join, @count, @slice_max,  @union,
         @slice_min, @slice_sample, @rename, @relocate, @union_all, @setdiff, @intersect, 
         @semi_join, @full_join, @transmute,  @anti_join, @head,  @unnest_wider, @unnest_longer,
-        @separate, @unite, @drop_missing, @pivot_wider, @summary
+        @separate, @unite, @drop_missing, @pivot_wider, @pivot_longer, @summary
         
  export db_table, set_sql_mode, connect, from_query, update_con,  
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, 
@@ -41,7 +41,7 @@ using GZip
  struct databricks <: SQLBackend end
  
  const  _warning_ = Ref(false)
- const window_agg_fxns = [:lead, :lag, :dense_rank, :nth_value, :ntile, :rank_dense, :row_number, :first_value, :last_value, :cume_dist]
+ const window_agg_fxns = [:lead, :lag, :dense_rank, :nth_value, :ntile, :rank_dense, :row_number, :first_value, :last_value, :cume_dist, :count]
  current_sql_mode = Ref{SQLBackend}(duckdb())
  const color = Ref{Bool}(true)
  function set_sql_mode(mode::SQLBackend) current_sql_mode[] = mode end

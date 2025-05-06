@@ -25,14 +25,14 @@ function expr_to_sql_mssql(expr, sq; from_summarize::Bool)
                 window_clause = construct_window_clause(sq)
                 return  "***AVG($(string(a))) $(window_clause)***"
             end
-        elseif @capture(x, minimum(a_))
+        elseif @capture(x, minimum(a_)) || @capture(x, min(a_))
             if from_summarize
                 return :(MIN($a))
             else
                 window_clause = construct_window_clause(sq)
                 return  "***MIN($(string(a))) $(window_clause)***"
             end
-        elseif @capture(x, maximum(a_))
+        elseif @capture(x, maximum(a_)) || @capture(x, max(a_))
             if from_summarize
                 return :(MAX($a))
             else
@@ -54,6 +54,7 @@ function expr_to_sql_mssql(expr, sq; from_summarize::Bool)
                window_clause = construct_window_clause(sq, from_cumsum = true)
                return  "SUM($(string(a))) $(window_clause)"
             end
+
         #stats agg
         elseif @capture(x, std(a_))
             if from_summarize

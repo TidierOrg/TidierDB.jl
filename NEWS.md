@@ -1,4 +1,10 @@
 # TidierDB.jl updates
+## v.8.6 - 2025-05-05
+- add `@pivot_longer`
+- resolve issue when calling `@summarize` consecutively 
+- permit `max`/`min` in addition to `maximum`/`minimum` 
+- add `count` to default aggregate function list
+
 ## v.8.5 - 2025-04-21
 - Fix macro hygeine `@mutate` warning with Pluto Notebooks
 

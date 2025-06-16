@@ -193,7 +193,7 @@ function db_table(db, table, athena_params::Any=nothing; iceberg::Bool=false, de
             metadata = get_table_metadata(db, table_name; alias = alias)
         end
     elseif current_sql_mode[] == athena()
-        metadata = get_table_metadata(db, table_name; athena_params)
+        metadata = get_table_metadata(db, table_name, athena_params)
     elseif current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         metadata = get_table_metadata(db, table_name)
     else

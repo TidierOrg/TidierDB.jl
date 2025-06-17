@@ -45,7 +45,7 @@ end
 
 @service Athena
 
-function TidierDB.get_table_metadata(AWS_GLOBAL_CONFIG, table_name::String, athena_params)
+function TidierDB.get_table_metadata(AWS_GLOBAL_CONFIG, table_name::String; athena_params)
     schema, table = split(table_name, '.')  # Ensure this correctly parses your input
     query = """SELECT * FROM $schema.$table limit 0;"""
   #  println(query)

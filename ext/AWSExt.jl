@@ -6,36 +6,35 @@ using AWS, HTTP, JSON3
 __init__() = println("Extension was loaded!")
 
 
-
 function collect_athena(result)
     # Extract column names and types from the result set metadata
     column_names = [col["Label"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
     column_types = [col["Type"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
-    
+
     # Process data rows, starting from the second row to skip header information
     data_rows = result["ResultSet"]["Rows"]
     filtered_column_names = filter(c -> !isempty(c), column_names)
     num_columns = length(filtered_column_names)
-    
+
     data_for_df = [
         [get(col, "VarCharValue", missing) for col in row["Data"]] for row in data_rows[2:end]
     ]
-    
+
     # Ensure each row has the correct number of elements
     adjusted_data_for_df = [
         length(row) == num_columns ? row : resize!(copy(row), num_columns) for row in data_for_df
     ]
-    
+
     # Pad rows with missing values if they are shorter than expected
     for row in adjusted_data_for_df
         if length(row) < num_columns
             append!(row, fill(missing, num_columns - length(row)))
         end
     end
-    
+
     # Transpose the data to match DataFrame constructor requirements
     data_transposed = permutedims(hcat(adjusted_data_for_df...))
-    
+
     # Create the DataFrame
     df = DataFrame(data_transposed, Symbol.(filtered_column_names))
     TidierDB.parse_athena_df(df, column_types)
@@ -51,7 +50,7 @@ function TidierDB.get_table_metadata(AWS_GLOBAL_CONFIG, table_name::String; athe
   #  println(query)
   #  try
         exe_query = Athena.start_query_execution(query, athena_params; aws_config = AWS_GLOBAL_CONFIG)
-        
+
         # Poll Athena to check if the query has completed
         status = "RUNNING"
         while status in ["RUNNING", "QUEUED"]
@@ -64,10 +63,10 @@ function TidierDB.get_table_metadata(AWS_GLOBAL_CONFIG, table_name::String; athe
                 error("Query was cancelled.")
             end
         end
-        
+
         # Fetch the results once the query completes
         result = Athena.get_query_results(exe_query["QueryExecutionId"], athena_params; aws_config = AWS_GLOBAL_CONFIG)
-    
+
     column_names = [col["Label"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
     column_types = [col["Type"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
     df = DataFrame(name = column_names, type = column_types)
@@ -92,17 +91,17 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:athena})
             error("Query was cancelled.")
         end
     end
-    result = Athena.get_query_results(exe_query["QueryExecutionId"], sqlquery.athena_params; aws_config = sqlquery.db)
-    return collect_athena(result)
+    dfs = []
+    next = true
+    params = sqlquery.athena_params
+    while next
+            result = Athena.get_query_results(exe_query["QueryExecutionId"], params; aws_config = sqlquery.db)
+            next = haskey(result, "NextToken")
+            params = Dict{String, Any}(mergewith(_merge, next ? Dict("NextToken" => result["NextToken"]) : Dict(), sqlquery.athena_params))
+            push!(dfs, collect_athena(result))
+    end
+    return vcat(dfs...)
 end
 
 
 end
-
-
-
-
-
-
-
-

@@ -23,7 +23,7 @@ using GZip
  export db_table, set_sql_mode, connect, from_query, update_con,  
  clickhouse, duckdb, sqlite, mysql, mssql, postgres, athena, snowflake, gbq, 
  oracle, databricks, SQLQuery, show_tables, 
- t, @create_view, drop_view, @compute, warnings, copy_to, dt,
+ t, @create_view, drop_view, @create_table, warnings, copy_to, dt,
  @show_query, @collect, @window_order, @window_frame, write_file
 
  abstract type SQLBackend end

@@ -42,32 +42,54 @@ function drop_view(db, name)
 end
 
 
-macro compute(sqlquery, name, replace = false)
-    
-    if replace == true 
-        sql_cr_or_replace = "CREATE OR REPLACE Table $name AS "
-    elseif replace == false
-         sql_cr_or_replace = "CREATE Table $name AS "
+macro create_table(sqlquery, name, args...)
+    replace_flag = false
+    temp_flag    = false          # new flag
+
+    for arg in args
+        if arg === true || arg === false          # legacy positional arg
+            replace_flag = arg
+        elseif isa(arg, Expr) && arg.head === :(=)
+            lhs, rhs = arg.args
+            if lhs === :replace
+                replace_flag = rhs
+            elseif lhs === :temp
+                temp_flag = rhs
+            else
+                error("@create_table: unknown keyword $(lhs)")
+            end
+        else
+            error("@create_table: unsupported argument $(arg)")
+        end
     end
-    return quote
-       # prin
+
+    replace_clause = replace_flag ? " OR REPLACE" : ""
+    temp_clause    = temp_flag    ? " TEMP"       : ""
+    sql_prefix     = "CREATE$(replace_clause)$(temp_clause) TABLE $name AS "
+
+    quote
         backend = current_sql_mode[]
         sq = $(esc(sqlquery))
+
         if backend == duckdb()
             final_query = finalize_query(sq)
-            final_query = $sql_cr_or_replace  * final_query
+            final_query = $sql_prefix * final_query
+            #println(final_query)
             DBInterface.execute(sq.db, final_query)
-        elseif  backend == postgres()
-            final_compute($(esc(sqlquery)), postgres, $sql_cr_or_replace)
+
+        elseif backend == postgres()
+            final_compute($(esc(sqlquery)), postgres, $sql_prefix)
+
         elseif backend == gbq()
-            final_compute(sq, gbq, $sql_cr_or_replace)
-        elseif current_sql_mode[] == mysql()
-            final_compute($(esc(sqlquery)), mysql, $sql_cr_or_replace)
-         else
-             backend = current_sql_mode[]
-             print("$backend not yet supported") # COV_EXCL_LINE
+            final_compute(sq, gbq, $sql_prefix)
+
+        elseif backend == mysql()
+            final_compute($(esc(sqlquery)), mysql, $sql_prefix)
+
+        else
+            backend = current_sql_mode[]
+            print("$(backend) not yet supported")  # COV_EXCL_LINE
         end
-        
     end
 end
 

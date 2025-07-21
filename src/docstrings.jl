@@ -1768,9 +1768,9 @@ julia> drop_view(db, "viewer");
 ```
 """
 
-const docstring_compute =
+const docstring_create_table =
 """
-    @compute(sql_query, name, replace = false)
+    @compute(sql_query, name, replace = false, temp = true)
 
 Creates a remote table on database memory from a SQL query. Currently supports DuckDB, MySQL, GBQ, Postgres
 
@@ -1779,6 +1779,7 @@ Creates a remote table on database memory from a SQL query. Currently supports D
 - `sql_query`: The SQL query
 - `name`: The name of the table to create.
 - `replace`: defaults to false if table should be replaced if it already exists.
+- `temp`: defaults to true if table should be created as a temporary table.
 
 # Examples
 ```jldoctest
@@ -1786,7 +1787,7 @@ julia> db = connect(duckdb());
 
 julia> df = DataFrame(id = [1, 2, 3], value = [10, 20, 30]);
 
-julia> @chain dt(db, df, "df1") @compute(table2, true);
+julia> @chain dt(db, df, "df1") @create_table(table2, replace = true, temp = true);
 
 julia> dt(db, "table2")
 SQLQuery("", "table", "", "", "", "", "", "", false, false, 2×4 DataFrame

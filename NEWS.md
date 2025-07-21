@@ -1,4 +1,8 @@
 # TidierDB.jl updates
+## v.8.7 - 2025-07-07
+- AWS Athena backend bug fixes 
+- add `temp` option to `@create_table`, default is `true`
+
 ## v.8.6 - 2025-05-05
 - add `@pivot_longer`
 - resolve issue when calling `@summarize` consecutively 

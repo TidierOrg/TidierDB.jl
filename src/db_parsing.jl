@@ -238,56 +238,59 @@ end
 
 function parse_case_when(expr)
     MacroTools.postwalk(expr) do x
-        # Ensure we're dealing with an Expr object
-        if isa(x, Expr)
-            # Check for a case_when expression
-            if x.head == :call && x.args[1] == :case_when
-                # Initialize components for building a SQL CASE expression
-                sql_case_parts = ["CASE"]
-                
-                # Iterate through the arguments of the case_when call, skipping the function name
-                for i in 2:2:length(x.args)-1
-                    # Ensure we're only adding valid expressions
-                    cond = x.args[i]
-                    result = x.args[i + 1]
+        if isa(x, Expr) && x.head == :call && x.args[1] == :case_when
+            sql_parts = ["CASE"]
+            args      = x.args[2:end]
 
-                    # Handle `missing` by converting it to `NULL`
-                    result_formatted = if result === :missing
-                        "NULL"
-                    elseif isa(result, String)
-                        "'$result'"
-                    else
-                        result
-                    end
+            expanded = Any[]           
+            default  = nothing
 
-                    # Append the WHEN-THEN part to the SQL CASE expression
-                    push!(sql_case_parts, "WHEN $(cond) THEN $(result_formatted)")
-                end
-                
-                # Handle the default case, the last argument
-                default_result = x.args[end]
-                default_result_formatted = if default_result === :missing
-                    "NULL"
-                elseif isa(default_result, String)
-                    "'$default_result'"
+
+            i = 1
+            while i ≤ length(args)
+                arg = args[i]
+
+                if isa(arg, Expr) && arg.head == :call && arg.args[1] == :(=>)
+                    push!(expanded, arg.args[2], arg.args[3])
+                    i += 1
+
+                elseif isa(arg, Pair)
+                    push!(expanded, arg.first, arg.second)
+                    i += 1
+
                 else
-                    default_result
+                    if i == length(args)          
+                        default = arg
+                        i += 1
+                    else
+                        push!(expanded, arg, args[i + 1])
+                        i += 2
+                    end
                 end
-
-                # Append the ELSE part and the END
-                push!(sql_case_parts, "ELSE $(default_result_formatted) END")
-                
-                # Combine into a complete SQL CASE statement
-                sql_case = join(sql_case_parts, " ")
-                
-                # Directly return the SQL CASE statement string
-                return sql_case
             end
+
+            for j in 1:2:length(expanded)
+                cond   = expanded[j]
+                result = expanded[j + 1]
+
+                res_sql = result === :missing ? "NULL" :
+                          isa(result, String) ? "'$result'" : result
+                push!(sql_parts, "WHEN $(cond) THEN $(res_sql)")
+            end
+
+            if default !== nothing
+                def_sql = default === :missing ? "NULL" :
+                          isa(default, String) ? "'$default'" : default
+                push!(sql_parts, "ELSE $(def_sql)")
+            end
+
+            push!(sql_parts, "END")
+            return join(sql_parts, " ")
         end
-        # Return the unmodified object if it's not an Expr or not a case_when call
         return x
     end
 end
+
 
 
 #this fxn is not being tested, bc its only in backends. - i might be able to get rid of it entirely as well

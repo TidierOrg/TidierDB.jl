@@ -40,8 +40,8 @@ TidierDB.jl currently supports the following top-level macros:
 |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Data Manipulation**     | `@arrange`, `@group_by`, `@filter`, `@select`, `@mutate` (supports `across`), `@summarize`/`@summarise` (supports `across`), `@distinct`, `@relocate`, `@transmute`                                |
 | **Joining/Setting**                  | `@left_join`, `@right_join`, `@inner_join`, `@anti_join`, `@full_join`, `@semi_join`, `@union`, `@union_all`, `@intersect`, `@setdiff`                                         |
-| **Slice and Order**       | `@slice_min`, `@slice_max`, `@slice_sample`, `@order`, `@window_order`, `@window_frame`                                                                                                |
-| **Utility**               | `@show_query`, `@collect`, `@head`, `@count`, `@drop_missing`, `show_tables`, `@create_view` , `drop_view`                                                                                                                                          |
+| **Slice and Order**       | `@slice_min`, `@slice_max`, `@slice_sample`, `@arrange`, `@window_order`, `@window_frame`                                                                                                |
+| **Utility**               | `@show_query`, `@collect`, `@head`, `@count`, `@drop_missing`, `show_tables`, `@create_table`, `@create_view`, `drop_view`                                                                                                                                          |
 | **Helper Functions**             | `across`, `desc`, `if_else`, `case_when`, `n`, `starts_with`, `ends_with`, `contains`, `as_float`, `as_integer`, `as_string`, `is_missing`, `missing_if`, `replace_missing` |
 | **TidierStrings.jl Functions** | `str_detect`, `str_replace`, `str_replace_all`, `str_remove_all`, `str_remove`                                                                                               |
 | **TidierDates.jl Functions**   | `year`, `month`, `day`, `hour`, `min`, `second`, `floor_date`, `difftime`, `mdy`, `ymd`, `dmy`                                                                                                    |
@@ -80,8 +80,8 @@ mtcars = DB.dt(db, path_or_name);
     DB.@mutate(mpg_squared = mpg^2,
                mpg_rounded = round(mpg),
                mpg_efficiency = case_when(
-                                 mpg >= cyl^2 , "efficient",
-                                 mpg < 15.2 , "inefficient",
+                                 mpg >= cyl^2 => "efficient",
+                                 mpg < 15.2 => "inefficient",
                                  "moderate"))
     DB.@filter(mpg_efficiency in ("moderate", "efficient"))
     DB.@arrange(desc(mpg_rounded))

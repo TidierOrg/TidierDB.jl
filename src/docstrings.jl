@@ -228,6 +228,7 @@ julia> @chain dt(db, df, "df_view") begin
 
 julia> @chain dt(db, df, "df_view") begin
          @mutate(max = maximum(percent), sum = sum(percent), _by = groups)
+         @arrange(groups, percent)
          @collect
        end
 10×6 DataFrame
@@ -342,6 +343,7 @@ julia> @chain dt(db, df, "df_view") begin
 
 julia> @chain dt(db, df, "df_view") begin
          @transmute(max = maximum(value), _by = groups)
+         @arrange(groups)
          @collect
        end
 10×2 DataFrame

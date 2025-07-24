@@ -50,15 +50,3 @@ end
         _by = groups)
     @collect
  end
-
-# ## Differences in `case_when()`
-
-# In TidierDB, after the clause is completed, the result for the new column should is separated by a comma `,`
-# in contrast to TidierData.jl, where the result for the new column is separated by a `=>` .
-
-@chain dfv begin
-    @mutate(new_col = case_when(percent > .5, "Pass",  # in TidierData, percent > .5 => "Pass", 
-                                percent <= .5, "Try Again", # percent <= .5 => "Try Again"
-                                true, "middle"))
-    @collect
- end

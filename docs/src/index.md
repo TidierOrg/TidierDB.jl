@@ -144,8 +144,8 @@ We can replace `DB.collect()` with `DB.@show_query` to reveal the underlying SQL
     DB.@mutate(mpg_squared = mpg^2, 
                mpg_rounded = round(mpg), 
                mpg_efficiency = case_when(
-                                 mpg >= cyl^2 , "efficient",
-                                 mpg < 15.2 , "inefficient",
+                                 mpg >= cyl^2 => "efficient",
+                                 mpg < 15.2 => "inefficient",
                                  "moderate"))            
     DB.@filter(mpg_efficiency in ("moderate", "efficient"))
     DB.@arrange(desc(mpg_rounded))

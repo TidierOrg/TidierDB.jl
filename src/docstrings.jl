@@ -948,19 +948,20 @@ julia> dfj = dt(db, df2, "df_join");
 
 julia> @chain dt(db, df, "df_view") begin
          @right_join(t(dfj), id == id2)
+         @arrange(score)
          @collect
        end
 7×6 DataFrame
  Row │ id      groups   value    percent    category  score 
      │ String  String?  Int64?   Float64?   String    Int64 
 ─────┼──────────────────────────────────────────────────────
-   1 │ AA      bb             1        0.1  X            88
-   2 │ AC      bb             3        0.3  Y            92
+   1 │ AK      missing  missing  missing    Y            68
+   2 │ AM      missing  missing  missing    X            74
    3 │ AE      bb             5        0.5  X            77
    4 │ AG      bb             2        0.7  Y            83
-   5 │ AI      bb             4        0.9  X            95
-   6 │ AK      missing  missing  missing    Y            68
-   7 │ AM      missing  missing  missing    X            74
+   5 │ AA      bb             1        0.1  X            88
+   6 │ AC      bb             3        0.3  Y            92
+   7 │ AI      bb             4        0.9  X            95
 
 julia> query = @chain dfj begin
                   @filter(score >= 74) # only show scores above 85 in joining table
@@ -1710,7 +1711,7 @@ julia> @chain df1_table @setdiff(df2_table) @collect
    1 │     1  Alice
    2 │     4  David
 
-julia> @chain df1_table @setdiff(df2_table, all = true) @collect
+julia> @chain df1_table @setdiff(df2_table, all = true) @arrange(id) @collect
 3×2 DataFrame
  Row │ id     name   
      │ Int64  String 

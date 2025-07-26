@@ -2,9 +2,7 @@
 $docstring_select
 """
 macro select(sqlquery, exprs...)
-
     exprs = parse_blocks(exprs...)
-
     return quote
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
         sq = t($(esc(sqlquery)))
@@ -17,25 +15,21 @@ macro select(sqlquery, exprs...)
                 if occursin(".", col)
                     table_col_split = split(col, ".")
                     table_name, col_name = table_col_split[1], table_col_split[2]
-
-                    # Iterate and update current_selxn based on matches
                     for idx in eachindex(sq.metadata.current_selxn)
-                        if sq.metadata.table_name[idx] == table_name && 
-                           sq.metadata.name[idx] == col_name
+                        if sq.metadata.table_name[idx] == table_name && sq.metadata.name[idx] == col_name
                             sq.metadata.current_selxn[idx] = 2
                         end
                     end
                 else
-                    # Direct matching for columns without 'table.' prefix
                     matching_indices = findall(sq.metadata.name .== col)
                     sq.metadata.current_selxn[matching_indices] .= 1
                 end
             end
         end
-        
         sq
     end
 end
+
 
 """
 $docstring_filter

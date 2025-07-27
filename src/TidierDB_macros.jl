@@ -175,25 +175,113 @@ end
 
 function groupby_exp(expr, sq)
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
-        # Extract column alias name as string
         col_name = string(expr.args[1])
         if current_sql_mode[] == snowflake()
             col_name = uppercase(col_name)  # COV_EXCL_LINE
         end
         push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => "table"))
-        # Convert the right-hand side expression to a SQL expression
-        col_expr = expr_to_sql(expr.args[2], sq)
-        col_expr = string(col_expr)
-        # Return the alias and the SQL snippet (wrapped in parentheses to be safe)
+        col_expr = expr_to_sql(expr.args[2], sq) |> string
         return col_name, "(" * col_expr * ") AS " * col_name
     else
         error("Unsupported expression in @group_by: $(expr)")
     end
 end
 
+# Single helper to get the expression behind an alias in the current SELECT
+function _expr_for_alias(select_sql::AbstractString, alias::AbstractString)
+    s = strip(String(select_sql))
+    body = startswith(uppercase(s), "SELECT ") ? s[8:end] : s
+
+    m = findfirst(Regex("(?i)\\bAS\\s+$alias\\b"), body)
+    m === nothing && return nothing
+
+    as_start = first(m) - 1
+    depth = 0
+    i = as_start
+    start_idx = firstindex(body)
+
+    while i >= firstindex(body)
+        c = body[i]
+        if c == ')'
+            depth += 1
+        elseif c == '('
+            depth = max(depth - 1, 0)
+        elseif c == ',' && depth == 0
+            start_idx = nextind(body, i)
+            break
+        end
+        i = prevind(body, i)
+    end
+
+    expr = strip(body[start_idx:as_start])
+    return expr == "" ? nothing : expr
+end
+
 """
 $docstring_group_by
 """
+macro group_by(sqlquery, columns...)
+    columns = parse_blocks(columns...)
+    return quote
+        columns_str = map(col -> isa(col, Symbol) ? string(col) : col, $columns)
+        sq = t($(esc(sqlquery)))
+        if isa(sq, SQLQuery)
+            try
+                # Build GROUP BY items; if a name matches a SELECT alias, use its expression
+                group_items = String[]
+                for c in columns_str
+                    expr = _expr_for_alias(sq.select, c)
+                    if expr !== nothing
+                        push!(group_items, expr)          # e.g., COALESCE(t2.id, t1.id)
+                    else
+                        for nm in parse_tidy_db([c], sq.metadata)
+                            push!(group_items, nm)        # qualified name
+                        end
+                    end
+                end
+                sq.groupBy = "GROUP BY " * join(group_items, ", ")
+
+                # If no projection yet or it's SELECT *, project only the grouping columns
+                sel = strip(String(sq.select))
+                if isempty(sel) || occursin(r"(?i)^SELECT\s+\*$", sel)
+                    sq.select = "SELECT " * join(group_items, ", ")
+                end
+            catch
+                # Handle expression/alias form: group_by(alias = expr, ...)
+                sq.groupBy_exprs = true
+                local group_expressions = String[]  # "(expr) AS alias"
+                local group_aliases     = String[]  # "alias"
+
+                for col in $columns
+                    if isa(col, Expr) && col.head == :(=)
+                        let tup = groupby_exp(col, sq)
+                            push!(group_expressions, tup[2])
+                            push!(group_aliases,    tup[1])
+                        end
+                    else
+                        for nm in parse_tidy_db([col], sq.metadata)
+                            push!(group_expressions, nm)
+                            push!(group_aliases,     nm)
+                        end
+                    end
+                end
+
+                # FIX #1: GROUP BY aliases (not "(expr) AS alias")
+                sq.groupBy = "GROUP BY " * join(group_aliases, ", ")
+
+                # FIX #2: If no projection yet or it's SELECT *, expose the aliased select items
+                sel = strip(String(sq.select))
+                if isempty(sel) || occursin(r"(?i)^SELECT\s+\*$", sel)
+                    sq.select = "SELECT " * join(group_expressions, ", ")
+                end
+            end
+        else
+            error("Expected sqlquery to be an instance of SQLQuery")
+        end
+        sq
+    end
+end
+#=
 macro group_by(sqlquery, columns...)
     columns = parse_blocks(columns...)
     return quote
@@ -242,6 +330,9 @@ macro group_by(sqlquery, columns...)
         sq
     end
 end
+=#
+
+
 
 
 """

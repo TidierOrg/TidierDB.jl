@@ -352,21 +352,22 @@ macro summarize(sqlquery, expressions...)
             end
 
             # Construct the SELECT clause
-            summary_clause = join(summary_str, ", ")
-            existing_select = sq.select
-           #("here", existing_select)
-            if startswith(existing_select, "SELECT")
+            summary_clause   = join(summary_str, ", ")
+            existing_select  = strip(sq.select)
+            
+            if !isempty(existing_select) && startswith(uppercase(existing_select), "SELECT")
+                # keep any existing projection (e.g., COALESCE(...) AS id, value2)
                 sq.select = existing_select * ", " * summary_clause
-
+            elseif !isempty(sq.groupBy)
+                # no existing SELECT (e.g., it was finalized into a CTE): project the GROUP BY expressions
+                # this preserves COALESCE(...) exactly as written in sq.groupBy
+                sq.select = "SELECT " * replace(sq.groupBy, "GROUP BY " => "") * ", " * summary_clause
             elseif sq.groupBy_exprs
-                sq.select *=  ", " * summary_clause
-                sq.groupBy_exprs
+                # expression-style group_by previously appended to sq.select
+                sq.select *= ", " * summary_clause
             else
-                if $(esc(grouping_var)) != nothing
-                    sq.select = "SELECT " * replace(sq.groupBy, "GROUP BY " => "") * ", " * summary_clause
-                else
-                    sq.select = "SELECT " * summary_clause
-                end
+                # pure aggregation with no grouping
+                sq.select = "SELECT " * summary_clause
             end
 
             sq.is_aggregated = true        # Mark the query as aggregated

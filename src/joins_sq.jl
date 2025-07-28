@@ -190,14 +190,18 @@ function do_join(
                 for cte in jq.ctes
                     cte.name = joinc * cte.name
                 end
+                jq.cte_count += 1
                 cte_name_jq = joinc * "cte_" * string(jq.cte_count)
-                most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
+            
+                # IMPORTANT: preserve the actual FROM (may include base tables and JOINs)
+                most_recent_source_jq = jq.from
+            
                 select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                 new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                up_cte_name(jq, cte_name_jq)
                 push!(jq.ctes, new_cte_jq)
                 jq.from = cte_name_jq
                 sq.post_join = false
+                up_cte_name(jq, cte_name_jq)
             end
             sq.ctes = vcat(sq.ctes, jq.ctes)
             oq_metadata = sq.metadata
@@ -255,7 +259,10 @@ function do_join(
                 end
                 jq.cte_count += 1
                 cte_name_jq = joinc * "cte_" * string(jq.cte_count)
-                most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
+            
+                # IMPORTANT: preserve the actual FROM (may include base tables and JOINs)
+                most_recent_source_jq = jq.from
+            
                 select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                 new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                 push!(jq.ctes, new_cte_jq)

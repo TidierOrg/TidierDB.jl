@@ -82,12 +82,18 @@ end
 t(table) = from_query(table)
 
 function up_cte_name(sq, cte_name)
-    if cte_name != "cte_1"
-        if all(x -> x >= 1, sq.metadata.current_selxn)
-            sq.metadata.table_name .= cte_name
+    # Rewrite provenance only when FROM is a single token (no joins/aliases)
+    old_from = String(sq.from)
+    if !occursin(r"\s", old_from)
+        for i in eachindex(sq.metadata[!, :table_name])
+            if sq.metadata[i, :table_name] == old_from
+                sq.metadata[i, :table_name] = cte_name
+            end
         end
     end
+    return sq
 end
+
 
 function build_cte!(sq)
     # or if you want to also check sq.post_join, add it here

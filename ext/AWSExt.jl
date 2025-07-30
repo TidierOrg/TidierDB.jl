@@ -5,7 +5,6 @@ using DataFrames
 using AWS, HTTP, JSON3
 __init__() = println("Extension was loaded!")
 
-
 function collect_athena(result, has_header = true)
     # Extract column names and types from the result set metadata
     column_names = [col["Label"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
@@ -77,7 +76,6 @@ function TidierDB.get_table_metadata(AWS_GLOBAL_CONFIG, table_name::String; athe
     return select(df, 1 => :name, 2 => :type, :current_selxn, :table_name)
 end
 
-
 function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:athena})
     final_query = TidierDB.finalize_query(sqlquery)
     exe_query = Athena.start_query_execution(final_query, sqlquery.athena_params; aws_config = sqlquery.db)
@@ -94,17 +92,14 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:athena})
     end
     dfs = []
     next = true
-    first_page = true
     params = sqlquery.athena_params
     while next
         result = Athena.get_query_results(exe_query["QueryExecutionId"], params; aws_config = sqlquery.db)
         next = haskey(result, "NextToken")
         params = Dict{String, Any}(mergewith(_merge, next ? Dict("NextToken" => result["NextToken"]) : Dict(), sqlquery.athena_params))
-        push!(dfs, collect_athena(result, first_page))
-        first_page = false
+        push!(dfs, collect_athena(result, isempty(dfs)))
     end
     return vcat(dfs...)
 end
-
 
 end

@@ -81,17 +81,11 @@ end
 
 t(table) = from_query(table)
 
-function up_cte_name(sq, cte_name)
-    # Rewrite provenance only when FROM is a single token (no joins/aliases)
-    old_from = String(sq.from)
-    if !occursin(r"\s", old_from)
-        for i in eachindex(sq.metadata[!, :table_name])
-            if sq.metadata[i, :table_name] == old_from
-                sq.metadata[i, :table_name] = cte_name
-            end
-        end
+function up_cte_name(q, cte_name)
+    if !isempty(q.metadata)
+        q.metadata.table_name .= cte_name
     end
-    return sq
+    return q
 end
 
 

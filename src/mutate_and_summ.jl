@@ -357,14 +357,73 @@ macro summarize(sqlquery, expressions...)
             
             if !isempty(existing_select) && startswith(uppercase(existing_select), "SELECT")
                 # keep any existing projection (e.g., COALESCE(...) AS id, value2)
-                sq.select = existing_select * ", " * summary_clause
+                sq.select = existing_select * (isempty(summary_clause) ? "" : ", " * summary_clause)
+            
             elseif !isempty(sq.groupBy)
-                # no existing SELECT (e.g., it was finalized into a CTE): project the GROUP BY expressions
-                # this preserves COALESCE(...) exactly as written in sq.groupBy
-                sq.select = "SELECT " * replace(sq.groupBy, "GROUP BY " => "") * ", " * summary_clause
+                # Build a SELECT list from GROUP BY items, adding clean aliases where possible.
+                #  - COALESCE(a.id, b.id) -> alias "id"
+                #  - qualified name a.value2 -> alias "value2"
+                #  - otherwise keep the expression as-is (no alias)
+                gb = replace(sq.groupBy, "GROUP BY " => "")
+            
+                # split on top-level commas (ignore commas inside parentheses)
+                function _split_top_level_commas_str(s::AbstractString)
+                    ss = String(s)
+                    parts = String[]
+                    buf = IOBuffer()
+                    depth = 0
+                    i = firstindex(ss)
+                    while i <= lastindex(ss)
+                        c = ss[i]
+                        if c == '('
+                            depth += 1
+                            write(buf, c)
+                        elseif c == ')'
+                            depth = max(depth - 1, 0)
+                            write(buf, c)
+                        elseif c == ',' && depth == 0
+                            push!(parts, strip(String(take!(buf))))
+                        else
+                            write(buf, c)
+                        end
+                        i = nextind(ss, i)
+                    end
+                    push!(parts, strip(String(take!(buf))))
+                    return parts
+                end
+            
+                # derive a safe alias when possible
+                function _alias_for_group_expr(e::AbstractString)
+                    s = strip(String(e))
+                    # COALESCE(a.col, b.col) and col names match -> alias = col
+                    m = match(r"(?i)^\s*COALESCE\s*\(\s*[A-Za-z_][\w$]*\.([A-Za-z_][\w$]*)\s*,\s*[A-Za-z_][\w$]*\.([A-Za-z_][\w$]*)\s*\)\s*$", s)
+                    if m !== nothing && m.captures[1] == m.captures[2]
+                        return m.captures[1]
+                    end
+                    # qualified name a.col -> alias = col
+                    m2 = match(r"^\s*[A-Za-z_][\w$]*\.([A-Za-z_][\w$]*)\s*$", s)
+                    if m2 !== nothing
+                        return m2.captures[1]
+                    end
+                    return ""  # no clean alias
+                end
+            
+                items = _split_top_level_commas_str(gb)
+                proj  = String[]
+                for it in items
+                    alias = _alias_for_group_expr(it)
+                    if !isempty(alias)
+                        push!(proj, string(it, " AS ", alias))
+                    else
+                        push!(proj, it)
+                    end
+                end
+            
+                sq.select = "SELECT " * join(proj, ", ") * (isempty(summary_clause) ? "" : ", " * summary_clause)
+            
             elseif sq.groupBy_exprs
                 # expression-style group_by previously appended to sq.select
-                sq.select *= ", " * summary_clause
+                sq.select *= (isempty(summary_clause) ? "" : ", " * summary_clause)
             else
                 # pure aggregation with no grouping
                 sq.select = "SELECT " * summary_clause

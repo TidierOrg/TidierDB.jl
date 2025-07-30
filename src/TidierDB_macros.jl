@@ -424,66 +424,76 @@ macro rename(sqlquery, renamings...)
     renamings = parse_blocks(renamings...)
 
     return quote
-        # Prepare the renaming rules from the macro arguments
+        # Build old->new map from "new = old" pairs
         renamings_dict = Dict{String, String}()
-        for renaming in $(esc(renamings))
-            if isa(renaming, Expr) && renaming.head == :(=) && isa(renaming.args[1], Symbol)
-                # Map original column names to new names for renaming
-                renamings_dict[string(renaming.args[2])] = string(renaming.args[1])
+        for r in $(esc(renamings))
+            if isa(r, Expr) && r.head == :(=) && isa(r.args[1], Symbol)
+                # value11 = value1  =>  "value1" => "value11"
+                renamings_dict[string(r.args[2])] = string(r.args[1])
             else
-                throw("Unsupported renaming format in @rename: $(renaming)")
+                throw("Unsupported renaming format in @rename: $(r)")
             end
         end
 
         sq = t($(esc(sqlquery)))
-        
         if isa(sq, SQLQuery)
-            # Generate a new CTE name
+            # New CTE wrapper
             new_cte_name = "cte_" * string(sq.cte_count + 1)
             sq.cte_count += 1
-     
-            # Determine the select clause for the new CTE
-            select_clause = if isempty(sq.select) || sq.select == "SELECT *"
-                # If select is *, list all columns with renaming applied
-                all_columns = sq.metadata[!, :name]
-                join([haskey(renamings_dict, col) ? col * " AS " * renamings_dict[col] : col for col in all_columns], ", ")
+
+            # Build projection with renaming
+            select_clause = if isempty(strip(sq.select)) || strip(uppercase(sq.select)) == "SELECT *" || strip(sq.select) == "*"
+                # Only include columns with current_selxn != 0
+                mask = sq.metadata.current_selxn .!= 0
+                cols = Vector{String}(sq.metadata.name[mask])
+                join([haskey(renamings_dict, c) ? string(c, " AS ", renamings_dict[c]) : c for c in cols], ", ")
             else
-                
-                select_parts = split(sq.select[8:end], ", ")
-                updated_parts = map(select_parts) do part
-                    # Identify the base column name for potential renaming
-                    col = strip(split(part, " AS ")[1])
-                    if haskey(renamings_dict, col)
-                        # Apply renaming to the base column name
-                        string(renamings_dict[col]) * " AS " * col
+                # Edit existing SELECT list (adjust aliases, don't add new columns)
+                s = String(sq.select)
+                body = startswith(uppercase(s), "SELECT ") ? s[8:end] : s
+                parts = split(body, ", ")
+                updated = map(parts) do part
+                    if occursin(r"(?i)\bAS\b", part)
+                        bits = split(part, r"(?i)\bAS\b")
+                        expr  = strip(bits[1])
+                        alias = strip(bits[end])
+                        new_alias = get(renamings_dict, alias, alias)
+                        string(expr, " AS ", new_alias)
                     else
-                        # No renaming needed; keep the original part
-                        part
+                        base = strip(split(part, ".")[end])
+                        if haskey(renamings_dict, base)
+                            string(part, " AS ", renamings_dict[base])
+                        else
+                            part
+                        end
                     end
                 end
-                sq.select = " " * join(updated_parts, ", ")
-
+                replace(join(updated, ", "), r"(?i)\bAS\s+AS\b" => " AS ")
             end
+
+            # Update metadata names only for selected cols (current_selxn != 0)
             for (old_name, new_name) in renamings_dict
-                sq.metadata[!, :name] = replace.(sq.metadata[!, :name], old_name => new_name)
+                for i in eachindex(sq.metadata.name)
+                    if sq.metadata.current_selxn[i] != 0 && sq.metadata[i, :name] == old_name
+                        sq.metadata[i, :name] = new_name
+                    end
+                end
             end
 
-            if isempty(sq.select) 
-                 sq.select == "SELECT *" 
-            end
-
-            # Create the new CTE with the select clause
+            # Emit CTE and re-point FROM
             new_cte = CTE(name=new_cte_name, select=select_clause, from=sq.from)
             push!(sq.ctes, new_cte)
-
-            # Update the from clause of the SQLQuery to the new CTE
             sq.from = new_cte_name
+
+            # Clear sq.select so subsequent steps project from the new CTE
+            sq.select = ""
         else
             error("Expected sqlquery to be an instance of SQLQuery")
         end
         sq
     end
 end
+
 
 mutable struct DBQuery
     val::String

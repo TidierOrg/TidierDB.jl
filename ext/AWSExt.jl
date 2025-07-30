@@ -6,7 +6,7 @@ using AWS, HTTP, JSON3
 __init__() = println("Extension was loaded!")
 
 
-function collect_athena(result)
+function collect_athena(result, has_header = true)
     # Extract column names and types from the result set metadata
     column_names = [col["Label"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
     column_types = [col["Type"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
@@ -16,8 +16,9 @@ function collect_athena(result)
     filtered_column_names = filter(c -> !isempty(c), column_names)
     num_columns = length(filtered_column_names)
 
+    has_header ? start = 2 : start = 1
     data_for_df = [
-        [get(col, "VarCharValue", missing) for col in row["Data"]] for row in data_rows[2:end]
+        [get(col, "VarCharValue", missing) for col in row["Data"]] for row in data_rows[start:end]
     ]
 
     # Ensure each row has the correct number of elements
@@ -93,12 +94,14 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:athena})
     end
     dfs = []
     next = true
+    first_page = true
     params = sqlquery.athena_params
     while next
-            result = Athena.get_query_results(exe_query["QueryExecutionId"], params; aws_config = sqlquery.db)
-            next = haskey(result, "NextToken")
-            params = Dict{String, Any}(mergewith(_merge, next ? Dict("NextToken" => result["NextToken"]) : Dict(), sqlquery.athena_params))
-            push!(dfs, collect_athena(result))
+        result = Athena.get_query_results(exe_query["QueryExecutionId"], params; aws_config = sqlquery.db)
+        next = haskey(result, "NextToken")
+        params = Dict{String, Any}(mergewith(_merge, next ? Dict("NextToken" => result["NextToken"]) : Dict(), sqlquery.athena_params))
+        push!(dfs, collect_athena(result, first_page))
+        first_page = false
     end
     return vcat(dfs...)
 end

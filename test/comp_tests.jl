@@ -403,3 +403,24 @@
         end)
         @test (@chain test_df @group_by(groups) @summarize(n=n()) @select(n))== (@chain test_db DB.@group_by(groups) DB.@summarize(n=n()) DB.@select(n) DB.@collect())
     end
+
+    @testset "Misc Squashed Edgecase" begin
+        TDB_1 = @chain test_db begin
+            DB.@inner_join("df_join", id = id2)
+            DB.@group_by(id) 
+            DB.@summarize(value1 = first(score))
+            DB.@mutate(x = 12 + value1)
+            DB.@arrange(id)
+            #@aside DB.@show_query _
+            DB.@collect() 
+        end
+        TDF_1 = @chain test_df begin
+            @inner_join(df2, id = id2)
+            @group_by(id) 
+            @summarize(value1 = first(score))
+            @mutate(x = 12 + value1) 
+            @arrange(id)
+        end
+        @test all(isequal.(Array(TDF_1), Array(TDB_1)))
+    end
+

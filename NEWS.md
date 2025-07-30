@@ -1,4 +1,9 @@
 # TidierDB.jl updates
+## v.8.8
+- fixes issue when grouping on a join id 
+- fixes cte construction issue 
+- fixes select before join order execution issue
+
 ## v.8.7 - 2025-07-07
 - AWS Athena backend bug fixes 
 - add `temp` option to `@create_table`, default is `true`

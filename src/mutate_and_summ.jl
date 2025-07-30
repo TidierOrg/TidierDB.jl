@@ -427,9 +427,9 @@ macro summarize(sqlquery, expressions...)
                 # derive a safe alias when possible
                 function _alias_for_group_expr(e::AbstractString)
                     s = strip(String(e))
-                    # COALESCE(a.id, b.id) with same colname -> alias "id"
+                    # COALESCE(a.col1, b.col2)  -> alias "col1" (always use the left-hand column name)
                     m = match(r"(?i)^\s*COALESCE\s*\(\s*[A-Za-z_][\w$]*\.([A-Za-z_][\w$]*)\s*,\s*[A-Za-z_][\w$]*\.([A-Za-z_][\w$]*)\s*\)\s*$", s)
-                    if m !== nothing && m.captures[1] == m.captures[2]
+                    if m !== nothing
                         return m.captures[1]
                     end
                     # qualified name a.col -> alias "col"
@@ -437,8 +437,9 @@ macro summarize(sqlquery, expressions...)
                     if m2 !== nothing
                         return m2.captures[1]
                     end
-                    return ""
+                    return ""  # no clean alias
                 end
+
 
                 items = _split_top_level_commas_str(gb)
                 proj  = String[]

@@ -7,39 +7,34 @@ __init__() = println("Extension was loaded!")
 
 function collect_athena(result, has_header = true)
     # Extract column names and types from the result set metadata
-    column_names = [col["Label"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
-    column_types = [col["Type"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
+    column_metadata = result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]
+    column_names = [col["Label"] for col in column_metadata]
+    column_types = [col["Type"] for col in column_metadata]
+    num_columns = length(column_names)
 
     # Process data rows, starting from the second row to skip header information
-    data_rows = result["ResultSet"]["Rows"]
-    filtered_column_names = filter(c -> !isempty(c), column_names)
-    num_columns = length(filtered_column_names)
+    start = has_header ? 2 : 1
+    data_rows = result["ResultSet"]["Rows"][start:end]
 
-    has_header ? start = 2 : start = 1
-    data_for_df = [
-        [get(col, "VarCharValue", missing) for col in row["Data"]] for row in data_rows[start:end]
-    ]
+    if isempty(data_rows)
+        df = DataFrame([name => String[] for name in Symbol.(column_names)])
+        return TidierDB.parse_athena_df(df, column_types)
+    end
 
-    # Ensure each row has the correct number of elements
-    adjusted_data_for_df = [
-        length(row) == num_columns ? row : resize!(copy(row), num_columns) for row in data_for_df
-    ]
+    # Extract data from each row and handle missing values
+    data_matrix = Matrix{Union{String, Missing}}(undef, length(data_rows), num_columns)
 
-    # Pad rows with missing values if they are shorter than expected
-    for row in adjusted_data_for_df
-        if length(row) < num_columns
-            append!(row, fill(missing, num_columns - length(row)))
+    for (row_idx, row) in enumerate(data_rows)
+        row_data = row["Data"]
+        for col_idx in 1:num_columns
+            data_matrix[row_idx, col_idx] = get(row_data[col_idx], "VarCharValue", missing)
         end
     end
 
-    # Transpose the data to match DataFrame constructor requirements
-    data_transposed = permutedims(hcat(adjusted_data_for_df...))
-
     # Create the DataFrame
-    df = DataFrame(data_transposed, Symbol.(filtered_column_names))
-    TidierDB.parse_athena_df(df, column_types)
+    df = DataFrame(data_matrix, Symbol.(column_names))
     # Return the DataFrame
-    return df
+    return TidierDB.parse_athena_df(df, column_types)
 end
 
 @service Athena

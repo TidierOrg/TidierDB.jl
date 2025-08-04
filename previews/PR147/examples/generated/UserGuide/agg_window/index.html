@@ -888,10 +888,10 @@
 <ul>
 <li><code>maximum</code>, <code>minimum</code>, <code>mean</code>, <code>std</code>, <code>sum</code>, <code>cumsum</code></li>
 </ul>
-<p>To use aggregate sql functions that are built in to any database backend, but exist outside of the TidierDB parser list above, simply wrap the function call in <code>agg()</code></p>
+<p>To use aggregate sql functions that are built in to any database backend, but exist outside of the TidierDB parser list above, simply prefix the function with <code>~</code> or wrap the function call in <code>agg()</code></p>
 <div class="highlight"><pre><span></span><code><span class="nd">@chain</span><span class="w"> </span><span class="n">mtcars</span><span class="w"> </span><span class="k">begin</span>
 <span class="w">     </span><span class="nd">@group_by</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
-<span class="w">     </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">kurt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">agg</span><span class="p">(</span><span class="n">kurtosis</span><span class="p">(</span><span class="n">mpg</span><span class="p">)))</span>
+<span class="w">     </span><span class="nd">@mutate</span><span class="p">(</span><span class="n">kurt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">kurtosis</span><span class="p">(</span><span class="n">mpg</span><span class="p">))</span>
 <span class="w">     </span><span class="nd">@select</span><span class="w"> </span><span class="n">cyl</span><span class="w"> </span><span class="n">mpg</span><span class="w"> </span><span class="n">kurt</span>
 <span class="w">     </span><span class="nd">@head</span><span class="p">()</span>
 <span class="w">     </span><span class="nd">@collect</span>

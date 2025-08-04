@@ -881,18 +881,18 @@
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>SQLQuery(&quot;SELECT AVG(hp) AS avg_hp&quot;, &quot;cte_2&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, true, true, false, 18×4 DataFrame
  Row │ name         type     current_selxn  table_name
-     │ String       String   Int64          String
+     │ String       String   Int64          SubString…
 ─────┼─────────────────────────────────────────────────
-   1 │ model        VARCHAR              0  cte_2
-   2 │ mpg          DOUBLE               0  cte_2
+   1 │ model        VARCHAR              0  mtcars
+   2 │ mpg          DOUBLE               0  mtcars
    3 │ cyl          BIGINT               0  cte_2
-   4 │ disp         DOUBLE               0  cte_2
-   5 │ hp           BIGINT               0  cte_2
-   6 │ drat         DOUBLE               0  cte_2
-   7 │ wt           DOUBLE               0  cte_2
-   8 │ qsec         DOUBLE               0  cte_2
+   4 │ disp         DOUBLE               0  mtcars
+   5 │ hp           BIGINT               0  mtcars
+   6 │ drat         DOUBLE               0  mtcars
+   7 │ wt           DOUBLE               0  mtcars
+   8 │ qsec         DOUBLE               0  mtcars
   ⋮  │      ⋮          ⋮           ⋮            ⋮
-  12 │ carb         BIGINT               0  cte_2
+  12 │ carb         BIGINT               0  mtcars
   13 │ mpg_mean     UNKNOWN              0  cte_2
   14 │ mpg_minimum  UNKNOWN              0  cte_2
   15 │ mpg_maximum  UNKNOWN              0  cte_2

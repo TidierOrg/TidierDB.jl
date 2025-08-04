@@ -49,7 +49,7 @@ end;
 query2 = @chain mtcars @filter(mpg>20) @mutate(mpg = mpg *4); 
 
 @chain query begin
-    @left_join(t(query2), cyl == cyl)
+    @left_join(query2, cyl == cyl)
     @summarize(avg_mean = mean(mpg), _by = efficiency)
     @mutate(mean = avg_mean / 4 )
     @collect
@@ -63,7 +63,7 @@ end
 # mt2 = dt(db, "ducks_db.mt2")
 # other_db = @chain dt(db, "ducks_db.mt2") @filter(!str_detect(car, "M"))
 # @chain mtcars begin
-#     @left_join(t(other_db), model == car)
+#     @left_join(other_db, model == car)
 #     @select(model, fuel_efficiency)
 #     @head(5)
 #     @collect
@@ -120,7 +120,7 @@ end
 end;
 
 @chain dt(db, "viewer") begin # access the view like any other table
-    @left_join(t(query2), cyl == cyl)
+    @left_join(query2, cyl == cyl)
     @summarize(avg_mean = mean(mpg), _by = efficiency)
     @mutate(mean = avg_mean / 4 )
     @collect
@@ -131,7 +131,7 @@ end
 prices = dt(db, "https://duckdb.org/data/prices.csv", "prices");
 holdings = dt(db, "https://duckdb.org/data/holdings.csv", "holdings");
 @chain holdings begin
-    @inner_join(t(prices), ticker = ticker, closest(when >= when))
+    @inner_join(prices, ticker = ticker, closest(when >= when))
     @select(holdings.ticker, holdings.when) 
     @mutate(value = price * shares)
     @collect

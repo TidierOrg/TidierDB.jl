@@ -81,12 +81,20 @@ end
 
 t(table) = from_query(table)
 
-function up_cte_name(q, cte_name)
-    if !isempty(q.metadata)
-        q.metadata.table_name .= cte_name
+function up_cte_name(sq, cte_name)
+    # Do not retag metadata after JOIN-created CTEs
+    if getfield(sq, :post_join)
+        return
     end
-    return q
+    if cte_name != "cte_1" && !isempty(strip(String(sq.select)))
+        for i in eachindex(sq.metadata.current_selxn)
+            if sq.metadata.current_selxn[i] >= 1
+                sq.metadata.table_name[i] = cte_name
+            end
+        end
+    end
 end
+
 
 
 function build_cte!(sq)

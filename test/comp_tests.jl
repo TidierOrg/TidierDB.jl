@@ -199,6 +199,8 @@
         TDB_13 = @chain test_db DB.@mutate(value = as_string(value)) DB.@mutate(value2 = as_float(value), value3 = as_integer(value)) DB.@filter(value2 > 4 && value3 < 10) DB.@collect
         TDB_14 = @chain DB.dt(db, "test_df") DB.@filter(value > 1) DB.@transmute( cum_sum = cumsum(value), _by = groups,  _order =  percent) DB.@arrange(groups, cum_sum) DB.@collect()
         TDF_14 = @chain test_df @filter(value > 1) @group_by(groups) @arrange(percent) @transmute(cum_sum = cumsum(value)) @arrange(groups, cum_sum) @ungroup
+        prices = DB.dt(db, "https://duckdb.org/data/prices.csv", "prices"); holdings = DB.dt(db, "https://duckdb.org/data/holdings.csv", "holdings");
+        stocks = @chain holdings  DB.@inner_join(prices, ticker = ticker, closest(when >= when)) DB.@select(holdings.ticker, holdings.when)     DB.@mutate(value = price * shares) DB.@collect;
         
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
         @test all(isequal.(Array(TDF_2), Array(TDB_2)))
@@ -214,7 +216,7 @@
         @test all(isequal.(Array(TDF_12), Array(TDB_12)))
         @test all(isequal.(Array(TDF_13), Array(TDB_13)))
         @test all(isequal.(Array(TDF_14), Array(TDB_14)))
-
+        @test size(stocks) == (4, 3)
     end
     @testset "Mutate with Conditionals, Strings and then Filter" begin
         # mutating with if_else then filtering on missing values 
@@ -411,7 +413,6 @@
             DB.@summarize(value1 = first(score))
             DB.@mutate(x = 12 + value1)
             DB.@arrange(id)
-            #@aside DB.@show_query _
             DB.@collect() 
         end
         TDF_1 = @chain test_df begin
@@ -421,6 +422,35 @@
             @mutate(x = 12 + value1) 
             @arrange(id)
         end
+
+        TDB_2 = @chain test_db begin
+           DB.@select(id, value) 
+           DB.@inner_join("df_join", id = id2)
+           DB.@arrange id
+           DB.@collect()
+       end
+        TDF_2 =  @chain test_df begin
+            @select(id, value) 
+            @inner_join(df2, id = id2)
+            @arrange id
+        end
+
+        dft1 = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
+                                value0 = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
+                                value1 = repeat(1:5, 2)); dft2 = DataFrame(id = dft1.id, value2 = rand(10));
+        dftv1 = DB.dt(db, dft1, "t1"); dftv2 = DB.dt(db, dft2, "t2");
+
+        dt1 = @chain dftv1 DB.@rename(value00 = value0, value11 = value1)  DB.@distinct() 
+        dt2 = @chain dftv2 DB.@inner_join(dt1, id)
+        TDB_3 = @chain dftv1 DB.@inner_join(dt2, id == id) DB.@collect()
+
+        dtd1 = @chain dft1 @rename(value00 = value0) @distinct() 
+        dtd2 = @chain dft2 @inner_join(dtd1, id) @rename(value11 = value1 )
+        TDF_3 = @chain dft1 @inner_join(dtd2, id = id)
+
         @test all(isequal.(Array(TDF_1), Array(TDB_1)))
+        @test all(isequal.(Array(TDF_2), Array(TDB_2)))
+        @test all(isequal.(Array(TDF_3), Array(TDB_3)))
+
     end
 

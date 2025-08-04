@@ -41,7 +41,7 @@ using GZip
  struct databricks <: SQLBackend end
  
  const  _warning_ = Ref(false)
- const window_agg_fxns = [:lead, :lag, :dense_rank, :nth_value, :ntile, :rank_dense, :row_number, :first_value, :last_value, :cume_dist, :count]
+ const window_agg_fxns = [:lead, :lag, :dense_rank, :nth_value, :ntile, :rank_dense, :row_number, :first_value, :last_value, :cume_dist, :count, :first, :last]
  current_sql_mode = Ref{SQLBackend}(duckdb())
  const color = Ref{Bool}(true)
  function set_sql_mode(mode::SQLBackend) current_sql_mode[] = mode end

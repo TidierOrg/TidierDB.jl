@@ -1891,8 +1891,8 @@ Nearly all aggregate functions from any database are supported both `@summarize`
 
 With `@summarize`, an aggregate functions available on a SQL backend can be used as they are in sql with the same syntax (`'` should be replaced with `"`)
 
-`@mutate` supports them as well, however, unless listed below, the function call must be wrapped with `agg()`
-- Aggregate Functions: `maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`, `count`
+`@mutate` supports them as well, however, unless listed below, the function call must be wrapped with `agg()` or with `~`
+- Aggregate Functions: `maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`, `count`, `first`
 - Window Functions: `lead`, `lag`, `dense_rank`, `nth_value`, `ntile`, `rank_dense`, `row_number`, `first_value`, `last_value`, `cume_dist`
 
 If a function is needed regularly, instead of wrapping it in `agg`, it can also be added to `window_agg_fxns` with `push!` as demonstrated below
@@ -1926,8 +1926,8 @@ julia> @chain dt(db, df, "df_agg") begin
 
 julia> @chain dt(db, df, "df_agg") begin
          @mutate(
-            slope = agg(regr_slope(value1, value2)),
-            var = agg(var_samp(value2)),
+            slope = ~regr_slope(value1, value2),
+            var = agg(var_samp(value2)),  # alternate with agg
             std = std(value2), # since this is in the list above, it does not get wrapped in `agg`
             _by = groups
          )
@@ -1955,7 +1955,7 @@ julia> push!(TidierDB.window_agg_fxns, :regr_slope);
 
 julia> @chain dt(db, df, "df_agg") begin
          @mutate(
-            slope = regr_slope(value1, value2), # no longer wrapped in `agg` following the above
+            slope = regr_slope(value1, value2), # no longer ~ prefix following the above
             _by = groups
          )
          @select !percent

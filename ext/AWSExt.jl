@@ -42,25 +42,25 @@ end
 function TidierDB.get_table_metadata(AWS_GLOBAL_CONFIG, table_name::String; athena_params)
     schema, table = split(table_name, '.')  # Ensure this correctly parses your input
     query = """SELECT * FROM $schema.$table limit 0;"""
-  #  println(query)
-  #  try
-        exe_query = Athena.start_query_execution(query, athena_params; aws_config = AWS_GLOBAL_CONFIG)
+    exe_query = Athena.start_query_execution(query, athena_params; aws_config = AWS_GLOBAL_CONFIG)
 
-        # Poll Athena to check if the query has completed
-        status = "RUNNING"
-        while status in ["RUNNING", "QUEUED"]
-            sleep(1)  # Wait for 1 second before checking the status again to avoid flooding the API
-            query_status = Athena.get_query_execution(exe_query["QueryExecutionId"], athena_params; aws_config = AWS_GLOBAL_CONFIG)
-            status = query_status["QueryExecution"]["Status"]["State"]
-            if status == "FAILED"
-                error("Query failed: ", query_status["QueryExecution"]["Status"]["StateChangeReason"])
-            elseif status == "CANCELLED"
-                error("Query was cancelled.")
-            end
+    # Poll Athena to check if the query has completed
+    wait_time = 1.0
+    status = "RUNNING"
+    while status in ["RUNNING", "QUEUED"]
+        sleep(round(wait_time))  # Wait for wait_time second before checking the status again to avoid flooding the API
+        query_status = Athena.get_query_execution(exe_query["QueryExecutionId"], athena_params; aws_config = AWS_GLOBAL_CONFIG)
+        status = query_status["QueryExecution"]["Status"]["State"]
+        if status == "FAILED"
+            error("Query failed: ", query_status["QueryExecution"]["Status"]["StateChangeReason"])
+        elseif status == "CANCELLED"
+            error("Query was cancelled.")
         end
+        wait_time = min(wait_time * 1.2, 10.0)  # Exponential backoff, max wait time of 10 seconds
+    end
 
-        # Fetch the results once the query completes
-        result = Athena.get_query_results(exe_query["QueryExecutionId"], athena_params; aws_config = AWS_GLOBAL_CONFIG)
+    # Fetch the results once the query completes
+    result = Athena.get_query_results(exe_query["QueryExecutionId"], athena_params; aws_config = AWS_GLOBAL_CONFIG)
 
     column_names = [col["Label"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
     column_types = [col["Type"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
@@ -74,9 +74,10 @@ end
 function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:athena})
     final_query = TidierDB.finalize_query(sqlquery)
     exe_query = Athena.start_query_execution(final_query, sqlquery.athena_params; aws_config = sqlquery.db)
+    wait_time = 1.0
     status = "RUNNING"
     while status in ["RUNNING", "QUEUED"]
-        sleep(1)  # Wait for 1 second before checking the status again to avoid flooding the API
+        sleep(round(wait_time))  # Wait for wait_time seconds before checking the status again to avoid flooding the API
         query_status = Athena.get_query_execution(exe_query["QueryExecutionId"], sqlquery.athena_params; aws_config = sqlquery.db)
         status = query_status["QueryExecution"]["Status"]["State"]
         if status == "FAILED"
@@ -84,6 +85,7 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:athena})
         elseif status == "CANCELLED"
             error("Query was cancelled.")
         end
+        wait_time = min(wait_time * 1.2, 10.0)  # Exponential backoff, max wait time of 10 seconds
     end
     dfs = []
     next = true

@@ -159,8 +159,19 @@ function parse_tidy_db(exprs, metadata::DataFrame)
 
     # If no columns are explicitly included, default to all columns (with current_selxn == 1) minus any exclusions
     if isempty(included_columns)
-        included_columns = metadata.name[metadata.current_selxn .== 1]
-        included_columns = setdiff(included_columns, excluded_columns)
+        idx = findall(metadata.current_selxn .>= 1)
+        included_columns = String[]
+        for i in idx
+            nm = metadata.name[i]
+            if nm in excluded_columns
+                continue
+            end
+            if metadata.current_selxn[i] == 2
+                push!(included_columns, string(metadata.table_name[i], ".", nm))
+            else
+                push!(included_columns, nm)
+            end
+        end
     else
         included_columns = setdiff(included_columns, excluded_columns)
     end

@@ -67,7 +67,19 @@ function expr_to_sql_lite(expr, sq; from_summarize::Bool)
                 str = "$(arg_str)"
                 return "$(str) $(window_clause)"
             end
-
+        elseif isa(x, Expr) && x.head == :call && x.args[1] === :~
+            # ~f(args)  ⇒  f(args) OVER (...)   (only valid in @mutate / window context)
+            if from_summarize
+                return error("~ is only needed with aggregate functions in @mutate")
+            else
+                inner = x.args[2]
+                if !(inner isa Expr && inner.head == :call)
+                    return error("Use ~ with a function call, e.g., ~mean(x)")
+                end
+                window_clause = construct_window_clause(sq)
+                inner_sql = string(expr_to_sql(inner, sq; from_summarize=false))
+                return "$(inner_sql) $(window_clause)"
+            end
     # exc_capture_bug used above to allow proper _ function name capturing
         elseif @capture(x, replacemissing(column_, replacement_value_))
             return :(COALESCE($column, $replacement_value))

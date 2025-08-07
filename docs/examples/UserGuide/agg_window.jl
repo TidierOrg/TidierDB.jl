@@ -18,10 +18,10 @@ end
 # ## Aggregate Functions in `@mutate`
 # By default, `@mutate`/`@transmute` supports (however, you can easily expand this list)
 # - `maximum`, `minimum`, `mean`, `std`, `sum`, `cumsum`
-# To use aggregate sql functions that are built in to any database backend, but exist outside of the TidierDB parser list above, simply wrap the function call in `agg()`
+# To use aggregate sql functions that are built in to any database backend, but exist outside of the TidierDB parser list above, simply prefix the function with `~` or wrap the function call in `agg()`
 @chain mtcars begin 
      @group_by(cyl)
-     @mutate(kurt = agg(kurtosis(mpg)))
+     @mutate(kurt = ~kurtosis(mpg))
      @select cyl mpg kurt
      @head()
      @collect 

@@ -351,23 +351,131 @@ macro summarize(sqlquery, expressions...)
                 end
             end
 
+                        # Construct the SELECT clause
             # Construct the SELECT clause
-            summary_clause = join(summary_str, ", ")
-            existing_select = sq.select
-           #("here", existing_select)
-            if startswith(existing_select, "SELECT")
-                sq.select = existing_select * ", " * summary_clause
+            summary_clause   = join(summary_str, ", ")
+            existing_select  = strip(sq.select)
 
-            elseif sq.groupBy_exprs
-                sq.select *=  ", " * summary_clause
-                sq.groupBy_exprs
-            else
-                if $(esc(grouping_var)) != nothing
-                    sq.select = "SELECT " * replace(sq.groupBy, "GROUP BY " => "") * ", " * summary_clause
+            # helper: split SELECT list on top-level commas
+            function _split_top_level_commas_str(s::AbstractString)
+                ss = String(s)
+                parts = String[]
+                buf = IOBuffer()
+                depth = 0
+                i = firstindex(ss)
+                while i <= lastindex(ss)
+                    c = ss[i]
+                    if c == '('
+                        depth += 1
+                        write(buf, c)
+                    elseif c == ')'
+                        depth = max(depth - 1, 0)
+                        write(buf, c)
+                    elseif c == ',' && depth == 0
+                        push!(parts, strip(String(take!(buf))))
+                    else
+                        write(buf, c)
+                    end
+                    i = nextind(ss, i)
+                end
+                push!(parts, strip(String(take!(buf))))
+                return parts
+            end
+
+            # helper: ensure a column exists in metadata and is selected
+            function _ensure_selected!(sq, colname::AbstractString)
+                names = sq.metadata[!, :name]
+                idx = findfirst(==(String(colname)), names)
+                if idx === nothing
+                    push!(sq.metadata, Dict("name" => String(colname),
+                                            "type" => "UNKNOWN",
+                                            "current_selxn" => 1,
+                                            "table_name" => sq.from))
                 else
-                    sq.select = "SELECT " * summary_clause
+                    sq.metadata[idx, :current_selxn] = 1
                 end
             end
+
+            # helper: after we set sq.select, mark any "... AS alias" as selected
+            function _select_aliases_in_current_select!(sq)
+                sel = strip(String(sq.select))
+                if !startswith(uppercase(sel), "SELECT ")
+                    return
+                end
+                body = sel[8:end]                # strip leading "SELECT "
+                for item in _split_top_level_commas_str(body)
+                    if (m = match(r"(?i)\bAS\s+([A-Za-z_][\w$]*)\s*$", item)) !== nothing
+                        _ensure_selected!(sq, m.captures[1])
+                    end
+                end
+            end
+
+            if !isempty(existing_select) && startswith(uppercase(existing_select), "SELECT")
+                # keep any existing projection (e.g., COALESCE(...) AS id, value2)
+                if isempty(summary_clause)
+                    sq.select = existing_select
+                else
+                    sq.select = existing_select * ", " * summary_clause
+                end
+                _select_aliases_in_current_select!(sq)
+
+            elseif !isempty(sq.groupBy)
+                # no existing SELECT (e.g., it was finalized into a CTE): project the GROUP BY expressions
+                # and give them clean aliases where possible
+                gb = replace(sq.groupBy, "GROUP BY " => "")
+
+                # derive a safe alias when possible
+                function _alias_for_group_expr(e::AbstractString)
+                    s = strip(String(e))
+                    # COALESCE(a.col1, b.col2)  -> alias "col1" (always use the left-hand column name)
+                    m = match(r"(?i)^\s*COALESCE\s*\(\s*[A-Za-z_][\w$]*\.([A-Za-z_][\w$]*)\s*,\s*[A-Za-z_][\w$]*\.([A-Za-z_][\w$]*)\s*\)\s*$", s)
+                    if m !== nothing
+                        return m.captures[1]
+                    end
+                    # qualified name a.col -> alias "col"
+                    m2 = match(r"^\s*[A-Za-z_][\w$]*\.([A-Za-z_][\w$]*)\s*$", s)
+                    if m2 !== nothing
+                        return m2.captures[1]
+                    end
+                    return ""  # no clean alias
+                end
+
+
+                items = _split_top_level_commas_str(gb)
+                proj  = String[]
+                for it in items
+                    alias = _alias_for_group_expr(it)
+                    if !isempty(alias)
+                        push!(proj, string(it, " AS ", alias))
+                    else
+                        push!(proj, it)
+                    end
+                end
+
+                if isempty(summary_clause)
+                    sq.select = "SELECT " * join(proj, ", ")
+                else
+                    sq.select = "SELECT " * join(proj, ", ") * ", " * summary_clause
+                end
+                _select_aliases_in_current_select!(sq)   # marks "id" selected
+
+            elseif sq.groupBy_exprs
+                # expression-style group_by previously appended to sq.select
+                if isempty(summary_clause)
+                    # keep as-is
+                else
+                    sq.select *= ", " * summary_clause
+                end
+                _select_aliases_in_current_select!(sq)
+            else
+                # pure aggregation with no grouping
+                sq.select = "SELECT " * summary_clause
+                _select_aliases_in_current_select!(sq)
+            end
+
+            sq.is_aggregated = true        # Mark the query as aggregated
+            sq.post_aggregation = true     # Indicate ready for post-aggregation operations
+
 
             sq.is_aggregated = true        # Mark the query as aggregated
             sq.post_aggregation = true     # Indicate ready for post-aggregation operations

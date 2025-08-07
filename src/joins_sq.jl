@@ -86,10 +86,9 @@ function create_and_add_cte(sq, cte_name)
 end
 
 function process_and_generate_columns(sq, vq, lhs, rhs, most_recent_source, join_table_name, operators)
-    # Initialize strings for the final result
     coalesce_exprs = String[]
     column_exprs = String[]
-    
+
     if occursin(" AS ", join_table_name)
         join_table_name = strip(split(join_table_name, " AS ")[end])
     end
@@ -100,14 +99,17 @@ function process_and_generate_columns(sq, vq, lhs, rhs, most_recent_source, join
     lhs_d = []
     rhs_d = []
     for (l, r, o) in zip(lhs, rhs, operators)
-        o == "==" ? push!(lhs_d, l) : nothing
-        o == "==" ? push!(rhs_d, r) : nothing
+        o == "==" && push!(lhs_d, l)
+        o == "==" && push!(rhs_d, r)
     end
+
     if !isempty(lhs_d)
         for (lhs_col, rhs_col) in zip(lhs_d, rhs_d)
-                push!(coalesce_exprs, "COALESCE($most_recent_source.$lhs_col, $join_table_name.$rhs_col) AS $lhs_col")
+            push!(coalesce_exprs, "COALESCE($most_recent_source.$lhs_col, $join_table_name.$rhs_col) AS $lhs_col")
         end
     end
+
+    # left-side columns (respect current_selxn if join keys present)
     if isempty(lhs_d)
         cols_names_sq = sq.name[sq.current_selxn .>= 1]
     else
@@ -115,34 +117,26 @@ function process_and_generate_columns(sq, vq, lhs, rhs, most_recent_source, join
         sq.current_selxn[matching_indices_sq] .= 0
         cols_names_sq = sq.name[sq.current_selxn .>= 1] |> Vector
     end
-    
-
     for col in cols_names_sq
         push!(column_exprs, "$most_recent_source.$col")
     end
 
+    # right-side columns: include only explicitly selected (>= 1), not all (>= 0)
     if isempty(rhs_d)
-        cols_names_sq = vq.metadata.name[vq.metadata.current_selxn .>= 0] |> Vector
+        cols_names_sq = vq.metadata.name[vq.metadata.current_selxn .>= 1] |> Vector
     else
         matching_indices_sq = findall(name -> name in rhs_d, vq.metadata.name)
         vq.metadata.current_selxn[matching_indices_sq] .= 0
         cols_names_sq = vq.metadata.name[vq.metadata.current_selxn .>= 1] |> Vector
     end
-
-
     for col in cols_names_sq
         push!(column_exprs, "$join_table_name.$col")
     end
 
-    # Process `vq`
-
-    # Combine all expressions
-    final_columns = join(vcat(coalesce_exprs, column_exprs), ", ")  
-    
-    return final_columns   #*gbq_join_parse(most_recent_source)
-
-
+    final_columns = join(vcat(coalesce_exprs, column_exprs), ", ")
+    return final_columns
 end
+
 
 
 function sql_join_on(sq, join_table_name, lhs_cols::Vector{String}, rhs_cols::Vector{String}, operators::Vector{String}; closest_expr=String[])
@@ -171,40 +165,43 @@ function do_join(
     operators::Vector{String},
     closest_expr::Vector{String},
     as_of::String
-)    
+)
     matching_indices = findall(x -> x in lhs_col_str, sq.metadata.name)
     sq.metadata.current_selxn[matching_indices] .= 2
     rhs_d = []
     for (r, o) in zip(rhs_col_str, operators)
         o == "==" ? push!(rhs_d, r) : nothing
     end
-    
+
     needs_new_cte = !isempty(sq.select) || !isempty(sq.where) || sq.is_aggregated || !isempty(sq.ctes)
     sq.post_join = true
+
     if needs_new_cte
         sq.cte_count += 1
         cte_name = "cte_" * string(sq.cte_count)
         most_recent_source = !isempty(sq.ctes) ? "cte_" * string(sq.cte_count - 1) : sq.from
 
-        # === handle `jq` (join_table) if it is another SQLQuery ===
         if isa(jq, SQLQuery)
             jq.cte_count += 1
             sq.join_count += 1
             needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
-            
             if needs_new_cte_jq
                 joinc = "j" * string(sq.join_count)
                 for cte in jq.ctes
                     cte.name = joinc * cte.name
                 end
+                jq.cte_count += 1
                 cte_name_jq = joinc * "cte_" * string(jq.cte_count)
-                most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
+            
+                # IMPORTANT: preserve the actual FROM (may include base tables and JOINs)
+                most_recent_source_jq = jq.from
+            
                 select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                 new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
-                up_cte_name(jq, cte_name_jq)
                 push!(jq.ctes, new_cte_jq)
                 jq.from = cte_name_jq
                 sq.post_join = false
+                up_cte_name(jq, cte_name_jq)
             end
             sq.ctes = vcat(sq.ctes, jq.ctes)
             oq_metadata = sq.metadata
@@ -214,7 +211,6 @@ function do_join(
             sq.metadata = vcat(sq.metadata, jq.metadata)
             join_table_name = jq.from
         else
-            # === handle `jq` if it is just a string/table-name ===
             join_table_name = string(jq)
             if current_sql_mode[] != :athena
                 new_metadata = get_table_metadata(sq.db, join_table_name)
@@ -228,36 +224,34 @@ function do_join(
             sq.metadata = vcat(sq.metadata, new_metadata)
         end
 
-        # If grouping is present, finalize the previous partial query as a CTE
+        # finalize any pending GROUP BY
         if sq.groupBy != ""
             most_recent_source, cte_name = create_and_add_cte(sq, cte_name)
         end
 
-       # matching_indices_sq = findall(vq.metadata.name == rhs)
         jq = jq isa String ? db_table(sq.db, jq) : jq
         jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
+
         join_sql = " " *
-                   process_and_generate_columns( oq_metadata, jq, lhs_col_str, rhs_col_str,
+                   process_and_generate_columns(oq_metadata, jq, lhs_col_str, rhs_col_str,
                                                 most_recent_source, join_table_name, operators) *
                    " FROM " * gbq_join_parse(most_recent_source) *
                    as_of * " " * join_type * " JOIN " * join_table_name * " ON " *
                    sql_join_on(most_recent_source, join_table_name,
                                lhs_col_str, rhs_col_str, operators;
                                closest_expr = closest_expr)
-        # Create and add the new CTE
-        
+
         new_cte = CTE(name=cte_name, select=join_sql)
         up_cte_name(sq, cte_name)
-        
         push!(sq.ctes, new_cte)
         sq.from = cte_name
+        # ensure no stale projection is applied after the join
+        sq.select = ""
 
     else
-        # === no new CTE needed, proceed with direct join string building ===
         if isa(jq, SQLQuery)
             needs_new_cte_jq = !isempty(jq.select) || !isempty(jq.where) || jq.is_aggregated || !isempty(jq.ctes)
             sq.join_count += 1
-            
             if needs_new_cte_jq
                 joinc = "j" * string(sq.join_count)
                 for cte in jq.ctes
@@ -265,7 +259,10 @@ function do_join(
                 end
                 jq.cte_count += 1
                 cte_name_jq = joinc * "cte_" * string(jq.cte_count)
-                most_recent_source_jq = !isempty(jq.ctes) ? joinc * "cte_" * string(jq.cte_count - 1) : jq.from
+            
+                # IMPORTANT: preserve the actual FROM (may include base tables and JOINs)
+                most_recent_source_jq = jq.from
+            
                 select_sql_jq = finalize_query_jq(jq, most_recent_source_jq)
                 new_cte_jq = CTE(name=cte_name_jq, select=select_sql_jq)
                 push!(jq.ctes, new_cte_jq)
@@ -301,7 +298,8 @@ function do_join(
 
         jq = jq isa String ? db_table(sq.db, jq) : jq
         jq.metadata = filter(row -> !(row.name in rhs_d), jq.metadata)
-        
+
+        # this projection is the final one in the non-CTE path
         if !(join_type in ["SEMI", "ANTI"])
             sq.select = process_and_generate_columns(oq_metadata, jq, lhs_col_str, rhs_col_str,
                                                     sq.from, join_table_name, operators)
@@ -316,6 +314,7 @@ function do_join(
 
     return sq
 end
+
 
 
 """

@@ -82,12 +82,20 @@ end
 t(table) = from_query(table)
 
 function up_cte_name(sq, cte_name)
-    if cte_name != "cte_1"
-        if all(x -> x >= 1, sq.metadata.current_selxn)
-            sq.metadata.table_name .= cte_name
+    # Do not retag metadata after JOIN-created CTEs
+    if getfield(sq, :post_join)
+        return
+    end
+    if cte_name != "cte_1" && !isempty(strip(String(sq.select)))
+        for i in eachindex(sq.metadata.current_selxn)
+            if sq.metadata.current_selxn[i] >= 1
+                sq.metadata.table_name[i] = cte_name
+            end
         end
     end
 end
+
+
 
 function build_cte!(sq)
     # or if you want to also check sq.post_join, add it here
@@ -126,33 +134,153 @@ function build_cte!(sq)
 
     return sq
 end
-
+function last_prev_with_prefix(want_prefix::AbstractString, cur_index::Int)
+    last::Union{Nothing,String} = nothing
+    for (nm, idx) in name_to_index
+        if idx < cur_index && !isempty(want_prefix) && startswith(nm, want_prefix)
+            if last === nothing || name_to_index[last] < idx
+                last = nm
+            end
+        end
+    end
+    return last
+end
 function finalize_ctes(ctes::Vector{CTE})
     if isempty(ctes)
         return ""
     end
-  
-    cte_strings = String[]
-    for cte in ctes
-     
-        if startswith(cte.name, "jcte_")
-            cte.select = replace(cte.select, r"FROM cte_" => "FROM jcte_")
-            cte.from = replace(cte.from, r"^cte_" => "jcte_")
-        elseif startswith(cte.name, r"j\d+cte")
-            match_result = match(r"(j\d+cte_)", cte.name)
-            if match_result !== nothing
-                replacement = match_result.match
-                cte.select = replace(cte.select, r"FROM cte_" => "FROM $replacement")
-                cte.from = replace(cte.from, r"^cte_" => replacement)
+
+    # Index by full name and track names per base "cte_N"
+    name_to_index = Dict{String,Int}()
+    base_to_names = Dict{String,Vector{String}}()
+    for (i, c) in enumerate(ctes)
+        name_to_index[c.name] = i
+        if (m = match(r"(cte_\d+)$", c.name)) !== nothing
+            push!(get!(base_to_names, m.match, String[]), c.name)
+        end
+    end
+
+    # helpers to parse j-prefix and base
+    prefix_of(n::AbstractString) = begin
+        s = String(n)
+        (m = match(r"^((?:j\d+)+)cte_\d+$", s)) === nothing ? "" : m.captures[1]
+    end
+    base_of(n::AbstractString) = begin
+        s = String(n)
+        (m = match(r"(cte_\d+)$", s)) === nothing ? "" : m.match
+    end
+
+    # latest previous CTE for a base w/ exact prefix; if none, latest previous with any prefix
+    function last_prev_for_base(base::AbstractString, cur_index::Int, want_prefix::AbstractString)
+        names = get(base_to_names, String(base), String[])
+        exact_last::Union{Nothing,String} = nothing
+        any_last::Union{Nothing,String}   = nothing
+        for nm in names
+            idx = name_to_index[nm]
+            if idx < cur_index
+                any_last = nm
+                if prefix_of(nm) == want_prefix
+                    exact_last = nm
+                end
             end
         end
-    
+        return exact_last === nothing ? any_last : exact_last
+    end
+
+    # latest previous CTE for a base with NO prefix (plain cte_N), else nothing
+    function last_prev_plain_for_base(base::AbstractString, cur_index::Int)
+        names = get(base_to_names, String(base), String[])
+        last_plain::Union{Nothing,String} = nothing
+        for nm in names
+            idx = name_to_index[nm]
+            if idx < cur_index && prefix_of(nm) == ""
+                last_plain = nm
+            end
+        end
+        return last_plain
+    end
+
+
+    function resolve_token(tok::AbstractString, cur_index::Int, cur_name::AbstractString)::String
+        s           = String(tok)
+        cur_prefix  = prefix_of(cur_name)
+        tok_prefix  = prefix_of(s)
+        b           = base_of(s)
+
+        if haskey(name_to_index, s)
+            idx = name_to_index[s]
+
+            if idx < cur_index
+                # exact, earlier CTE
+                if cur_prefix == "" || tok_prefix == cur_prefix || isempty(b)
+                    return s
+                else
+                    lp = last_prev_for_base(b, cur_index, cur_prefix)
+                    return lp === nothing ? s : lp
+                end
+
+            elseif idx == cur_index
+                # self-ref → map to previous with same base (prefer same prefix; else any)
+                if isempty(b)
+                    return s
+                end
+                lp = last_prev_for_base(b, cur_index, cur_prefix)
+                return lp === nothing ? s : lp
+
+            else
+                # FORWARD REF → rewrite to latest previous with same base & current prefix
+                if isempty(b)
+                    return s
+                end
+                lp = last_prev_for_base(b, cur_index, cur_prefix)
+                if lp !== nothing
+                    return lp
+                end
+                # fallback: latest previous sharing the token's prefix
+                if !isempty(tok_prefix)
+                    lp2 = last_prev_with_prefix(tok_prefix, cur_index)
+                    if lp2 !== nothing
+                        return lp2
+                    end
+                end
+                return s
+            end
+
+        else
+            # not an exact CTE name; if it's a base, rewrite depending on current prefix
+            if isempty(b)
+                return s
+            end
+            if cur_prefix == ""
+                lp = last_prev_plain_for_base(b, cur_index)
+                return lp === nothing ? s : lp
+            else
+                lp = last_prev_for_base(b, cur_index, cur_prefix)
+                return lp === nothing ? s : lp
+            end
+        end
+    end
+
+
+    # rewrite any CTE token in SQL body (handles FROM/JOIN/ON/etc.)
+    function rewrite_sql(sql::AbstractString, cur_index::Int, cur_name::AbstractString)::String
+        s = String(sql)
+        return replace(s, r"\b((?:j\d+)*cte_\d+)\b" => (t -> resolve_token(t, cur_index, cur_name)))
+    end
+
+    cte_strings = String[]
+    for (i, c) in enumerate(ctes)
+        c.select = rewrite_sql(c.select, i, c.name)
+        if !isempty(c.from)
+            c.from = resolve_token(c.from, i, c.name)
+        end
+
         cte_str = string(
-            cte.name, " AS (SELECT ", cte.select, 
-            occursin(" FROM ", cte.select) ? "" : " FROM " * cte.from, 
-            (!isempty(cte.where) ? " WHERE " * cte.where : ""), 
-            (!isempty(cte.groupBy) ? " GROUP BY " * cte.groupBy : ""), 
-            (!isempty(cte.having) ? " HAVING " * cte.having : ""), 
+            c.name, " AS (SELECT ", c.select,
+            occursin(" FROM ", c.select) ? "" : " FROM " * c.from,
+            (!isempty(c.where) ? " WHERE " * c.where : ""),
+            (!isempty(c.groupBy) ? " GROUP BY " * c.groupBy : ""),
+            (!isempty(c.having) ? " HAVING " * c.having : ""),
             ")"
         )
         push!(cte_strings, cte_str)
@@ -160,6 +288,7 @@ function finalize_ctes(ctes::Vector{CTE})
 
     return "WITH " * join(cte_strings, ", ") * " "
 end
+
 
 function finalize_query(sqlquery::SQLQuery)
     cte_part = finalize_ctes(sqlquery.ctes)

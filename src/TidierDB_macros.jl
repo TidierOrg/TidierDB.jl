@@ -2,9 +2,7 @@
 $docstring_select
 """
 macro select(sqlquery, exprs...)
-
     exprs = parse_blocks(exprs...)
-
     return quote
         exprs_str = map(expr -> isa(expr, Symbol) ? string(expr) : expr, $exprs)
         sq = t($(esc(sqlquery)))
@@ -17,25 +15,21 @@ macro select(sqlquery, exprs...)
                 if occursin(".", col)
                     table_col_split = split(col, ".")
                     table_name, col_name = table_col_split[1], table_col_split[2]
-
-                    # Iterate and update current_selxn based on matches
                     for idx in eachindex(sq.metadata.current_selxn)
-                        if sq.metadata.table_name[idx] == table_name && 
-                           sq.metadata.name[idx] == col_name
+                        if sq.metadata.table_name[idx] == table_name && sq.metadata.name[idx] == col_name
                             sq.metadata.current_selxn[idx] = 2
                         end
                     end
                 else
-                    # Direct matching for columns without 'table.' prefix
                     matching_indices = findall(sq.metadata.name .== col)
                     sq.metadata.current_selxn[matching_indices] .= 1
                 end
             end
         end
-        
         sq
     end
 end
+
 
 """
 $docstring_filter
@@ -181,25 +175,113 @@ end
 
 function groupby_exp(expr, sq)
     if isa(expr, Expr) && expr.head == :(=) && isa(expr.args[1], Symbol)
-        # Extract column alias name as string
         col_name = string(expr.args[1])
         if current_sql_mode[] == snowflake()
             col_name = uppercase(col_name)  # COV_EXCL_LINE
         end
         push!(sq.metadata, Dict("name" => col_name, "type" => "UNKNOWN", "current_selxn" => 1, "table_name" => "table"))
-        # Convert the right-hand side expression to a SQL expression
-        col_expr = expr_to_sql(expr.args[2], sq)
-        col_expr = string(col_expr)
-        # Return the alias and the SQL snippet (wrapped in parentheses to be safe)
+        col_expr = expr_to_sql(expr.args[2], sq) |> string
         return col_name, "(" * col_expr * ") AS " * col_name
     else
         error("Unsupported expression in @group_by: $(expr)")
     end
 end
 
+# Single helper to get the expression behind an alias in the current SELECT
+function _expr_for_alias(select_sql::AbstractString, alias::AbstractString)
+    s = strip(String(select_sql))
+    body = startswith(uppercase(s), "SELECT ") ? s[8:end] : s
+
+    m = findfirst(Regex("(?i)\\bAS\\s+$alias\\b"), body)
+    m === nothing && return nothing
+
+    as_start = first(m) - 1
+    depth = 0
+    i = as_start
+    start_idx = firstindex(body)
+
+    while i >= firstindex(body)
+        c = body[i]
+        if c == ')'
+            depth += 1
+        elseif c == '('
+            depth = max(depth - 1, 0)
+        elseif c == ',' && depth == 0
+            start_idx = nextind(body, i)
+            break
+        end
+        i = prevind(body, i)
+    end
+
+    expr = strip(body[start_idx:as_start])
+    return expr == "" ? nothing : expr
+end
+
 """
 $docstring_group_by
 """
+macro group_by(sqlquery, columns...)
+    columns = parse_blocks(columns...)
+    return quote
+        columns_str = map(col -> isa(col, Symbol) ? string(col) : col, $columns)
+        sq = t($(esc(sqlquery)))
+        if isa(sq, SQLQuery)
+            try
+                # Build GROUP BY items; if a name matches a SELECT alias, use its expression
+                group_items = String[]
+                for c in columns_str
+                    expr = _expr_for_alias(sq.select, c)
+                    if expr !== nothing
+                        push!(group_items, expr)          # e.g., COALESCE(t2.id, t1.id)
+                    else
+                        for nm in parse_tidy_db([c], sq.metadata)
+                            push!(group_items, nm)        # qualified name
+                        end
+                    end
+                end
+                sq.groupBy = "GROUP BY " * join(group_items, ", ")
+
+                # If no projection yet or it's SELECT *, project only the grouping columns
+                sel = strip(String(sq.select))
+                if isempty(sel) || occursin(r"(?i)^SELECT\s+\*$", sel)
+                    sq.select = "SELECT " * join(group_items, ", ")
+                end
+            catch
+                # Handle expression/alias form: group_by(alias = expr, ...)
+                sq.groupBy_exprs = true
+                local group_expressions = String[]  # "(expr) AS alias"
+                local group_aliases     = String[]  # "alias"
+
+                for col in $columns
+                    if isa(col, Expr) && col.head == :(=)
+                        let tup = groupby_exp(col, sq)
+                            push!(group_expressions, tup[2])
+                            push!(group_aliases,    tup[1])
+                        end
+                    else
+                        for nm in parse_tidy_db([col], sq.metadata)
+                            push!(group_expressions, nm)
+                            push!(group_aliases,     nm)
+                        end
+                    end
+                end
+
+                # FIX #1: GROUP BY aliases (not "(expr) AS alias")
+                sq.groupBy = "GROUP BY " * join(group_aliases, ", ")
+
+                # FIX #2: If no projection yet or it's SELECT *, expose the aliased select items
+                sel = strip(String(sq.select))
+                if isempty(sel) || occursin(r"(?i)^SELECT\s+\*$", sel)
+                    sq.select = "SELECT " * join(group_expressions, ", ")
+                end
+            end
+        else
+            error("Expected sqlquery to be an instance of SQLQuery")
+        end
+        sq
+    end
+end
+#=
 macro group_by(sqlquery, columns...)
     columns = parse_blocks(columns...)
     return quote
@@ -248,6 +330,9 @@ macro group_by(sqlquery, columns...)
         sq
     end
 end
+=#
+
+
 
 
 """
@@ -339,66 +424,76 @@ macro rename(sqlquery, renamings...)
     renamings = parse_blocks(renamings...)
 
     return quote
-        # Prepare the renaming rules from the macro arguments
+        # Build old->new map from "new = old" pairs
         renamings_dict = Dict{String, String}()
-        for renaming in $(esc(renamings))
-            if isa(renaming, Expr) && renaming.head == :(=) && isa(renaming.args[1], Symbol)
-                # Map original column names to new names for renaming
-                renamings_dict[string(renaming.args[2])] = string(renaming.args[1])
+        for r in $(esc(renamings))
+            if isa(r, Expr) && r.head == :(=) && isa(r.args[1], Symbol)
+                # value11 = value1  =>  "value1" => "value11"
+                renamings_dict[string(r.args[2])] = string(r.args[1])
             else
-                throw("Unsupported renaming format in @rename: $(renaming)")
+                throw("Unsupported renaming format in @rename: $(r)")
             end
         end
 
         sq = t($(esc(sqlquery)))
-        
         if isa(sq, SQLQuery)
-            # Generate a new CTE name
+            # New CTE wrapper
             new_cte_name = "cte_" * string(sq.cte_count + 1)
             sq.cte_count += 1
-     
-            # Determine the select clause for the new CTE
-            select_clause = if isempty(sq.select) || sq.select == "SELECT *"
-                # If select is *, list all columns with renaming applied
-                all_columns = sq.metadata[!, :name]
-                join([haskey(renamings_dict, col) ? col * " AS " * renamings_dict[col] : col for col in all_columns], ", ")
+
+            # Build projection with renaming
+            select_clause = if isempty(strip(sq.select)) || strip(uppercase(sq.select)) == "SELECT *" || strip(sq.select) == "*"
+                # Only include columns with current_selxn != 0
+                mask = sq.metadata.current_selxn .!= 0
+                cols = Vector{String}(sq.metadata.name[mask])
+                join([haskey(renamings_dict, c) ? string(c, " AS ", renamings_dict[c]) : c for c in cols], ", ")
             else
-                
-                select_parts = split(sq.select[8:end], ", ")
-                updated_parts = map(select_parts) do part
-                    # Identify the base column name for potential renaming
-                    col = strip(split(part, " AS ")[1])
-                    if haskey(renamings_dict, col)
-                        # Apply renaming to the base column name
-                        string(renamings_dict[col]) * " AS " * col
+                # Edit existing SELECT list (adjust aliases, don't add new columns)
+                s = String(sq.select)
+                body = startswith(uppercase(s), "SELECT ") ? s[8:end] : s
+                parts = split(body, ", ")
+                updated = map(parts) do part
+                    if occursin(r"(?i)\bAS\b", part)
+                        bits = split(part, r"(?i)\bAS\b")
+                        expr  = strip(bits[1])
+                        alias = strip(bits[end])
+                        new_alias = get(renamings_dict, alias, alias)
+                        string(expr, " AS ", new_alias)
                     else
-                        # No renaming needed; keep the original part
-                        part
+                        base = strip(split(part, ".")[end])
+                        if haskey(renamings_dict, base)
+                            string(part, " AS ", renamings_dict[base])
+                        else
+                            part
+                        end
                     end
                 end
-                sq.select = " " * join(updated_parts, ", ")
-
+                replace(join(updated, ", "), r"(?i)\bAS\s+AS\b" => " AS ")
             end
+
+            # Update metadata names only for selected cols (current_selxn != 0)
             for (old_name, new_name) in renamings_dict
-                sq.metadata[!, :name] = replace.(sq.metadata[!, :name], old_name => new_name)
+                for i in eachindex(sq.metadata.name)
+                    if sq.metadata.current_selxn[i] != 0 && sq.metadata[i, :name] == old_name
+                        sq.metadata[i, :name] = new_name
+                    end
+                end
             end
 
-            if isempty(sq.select) 
-                 sq.select == "SELECT *" 
-            end
-
-            # Create the new CTE with the select clause
+            # Emit CTE and re-point FROM
             new_cte = CTE(name=new_cte_name, select=select_clause, from=sq.from)
             push!(sq.ctes, new_cte)
-
-            # Update the from clause of the SQLQuery to the new CTE
             sq.from = new_cte_name
+
+            # Clear sq.select so subsequent steps project from the new CTE
+            sq.select = ""
         else
             error("Expected sqlquery to be an instance of SQLQuery")
         end
         sq
     end
 end
+
 
 mutable struct DBQuery
     val::String

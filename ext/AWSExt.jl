@@ -7,39 +7,34 @@ __init__() = println("Extension was loaded!")
 
 function collect_athena(result, has_header = true)
     # Extract column names and types from the result set metadata
-    column_names = [col["Label"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
-    column_types = [col["Type"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
+    column_metadata = result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]
+    column_names = [col["Label"] for col in column_metadata]
+    column_types = [col["Type"] for col in column_metadata]
+    num_columns = length(column_names)
 
     # Process data rows, starting from the second row to skip header information
-    data_rows = result["ResultSet"]["Rows"]
-    filtered_column_names = filter(c -> !isempty(c), column_names)
-    num_columns = length(filtered_column_names)
+    start = has_header ? 2 : 1
+    data_rows = result["ResultSet"]["Rows"][start:end]
 
-    has_header ? start = 2 : start = 1
-    data_for_df = [
-        [get(col, "VarCharValue", missing) for col in row["Data"]] for row in data_rows[start:end]
-    ]
+    if isempty(data_rows)
+        df = DataFrame([name => String[] for name in Symbol.(column_names)])
+        return TidierDB.parse_athena_df(df, column_types)
+    end
 
-    # Ensure each row has the correct number of elements
-    adjusted_data_for_df = [
-        length(row) == num_columns ? row : resize!(copy(row), num_columns) for row in data_for_df
-    ]
+    # Extract data from each row and handle missing values
+    data_matrix = Matrix{Union{String, Missing}}(undef, length(data_rows), num_columns)
 
-    # Pad rows with missing values if they are shorter than expected
-    for row in adjusted_data_for_df
-        if length(row) < num_columns
-            append!(row, fill(missing, num_columns - length(row)))
+    for (row_idx, row) in enumerate(data_rows)
+        row_data = row["Data"]
+        for col_idx in 1:num_columns
+            data_matrix[row_idx, col_idx] = get(row_data[col_idx], "VarCharValue", missing)
         end
     end
 
-    # Transpose the data to match DataFrame constructor requirements
-    data_transposed = permutedims(hcat(adjusted_data_for_df...))
-
     # Create the DataFrame
-    df = DataFrame(data_transposed, Symbol.(filtered_column_names))
-    TidierDB.parse_athena_df(df, column_types)
+    df = DataFrame(data_matrix, Symbol.(column_names))
     # Return the DataFrame
-    return df
+    return TidierDB.parse_athena_df(df, column_types)
 end
 
 @service Athena
@@ -47,25 +42,25 @@ end
 function TidierDB.get_table_metadata(AWS_GLOBAL_CONFIG, table_name::String; athena_params)
     schema, table = split(table_name, '.')  # Ensure this correctly parses your input
     query = """SELECT * FROM $schema.$table limit 0;"""
-  #  println(query)
-  #  try
-        exe_query = Athena.start_query_execution(query, athena_params; aws_config = AWS_GLOBAL_CONFIG)
+    exe_query = Athena.start_query_execution(query, athena_params; aws_config = AWS_GLOBAL_CONFIG)
 
-        # Poll Athena to check if the query has completed
-        status = "RUNNING"
-        while status in ["RUNNING", "QUEUED"]
-            sleep(1)  # Wait for 1 second before checking the status again to avoid flooding the API
-            query_status = Athena.get_query_execution(exe_query["QueryExecutionId"], athena_params; aws_config = AWS_GLOBAL_CONFIG)
-            status = query_status["QueryExecution"]["Status"]["State"]
-            if status == "FAILED"
-                error("Query failed: ", query_status["QueryExecution"]["Status"]["StateChangeReason"])
-            elseif status == "CANCELLED"
-                error("Query was cancelled.")
-            end
+    # Poll Athena to check if the query has completed
+    wait_time = 1.0
+    status = "RUNNING"
+    while status in ["RUNNING", "QUEUED"]
+        sleep(round(wait_time))  # Wait for wait_time second before checking the status again to avoid flooding the API
+        query_status = Athena.get_query_execution(exe_query["QueryExecutionId"], athena_params; aws_config = AWS_GLOBAL_CONFIG)
+        status = query_status["QueryExecution"]["Status"]["State"]
+        if status == "FAILED"
+            error("Query failed: ", query_status["QueryExecution"]["Status"]["StateChangeReason"])
+        elseif status == "CANCELLED"
+            error("Query was cancelled.")
         end
+        wait_time = min(wait_time * 1.2, 10.0)  # Exponential backoff, max wait time of 10 seconds
+    end
 
-        # Fetch the results once the query completes
-        result = Athena.get_query_results(exe_query["QueryExecutionId"], athena_params; aws_config = AWS_GLOBAL_CONFIG)
+    # Fetch the results once the query completes
+    result = Athena.get_query_results(exe_query["QueryExecutionId"], athena_params; aws_config = AWS_GLOBAL_CONFIG)
 
     column_names = [col["Label"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
     column_types = [col["Type"] for col in result["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]]
@@ -79,9 +74,10 @@ end
 function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:athena})
     final_query = TidierDB.finalize_query(sqlquery)
     exe_query = Athena.start_query_execution(final_query, sqlquery.athena_params; aws_config = sqlquery.db)
+    wait_time = 1.0
     status = "RUNNING"
     while status in ["RUNNING", "QUEUED"]
-        sleep(1)  # Wait for 1 second before checking the status again to avoid flooding the API
+        sleep(round(wait_time))  # Wait for wait_time seconds before checking the status again to avoid flooding the API
         query_status = Athena.get_query_execution(exe_query["QueryExecutionId"], sqlquery.athena_params; aws_config = sqlquery.db)
         status = query_status["QueryExecution"]["Status"]["State"]
         if status == "FAILED"
@@ -89,6 +85,7 @@ function TidierDB.final_collect(sqlquery::SQLQuery, ::Type{<:athena})
         elseif status == "CANCELLED"
             error("Query was cancelled.")
         end
+        wait_time = min(wait_time * 1.2, 10.0)  # Exponential backoff, max wait time of 10 seconds
     end
     dfs = []
     next = true

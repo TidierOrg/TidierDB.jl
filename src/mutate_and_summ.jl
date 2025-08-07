@@ -1,44 +1,52 @@
 function parse_mutate(mutations)
-    grouping_var = nothing
-    order_var = nothing
-    frame_var = nothing
-    new_mutations = []
+    grouping_var  = nothing
+    order_var     = nothing
+    frame_var     = nothing
+    new_mutations = Expr[]
+
+    # treat “a = b” and keyword-style “a = b” the same
+    _isassign(e) = isa(e, Expr) && e.head in (:(=), :kw)
 
     for expr in mutations
-        if isa(expr, Expr) && expr.head == :(=) && expr.args[1] == :_by
-            arg2 = expr.args[2]
-            if isa(arg2, Expr) && arg2.head == :vect
-                grouping_var = join([symbol_to_string(arg) for arg in arg2.args], ", ")
+        # ------------------------------------------------------- _by
+        if _isassign(expr) && expr.args[1] == :_by
+            arg = expr.args[2]
+            grouping_var = if isa(arg, Expr) && arg.head == :vect
+                join(symbol_to_string.(arg.args), ", ")
             else
-                grouping_var = symbol_to_string(arg2)
+                symbol_to_string(arg)
             end
-        elseif isa(expr, Expr) && expr.head == :(=) && expr.args[1] == :_order
-                arg2 = expr.args[2]
-                if isa(arg2, Expr) && arg2.head == :vect
-                    order_var = join([symbol_to_string(arg) for arg in arg2.args], ", ")
-                elseif isa(arg2, Expr) && arg2.head == :call && arg2.args[1] == :desc
-                    if isa(arg2.args[2], Expr) && arg2.args[2].head == :vect
-                        order_var = join([symbol_to_string(arg) for arg in arg2.args[2].args], ", ")
-                        order_var = "DESC " * order_var
-                    else
-                        order_var = "DESC " * string(arg2.args[2])
-                    end
-                else
-                    order_var = symbol_to_string(arg2)
-                end
-        elseif isa(expr, Expr) && expr.head == :(=) && expr.args[1] == :_frame
-                arg2 = expr.args[2]
-                if isa(arg2, Expr) && arg2.head == :vect
-                    frame_var = join([symbol_to_string(arg) for arg in arg2.args], ", ")
-                elseif isa(arg2, Expr) && arg2.head == :call && arg2.args[1] == :desc
-                    frame_var = "DESC " * string(arg2.args[2])
-                else
-                    frame_var = symbol_to_string(arg2)
-                end
+
+        # ---------------------------------------------------- _order
+        elseif _isassign(expr) && expr.args[1] == :_order
+            arg = expr.args[2]
+            if isa(arg, Expr) && arg.head == :vect
+                order_var = join(symbol_to_string.(arg.args), ", ")
+            elseif isa(arg, Expr) && arg.head == :call && arg.args[1] == :desc
+                inner = arg.args[2]
+                order_var = "DESC " *
+                            (isa(inner, Expr) && inner.head == :vect ?
+                                join(symbol_to_string.(inner.args), ", ")
+                              : symbol_to_string(inner))
+            else
+                order_var = symbol_to_string(arg)
+            end
+
+        # ---------------------------------------------------- _frame
+        elseif _isassign(expr) && expr.args[1] == :_frame
+            arg = expr.args[2]
+            frame_var = if isa(arg, Expr) && arg.head == :vect
+                join(symbol_to_string.(arg.args), ", ")
+            else
+                arg   # keep tuple / literal intact (avoids String–Int errors)
+            end
+
+        # ------------------------------------------ regular mutations
         else
             push!(new_mutations, expr)
         end
     end
+
     return grouping_var, new_mutations, order_var, frame_var
 end
 

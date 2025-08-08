@@ -4,41 +4,47 @@ function parse_mutate(mutations)
     frame_var = nothing
     new_mutations = []
 
-    for expr in mutations
-        if isa(expr, Expr) && expr.head == :(=) && expr.args[1] == :_by
+    for (i, expr) in enumerate(mutations)
+
+
+        if isa(expr, Expr) && (expr.head == :(=) || expr.head == :kw) && expr.args[1] == :_by
             arg2 = expr.args[2]
             if isa(arg2, Expr) && arg2.head == :vect
                 grouping_var = join([symbol_to_string(arg) for arg in arg2.args], ", ")
             else
                 grouping_var = symbol_to_string(arg2)
             end
-        elseif isa(expr, Expr) && expr.head == :(=) && expr.args[1] == :_order
-                arg2 = expr.args[2]
-                if isa(arg2, Expr) && arg2.head == :vect
-                    order_var = join([symbol_to_string(arg) for arg in arg2.args], ", ")
-                elseif isa(arg2, Expr) && arg2.head == :call && arg2.args[1] == :desc
-                    if isa(arg2.args[2], Expr) && arg2.args[2].head == :vect
-                        order_var = join([symbol_to_string(arg) for arg in arg2.args[2].args], ", ")
-                        order_var = "DESC " * order_var
-                    else
-                        order_var = "DESC " * string(arg2.args[2])
-                    end
+
+        elseif isa(expr, Expr) && (expr.head == :(=) || expr.head == :kw) && expr.args[1] == :_order
+            arg2 = expr.args[2]
+            if isa(arg2, Expr) && arg2.head == :vect
+                order_var = join([symbol_to_string(arg) for arg in arg2.args], ", ")
+            elseif isa(arg2, Expr) && arg2.head == :call && arg2.args[1] == :desc
+                if isa(arg2.args[2], Expr) && arg2.args[2].head == :vect
+                    order_var = join([symbol_to_string(arg) for arg in arg2.args[2].args], ", ")
+                    order_var = "DESC " * order_var
                 else
-                    order_var = symbol_to_string(arg2)
+                    order_var = "DESC " * string(arg2.args[2])
                 end
-        elseif isa(expr, Expr) && expr.head == :(=) && expr.args[1] == :_frame
-                arg2 = expr.args[2]
-                if isa(arg2, Expr) && arg2.head == :vect
-                    frame_var = join([symbol_to_string(arg) for arg in arg2.args], ", ")
-                elseif isa(arg2, Expr) && arg2.head == :call && arg2.args[1] == :desc
-                    frame_var = "DESC " * string(arg2.args[2])
-                else
-                    frame_var = symbol_to_string(arg2)
-                end
+            else
+                order_var = symbol_to_string(arg2)
+            end
+
+        elseif isa(expr, Expr) && (expr.head == :(=) || expr.head == :kw) && expr.args[1] == :_frame
+            arg2 = expr.args[2]
+            if isa(arg2, Expr) && arg2.head == :vect
+                frame_var = join([symbol_to_string(arg) for arg in arg2.args], ", ")
+            elseif isa(arg2, Expr) && arg2.head == :call && arg2.args[1] == :desc
+                frame_var = "DESC " * string(arg2.args[2])
+            else
+                frame_var = symbol_to_string(arg2)
+            end
+
         else
             push!(new_mutations, expr)
         end
     end
+
     return grouping_var, new_mutations, order_var, frame_var
 end
 
@@ -53,6 +59,7 @@ function symbol_to_string(s)
         return s
     end
 end
+
 
 function process_mutate_expression(expr, sq, select_expressions, cte_name; from_transmute::Bool = false)
 
@@ -186,12 +193,12 @@ macro mutate(sqlquery, mutations...)
             end
 
             if $(esc(order_var)) != nothing
-               TidierDB.@window_order(sq, ($order_var))
+                TidierDB.window_order!(sq, ($order_var))
             end
-
+            
             if $(esc(frame_var)) != nothing
-                 TidierDB.@window_frame(sq, ($frame_var))
-              end
+                TidierDB.window_frame!(sq, ($frame_var))
+            end
 
             for expr in $mutations
                 # Transform 'across' expressions first
@@ -588,15 +595,12 @@ macro transmute(sqlquery, mutations...)
                 group_vars_sql = expr_to_sql(group_vars, sq)
                 sq.groupBy = "GROUP BY " * string(group_vars_sql)
             end
-
             if $(esc(order_var)) != nothing
-               TidierDB.@window_order(sq, ($order_var))
+                TidierDB.window_order!(sq, ($order_var))
             end
-
             if $(esc(frame_var)) != nothing
-                 TidierDB.@window_frame(sq, ($frame_var))
-              end
-
+                TidierDB.window_frame!(sq, ($frame_var))
+            end
             for expr in $mutations
                 # Transform 'across' expressions first
                 if isa(expr, Expr) && expr.head == :call && expr.args[1] == :across

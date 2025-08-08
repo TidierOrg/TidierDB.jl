@@ -1,5 +1,8 @@
 # TidierDB.jl updates
-## v.8.8 - 2025-08-05
+##v.8.9 - 2025-08-08
+- fixes window keyword parsing in `@mutate` that breaking nightly runs
+
+## v.8.8 - 2025-08-07
 - fixes issue when grouping on a join id 
 - fixes cte construction issue 
 - fixes select before join order execution issue

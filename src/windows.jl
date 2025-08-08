@@ -175,3 +175,79 @@ macro window_frame(sqlquery, args...)
         sq
     end
 end
+
+function window_order!(sq, order_by_expr...)
+    @assert sq isa SQLQuery "Expected sqlquery to be an instance of SQLQuery"
+    order_specs = String[]
+    for expr in order_by_expr
+        if expr isa Expr && expr.head == :call && expr.args[1] == :desc
+            push!(order_specs, string(expr.args[2]) * " DESC")
+        elseif expr isa String && startswith(expr, "DESC")
+            push!(order_specs, string(replace(expr, "DESC" => "")) * " DESC")
+        elseif expr isa String || expr isa Symbol
+            push!(order_specs, string(expr) * " ASC")
+        else
+            throw("Unsupported column specification in window_order!: $expr")
+        end
+    end
+    sq.window_order = join(order_specs, ", ")
+
+    if sq.post_aggregation
+        sq.post_aggregation = false
+        cte_name = "cte_" * string(sq.cte_count + 1)
+        cte_sql = "SELECT * FROM " * sq.from
+        if !isempty(sq.where)
+            cte_sql *= " WHERE " * sq.where
+        end
+        new_cte = CTE(name=cte_name, select=cte_sql, from=sq.from)
+        up_cte_name(sq, cte_name)
+        push!(sq.ctes, new_cte)
+        sq.cte_count += 1
+        sq.from = cte_name
+    end
+    return sq
+end
+
+function window_frame!(sq, args...)
+    @assert sq isa SQLQuery "Expected sqlquery to be an instance of SQLQuery"
+
+    frame_from_value = nothing
+    frame_to_value = nothing
+
+    if length(args) == 1 && args[1] isa Tuple && length(args[1]) == 2
+        frame_from_value, frame_to_value = args[1]
+    elseif length(args) == 1
+        frame_from_value = args[1]
+    elseif length(args) >= 2
+        frame_from_value, frame_to_value = args[1], args[2]
+    end
+
+    frame_start_clause = ""
+    frame_end_clause = ""
+
+    if frame_from_value !== nothing && frame_to_value === nothing
+        frame_start_clause = frame_from_value == 0 ? "CURRENT ROW" :
+                             frame_from_value < 0 ? string(abs(frame_from_value), " PRECEDING") :
+                             string(abs(frame_from_value), " FOLLOWING")
+        frame_end_clause = "UNBOUNDED FOLLOWING"
+    elseif frame_from_value === nothing && frame_to_value !== nothing
+        frame_end_clause = frame_to_value == 0 ? "CURRENT ROW" :
+                           frame_to_value < 0 ? string(abs(frame_to_value), " PRECEDING") :
+                           string(abs(frame_to_value), " FOLLOWING")
+        frame_start_clause = "UNBOUNDED PRECEDING"
+    elseif frame_from_value !== nothing && frame_to_value !== nothing
+        frame_start_clause = frame_from_value == 0 ? "CURRENT ROW" :
+                             frame_from_value < 0 ? string(abs(frame_from_value), " PRECEDING") :
+                             string(abs(frame_from_value), " FOLLOWING")
+        frame_end_clause = frame_to_value == 0 ? "CURRENT ROW" :
+                           frame_to_value < 0 ? string(abs(frame_to_value), " PRECEDING") :
+                           string(abs(frame_to_value), " FOLLOWING")
+    else
+        frame_start_clause = "UNBOUNDED PRECEDING"
+        frame_end_clause = "UNBOUNDED FOLLOWING"
+    end
+
+    sq.windowFrame = "ROWS BETWEEN $(frame_start_clause) AND $(frame_end_clause)"
+    return sq
+end
+

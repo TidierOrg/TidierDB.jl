@@ -468,7 +468,6 @@ function construct_window_clause(sq::SQLQuery ; from_cumsum::Bool = false)
     # Ensure to include space only when needed to avoid syntax issues
     partition_and_order_clause = partition_clause * (!isempty(order_clause) ? " " * order_clause : "")
     window_clause = (!isempty(partition_clause) || !isempty(order_clause) || !isempty(frame_clause))  ? "OVER ($partition_and_order_clause $frame_clause)" : "OVER ()"
-
     return window_clause
 end
 

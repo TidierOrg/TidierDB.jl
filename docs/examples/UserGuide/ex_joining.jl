@@ -6,22 +6,22 @@
 
 # ## Equi Joins
 # Equi joins can be written in any of the following ways, and the key column will be dropped from the right hand (new) table to avoid duplication.
-#   - `@left_join(t(table), "table2", key_col)`
-#   - `@left_join(t(table), "table2", key_col = key_col2)`
+#   - `@left_join(table, "table2", key_col)`
+#   - `@left_join(table, "table2", key_col = key_col2)`
 #  To join mutliple columns, separate the different pairs with a `,`
-#   - `@left_join(t(table), "table2", key_col == key_col2, key2 == key2)`
+#   - `@left_join(table, "table2", key_col == key_col2, key2 == key2)`
 
 # ## Inequality Joins
 # Inequality joins or non-equi-joins use the same syntax, just with a inequality operators
-#   - `@left_join(t(table), "table2", key_col >= key_col2, key2 < key2)`
+#   - `@left_join(table, "table2", key_col >= key_col2, key2 < key2)`
 
 # ## AsOf
 # To use an AsOf or rolling join, simply wrap the inequality in `closest. Of note, at this time, only one inequality can be supported at a time with AsOf joins
-#   - `@left_join(t(table), "table2", closest(key_col >= key_col2), key2 == key2)`
+#   - `@left_join(table, "table2", closest(key_col >= key_col2), key2 == key2)`
 
 # When the joining table is already availabe on the database, a string of the table name used as shown above. 
 # However, the joining table can also be a TidierDB query, in which case, the query is written as follows
-#   - `@left_join(t(table),query, key)`
+#   - `@left_join(table,query, key)`
 
 # ## Examples
 # Examples below will cover how to join tables with different schemas in different databases, 

@@ -882,7 +882,7 @@ julia> query = @chain dt(db, "df_join") begin
                 end;
 
 julia> @chain dfm begin
-         @left_join(t(query), id == id2)
+         @left_join(query, id == id2)
          @collect
        end
 10×6 DataFrame
@@ -902,14 +902,14 @@ julia> @chain dfm begin
 
 julia>  @chain dfm begin
          @mutate(test = percent * 100)
-         @left_join(t(dfj), test <= score, id = id2)
+         @left_join(dfj, test <= score, id = id2)
          @collect
        end;
 
 
 julia>  @chain dfm begin
          @mutate(test = percent * 200)
-         @left_join(t(dfj), closest(test >= score)) # asof join
+         @left_join(dfj, closest(test >= score)) # asof join
          @collect
        end;
 ```
@@ -949,7 +949,7 @@ julia> db = connect(duckdb());
 julia> dfj = dt(db, df2, "df_join");
 
 julia> @chain dt(db, df, "df_view") begin
-         @right_join(t(dfj), id == id2)
+         @right_join(dfj, id == id2)
          @arrange(score)
          @collect
        end
@@ -970,7 +970,7 @@ julia> query = @chain dfj begin
                 end;
 
 julia> @chain dt(db, df, "df_view") begin
-         @right_join(t(query), id == id2)
+         @right_join(query, id == id2)
          @collect
        end
 6×6 DataFrame
@@ -1019,7 +1019,7 @@ julia> db = connect(duckdb());
 julia> dfj = dt(db, df2, "df_join");
 
 julia> @chain dt(db, df, "df_view") begin
-         @inner_join(t(dfj), id == id2)
+         @inner_join(dfj, id == id2)
          @collect
        end
 5×6 DataFrame
@@ -1120,7 +1120,7 @@ julia> db = connect(duckdb());
 julia> dfj = dt(db, df2, "df_join");
 
 julia> @chain dt(db, df, "df_view") begin
-         @semi_join(t(dfj), id == id2)
+         @semi_join(dfj, id == id2)
          @collect
        end
 5×4 DataFrame
@@ -1168,7 +1168,7 @@ julia> db = connect(duckdb());
 julia> dfj = dt(db, df2, "df_join");
 
 julia> @chain dt(db, df, "df_view") begin
-        @anti_join(t(dfj), id == id2)
+        @anti_join(dfj, id == id2)
         @collect
        end
 5×4 DataFrame

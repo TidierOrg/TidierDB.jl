@@ -1,4 +1,8 @@
 # TidierDB.jl updates
+##v.8.10 - 2025-08-15
+- `@arrange` can accept numeric values for columns 
+- bug fix when using `@group_by(all)` or `_by = all`
+
 ##v.8.9 - 2025-08-08
 - fixes window keyword parsing in `@mutate` that breaking nightly runs
 

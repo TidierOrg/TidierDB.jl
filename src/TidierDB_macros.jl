@@ -136,6 +136,8 @@ function _colref_to_string(col)
         parent_str = _colref_to_string(col.args[1])
         field_str  = string(col.args[2].value)
         return parent_str * "." * field_str
+    elseif isa(col, Integer)
+        return string(col)
     else
         throw("Unsupported column reference: $col")
     end

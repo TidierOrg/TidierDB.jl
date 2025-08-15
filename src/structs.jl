@@ -332,7 +332,7 @@ function finalize_query(sqlquery::SQLQuery)
      r"var\"(.*?)\"" => s"\1", r"\"\\\$" => "\"\$",  "WHERE \"" => "WHERE ", "WHERE \"NOT" => "WHERE NOT", "%')\"" =>"%\")", "NULL)\"" => "NULL)",
     "NULL))\"" => "NULL))", r"(?i)INTERVAL(\d+)([a-zA-Z]+)" => s"INTERVAL \1 \2", "SELECT SUMMARIZE " =>  "SUMMARIZE ", "\"(__(" => "(", ")__(\"" => ")"
      , "***\"" => " ", "\"***" => " ", "***" => " ", "WHERE WHERE " => "WHERE ", "WHERE  WHERE " => "WHERE ", "(__(" => "", ")__(" => "", "SELECT , CONCAT_WS" => "SELECT CONCAT_WS")
-     complete_query = replace(complete_query, ", AS " => " AS ", "OR  \"" => "OR ")
+     complete_query = replace(complete_query, ", AS " => " AS ", "OR  \"" => "OR ", "SELECT all," => "SELECT ")
     if current_sql_mode[] == postgres() || current_sql_mode[] == duckdb() || current_sql_mode[] == mysql() || current_sql_mode[] == mssql() || current_sql_mode[] == clickhouse() || current_sql_mode[] == athena() || current_sql_mode[] == gbq() || current_sql_mode[] == oracle()  || current_sql_mode[] == snowflake() || current_sql_mode[] == databricks()
         complete_query = replace(complete_query, "\"" => "'", "==" => "=")
     end

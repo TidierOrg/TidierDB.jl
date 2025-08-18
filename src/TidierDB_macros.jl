@@ -504,17 +504,25 @@ end
 function Base.show(io::IO, ::MIME"text/plain", mytype::DBQuery)
     print(io, mytype.val)
 end
-
 macro show_query(sqlquery)
-    return quote
-        final_query = finalize_query($(esc(sqlquery)))  
-        formatted_query = format_sql_query(final_query)
-       
-        display(DBQuery(formatted_query))
-        # $(esc(sqlquery));
-    end
-    
+    q = esc(sqlquery)
+    return :(let _q = $q
+        if _q isa TidierDB.SQLQuery
+            local s = format_sql_query(TidierDB.finalize_query(_q))
+            println(s)
+        elseif _q isa AbstractString
+            local s = format_sql_query(_q)
+            println(s)
+        elseif hasproperty(_q, :sql) && getfield(_q, :sql) isa AbstractString
+            local s = format_sql_query(getfield(_q, :sql))
+            println(s)
+        else
+            error("Unsupported type for @show_query: $(typeof(_q)).")
+        end
+        nothing  # prevent Julia from echoing a value
+    end)
 end
+
 
 # COV_EXCL_START
 function format_sql_query(final_query::String)
@@ -629,14 +637,18 @@ $docstring_collect
 macro collect(sqlquery, stream = false)
     return quote
         backend = current_sql_mode[]
-        if backend == duckdb()
+
+        if $(esc(sqlquery)) isa RawSQL
+            final_collect($(esc(sqlquery)), backend)
+
+        elseif backend == duckdb()
             if $stream
                 println("streaming")
                 stream_collect($(esc(sqlquery)))
             else
                 final_collect($(esc(sqlquery)), duckdb)
             end
-        # COV_EXCL_START 
+        # COV_EXCL_START
         elseif backend == clickhouse()
             final_collect($(esc(sqlquery)), clickhouse)
         elseif backend == sqlite()
@@ -663,6 +675,7 @@ macro collect(sqlquery, stream = false)
         # COV_EXCL_STOP
     end
 end
+
 
 
 """

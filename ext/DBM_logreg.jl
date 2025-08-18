@@ -297,23 +297,60 @@ function TidierDB.predict_db(db, obj; table::AbstractString,
                              quotechar = "",
                              lowercase_cols::Bool = true)
 
+    # unwrap MLJ machine if present
+    model = obj isa Machine ? fitted_params(obj) : obj
+
+    # EvoTrees multiclass fast-path
+    if _is_evotrees_classifier(model)
+        labels = _evotrees_labels(model)
+        # if the table's columns are lowercase, lower-case the feature names used by the exporter
+        fn_override = lowercase_cols && haskey(model.info, :feature_names) ?
+                      lowercase.(String.(model.info[:feature_names])) : nothing
+
+        # normalize desired output mode
+        # for multiclass, treat :numeric like :prob (one or more probability columns)
+        mode = output === :auto ? :both :
+               (output === :numeric ? :prob : output)
+        mode in (:prob, :class, :both) ||
+            error("For EvoTrees classifiers, output must be :prob, :class, :both, or :auto; got :$output.")
+
+        # build probability SQL
+        prob_sql = evotrees_softmax_sql(model; table=table, labels=labels,
+                                        feature_names_override=fn_override)
+
+        if mode === :prob
+            return RawSQL(db, prob_sql)
+        elseif mode === :class
+            # wrap subquery and compute argmax label
+            subq = "(" * prob_sql * ") AS p"
+            pred_case = _sql_argmax_label_expr(pred_alias, labels, "p")
+            sql = "SELECT $pred_case FROM $subq"
+            return RawSQL(db, sql)
+        else # :both
+            subq = "(" * prob_sql * ") AS p"
+            pred_case = _sql_argmax_label_expr(pred_alias, labels, "p")
+            # select predicted class + all probability columns
+            cols = ["p.\"$lbl\"" for lbl in labels]
+            sql = "SELECT $pred_case, " * join(cols, ", ") * " FROM $subq"
+            return RawSQL(db, sql)
+        end
+    end
+
+    # --- existing logic for linear/logistic models (unchanged) -------------
     kind = _infer_kind(obj)
     mode = output === :auto ? (kind === :logistic ? :both : :numeric) : output
 
     if kind === :regression
-        # linear numeric
         sql = _linear_sql(obj; table=table, pred_alias=pred_alias,
                           quotechar=quotechar, lowercase_cols=lowercase_cols)
         return RawSQL(db, sql)
     end
 
-    # logistic
     if mode === :both
         return TidierDB.predict_db_logistic_both(db, obj; table=table,
                pred0_alias=pred0_alias, pred1_alias=pred1_alias,
                quotechar=quotechar, lowercase_cols=lowercase_cols)
     elseif mode === :prob
-        # ensure you have predict_db_logistic_proba defined; if not, use _generalized_linear_sql
         sql = _generalized_linear_sql(obj; table=table, pred_alias=pred_alias,
               quotechar=quotechar, lowercase_cols=lowercase_cols,
               kind=:logistic, mode=:prob,
@@ -329,6 +366,7 @@ function TidierDB.predict_db(db, obj; table::AbstractString,
         error("Unsupported output=:$(mode). Use :numeric, :prob, :class, :both, or :auto.")
     end
 end
+
 
 function _normalize_output(kind::Symbol, output::Symbol)
     # aliases

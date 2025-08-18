@@ -4,11 +4,12 @@ using TidierDB
 using DataFrames
 using MLJ
 using DuckDB
+using EvoTrees
 import MLJModelInterface: target_scitype
 import ScientificTypesBase: Finite, Continuous
         
 __init__() = println("DBModel extension loaded")
-#include("DBM_decision_tree.jl")
+include("DBM_decision_tree.jl")
 include("DBM_logreg.jl")
 # -------------------------
 # Internal helpers

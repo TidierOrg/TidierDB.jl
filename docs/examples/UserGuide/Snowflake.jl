@@ -18,7 +18,7 @@
 # set_sql_mode(snowflake())
 # ac_id = "string_id"
 # token = "OAuth_token_string" 
-# con = connect(:snowflake, ac_id, token, "DEMODB", "PUBLIC", "COMPUTE_WH")
+# con = connect(snowflake(), ac_id, token, "DEMODB", "PUBLIC", "COMPUTE_WH")
 # # After connection is established, a you may begin querying.
 # table = dt(con, "MTCARS")
 # @chain table begin

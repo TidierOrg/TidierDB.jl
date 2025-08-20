@@ -533,6 +533,7 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
     # Filter metadata by current_selxn != 0
     selected_df = metadata[metadata.current_selxn .!= 0, :]
     all_columns = selected_df.name
+
     function maybe_uppercase(s)
         if current_sql_mode[] == snowflake()
             return uppercase(s)
@@ -550,30 +551,34 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
         end
     end
 
+    # Handle everything() directly
+    if (isa(actual_expr, Expr) && actual_expr.head == :call && actual_expr.args[1] == :everything) || actual_expr == :everything
+        local_cols = current_sql_mode[] == snowflake() ? uppercase.(all_columns) : all_columns
+        return collect(local_cols)
+    end
+
     # If actual_expr is a vector, process each element individually
     if isa(actual_expr, AbstractVector)
         final_columns = String[]
         for elem in actual_expr
             if isa(elem, AbstractVector)
-                # elem is directly a vector of symbols like [:groups, :value]
                 col_strs = string.(elem)
                 local_cols = all_columns
                 if current_sql_mode[] == snowflake()
                     col_strs = uppercase.(col_strs)
                     local_cols = uppercase.(local_cols)
                 end
-                # Check if all requested columns exist
                 missing_cols = setdiff(col_strs, intersect(col_strs, local_cols))
                 if !isempty(missing_cols)
                     error("The following columns were not found: $(missing_cols)")
                 end
                 append!(final_columns, col_strs)
+
             elseif isa(elem, Symbol)
-                # elem is a single symbol, try parsing
                 elem_str = string(elem)
                 parsed = Meta.parse(elem_str)
+
                 if isa(parsed, Expr) && parsed.head == :vect
-                    # It's a vector expression like [groups, value]
                     col_syms = parsed.args
                     col_strs = string.(col_syms)
                     local_cols = all_columns
@@ -581,16 +586,21 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
                         col_strs = uppercase.(col_strs)
                         local_cols = uppercase.(local_cols)
                     end
-                    col_strs = replace.(col_strs, ":"=> "")
+                    col_strs = replace.(col_strs, ":" => "")
                     missing_cols = setdiff(col_strs, intersect(col_strs, local_cols))
                     if !isempty(missing_cols)
                         error("The following columns were not found: $(missing_cols)")
                     end
                     append!(final_columns, col_strs)
+
                 elseif isa(parsed, Expr) && parsed.head == :call
                     func = parsed.args[1]
-                    if func == :(:)
-                        # Handle range expression like id:groups
+
+                    if func == :everything
+                        local_cols = current_sql_mode[] == snowflake() ? uppercase.(all_columns) : all_columns
+                        append!(final_columns, local_cols)
+
+                    elseif func == :(:)
                         start_col = string(parsed.args[2])
                         end_col = string(parsed.args[3])
                         if current_sql_mode[] == snowflake()
@@ -605,25 +615,22 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
                         end
                         range_columns = all_columns[start_idx:end_idx]
                         append!(final_columns, range_columns)
-                    elseif isa(parsed, Expr) && parsed.head == :call
-                        # It's a function call expression like ends_with("d")
-                        func = parsed.args[1]
-                        if func == :starts_with || func == :ends_with || func == :contains
-                            substring = string(parsed.args[2])
-                            substring = maybe_uppercase(substring)
-                            local_cols = current_sql_mode[] == snowflake() ? uppercase.(all_columns) : all_columns
-                            match_columns = filter(col ->
-                                (func == :starts_with && startswith(col, substring)) ||
-                                (func == :ends_with && endswith(col, substring)) ||
-                                (func == :contains && occursin(substring, col)),
-                                local_cols)
-                            append!(final_columns, match_columns)
-                        else
-                            error("Unsupported function call: $(func)")
-                        end
+
+                    elseif func == :starts_with || func == :ends_with || func == :contains
+                        substring = string(parsed.args[2])
+                        substring = maybe_uppercase(substring)
+                        local_cols = current_sql_mode[] == snowflake() ? uppercase.(all_columns) : all_columns
+                        match_columns = filter(col ->
+                            (func == :starts_with && startswith(col, substring)) ||
+                            (func == :ends_with && endswith(col, substring)) ||
+                            (func == :contains && occursin(substring, col)),
+                            local_cols)
+                        append!(final_columns, match_columns)
+
+                    else
+                        error("Unsupported function call: $(func)")
                     end
                 else
-                    # Treat as a direct column reference
                     local_cols = all_columns
                     if current_sql_mode[] == snowflake()
                         elem_str = uppercase(elem_str)
@@ -636,9 +643,13 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
                         error("The following columns were not found: [$elem_str]")
                     end
                 end
+
             elseif isa(elem, String)
-                # If the string starts with function call syntax, process it as a function call
-                if startswith(elem, "starts_with(") || startswith(elem, "ends_with(") || startswith(elem, "contains(")
+                if elem == "everything()" || elem == "everything"
+                    local_cols = current_sql_mode[] == snowflake() ? uppercase.(all_columns) : all_columns
+                    append!(final_columns, local_cols)
+
+                elseif startswith(elem, "starts_with(") || startswith(elem, "ends_with(") || startswith(elem, "contains(")
                     parsed = Meta.parse(elem)
                     if isa(parsed, Expr) && parsed.head == :call
                         func = parsed.args[1]
@@ -658,37 +669,38 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
                     else
                         error("Invalid function expression: $elem")
                     end
-                   elseif startswith(elem, ":") 
-                        col = replace(elem, ":" => "")
-                        local_cols = all_columns
-                        if current_sql_mode[] == snowflake()
-                            col = uppercase(col)
-                            local_cols = uppercase.(local_cols)
-                        end
-                        idx = findfirst(==(col), local_cols)
-                        if isnothing(idx)
-                            error("Column not found: $col")
-                        end
-                        push!(final_columns, local_cols[idx])
-                    elseif occursin(":", elem)
-                        parts = split(elem, ":")
-                        start_col, end_col = parts[1], parts[2]
-                        local_cols = all_columns
-                        if current_sql_mode[] == snowflake()
-                            start_col = uppercase(start_col)
-                            end_col = uppercase(end_col)
-                            local_cols = uppercase.(local_cols)
-                        end
-                        start_idx = findfirst(==(start_col), local_cols)
-                        end_idx = findfirst(==(end_col), local_cols)
-                        if isnothing(start_idx) || isnothing(end_idx) || start_idx > end_idx
-                            error("Column range not found or invalid: $start_col to $end_col")
-                        end
-                        range_columns = local_cols[start_idx:end_idx]
-                        append!(final_columns, range_columns)
-            
+
+                elseif startswith(elem, ":")
+                    col = replace(elem, ":" => "")
+                    local_cols = all_columns
+                    if current_sql_mode[] == snowflake()
+                        col = uppercase(col)
+                        local_cols = uppercase.(local_cols)
+                    end
+                    idx = findfirst(==(col), local_cols)
+                    if isnothing(idx)
+                        error("Column not found: $col")
+                    end
+                    push!(final_columns, local_cols[idx])
+
+                elseif occursin(":", elem)
+                    parts = split(elem, ":")
+                    start_col, end_col = parts[1], parts[2]
+                    local_cols = all_columns
+                    if current_sql_mode[] == snowflake()
+                        start_col = uppercase(start_col)
+                        end_col = uppercase(end_col)
+                        local_cols = uppercase.(local_cols)
+                    end
+                    start_idx = findfirst(==(start_col), local_cols)
+                    end_idx = findfirst(==(end_col), local_cols)
+                    if isnothing(start_idx) || isnothing(end_idx) || start_idx > end_idx
+                        error("Column range not found or invalid: $start_col to $end_col")
+                    end
+                    range_columns = local_cols[start_idx:end_idx]
+                    append!(final_columns, range_columns)
+
                 else
-                    # Treat as a direct column reference
                     local_cols = all_columns
                     if current_sql_mode[] == snowflake()
                         elem_upper = uppercase(elem)
@@ -702,12 +714,11 @@ function filter_columns_by_expr(actual_expr, metadata::DataFrame)
                         error("The following column was not found: [$elem]")
                     end
                 end
-            else
-                println(final_columns)
             end
         end
         return final_columns
     end
 end
+
 
 # COV_EXCL_STOP

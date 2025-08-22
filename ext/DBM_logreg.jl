@@ -286,6 +286,18 @@ function TidierDB.predict_db_logistic_both(db, obj; table::AbstractString,
     return RawSQL(db, sql)
 end
 
+# Replace your DecisionTree detector with this more robust version.
+_is_decisiontree_regressor(x) = try
+    fp = x isa Machine ? fitted_params(x) : x
+    t = hasproperty(fp, :tree) ? getproperty(fp, :tree) :
+        hasproperty(fp, :root) ? getproperty(fp, :root) : nothing
+    t === nothing && return false
+    _unwrap_tree_regtree(t)  # will throw if it's not a DecisionTree-style node
+    true
+catch
+    false
+end
+
 function TidierDB.predict_db(db, obj; table::AbstractString,
                              output::Symbol = :auto,           # :auto, :numeric, :prob, :class, :both
                              pred_alias::AbstractString = "pred",
@@ -295,7 +307,8 @@ function TidierDB.predict_db(db, obj; table::AbstractString,
                              pos_label::Union{Int,String} = "1",
                              neg_label::Union{Int,String} = "0",
                              quotechar = "",
-                             lowercase_cols::Bool = true)
+                             lowercase_cols::Bool = true, 
+                             feat_names = nothing)
 
     # unwrap MLJ machine if present
     model = obj isa Machine ? fitted_params(obj) : obj
@@ -339,6 +352,148 @@ function TidierDB.predict_db(db, obj; table::AbstractString,
     # --- existing logic for linear/logistic models (unchanged) -------------
     kind = _infer_kind(obj)
     mode = output === :auto ? (kind === :logistic ? :both : :numeric) : output
+    if obj isa Machine{MLJDecisionTreeInterface.DecisionTreeRegressor, MLJDecisionTreeInterface.DecisionTreeRegressor, true}
+        println("HERe")
+        sql = regression_tree_sql_regtree(obj, Symbol.(lowercase_cols ? lowercase.(String.(feat_names)) : String.(feat_names)); table=table, pred_alias=pred_alias)
+        return RawSQL(db, sql)
+    elseif obj isa Machine{MLJDecisionTreeInterface.DecisionTreeClassifier, MLJDecisionTreeInterface.DecisionTreeClassifier, true}
+        case_expr = _dt_case_autolabel(model; pred_alias=pred_alias,
+                                               quotechar=quotechar, lowercase_cols=lowercase_cols)
+        return RawSQL(db, "SELECT *, $case_expr FROM $table")
+    end
+    if kind === :regression
+        sql = _linear_sql(obj; table=table, pred_alias=pred_alias,
+                          quotechar=quotechar, lowercase_cols=lowercase_cols)
+        return RawSQL(db, sql)
+    end
+
+    if mode === :both
+        return TidierDB.predict_db_logistic_both(db, obj; table=table,
+               pred0_alias=pred0_alias, pred1_alias=pred1_alias,
+               quotechar=quotechar, lowercase_cols=lowercase_cols)
+    elseif mode === :prob
+        sql = _generalized_linear_sql(obj; table=table, pred_alias=pred_alias,
+              quotechar=quotechar, lowercase_cols=lowercase_cols,
+              kind=:logistic, mode=:prob,
+              pos_label=pos_label, neg_label=neg_label)
+        return RawSQL(db, sql)
+    elseif mode === :class
+        sql = _generalized_linear_sql(obj; table=table, pred_alias=pred_alias,
+              quotechar=quotechar, lowercase_cols=lowercase_cols,
+              kind=:logistic, mode=:class, threshold=threshold,
+              pos_label=pos_label, neg_label=neg_label)
+        return RawSQL(db, sql)
+    else
+        error("Unsupported output=:$(mode). Use :numeric, :prob, :class, :both, or :auto.")
+    end
+end
+
+
+#=
+function TidierDB.predict_db(db, obj; table::AbstractString,
+                             output::Symbol = :auto,           # :auto, :numeric, :prob, :class, :both
+                             pred_alias::AbstractString = "pred",
+                             pred0_alias::AbstractString = "pred_0",
+                             pred1_alias::AbstractString = "pred_1",
+                             threshold::Float64 = 0.5,
+                             pos_label::Union{Int,String} = "1",
+                             neg_label::Union{Int,String} = "0",
+                             quotechar = "",
+                             lowercase_cols::Bool = true,
+                             feat_names::Union{Nothing,Vector{Symbol},Vector{String}} = nothing)
+
+    model = obj isa Machine ? fitted_params(obj) : obj
+    # --- DecisionTree / RandomForest auto-dispatch ---
+    #=
+    if (obj isa Machine) && (hasproperty(model,:raw_tree) || hasproperty(model,:tree) || hasproperty(model,:forest))
+        # if X,y provided, use your existing exporters; else, fall back to autolabel (no X/y)
+        if hasproperty(model,:forest)
+            if feat_names !== nothing 
+                sql = rf_sql_from_mlj(obj, feat_names, y; table=table, pred_alias=pred_alias)
+                return RawSQL(db, sql)
+            else
+                case_expr = _rf_vote_case_autolabel(model; pred_alias=pred_alias,
+                                                    quotechar=quotechar, lowercase_cols=lowercase_cols)
+                return RawSQL(db, "SELECT *, $case_expr FROM $table")
+            end
+        else
+            if feat_names !== nothing #&& y !== nothing
+                println("HERE")
+                sql = tree_sql_from_mlj(obj, feat_names, "trage"; table=table, pred_alias=pred_alias)
+                return RawSQL(db, sql)
+            else
+                case_expr = _dt_case_autolabel(model; pred_alias=pred_alias,
+                                               quotechar=quotechar, lowercase_cols=lowercase_cols)
+                return RawSQL(db, "SELECT *, $case_expr FROM $table")
+            end
+        end
+    end 
+    =#
+    # EvoTrees multiclass fast-path (unchanged)
+    if _is_evotrees_classifier(model)
+        labels = _evotrees_labels(model)
+        fn_override = lowercase_cols && haskey(model.info, :feature_names) ?
+                      lowercase.(String.(model.info[:feature_names])) : nothing
+
+        mode = output === :auto ? :both :
+               (output === :numeric ? :prob : output)
+        mode in (:prob, :class, :both) ||
+            error("For EvoTrees classifiers, output must be :prob, :class, :both, or :auto; got :$output.")
+
+        prob_sql = evotrees_softmax_sql(model; table=table, labels=labels,
+                                        feature_names_override=fn_override)
+        if mode === :prob
+            return RawSQL(db, prob_sql)
+        elseif mode === :class
+            subq = "(" * prob_sql * ") AS p"
+            pred_case = _sql_argmax_label_expr(pred_alias, labels, "p")
+            sql = "SELECT $pred_case FROM $subq"
+            return RawSQL(db, sql)
+        else
+            subq = "(" * prob_sql * ") AS p"
+            pred_case = _sql_argmax_label_expr(pred_alias, labels, "p")
+            cols = ["p.\"$lbl\"" for lbl in labels]
+            sql = "SELECT $pred_case, " * join(cols, ", ") * " FROM $subq"
+            return RawSQL(db, sql)
+        end
+    end
+
+    kind = _infer_kind(obj)
+    mode = output === :auto ? (kind === :logistic ? :both : :numeric) : output
+    if obj isa Machine{MLJDecisionTreeInterface.DecisionTreeRegressor, MLJDecisionTreeInterface.DecisionTreeRegressor, true}
+        println("HERe")
+        sql = regression_tree_sql_regtree(obj, Symbol.(lowercase_cols ? lowercase.(String.(feat_names)) : String.(feat_names)); table=table, pred_alias=pred_alias)
+        return RawSQL(db, sql)
+    elseif obj isa Machine{MLJDecisionTreeInterface.DecisionTreeClassifier, MLJDecisionTreeInterface.DecisionTreeClassifier, true}
+        case_expr = _dt_case_autolabel(model; pred_alias=pred_alias,
+                                               quotechar=quotechar, lowercase_cols=lowercase_cols)
+        return RawSQL(db, "SELECT *, $case_expr FROM $table")
+    end
+        #=
+    if kind === :regression
+        # DecisionTree regressor → nested CASE SQL
+        if _is_decisiontree_regressor(model)
+            fnames = if feat_names !== nothing
+                Symbol.(lowercase_cols ? lowercase.(String.(feat_names)) : String.(feat_names))
+            elseif obj isa Machine
+                # Minimal, safe requirement: caller provides names to preserve training order
+                error("DecisionTree regressor detected. Provide feat_names = names(X) used for training.")
+            else
+                error("DecisionTree regressor detected, but feature names are unknown. Pass feature_names_override = [:col1, :col2, ...].")
+            end
+            sql = regression_tree_sql_regtree(obj, fnames; table=table, pred_alias=pred_alias)
+            return RawSQL(db, sql)
+        end
+
+        # Fallback: linear-style regression (unchanged)
+        sql = _linear_sql(obj; table=table, pred_alias=pred_alias,
+                          quotechar=quotechar, lowercase_cols=lowercase_cols)
+        return RawSQL(db, sql)
+    end
+    =#
+
+    kind = _infer_kind(obj)
+    mode = output === :auto ? (kind === :logistic ? :both : :numeric) : output
 
     if kind === :regression
         sql = _linear_sql(obj; table=table, pred_alias=pred_alias,
@@ -366,6 +521,7 @@ function TidierDB.predict_db(db, obj; table::AbstractString,
         error("Unsupported output=:$(mode). Use :numeric, :prob, :class, :both, or :auto.")
     end
 end
+=#
 
 
 function _normalize_output(kind::Symbol, output::Symbol)

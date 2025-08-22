@@ -7,10 +7,12 @@ using DuckDB
 using EvoTrees
 import MLJModelInterface: target_scitype
 import ScientificTypesBase: Finite, Continuous
-        
+using MLJDecisionTreeInterface
 __init__() = println("DBModel extension loaded")
-include("DBM_decision_tree.jl")
 include("DBM_logreg.jl")
+include("DBM_GBDT.jl")
+include("DBM_DT.jl")
+include("DBM_RF.jl")
 # -------------------------
 # Internal helpers
 # -------------------------

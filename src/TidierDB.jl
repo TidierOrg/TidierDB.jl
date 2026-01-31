@@ -377,7 +377,7 @@ $docstring_connect
 """
 function connect(::duckdb; kwargs...)
     set_sql_mode(duckdb())
-    db = DBInterface.connect(DuckDB.DB, ":memory:")
+    db = DuckDB.DB()
     DBInterface.execute(db, "SET autoinstall_known_extensions=1;")
     DBInterface.execute(db, "SET autoload_known_extensions=1;")
     
@@ -403,7 +403,7 @@ end
 
 function connect(::duckdb, db_type::Symbol; access_key::String="", secret_key::String="", aws_access_key_id::String="", aws_secret_access_key::String="", aws_region::String="")
     # Connect to the DuckDB database
-    db = DBInterface.connect(DuckDB.DB, ":memory:")
+    db = DuckDB.DB()
 
     # Enable auto-install and auto-load of known extensions
     DBInterface.execute(db, "SET autoinstall_known_extensions=1;")

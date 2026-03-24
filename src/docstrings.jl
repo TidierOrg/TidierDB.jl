@@ -1409,7 +1409,6 @@ to allow `db_table` to read the db tables.
 - `df_name` when using a DataFrame as the second argument, a third string argument must be supplied to become the name of the view.
 # Example
 ```jldoctest
-
 julia> df = DataFrame(id = [string('A' + i ÷ 26, 'A' + i % 26) for i in 0:9], 
                         groups = [i % 2 == 0 ? "aa" : "bb" for i in 1:10], 
                         value = repeat(1:5, 2), 

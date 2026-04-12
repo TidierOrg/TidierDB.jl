@@ -8,7 +8,7 @@ using DuckDB
 using Arrow
 using HTTP
 using JSON3
-using GZip
+using ChunkCodecLibZlib: decode, GzipCodec
 
 @reexport using DataFrames: DataFrame
 @reexport using Chain

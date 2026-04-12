@@ -228,18 +228,7 @@ function execute_snowflake(conn::SnowflakeConnection, sql_query::String)
 
         decompressed_body = ""
         if content_encoding == "gzip"
-            try
-                temp_file = "temp_response.gz"
-                open(temp_file, "w") do file
-                    write(file, response.body)
-                end
-                GZip.open(temp_file, "r") do file
-                    decompressed_body = read(file, String)
-                end
-                rm(temp_file)
-            catch e
-                println("Decompression error: ", e)
-            end
+            decompressed_body = String(decode(GzipCodec(), response.body))
         else
             decompressed_body = String(response.body)
         end

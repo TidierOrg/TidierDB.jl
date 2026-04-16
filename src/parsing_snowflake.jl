@@ -1,4 +1,3 @@
-# COV_EXCL_START
 ## snowflake connection and execution begins around 150
 function expr_to_sql_snowflake(expr, sq; from_summarize::Bool)
    # expr = parse_char_matching(expr)
@@ -226,23 +225,7 @@ function execute_snowflake(conn::SnowflakeConnection, sql_query::String)
             end
         end
 
-        decompressed_body = ""
-        if content_encoding == "gzip"
-            try
-                temp_file = "temp_response.gz"
-                open(temp_file, "w") do file
-                    write(file, response.body)
-                end
-                GZip.open(temp_file, "r") do file
-                    decompressed_body = read(file, String)
-                end
-                rm(temp_file)
-            catch e
-                println("Decompression error: ", e)
-            end
-        else
-            decompressed_body = String(response.body)
-        end
+        decompressed_body = String(view(response.body, :))
 
         json_data = JSON3.read(decompressed_body)
         column_names = Symbol[]
@@ -324,5 +307,3 @@ function show_tables(con::SnowflakeConnection)
     result = execute_snowflake(con, "SHOW TABLES in SCHEMA $(con.schema)")
     return DataFrame(result)
 end
-
-# COV_EXCL_STOP

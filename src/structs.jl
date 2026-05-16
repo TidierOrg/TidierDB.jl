@@ -293,13 +293,33 @@ end
 function finalize_query(sqlquery::SQLQuery)
     cte_part = finalize_ctes(sqlquery.ctes)
 
-    select_already_present = occursin(r"^SELECT\s+", uppercase(sqlquery.select))
-    select_part = if sqlquery.distinct && !select_already_present
-        "SELECT DISTINCT " * (isempty(sqlquery.select) ? "*" : sqlquery.select)
-    elseif !select_already_present
-        "SELECT " * (isempty(sqlquery.select) ? "*" : sqlquery.select)
+    # 1. Bulletproof check for the MS SQL backend using string matching
+    is_mssql = contains(lowercase(string(current_sql_mode[])), "mssql")
+    is_mssql_limit = is_mssql && !isempty(sqlquery.limit)
+    top_clause = is_mssql_limit ? "TOP (" * sqlquery.limit * ") " : ""
+
+    # 2. Normalize and safely rebuild the SELECT clause
+    # Check if a SELECT prefix is already hardcoded into the string
+    select_already_present = occursin(r"^SELECT\s+"i, strip(sqlquery.select))
+    
+    select_part = if !select_already_present
+        # Case A: sqlquery.select is just a list of columns (e.g., "cyl, mpg, kurt")
+        if sqlquery.distinct
+            "SELECT DISTINCT " * top_clause * (isempty(sqlquery.select) ? "*" : sqlquery.select)
+        else
+            "SELECT " * top_clause * (isempty(sqlquery.select) ? "*" : sqlquery.select)
+        end
     else
-        sqlquery.select
+        # Case B: sqlquery.select already contains "SELECT ..." 
+        # Clean out any existing prefixes so we can reconstruct it cleanly with TOP
+        cleaned_select = replace(sqlquery.select, r"^SELECT\s+DISTINCT\s+"i => "")
+        cleaned_select = replace(cleaned_select, r"^SELECT\s+"i => "")
+        
+        if sqlquery.distinct || occursin(r"^SELECT\s+DISTINCT\s+"i, sqlquery.select)
+            "SELECT DISTINCT " * top_clause * cleaned_select
+        else
+            "SELECT " * top_clause * cleaned_select
+        end
     end
 
     # Initialize query_parts with the CTE part
@@ -307,10 +327,8 @@ function finalize_query(sqlquery::SQLQuery)
 
     # Since sq.from has been updated to reference a CTE, adjust the FROM clause accordingly
     if !isempty(sqlquery.ctes)
-        # If CTEs are defined, FROM clause should reference the latest CTE (already updated in sq.from)
         push!(query_parts, select_part, "FROM " * sqlquery.from)
     else
-        # If no CTEs are defined, use the original table name in sq.from
         push!(query_parts, select_part, "FROM " * sqlquery.from)
     end
 
@@ -319,7 +337,11 @@ function finalize_query(sqlquery::SQLQuery)
     if !isempty(sqlquery.groupBy) push!(query_parts, "" * sqlquery.groupBy) end
     if !isempty(sqlquery.having) push!(query_parts, " " * sqlquery.having) end
     if !isempty(sqlquery.orderBy) push!(query_parts, " " * sqlquery.orderBy) end
-    if !isempty(sqlquery.limit) push!(query_parts, " LIMIT " * sqlquery.limit) end
+    
+    # 3. Only append trailing LIMIT if it is NOT an MS SQL backend
+    if !isempty(sqlquery.limit) && !is_mssql
+        push!(query_parts, " LIMIT " * sqlquery.limit) 
+    end
     
     complete_query = join(filter(!isempty, query_parts), " ")
 

@@ -1,8 +1,9 @@
 # TidierDB.jl updates
-##v.8.11 - 2026-03-24
+## v.8.11 - 2026-05-17
 - fix MSSQL metadata bug
+- fix `@head` with MSSQL
 
-##v.8.10 - 2025-08-15
+## v.8.10 - 2025-08-15
 - `@arrange` can accept numeric values for columns 
 - bug fix when using `@group_by(all)` or `_by = all`
 
